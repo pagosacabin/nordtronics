@@ -36,5 +36,16 @@ jobs:
       - name: Install PlatformIO Core
         run: pip install --upgrade platformio
 
+      - name: Check for PlatformIO project
+        id: check
+        run: |
+          if [ -f firmware/tank-monitor/platformio.ini ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "No platformio.ini in firmware/tank-monitor yet — skipping build."
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Build firmware
+        if: steps.check.outputs.exists == 'true'
         run: pio run -d firmware/tank-monitor
