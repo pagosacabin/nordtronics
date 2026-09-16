@@ -21,3 +21,4 @@ Home Assistant).
 - `cad/robotic-arm/` — Robotic arm 3D model (STEP).
 
 Archived `.zip` files are kept as-is, preserving the original design history.
+- `installs/solar/` — Off-grid solar + storage install notes.
