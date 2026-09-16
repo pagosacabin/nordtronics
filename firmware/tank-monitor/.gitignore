@@ -1,0 +1,11 @@
+# PlatformIO build artifacts — never commit these
+.pio/
+.pioenvs/
+.piolibdeps/
+
+# VS Code workspace settings (optional — remove this line to share them)
+.vscode/
+
+# OS junk
+.DS_Store
+Thumbs.db
