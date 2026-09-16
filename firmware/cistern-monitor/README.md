@@ -42,6 +42,17 @@ Related work: `../lora-display/` (LoRa radio experiments on Heltec LoRa V3
 boards) and `../../python/ultrasonic-sensors/` (MicroPython ultrasonic
 sensing prototypes with OLED/LCD output).
 
+
+## Photos
+
+![3D-printed enclosure with LoRa antenna and OLED showing the config portal](photos/tank-monitor-enclosure.jpg)
+
+![Transmitter live display: distance, last TX distance, and fill percentage](photos/tank-monitor-transmitter.jpg)
+
+![Captive-portal LoRa RF settings page](photos/tank-monitor-config-portal.jpg)
+
+![FreeCAD enclosure design](photos/tank-monitor-freecad-case.jpg)
+
 ## Project history
 
 The deployed revision at the author's site (Tank-Monitor v2.2) runs on
