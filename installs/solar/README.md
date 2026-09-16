@@ -16,4 +16,6 @@ storage, with full DC distribution done in-house.
   integration where the site calls for it (see
   `../../firmware/cistern-monitor/`)
 
-Install photos and detailed system specs available on request.
+![EG4 inverter/charger with custom LiFePO4 bank and DC distribution](photos/lifepo4-eg4-install.jpg)
+
+Detailed system specs available on request.
