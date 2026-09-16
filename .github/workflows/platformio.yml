@@ -1,0 +1,40 @@
+name: PlatformIO Build
+
+# Auto-build the Tank-Monitor firmware on every push
+on:
+  push:
+    paths:
+      - 'firmware/tank-monitor/**'
+      - '.github/workflows/platformio.yml'
+  pull_request:
+    paths:
+      - 'firmware/tank-monitor/**'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Cache PlatformIO
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.platformio/.cache
+          key: ${{ runner.os }}-platformio-${{ hashFiles('firmware/tank-monitor/platformio.ini') }}
+          restore-keys: |
+            ${{ runner.os }}-platformio-
+
+      - name: Install PlatformIO Core
+        run: pip install --upgrade platformio
+
+      - name: Build firmware
+        run: pio run -d firmware/tank-monitor
