@@ -18,7 +18,7 @@ balance-lead harnesses, custom busbars, DC disconnects, and enclosures.
   done in-house.
 
 Packs are built to order — cell count, voltage, and capacity per project.
-Build photos available on request.
+![16-cell LiFePO4 pack with busbars, balance leads and JK BMS, wired to an EG4 inverter](photos/lifepo4-eg4-install.jpg)
 
 ## In this folder
 
