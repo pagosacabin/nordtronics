@@ -22,3 +22,7 @@ Home Assistant).
 
 Archived `.zip` files are kept as-is, preserving the original design history.
 - `installs/solar/` — Off-grid solar + storage install notes.
+
+
+---
+test: simple git push troubleshooting
