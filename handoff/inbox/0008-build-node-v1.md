@@ -1,3 +1,5 @@
+> Re-issued 2026-09-18 16:30 MDT — previous outbox reply was a phantom and has been removed. Clean slate, please run fresh.
+
 # 0008 — Make CI actually build node-v1 (re-issued)
 
 ## The goal in one sentence
