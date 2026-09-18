@@ -18,3 +18,12 @@ Small task on purpose. If the workflow needs restructuring to build both firmwar
 - Your outbox reply is `handoff/outbox/0007-ci-node-v1.md` (mirror this inbox filename exactly) with Status, branch name, commit SHA(s), and the Actions run URL + conclusion.
 
 Work first, reply last. If you're blocked, reply with Status: blocked and say what's blocking.
+
+## How to verify the CI run (do this before writing your reply)
+After pushing, the build runs on GitHub — not on your machine. Check it with:
+```
+gh run list --branch hermes/0007-ci-node-v1 --limit 3
+gh run watch <run-id>    # waits until the run finishes; run this, don't guess
+gh run view <run-id> --json conclusion,url --jq '{conclusion, url}'
+```
+Do NOT write your outbox reply until `conclusion` is `success`. If it fails, read the logs (`gh run view <run-id> --log-failed`), fix, push again, and re-check. The run URL goes in your reply — a reply without one doesn't count.
