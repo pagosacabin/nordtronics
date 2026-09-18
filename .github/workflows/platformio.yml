@@ -5,10 +5,12 @@ on:
   push:
     paths:
       - 'firmware/tank-monitor/**'
+      - 'firmware/node-v1/**'
       - '.github/workflows/platformio.yml'
   pull_request:
     paths:
       - 'firmware/tank-monitor/**'
+      - 'firmware/node-v1/**'
   workflow_dispatch:
 
 jobs:
