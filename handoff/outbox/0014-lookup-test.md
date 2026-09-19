@@ -1,6 +1,6 @@
-# 0014 — lookup test (executor test)
+# 0014 — Ping + history lookup (executor test)
 
 Status: done
 Branch: hermes/0014-lookup
-Commit SHA: d7d6c27df5a6d8e9034da18912d6547f98f15816
+Commit SHA: e5b4bf424caa7b4ba1fbbb00f4133888bab3c897
 0011 merge commit SHA: b86ac57
