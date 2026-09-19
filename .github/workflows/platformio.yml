@@ -48,6 +48,9 @@ jobs:
             echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Build firmware
+      - name: Build firmware (tank-monitor)
         if: steps.check.outputs.exists == 'true'
         run: pio run -d firmware/tank-monitor
+
+      - name: Build firmware (node-v1)
+        run: pio run -d firmware/node-v1
