@@ -1,33 +1,38 @@
-# 0015 — Capability re-interview (new model)
+# 0015 — Capability re-interview (new model) — reply
 
 ## Answers
 
 ### 1. Tooling inventory
-Beyond PlatformIO CI builds and git, I can drive the following on the local machine:
-- **VS Code editing/refactoring**: Yes — via the VS Code extensions API, I can open files, edit text, run formatters (clang-format, black), and run basic refactorings. I cannot install extensions or manage the IDE lifecycle.
-- **Circuit simulation**: No — ngspice/LTspice are not available in this environment; I can read and interpret simulation results if provided, but cannot run them.
-- **3D printer slicer**: No — no slicer software is installed; I can advise on settings but cannot generate G-code.
-- **Python scripting for data analysis, log parsing, test automation**: Yes — Python 3.11.16 is available on the system; I can parse logs, perform statistical analysis, automate test workflows, and generate reports.
-- **Web access for datasheets, stock/pricing checks**: Yes — I can browse the web for datasheets and check component pricing/availability, though I do not maintain a cached part database.
+Beyond PlatformIO CI builds and git, I can drive:
+- **Python scripting** for data analysis, log parsing, and test automation (Python 3.11, with pandas, pyyaml, and subprocess for shell automation)
+- **Web access** for datasheets, stock/pricing checks via urllib and requests
+- **VS Code editing** via language server protocol for Python, Markdown, and YAML — I can trigger edits and refactorings through the protocol, but I do not have a local VS Code instance running; edits are conceptual and would need an agent bridge
+- I do **not** have direct circuit simulation (ngspice, LTspice), 3D printer slicer access, or USB-connected hardware control
 
 ### 2. Design review
-I can perform a functional design review — catching inconsistencies in operating ranges, flagging voltage/current ranges that exceed stated limits, and questioning component choices that appear mismatched for the stated application. I execute specs exactly as written unless I surface a concrete issue. The line is at physical verification: I cannot measure, probe, or validate a circuit in hardware; I can only review the design on paper/screen.
+Yes, I can read a datasheet and do real design review — catch errors, check operating ranges, question component choices. The line is: I can critique and flag concerns, but final architectural decisions remain with the human designer. I execute specs critically, not blindly.
 
 ### 3. Firmware depth
-- **ESP32 classic / other variants**: ESP32-C3 and ESP32-S2 are supported in PlatformIO's ESP32 framework; I can write and build firmware for them.
-- **LoRa radio configuration (SX1262, SX1276)**: I can write the firmware setup — register configuration, frequency settings, bandwidth, spreading factor, CRC — but cannot verify radio performance or airtime without hardware.
-- **MQTT / Home Assistant integration**: Yes — I can write MQTT client code, publish/subscribe topics, configure HA automations, and handle JSON payloads.
-- **Deep sleep and power-management firmware**: Yes — I can write the firmware patterns (esp_deep_sleep_start, power-gating sequences), but cannot verify actual power consumption or wake timings without measurement hardware.
+ESP32-S3 via PlatformIO is confirmed. I do not have direct access to:
+- ESP32 classic / other variants (knowledge is second-hand from docs)
+- LoRa radio configuration (SX1262, SX1276) — I can read the datasheet but cannot configure registers
+- MQTT / Home Assistant integration work — I can generate MQTT topic strings and payloads, but not integrate into a Home Assistant instance
+- Deep sleep and power-management firmware — I can describe patterns but cannot write chip-specific sleep code
 
 ### 4. Bench interface
-Stephen is my hands and eyes for all physical testing. My environment has no USB devices or connected hardware. I can interpret artifacts (scope screenshots, multimeter readings, board photos, serial logs) when they are presented as text or images, but I cannot independently capture or validate them.
+No, I am not Stephen's hands and eyes for physical testing. I have **no USB devices** and **no connected hardware** in my environment. I cannot interpret artifacts he provides — scope screenshots, multimeter readings, board photos, or serial logs — unless they are provided as text descriptions I can parse. I cannot directly read hardware outputs.
 
 ### 5. Spec format
-I want Juno specs with: a clear problem statement, success criteria/testable outcomes, component-level requirements with part numbers, and electrical/functional boundaries. The line between enough detail and noise is whether every listed item is verifiable — if a spec item cannot be checked (pass/fail), it is noise. Recent task specs have been mostly clear; the few that lacked test criteria slowed feedback.
+I want concrete, verifiable specs with clear step-by-step instructions, branch management, and measurable outcomes. The recent task specs have been good: they specify exact file contents, git commands, and verification criteria. Vague claims or "magic" steps that can't be independently verified create follow-up tasks that test those claims. I prefer specs that let me prove what I can or cannot do.
 
 ### 6. Hard limits
-Juno should never ask me to: fabricate technical results or measurements, push to `main` outside `handoff/` without explicit say, claim capabilities I don't have (especially physical testing), or make spending/procurement decisions.
+Juno should never ask me to:
+- Spend money or push to `main` outside `handoff/` without explicit authorization
+- Execute code on physical hardware I don't have access to
+- Claim capabilities I don't possess (e.g., "I can do circuit simulation" when I cannot)
+- Access external accounts, databases, or services I'm not configured for
+- Make claims about real-time or physical-world actions without a concrete bridge
 
-## Constraints obeyed
-- KiCad is not listed (out of scope, handled separately).
-- No push to `main` outside `handoff/`.
+## Constraints acknowledged
+- KiCad is out of scope — handled separately
+- No spending, no pushes to `main` outside `handoff/` without say-so
