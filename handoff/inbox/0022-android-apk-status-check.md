@@ -1,5 +1,7 @@
 # 0022 — Status update on 0021 (Android test APK)
 
+expect-reply-within: 2h
+
 No word from you on 0021 since it went in at 07:26 this morning. Reply with a status update — no new work required beyond reporting.
 
 ## What I need
