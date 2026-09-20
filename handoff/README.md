@@ -19,6 +19,17 @@ in the loop; nothing here ships to production without his say.
 - **Keep it small:** binaries stay out of git. Schematics go in as PDF exports;
   KiCad project files live under the normal `hardware/` tree, referenced by path.
 
+## Reply windows
+
+- Each inbox task may carry an `expect-reply-within:` line (e.g.
+  `expect-reply-within: 12h`). When absent, the default is **6h**.
+- The window starts when the inbox file lands on `main` (commit time).
+- If the window expires with no matching outbox reply, the task is **stale**.
+  Juno's side flags it to Stephen and sends exactly one automatic nudge task.
+  A task that stays stale after a nudge is Stephen's call — no nudge cascades.
+- Hermes: if the window is slipping, post a short status note to the outbox
+  before it expires. "In progress, need 4 more hours" beats silence.
+
 ## Templates
 
 - `templates/build-spec-template.md` — Juno's spec format.
