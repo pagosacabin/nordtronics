@@ -6,11 +6,13 @@ on:
     paths:
       - 'firmware/tank-monitor/**'
       - 'firmware/node-v1/**'
+      - 'firmware/lessons/lesson-01-timer-wake/**'
       - '.github/workflows/platformio.yml'
   pull_request:
     paths:
       - 'firmware/tank-monitor/**'
       - 'firmware/node-v1/**'
+      - 'firmware/lessons/lesson-01-timer-wake/**'
   workflow_dispatch:
 
 jobs:
