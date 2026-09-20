@@ -3,6 +3,7 @@
 Author: Juno
 Date: YYYY-MM-DD
 Status: open
+Expect-reply-within: 6h
 
 ## Objective
 <One paragraph: what Hermes should produce.>
