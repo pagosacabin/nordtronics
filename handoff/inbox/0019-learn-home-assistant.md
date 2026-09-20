@@ -13,7 +13,7 @@ Read the Home Assistant developer docs (REST API and websocket API). In your own
 
 ## Part B — discovery from your machine
 
-1. Can you reach the HA instance from your host? Try `http://homeassistant.local:8123` first; if that fails, note what you tried. Report what you find — do not guess credentials or tokens.
+1. The HA instance is at `http://192.168.1.103:8123` (Stephen provided this directly — use it, don't go hunting). Confirm you can reach it from your host and report what you find — do not guess credentials or tokens.
 2. If reachable, note the API endpoints you'd use. Do not call any authenticated endpoint — you don't have a token yet.
 
 ## Hard rule
