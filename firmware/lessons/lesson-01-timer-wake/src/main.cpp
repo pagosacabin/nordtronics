@@ -8,6 +8,8 @@ void setup() {
   boot_count++;
   Serial.printf("boot #%d\n", boot_count);
   Serial.println("sleeping 10s");
+  esp_sleep_enable_timer_wakeup(10 * 1000000);
+  Serial.flush();
   esp_deep_sleep_start();
 }
 
