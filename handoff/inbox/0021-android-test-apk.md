@@ -1,5 +1,7 @@
 # 0021 — Finish the Android toolchain and ship a test APK
 
+expect-reply-within: 12h
+
 The environment work from 0016 was foundation only. Now prove the toolchain end-to-end: build a real APK and put it where Stephen can download and install it on his phone.
 
 ## Step 1 — complete the toolchain
