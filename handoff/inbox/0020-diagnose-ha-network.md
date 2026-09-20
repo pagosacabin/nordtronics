@@ -1,5 +1,7 @@
 # 0020 — Diagnose why you can't reach Home Assistant
 
+expect-reply-within: 12h
+
 Stephen confirmed the Home Assistant server is online and reachable — he just logged in via the app and HTTP at `http://192.168.1.103:8123`. So the server is fine; the problem is on your side. Find out what it is.
 
 ## Do this
