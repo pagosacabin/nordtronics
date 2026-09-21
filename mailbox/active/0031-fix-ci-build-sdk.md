@@ -1,7 +1,7 @@
 ---
-task_id: 0031
-status: inbox
-iteration: 0
+task_id: "0031"
+status: in_progress
+iteration: 1
 proof: []
 notes: ""
 ---
