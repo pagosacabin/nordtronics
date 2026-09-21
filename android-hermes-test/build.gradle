@@ -2,20 +2,22 @@ plugins {
     id 'com.android.application' version '8.3.0'
 }
 
-repositories {
-    google()
-    mavenCentral()
-    maven { url 'https://maven.google.com' }
-}
-
 android {
-    compileSdk = 35
+    namespace 'com.nordtronics.hermestest'
+    compileSdk 35
+
     defaultConfig {
         applicationId = "com.nordtronics.hermestest"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
     }
 }
 
