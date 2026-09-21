@@ -13,15 +13,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Debug - verify AndroidManifest exists
+      - name: Debug - verify AndroidManifest exists at correct path
         run: |
           echo "=== Repo root ==="
           pwd
           ls -la
-          echo "=== android-hermes-test ==="
-          ls -la android-hermes-test/
-          echo "=== AndroidManifest.xml ==="
-          find . -name "AndroidManifest.xml" -type f 2>/dev/null
+          echo "=== android-hermes-test/app/src/main ==="
+          ls -la android-hermes-test/app/src/main/
+          echo "=== AndroidManifest.xml content ==="
           cat android-hermes-test/app/src/main/AndroidManifest.xml
 
       - name: Set up JDK 17
