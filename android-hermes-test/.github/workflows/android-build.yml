@@ -7,22 +7,22 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: android-hermes-test
     steps:
-      - name: Checkout branch
+      - name: Checkout branch (full)
         uses: actions/checkout@v4
         with:
-          ref: android-toolchain-setup
           fetch-depth: 0
 
-      - name: Debug - list files after checkout
+      - name: Debug - verify AndroidManifest exists
         run: |
-          echo "=== Files in android-hermes-test ==="
+          echo "=== Repo root ==="
+          pwd
+          ls -la
+          echo "=== android-hermes-test ==="
+          ls -la android-hermes-test/
+          echo "=== AndroidManifest.xml ==="
           find . -name "AndroidManifest.xml" -type f 2>/dev/null
-          echo "=== All files ==="
-          ls -la app/src/main/
+          cat android-hermes-test/app/src/main/AndroidManifest.xml
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -38,6 +38,7 @@ jobs:
           ndk-version: r26d
 
       - name: Assemble Debug APK
+        working-directory: android-hermes-test
         run: ./gradlew --no-configuration-cache assembleDebug
 
       - name: Upload APK artifact
