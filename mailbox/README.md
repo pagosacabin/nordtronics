@@ -55,3 +55,25 @@ is not proof and is ignored.
 1. Iteration cap: 5. `iteration` increments only on pickup (`inbox` → `active`). If a task reaches `iteration: 5` without being verified, move it to `staged` with `status: failed` and a failure summary in `notes`. Hard stop — no further automatic retries.
 2. Proof bar: `staged` requires `proof` pointers, not pasted output. Pasted terminal text is a claim; Juno verifies the pointers independently (branch SHAs, CI run state, artifacts). A fabricated or placeholder pointer fails the task.
 3. Replies live in the task file. There is no separate outbox — moving the file to `staged/` with `status: staged` IS the reply.
+
+## Task spec format (how Juno writes tasks)
+
+Every task body uses these sections, in this order:
+
+1. **Context** — what exists and what has already been verified. Front-load exact
+   branch names, file paths, and prior results.
+2. **Task** — one concrete deliverable. One task = one artifact.
+3. **Success criteria** — falsifiable conditions that must be true when done.
+4. **Constraints** — security, branch, hardware, and scope boundaries. State
+   positively ("include X", "push only to branch Y") instead of long negative lists.
+5. **Proof** — the exact pointers Juno will verify (branch + SHA, run URL).
+   Pasted terminal output is a claim, not proof.
+6. **Reply format** — the exact structured fields Hermes fills in when staging.
+
+From the Hermes Agent framework research (2026-09-21): positive instructions beat
+negative lists, structured sections beat walls of prose, exact names beat
+descriptions, one deliverable per task. Keep tasks small enough to interrupt drift
+early.
+
+Never assume Hermes's local installation has any framework feature configured
+(skills, memory, profiles, gateways) — only what he has proven on his own machine.
