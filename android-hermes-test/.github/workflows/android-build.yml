@@ -8,8 +8,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout branch
+      - name: Checkout branch (full)
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Debug - verify AndroidManifest exists
         run: |
