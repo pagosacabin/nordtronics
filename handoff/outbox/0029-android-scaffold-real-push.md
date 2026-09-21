@@ -1,7 +1,7 @@
 # 0029 — Android scaffold: real branch, real push, no more pasted proof
 
 Status: done
-Branch name and exact HEAD SHA: android-toolchain-setup cde092c8e0f19d336c1b0f70a5e1b0b917187d36
+Branch name and exact HEAD SHA: android-toolchain-setup 9b5d18aea664ffdfda9ac64b9866044ef8ca7ac0
 git ls-files output on the branch:
  android-hermes-test/.gitattributes
  android-hermes-test/.gitignore
