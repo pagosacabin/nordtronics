@@ -22,6 +22,13 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          api-level: 34
+          build-tools-version: '34.0.0'
+          ndk-version: r26d
+
       - name: Assemble Debug APK
         run: ./gradlew assembleDebug
 
