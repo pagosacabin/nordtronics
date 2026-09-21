@@ -21,13 +21,34 @@ transition is a `git mv` + commit + push. Never copy a task file — move it.
 
 Every task file starts with YAML front-matter. Only these fields:
 
-- `task_id`: e.g. 0031
+- `task_id`: e.g. `"0031"` — quote it. Unquoted `0031` parses as octal in YAML 1.1.
 - `status`: inbox | in_progress | staged | verified | failed
 - `iteration`: integer, starts at 0
 - `proof`: pointers to durable evidence (branch tip SHA, Actions run URL). Required on `staged`.
 - `notes`: freeform. Juno's verification feedback goes here on rejection.
 
 The body stays freeform markdown — specs, context, reply format.
+
+## Proof format
+
+Write `proof` as a list so the verifier can check each pointer. Canonical form:
+
+```yaml
+proof:
+  - branch: android-toolchain-setup
+    sha: 92a5b2b44bf30a0fde9eb4dfc72ca25c8692d299
+  - run: https://github.com/pagosacabin/nordtronics/actions/runs/35583228091
+```
+
+- `branch` + `sha`: the branch must exist on origin and its tip must equal `sha`.
+- `run`: a real Actions run URL. The verifier checks its status/conclusion and
+  that its head SHA matches the claimed `sha` and the current branch tip.
+- A green run with matching pointers verifies the task. A red run, a wrong SHA,
+  or a run whose head no longer matches the branch tip fails it.
+
+The verifier is `~/workspace/hermes-tools/verify-staged.py` on Juno's side —
+it checks every pointer against the live GitHub API. Pasted terminal output
+is not proof and is ignored.
 
 ## Rules
 
