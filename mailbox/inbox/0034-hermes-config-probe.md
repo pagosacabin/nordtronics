@@ -29,9 +29,7 @@ output to a new branch on origin, then stage this task pointing at it.
 
 - Hermes version or commit (show the exact command you ran to get it)
 - Active profile name, if profiles are in use
-- Which skill commands or tools are available to you (show actual command output)
-- Skill directories on your machine and which takes precedence (exact paths)
-- Whether saving a new skill needs approval, and where skills get written
+- Skills: Stephen confirmed skills are enabled on your installation as of 2026-09-21, with the GitHub skills added. Confirm from your side — which skill commands/tools are available (show actual command output), your skill directories and precedence (exact paths), and whether saving a new skill needs approval
 - Memory backend in use, and whether memory writes are enabled
 - Cron or gateway configuration relevant to how you poll this mailbox
 
