@@ -1,9 +1,9 @@
 ---
 task_id: "0034"
-status: inbox
-iteration: 0
+status: in_progress
+iteration: 1
 proof: []
-notes: ""
+notes: "Hermes version/config diagnostics:\n- gh version: 2.83.2 (from `gh version`)\n- gh auth status: NOT logged in (run `gh auth login` to authenticate)\n- Hermes config: model=nvidia/nemotron-3.5-lightning-30b-a3b, provider=nvidia, base_url=https://integrate.api.nvidia.com/v1\n- Active profile: default (no profiles configured)\n- Skills installed: apple, autonomous-ai-agents, creative, cua-driver, devops, email, hermes-cron-management, media, note-taking, productivity, research, skills, social-media, software-development, web (from /home/astroboy/.hermes/skills/ directory listing)\n- Memory backend: enabled with user profile enabled (from config.yaml memory section)\n- Memory char limits: 2200 total, 1375 user\n- Cron/gateway: configured with watchdog, delivery_ledger enabled, platform_tools includes cli with cronjob and terminal\n- Skills directory: 15 skill categories installed\n- Skills confirmed by user (from .skills_prompt_snapshot.json): version, manifest, skills, category_descriptions\n- No new installations or config changes made (read-only constraint observed)\n- Cannot verify skill commands/tools availability from origin per task criteria — reading from local machine only"
 ---
 
 # 0034 — Prove your local configuration: version, skills, memory
