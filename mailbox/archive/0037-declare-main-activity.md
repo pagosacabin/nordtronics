@@ -1,6 +1,6 @@
 ---
 task_id: "0037"
-status: staged
+status: verified
 iteration: 1
 proof:
   - branch: android-toolchain-setup

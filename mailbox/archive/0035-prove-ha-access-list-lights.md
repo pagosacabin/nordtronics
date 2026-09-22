@@ -1,6 +1,6 @@
 ---
 task_id: "0035"
-status: staged
+status: verified
 iteration: 2
 proof:
   - branch: hermes/0035-ha-lights
