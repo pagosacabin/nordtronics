@@ -29,9 +29,11 @@ On branch `android-toolchain-setup`, edit `android-hermes-test/app/src/main/Andr
 
 Commit and push the branch (not main). Let CI run.
 
+Also: set the app icon while you are in the manifest. The Nordtronics sun-signal launcher icon is already committed at `android-hermes-test/app/src/main/res/mipmap-*/ic_launcher.png` (all densities). Add `android:icon="@mipmap/ic_launcher"` and `android:roundIcon="@mipmap/ic_launcher"` to the `<application>` tag.
+
 ## Success criteria
 
-1. The manifest on the branch contains the `<activity>` declaration above.
+1. The manifest on the branch contains the `<activity>` declaration above, and the `<application>` tag carries `android:icon` / `android:roundIcon` pointing at `@mipmap/ic_launcher`.
 2. A new green "Android Build" run on `android-toolchain-setup` with a fresh `android-apk` artifact.
 
 ## Constraints
