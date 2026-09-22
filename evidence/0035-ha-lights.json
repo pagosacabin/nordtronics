@@ -1,0 +1,49 @@
+{
+  "task_id": "0035",
+  "endpoint": "GET /api/states",
+  "method": "Hermes Home Assistant integration tool (ha_list_entities / ha_get_state), authenticated with HASS_TOKEN",
+  "captured_at_utc": "2026-09-22T19:30:15Z",
+  "captured_at_local": "2026-09-22T13:30:15-06:00",
+  "filter": "entity_id startswith 'light.'",
+  "light_entity_count": 3,
+  "lights": [
+    {
+      "entity_id": "light.entry_light",
+      "state": "on",
+      "attributes": {
+        "supported_color_modes": ["brightness"],
+        "color_mode": "brightness",
+        "brightness": 237,
+        "friendly_name": "Entry Light",
+        "supported_features": 32
+      },
+      "last_changed": "2026-09-22T14:42:53.707192+00:00",
+      "last_updated": "2026-09-22T14:42:58.708252+00:00"
+    },
+    {
+      "entity_id": "light.smart_dimmer_switch_light_1",
+      "state": "unavailable",
+      "attributes": {
+        "restored": true,
+        "supported_color_modes": ["brightness"],
+        "friendly_name": "Light 1",
+        "supported_features": 0
+      },
+      "last_changed": "2026-07-02T02:19:26.620269+00:00",
+      "last_updated": "2026-07-02T02:19:26.620269+00:00"
+    },
+    {
+      "entity_id": "light.wled",
+      "state": "unavailable",
+      "attributes": {
+        "restored": true,
+        "effect_list": "164 WLED effects (truncated in this capture to keep the file small)",
+        "supported_color_modes": ["rgb"],
+        "supported_features": 36,
+        "friendly_name": null
+      },
+      "last_changed": "2026-07-02T02:19:26.620547+00:00",
+      "last_updated": "2026-07-02T02:19:26.620547+00:00"
+    }
+  ]
+}
