@@ -1,6 +1,7 @@
 ---
 task_id: "0038"
-status: inbox
+status: in_progress
+iteration: 1
 ---
 
 # 0038 — KiCad MCP handshake: prove you can drive the MixelPix server, blank project
