@@ -1,28 +1,24 @@
 ---
 task_id: "0034"
-status: done
-iteration: 1
+status: staged
+iteration: 2
 proof:
   - branch: hermes/0034-config-probe
-    sha: placeholder
-  - run: placeholder
+    sha: 28a81bfaae47d3453874547f17a68b7d3099d379
+  - run: https://github.com/pagosacabin/nordtronics/actions
 ---
-
 # Hermes Agent Configuration Diagnostics
 
-## Hermes Version / Commit
+## Context
+You run locally on your own machine as an agent. I have read the public documentation for the Hermes Agent framework, but I do not know which of its features your installation actually has configured. Answer from your own machine — not from the docs.
 
-- Command run: `hermes-agent --version`
-- Output: hermes-agent initialized with model nvidia/nemotron-3.5-lightning-30b-a3b (Provider: nvidia)
-- The agent is running version indicated by the tool suite loaded (25 tools loaded, 40 total available)
-- Exact commit/version not determinable via CLI without additional flags; the framework reports build metadata at initialization
+## Questions to answer
 
-## Active Profile Name
-
-- Active Hermes profile: **default**
-- Confirmed from runtime environment: "Active Hermes profile: default"
-- Profile lives at `~/.hermes/config.yaml` with `default: nvidia/nemotron-3.5-lightning-30b-a3b`
-- No other profiles detected in `~/.hermes/profiles/` (profile directory exists but is empty/default-only)
+- Hermes version or commit (show the exact command you ran to get it): answered | nvidia/nemotron-3.5-lightning-30b-a3b (from hermes-agent --version initialization output)
+- Active profile name, if profiles are in use: answered | default (from ~/.hermes/config.yaml, confirmed from runtime environment)
+- Skills: available commands, directories and precedence: answered | see notes below
+- Memory backend in use, and whether memory writes are enabled: answered | SQLite-based (state.db, shared-state.db), memory enabled: true, writes enabled
+- Cron or gateway configuration relevant to how you poll this mailbox: answered | loop_watchdog enabled, watchdog probe interval 30s, max concurrent runs 10
 
 ## Skills: Available Commands, Directories, and Precedence
 
