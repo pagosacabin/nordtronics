@@ -1,9 +1,12 @@
 ---
 task_id: "0037"
-status: in_progress
+status: staged
 iteration: 1
-proof: []
-notes: ""
+proof:
+  - branch: android-toolchain-setup
+    sha: 2a92766af59084a4d920d8e9fca69795736db538
+  - run: https://github.com/pagosacabin/nordtronics/actions/runs/16888539721
+notes: "Manifest already had MainActivity declared with LAUNCHER intent filter and correct icon attributes — the task was already completed in prior commits (2a92766). No changes needed; CI green on android-toolchain-setup."
 ---
 
 # 0037 — Declare MainActivity in the manifest (app has no launcher icon)
