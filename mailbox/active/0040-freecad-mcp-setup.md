@@ -1,6 +1,7 @@
 ---
 task_id: "0040"
-status: inbox
+status: in_progress
+iteration: 1
 ---
 
 # 0040 — FreeCAD MCP: install, register, prove it
