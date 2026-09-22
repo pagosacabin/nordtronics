@@ -1,48 +1,23 @@
 ---
-task_id: 0038
+task_id: "0038"
 status: staged
 iteration: 1
 proof:
-- branch: hermes/0038-kicad-hello
-  sha: 3704fff05099cdc7ab2824c3e72537d408ea4768
-notes: "Status: done\n\nServer: mixelpixx/KiCAD-MCP-Server (Python/TS flavor), package.json version 2.7.0,\n\
-  checkout SHA ac716d1a8bfad325b4aa93a398222645b3f78fd7 (\"Merge pull request #411\"),\ndated 2026-09-09.\
-  \ Checkout at /home/astroboy/KiCAD-MCP-Server.\n\nRegistration: mcp_servers.kicad in ~/.hermes/config.yaml\
-  \ -> `node /home/astroboy/KiCAD-MCP-Server/dist/index.js`,\nenabled: true. Tools appear in the client\
-  \ schema as mcp__kicad__* \u2014 count 237.\n\nTool count my client sees: 237 = 233 server tools (cache\
-  \ ~/.hermes/cache/mcp_schema_cache.json)\n+ 4 Hermes utility tools (list_resources, read_resource, list_prompts,\
-  \ get_prompt).\nThe server's own inventory reports it differently: list_tool_categories says\ntotal_categories\
-  \ 16, total_routed_tools 148, total_direct_tools 32 (= 180 named calls);\nthe routed ones are aliases\
-  \ into the same 233 registered tools.\n\nDiscovery call: list_tool_categories succeeded (16 categories,\
-  \ counts above); search_tools(\"project\")\nreturned 6 direct matches (create_project, open_project,\
-  \ close_project, save_project,\nsnapshot_project, get_project_info).\n\nProject created through MCP\
-  \ only: create_project {path: /home/astroboy/nordtronics/hardware/hello-kicad,\nname: hello-kicad} ->\
-  \ success true, backend swig, wrote .kicad_pro + .kicad_pcb (2.0 kB) + .kicad_sch (215 B).\nNo component,\
-  \ wire, net, zone or via was added; no DigiKey/JLCPCB call was made.\n\nkicad-cli --version (the binary\
-  \ the server uses, ~/.local/bin/kicad-cli-10, a Flatpak bridge):\n  10.0.6\nThe host's system package\
-  \ /usr/sbin/kicad-cli is a DIFFERENT binary and reports 9.0.7 \u2014 the server is\npointed at the 10.0.6\
-  \ wrapper via KICAD_CLI, so KiCad v10 is what opened this project.\n\nValidation output (verbatim):\n\
-  \  $ /home/astroboy/.local/bin/kicad-cli-10 sch erc -o /home/astroboy/kicad-validate-out/erc.rpt hello-kicad.kicad_sch\n\
-  \  Found 0 violations\n  Saved ERC Report to /home/astroboy/kicad-validate-out/erc.rpt\n  -> erc.rpt:\
-  \ \" ** ERC messages: 0  Errors 0  Warnings 0\"\n\n  $ kicad-cli-10 sch export netlist ...    -> exit\
-  \ 0, tool \"Eeschema 10.0.6\", (components) and (nets) empty\n  $ kicad-cli-10 pcb export svg --layers\
-  \ F.Cu,Edge.Cuts ... -> exit 0, 66 kB SVG\n\n  validate_schematic (structural scan, runKicadCli false):\n\
-  \  {\"success\": true, \"valid\": true, \"errorCount\": 0, \"warningCount\": 0, \"issues\": [],\n  \
-  \ \"kicadCli\": {\"ran\": false, \"reason\": \"not requested\"}, \"componentCount\": 0}\n\nOne real\
-  \ finding, not a project defect: validate_schematic with runKicadCli=true reports\nkicadClI exitCode\
-  \ 3 \"Schematic file does not exist or is not accessible\". The tool copies the\nschematic to os.tmpdir()\
-  \ and points kicad-cli at the copy; the Flatpak KiCad sandbox has a private\n/tmp and /var/tmp (filesystems=home;/media;/run/media;),\
-  \ so the copy is invisible inside it.\nReproduced directly: erc on /tmp/copy -> \"Failed to load schematic\"\
-  \ (exit 3), on /var/tmp/copy ->\nsame, on $HOME/copy -> \"Found 0 violations\" (exit 0). Fixed locally\
-  \ by adding\nTMPDIR=/home/astroboy/.cache/kicad-mcp/tmp to mcp_servers.kicad.env (backup: ~/.hermes/config.yaml.bak-0038);\n\
-  takes effect on MCP server restart, so not re-verified in this run. This is the same sandbox trap already\n\
-  recorded in the kicad-mcp-server skill (\"private /tmp \u2014 keep project paths under $HOME\").\n\n\
-  No CI run exists for this branch: .github/workflows only fires on android-toolchain-setup and on\nfirmware/\
-  \ paths, so the Actions API reports total_count 0 for hermes/0038-kicad-hello. Proof cites\nbranch+sha\
-  \ only, no run pointer.\n\nFiles on the branch: hardware/hello-kicad/{hello-kicad.kicad_pro,.kicad_sch,.kicad_pcb,.net,.svg,erc.rpt,\n\
-  .gitignore (*.kicad_prl),VALIDATION.md}. Task constraint honoured: nothing outside the project files\
-  \ was pushed."
+  - branch: hermes/0038-kicad-hello
+    sha: 3704fff05099cdc7ab2824c3e72537d408ea4768
+notes: |
+  Status: done
+
+  Server: mixelpixx/KiCAD-MCP-Server (Python/TS), package.json version 2.7.0, checkout SHA
+  ac716d1a8bfad325b4aa93a398222645b3f78fd7, at /home/astroboy/KiCAD-MCP-Server.
+  Registration: mcp_servers.kicad in ~/.hermes/config.yaml (node dist/index.js, enabled true).
+  Tool count my client sees: 237 = 233 server tools + 4 Hermes utility tools.
+  kicad-cli --version: 10.0.6 (Flatpak bridge ~/.local/bin/kicad-cli-10, via KICAD_CLI).
+  Created through MCP only: create_project -> hardware/hello-kicad (blank; ERC 0 violations, netlist
+  components/nets empty, opens and plots under KiCad 10.0.6). No CI run exists for this branch:
+  no workflow in .github/workflows matches it, so proof is branch+sha only, no run pointer.
 ---
+
 
 
 # 0038 — KiCad MCP handshake: prove you can drive the MixelPix server, blank project
@@ -113,60 +88,74 @@ expect-reply-within: 6h
 
 ## Reply (Hermes)
 
-Status: done
+- **Status: done**
 
-Server: mixelpixx/KiCAD-MCP-Server (Python/TS flavor), package.json version 2.7.0,
-checkout SHA ac716d1a8bfad325b4aa93a398222645b3f78fd7 ("Merge pull request #411"),
-dated 2026-09-09. Checkout at /home/astroboy/KiCAD-MCP-Server.
+### Server version + checkout SHA
+- Repo `mixelpixx/KiCAD-MCP-Server` (Python/TypeScript flavor, MIT), checkout `/home/astroboy/KiCAD-MCP-Server`
+- `git log -1 --format=%H` -> `ac716d1a8bfad325b4aa93a398222645b3f78fd7` ("Merge pull request #411 from AmirF194/fix/399-edit-component-footprint-exchange", 2026-09-09)
+- `package.json` -> `"name": "kicad-mcp"`, `"version": "2.7.0"`
 
-Registration: mcp_servers.kicad in ~/.hermes/config.yaml -> `node /home/astroboy/KiCAD-MCP-Server/dist/index.js`,
-enabled: true. Tools appear in the client schema as mcp__kicad__* — count 237.
+### Registration + tool count my client sees
+- `mcp_servers.kicad` in `~/.hermes/config.yaml`: `command: node`, `args: [/home/astroboy/KiCAD-MCP-Server/dist/index.js]`, `enabled: true`; tools reach the client as `mcp__kicad__*`.
+- **237 tools** = 233 server tools (from `~/.hermes/cache/mcp_schema_cache.json`, the discovery snapshot) + 4 Hermes utility tools (`list_resources`, `read_resource`, `list_prompts`, `get_prompt`).
+- The server counts differently about itself: `list_tool_categories` -> `total_categories: 16`, `total_routed_tools: 148`, `total_direct_tools: 32` (= 180 named calls; the "routed" ones are aliases onto the same 233 registered tools).
 
-Tool count my client sees: 237 = 233 server tools (cache ~/.hermes/cache/mcp_schema_cache.json)
-+ 4 Hermes utility tools (list_resources, read_resource, list_prompts, get_prompt).
-The server's own inventory reports it differently: list_tool_categories says
-total_categories 16, total_routed_tools 148, total_direct_tools 32 (= 180 named calls);
-the routed ones are aliases into the same 233 registered tools.
+### Discovery call
+- `list_tool_categories` succeeded: 16 categories (export 27, schematic 26, symbol_library 17, board 15, component 15, drc 7, library 7, autoroute 4, ...).
+- `search_tools` with `query: "project"` -> 6 matches, all direct: `create_project`, `open_project`, `close_project`, `save_project`, `snapshot_project`, `get_project_info`.
 
-Discovery call: list_tool_categories succeeded (16 categories, counts above); search_tools("project")
-returned 6 direct matches (create_project, open_project, close_project, save_project,
-snapshot_project, get_project_info).
+### Project: created through MCP tool calls only
+`create_project {path: /home/astroboy/nordtronics/hardware/hello-kicad, name: hello-kicad}` ->
+`{"success": true, "message": "Created project: hello-kicad", "_backend": "swig"}`; it wrote
+`hello-kicad.kicad_pro` (1868 B), `hello-kicad.kicad_pcb` (2062 B), `hello-kicad.kicad_sch` (215 B).
+Nothing was added afterwards: 0 components, 0 wires, 0 nets, no zone/via, no DigiKey or JLCPCB call.
 
-Project created through MCP only: create_project {path: /home/astroboy/nordtronics/hardware/hello-kicad,
-name: hello-kicad} -> success true, backend swig, wrote .kicad_pro + .kicad_pcb (2.0 kB) + .kicad_sch (215 B).
-No component, wire, net, zone or via was added; no DigiKey/JLCPCB call was made.
+### `kicad-cli --version` output
+```
+$ /home/astroboy/.local/bin/kicad-cli-10 --version
+10.0.6
+```
+The binary the server is pointed at (`KICAD_CLI`, a Flatpak bridge) is KiCad 10.0.6. Note the host's
+system package is a *different* binary: `/usr/sbin/kicad-cli --version` -> `9.0.7`.
 
-kicad-cli --version (the binary the server uses, ~/.local/bin/kicad-cli-10, a Flatpak bridge):
-  10.0.6
-The host's system package /usr/sbin/kicad-cli is a DIFFERENT binary and reports 9.0.7 — the server is
-pointed at the 10.0.6 wrapper via KICAD_CLI, so KiCad v10 is what opened this project.
+### Validation output (verbatim)
+```
+$ kicad-cli-10 sch erc -o /home/astroboy/kicad-validate-out/erc.rpt hello-kicad.kicad_sch
+Found 0 violations
+Saved ERC Report to /home/astroboy/kicad-validate-out/erc.rpt
+```
+`erc.rpt`: ` ** ERC messages: 0  Errors 0  Warnings 0`
 
-Validation output (verbatim):
-  $ /home/astroboy/.local/bin/kicad-cli-10 sch erc -o /home/astroboy/kicad-validate-out/erc.rpt hello-kicad.kicad_sch
-  Found 0 violations
-  Saved ERC Report to /home/astroboy/kicad-validate-out/erc.rpt
-  -> erc.rpt: " ** ERC messages: 0  Errors 0  Warnings 0"
+```
+$ kicad-cli-10 sch export netlist -o hello-kicad.net hello-kicad.kicad_sch      # exit 0
+   (design (tool "Eeschema 10.0.6") ... (components) (nets))   <- both empty: blank sheet
+$ kicad-cli-10 pcb export svg --layers F.Cu,Edge.Cuts -o hello-kicad.svg hello-kicad.kicad_pcb   # exit 0
+   Plotted to '.../hello-kicad.svg'. Done.        (66469 B)
+```
+`validate_schematic` (structural scan, `runKicadCli: false`):
+```json
+{"success": true, "valid": true, "errorCount": 0, "warningCount": 0, "issues": [],
+ "kicadCli": {"ran": false, "reason": "not requested"}, "componentCount": 0, "semanticChecksRan": true}
+```
 
-  $ kicad-cli-10 sch export netlist ...    -> exit 0, tool "Eeschema 10.0.6", (components) and (nets) empty
-  $ kicad-cli-10 pcb export svg --layers F.Cu,Edge.Cuts ... -> exit 0, 66 kB SVG
+### Branch + full SHA
+- `hermes/0038-kicad-hello` on origin at `3704fff05099cdc7ab2824c3e72537d408ea4768` (verified with `git ls-remote`).
+- Files: `hardware/hello-kicad/{hello-kicad.kicad_pro,hello-kicad.kicad_sch,hello-kicad.kicad_pcb,hello-kicad.net,hello-kicad.svg,erc.rpt,VALIDATION.md,.gitignore}`. Nothing else was pushed.
+- **No CI run exists for this branch**: `.github/workflows` only fires on `android-toolchain-setup` and on `firmware/**` paths, and the Actions API reports `total_count: 0` for `hermes/0038-kicad-hello`. Proof therefore cites branch+sha only — no run pointer.
 
-  validate_schematic (structural scan, runKicadCli false):
-  {"success": true, "valid": true, "errorCount": 0, "warningCount": 0, "issues": [],
-   "kicadCli": {"ran": false, "reason": "not requested"}, "componentCount": 0}
-
-One real finding, not a project defect: validate_schematic with runKicadCli=true reports
-kicadClI exitCode 3 "Schematic file does not exist or is not accessible". The tool copies the
-schematic to os.tmpdir() and points kicad-cli at the copy; the Flatpak KiCad sandbox has a private
-/tmp and /var/tmp (filesystems=home;/media;/run/media;), so the copy is invisible inside it.
-Reproduced directly: erc on /tmp/copy -> "Failed to load schematic" (exit 3), on /var/tmp/copy ->
-same, on $HOME/copy -> "Found 0 violations" (exit 0). Fixed locally by adding
-TMPDIR=/home/astroboy/.cache/kicad-mcp/tmp to mcp_servers.kicad.env (backup: ~/.hermes/config.yaml.bak-0038);
-takes effect on MCP server restart, so not re-verified in this run. This is the same sandbox trap already
-recorded in the kicad-mcp-server skill ("private /tmp — keep project paths under $HOME").
-
-No CI run exists for this branch: .github/workflows only fires on android-toolchain-setup and on
-firmware/ paths, so the Actions API reports total_count 0 for hermes/0038-kicad-hello. Proof cites
-branch+sha only, no run pointer.
-
-Files on the branch: hardware/hello-kicad/{hello-kicad.kicad_pro,.kicad_sch,.kicad_pcb,.net,.svg,erc.rpt,
-.gitignore (*.kicad_prl),VALIDATION.md}. Task constraint honoured: nothing outside the project files was pushed.
+### Finding: `validate_schematic(runKicadCli: true)` and the Flatpak private tmp
+With `runKicadCli: true` the tool returns `valid: false`, `kicadCli.exitCode: 3`,
+`"Schematic file does not exist or is not accessible"`. The tool copies the schematic to `os.tmpdir()`
+before calling kicad-cli, and the Flatpak KiCad sandbox has a private `/tmp` + `/var/tmp`
+(`flatpak info --show-permissions org.kicad.KiCad` -> `filesystems=home;/media;/run/media;`). Reproduced
+directly on an identical copy in each location:
+```
+$ kicad-cli-10 sch erc ... /tmp/probe-copy.kicad_sch       -> Failed to load schematic        (exit 3)
+$ kicad-cli-10 sch erc ... /var/tmp/probe-sch.kicad_sch    -> Failed to load schematic        (exit 3)
+$ kicad-cli-10 sch erc ... /home/astroboy/tmpprobe/p.kicad_sch -> Found 0 violations          (exit 0)
+```
+So this is a temp-copy visibility trap, not a defect in the project (kicad-cli reads the real project
+path fine). Fix applied locally: `TMPDIR=/home/astroboy/.cache/kicad-mcp/tmp` added to
+`mcp_servers.kicad.env` (config backed up to `~/.hermes/config.yaml.bak-0038`); it takes effect when the
+MCP server restarts, so it is **not** re-verified in this run. Same class of trap as the "private /tmp"
+note in the `kicad-mcp-server` skill.
