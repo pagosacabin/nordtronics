@@ -1,0 +1,12 @@
+(fp_lib_table
+  (version 7)
+  ; URIs point at the Flatpak KiCad 10 footprint runtime: that path is visible
+  ; both to the host pcbnew backend used to build the board and to the sandboxed
+  ; kicad-cli 10 that runs ERC/DRC. Host /usr/share/kicad/footprints is NOT
+  ; visible inside the Flatpak sandbox, which was surfacing as
+  ; "footprint library '<x>' is not enabled in the current configuration".
+  (lib (name "Resistor_SMD")(type "KiCad")(uri "/var/lib/flatpak/runtime/org.kicad.KiCad.Library.Footprints/x86_64/stable/active/files/footprints/Resistor_SMD.pretty")(options "")(descr "KiCad SMD resistor footprints"))
+  (lib (name "Capacitor_SMD")(type "KiCad")(uri "/var/lib/flatpak/runtime/org.kicad.KiCad.Library.Footprints/x86_64/stable/active/files/footprints/Capacitor_SMD.pretty")(options "")(descr "KiCad SMD capacitor footprints"))
+  (lib (name "Package_TO_SOT_SMD")(type "KiCad")(uri "/var/lib/flatpak/runtime/org.kicad.KiCad.Library.Footprints/x86_64/stable/active/files/footprints/Package_TO_SOT_SMD.pretty")(options "")(descr "KiCad SOT-23 packages"))
+  (lib (name "Connector_JST")(type "KiCad")(uri "/var/lib/flatpak/runtime/org.kicad.KiCad.Library.Footprints/x86_64/stable/active/files/footprints/Connector_JST.pretty")(options "")(descr "KiCad JST connector footprints"))
+)

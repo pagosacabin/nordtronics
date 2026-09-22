@@ -1,0 +1,35 @@
+{
+  "board": "/home/astroboy/nordtronics/hardware/solar-gate-v1/solar-gate-v1.kicad_pcb",
+  "timestamp": "2026-09-22T17:32:07",
+  "total_violations": 2,
+  "violation_counts": {
+    "track_width": 2
+  },
+  "severity_counts": {
+    "error": 2,
+    "warning": 0,
+    "info": 0
+  },
+  "violations": [
+    {
+      "type": "track_width",
+      "severity": "error",
+      "message": "Track width (board setup constraints min width 0.2000 mm; actual 0.1500 mm)",
+      "location": {
+        "x": 15.9012,
+        "y": 11.801,
+        "unit": "mm"
+      }
+    },
+    {
+      "type": "track_width",
+      "severity": "error",
+      "message": "Track width (board setup constraints min width 0.2000 mm; actual 0.1500 mm)",
+      "location": {
+        "x": 15.9012,
+        "y": 11.6008,
+        "unit": "mm"
+      }
+    }
+  ]
+}
