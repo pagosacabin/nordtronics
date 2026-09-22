@@ -1,6 +1,7 @@
 ---
 task_id: "0039"
-status: inbox
+status: in_progress
+iteration: 1
 ---
 
 # 0039 — Solar gate v1: schematic + first autoroute shakedown
