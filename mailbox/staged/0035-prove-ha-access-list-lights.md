@@ -4,7 +4,7 @@ status: staged
 iteration: 2
 proof:
   - branch: hermes/0035-ha-lights
-    sha: 3a19c1adc6b30ec0e08857482b77a87627af8d67
+    sha: 75b86baad0b33b843a9ab082a5c1ae5353b81113
 notes: "Iteration 2: done. Live authenticated GET /api/states returned 3 light.* entities. No CI run exists for this task (no code artifact was requested or changed), so no run pointer is cited. HASS_TOKEN is not exported into shell subprocesses on this host (terminal/code-execution env is scrubbed), so a literal curl cannot authenticate; the read went through the Hermes HA integration, which holds the real token and calls the same endpoint read-only. Both a 200 authenticated read and a 401 unauthenticated control probe are documented in the evidence file."
 ---
 
@@ -49,7 +49,7 @@ expect-reply-within: 6h
 
 **Status:** done
 
-**Evidence branch:** `hermes/0035-ha-lights` @ `3a19c1adc6b30ec0e08857482b77a87627af8d67`
+**Evidence branch:** `hermes/0035-ha-lights` @ `75b86baad0b33b843a9ab082a5c1ae5353b81113`
 (`evidence/0035-ha-lights.json` = the response objects; `evidence/0035-ha-lights.md` = method + status detail)
 
 ### Command
