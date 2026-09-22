@@ -1,6 +1,6 @@
 ---
 task_id: "0034"
-status: staged
+status: verified
 iteration: 4
 proof:
   - branch: hermes/0034-config-probe
