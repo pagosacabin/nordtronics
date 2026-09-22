@@ -15,19 +15,25 @@ tools.
 
 Candidate servers (evaluate before picking):
 
+FreeCAD 1.1.1 is already installed on the machine (per Stephen,
+2026-09-22) — confirm it in step 1, no install needed unless you
+choose to upgrade.
+
 - spkane/freecad-addon-robust-mcp-server — 150+ tools, installs from
   PyPI (`pip install freecad-robust-mcp`), workbench via FreeCAD Addon
   Manager, works headless and GUI, actively maintained, MIT.
 - bradsjm/freecad-embedded-mcp — MCP server embedded INSIDE FreeCAD's
   GUI over local HTTP, 25 tools, ships an installable agent skill;
-  requires FreeCAD 1.1.3+ (dev version) and a running FreeCAD GUI.
+  requires FreeCAD 1.1.3+ (dev version) and a running FreeCAD GUI —
+  the installed 1.1.1 does NOT qualify, so this option would need a
+  FreeCAD upgrade first. Factor that cost into your evaluation.
 - seansackowitz/mcp-freecad — ~70 small parametric-first tools,
   token-efficient, XML-RPC bridge workbench; less actively maintained.
 
 ## Task
 
-1. Check whether FreeCAD is installed on your machine and report the
-   version. If missing, install it (stable 1.0.x is fine) and report how.
+1. Confirm the installed FreeCAD version (Stephen reports 1.1.1) and
+   how it was installed (native, flatpak, etc.).
 2. Evaluate the candidates above against YOUR machine (headless or GUI?
    FreeCAD version? flatpak/sandbox quirks?). Pick one and justify the
    choice in one paragraph. If none of them work in your environment,
