@@ -1,3 +1,11 @@
+---
+task_id: "0032"
+status: in_progress
+iteration: 1
+proof: []
+notes: ""
+---
+
 # 0032 — Mailbox cutover: adopt the new state-machine protocol
 
 This is the last task delivered through the old `handoff/inbox` system. After this, everything runs through `mailbox/`.
