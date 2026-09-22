@@ -30,3 +30,8 @@ jobs:
         with:
           name: android-apk
           path: android-hermes-test/app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Notify on success via ntfy
+        if: success()
+        run: |
+          curl -d "HermesTest build #${{ github.run_number }} succeeded: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" ntfy.sh/nordtronics-build-ed05a663
