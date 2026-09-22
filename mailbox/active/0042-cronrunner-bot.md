@@ -1,6 +1,8 @@
 ---
 task_id: "0042"
 title: Dedicated cron-runner bot (separate profile)
+status: in_progress
+iteration: 1
 expect-reply-within: 6h
 ---
 
