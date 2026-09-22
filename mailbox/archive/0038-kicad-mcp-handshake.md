@@ -1,6 +1,6 @@
 ---
 task_id: "0038"
-status: staged
+status: verified
 iteration: 1
 proof:
   - branch: hermes/0038-kicad-hello
