@@ -58,6 +58,14 @@ proof:
 - A green run with matching pointers verifies the task. A red run, a wrong SHA,
   or a run whose head no longer matches the branch tip fails it.
 
+Build tasks (the deliverable is a CI-built artifact — APK, firmware, image):
+proof additionally requires a build-green ntfy notification. Once the run is
+green, publish to the ntfy build topic named in the task spec
+(`https://ntfy.sh`) and include the publish receipt (topic, timestamp) in the
+reply. A green build Stephen never hears about is a failed handoff.
+(Clarified 2026-09-23: the 0045 companion-app build went green and staged with
+full proof, but no ntfy notification went out because the spec never asked for one.)
+
 The verifier is `~/workspace/hermes-tools/verify-staged.py` on Juno's side —
 it checks every pointer against the live GitHub API. Pasted terminal output
 is not proof and is ignored.
