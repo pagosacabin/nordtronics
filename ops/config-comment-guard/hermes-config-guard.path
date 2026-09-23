@@ -1,0 +1,13 @@
+[Unit]
+Description=Watch Hermes config.yaml files for comment-stripping writes
+Documentation=file:%h/nordtronics/ops/config-comment-guard/README.md
+
+[Path]
+# One PathChanged per target in ~/.hermes/config-comments/targets.conf.
+# PathChanged (not PathModified) because hermes writes the file by atomic rename.
+PathChanged=%h/.hermes/config.yaml
+PathChanged=%h/.hermes/profiles/cronrunner/config.yaml
+Unit=hermes-config-guard.service
+
+[Install]
+WantedBy=default.target

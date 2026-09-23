@@ -1,0 +1,14 @@
+[Unit]
+Description=Periodic sweep for comment blocks dropped from a Hermes config (backstop for the path unit)
+Documentation=file:%h/nordtronics/ops/config-comment-guard/README.md
+
+[Timer]
+# Backstop: the path unit fires on the change itself, this catches a write that landed
+# while the guard was mid-run, and any target edited between path-unit reloads.
+OnBootSec=3min
+OnUnitActiveSec=10min
+AccuracySec=1min
+Unit=hermes-config-guard.service
+
+[Install]
+WantedBy=timers.target

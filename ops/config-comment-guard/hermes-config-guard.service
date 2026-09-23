@@ -1,0 +1,8 @@
+[Unit]
+Description=Restore explanation comment blocks stripped from a Hermes config by an automated writer
+Documentation=file:%h/nordtronics/ops/config-comment-guard/README.md
+
+[Service]
+Type=oneshot
+Environment=PATH=/usr/bin:/usr/local/bin:/usr/sbin:/bin
+ExecStart=%h/.hermes/bin/hermes-config-guard.py --all

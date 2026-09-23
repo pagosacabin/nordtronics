@@ -1,0 +1,5 @@
+# Guard targets: <config path> [<ledger path>] — one per line, '#' comments allowed.
+# Paths may use ~. A missing ledger is created from the live config on first run.
+# The systemd path unit watches every config listed here; `--all` processes them.
+~/.hermes/config.yaml
+~/.hermes/profiles/cronrunner/config.yaml

@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# Run a config-writing `hermes` command with comment preservation.
+#
+# `hermes config set` (and `hermes mcp add/remove`, `hermes config unset`) re-dump
+# config.yaml with yaml.safe_dump, which cannot represent comments: every comment line in
+# the file is lost. This wrapper captures the comment blocks first, runs the command, then
+# has hermes-config-guard.py put back whatever the writer dropped.
+#
+# Usage
+#   hermes-config-guarded config set mcp_servers.kicad.env.TMPDIR /some/path
+#   hermes-config-guarded -p cronrunner config set model.default <model>
+#   hermes-config-guarded mcp add kicad -- node /path/to/index.js
+#
+# Anything you would type after `hermes` is accepted. Exit status is the guard's
+# (0 ok, 2 refused to write) or, when the guard is a no-op, the command's own.
+set -uo pipefail
+
+GUARD="${HERMES_CONFIG_GUARD:-$HOME/.hermes/bin/hermes-config-guard.py}"
+HERMES_BIN="${HERMES_BIN:-hermes}"
+
+if [[ $# -eq 0 || "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'
+  exit 0
+fi
+
+PROFILE=()
+ARGS=("$@")
+if [[ "${1:-}" == "-p" || "${1:-}" == "--profile" ]]; then
+  PROFILE=("$1" "${2:?profile name required}")
+  ARGS=("${@:3}")
+fi
+
+CONFIG="$("$HERMES_BIN" "${PROFILE[@]}" config path 2>/dev/null)"
+if [[ -z "$CONFIG" ]]; then
+  echo "hermes-config-guarded: could not resolve the config path (is 'hermes' on PATH?)" >&2
+  exit 3
+fi
+
+exec python3 "$GUARD" -c "$CONFIG" --run "$HERMES_BIN" "${PROFILE[@]}" "${ARGS[@]}"

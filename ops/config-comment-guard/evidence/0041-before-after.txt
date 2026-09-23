@@ -1,0 +1,132 @@
+
+=== 0. the guard's own tests
+   PASS  learn on a comment-bearing config is a no-op write
+   PASS  ledger seeded with 2 comment blocks + 1 trailing comment
+   PASS  restore rewrites the stripped config
+   PASS  FreeCAD block back and re-indented
+   PASS  TMPDIR block back at its key
+   PASS  block scalar body untouched
+   PASS  trailing comment restored, once, with its original padding
+   PASS  idempotent second restore
+   PASS  no non-comment content changed by the restore
+   PASS  anchors resolve after a reordering writer
+   PASS  --check exits 1 on a stripped config
+   PASS  ambiguous item — comment restored to the right section
+   PASS  invalid YAML refused with exit 2
+   PASS  absent anchors are skipped
+   0 failing of 14 checks
+
+=== 1. BEFORE — a bare 'hermes config set' deletes every comment
+   file: ~/.hermes/config.yaml copied byte-for-byte to a sandbox HERMES_HOME
+   comment lines before: 4
+     262:      # Flatpak KiCad has a private /tmp+/var/tmp; scratch copies must live under $HOME
+     270:    # FreeCAD Robust MCP server (spkane/freecad-addon-robust-mcp-server), embedded
+     271:    # headless mode. Launcher runs the server under the FreeCAD snap's own Python
+     272:    # 3.12 because FreeCAD.so is ABI-bound to 3.12 (host pythons are 3.11/3.14).
+   comment lines after : 0
+
+=== 2. AFTER — the same write, with the guard restoring from the ledger
+   comment lines after the same 'hermes config set': 0
+   running: hermes-config-guard.py -c <sandbox config> --ledger <live config ledger>
+     2026-09-22T21:55:34-0600 restored [/home/astroboy/.hermes/tmp-0041/home/config.yaml] 2 block(s) / 4 comment line(s) + 0 trailing comment(s); backup=/home/astroboy/.hermes/tmp-0041/home/backups/config/config.yaml.comment-guard.20260922-215534
+   comment lines after the guard ran: 4
+     262:      # Flatpak KiCad has a private /tmp+/var/tmp; scratch copies must live under $HOME
+     270:    # FreeCAD Robust MCP server (spkane/freecad-addon-robust-mcp-server), embedded
+     271:    # headless mode. Launcher runs the server under the FreeCAD snap's own Python
+     272:    # 3.12 because FreeCAD.so is ABI-bound to 3.12 (host pythons are 3.11/3.14).
+   non-comment lines vs the live config (the only difference is the writer's own YAML
+   re-quoting of an existing string — semantic equality is checked in section 5):
+     274c274
+     <       FREECAD_TIMEOUT_MS: '120000'
+     ---
+     >       FREECAD_TIMEOUT_MS: "120000"
+
+=== 3. LIVE — same bare write on ~/.hermes/config.yaml, no wrapper, units enabled
+   pre-write: 4 whole-line + 0 trailing comment lines
+   immediately after the write (nothing has had time to intervene): 0 whole-line
+   four seconds later: 4 whole-line + 0 trailing
+     262:      # Flatpak KiCad has a private /tmp+/var/tmp; scratch copies must live under $HOME
+     270:    # FreeCAD Robust MCP server (spkane/freecad-addon-robust-mcp-server), embedded
+     271:    # headless mode. Launcher runs the server under the FreeCAD snap's own Python
+     272:    # 3.12 because FreeCAD.so is ABI-bound to 3.12 (host pythons are 3.11/3.14).
+   diff against the pre-change bytes (expect comment lines only):
+     278c278
+     <       FREECAD_TIMEOUT_MS: "120000"
+     ---
+     >       FREECAD_TIMEOUT_MS: '120000'
+
+===    guard log (tail)
+     2026-09-22T21:55:34-0600 restored [/home/astroboy/.hermes/tmp-0041/home/config.yaml] 2 block(s) / 4 comment line(s) + 0 trailing comment(s); backup=/home/astroboy/.hermes/tmp-0041/home/backups/config/config.yaml.comment-guard.20260922-215534
+     2026-09-22T21:55:34-0600 restored [/home/astroboy/.hermes/config.yaml] 2 block(s) / 4 comment line(s) + 0 trailing comment(s); backup=/home/astroboy/.hermes/backups/config/config.yaml.comment-guard.20260922-215534
+     2026-09-22T21:55:34-0600 ok       [/home/astroboy/.hermes/profiles/cronrunner/config.yaml] 25 block(s) in ledger, nothing to restore
+
+===    systemd: who fired the restore
+     Result=success
+     ExecMainStartTimestamp=Tue 2026-09-22 21:55:34 MDT
+     ExecMainStatus=0
+     active: active
+     active: active
+
+=== 4. WRAPPER — hermes-config-guarded (capture -> write -> restore, one call)
+     ✓ Set mcp_servers.kicad.env.TMPDIR = /home/astroboy/.cache/kicad-mcp/tmp in /home/astroboy/.hermes/config.yaml
+     2026-09-22T21:55:39-0600 run      [/home/astroboy/.hermes/config.yaml] hermes config set mcp_servers.kicad.env.TMPDIR /home/astroboy/.cache/kicad-mcp/tmp
+     2026-09-22T21:55:39-0600 restored [/home/astroboy/.hermes/config.yaml] 2 block(s) / 4 comment line(s) + 0 trailing comment(s); backup=/home/astroboy/.hermes/backups/config/config.yaml.comment-guard.20260922-215539
+   comment lines right after the wrapper returned: 4
+
+=== 5. The config still parses and loads: hermes config check + MCP connectivity
+     
+     📋 Configuration Status
+     
+       Config version: 42 ✓
+     semantic check — value tree identical before and after the three guard-covered writes:
+     values identical
+     
+       MCP Servers:
+     
+       Name             Transport                      Tools        Status    
+       ──────────────── ────────────────────────────── ──────────── ──────────
+       kicad            node /home/astroboy/KiCAD...   all          ✓ enabled
+       freecad          /home/astroboy/.local/bin...   all          ✓ enabled
+     
+     hermes mcp test kicad: connected, 233 tool names exposed
+
+=== 6. The cron worker's own profile config: whole-line AND trailing comments survive a real write
+   /home/astroboy/.hermes/profiles/cronrunner/config.yaml
+   pre-write: 20 whole-line + 18 trailing comments
+   immediately after the write: 0 whole-line + 0 trailing
+   four seconds later: 20 whole-line + 18 trailing
+     1:# ── cronrunner profile (mailbox task 0042) ───────────────────────────────────
+     2:# Headless worker profile. It owns scheduled jobs (the 15-minute Juno ⇄ Hermes
+     3:# mailbox loop) so the interactive `default` profile and the worker no longer
+     4:# share one Hermes home — the "two agent processes, one home" hazard.
+     5:# Trimmed to what scheduled work needs. Rationale for every removal is inline
+     6:# below and repeated in the staged reply for mailbox/0042.
+     7:# Interactive use is not this profile's job; `hermes -p default chat` is.
+     8:#
+     24:  # Denylist every cron run in this profile inherits
+     25:  # (cron/scheduler.py::_resolve_cron_disabled_toolsets); per-job
+     26:  # enabled_toolsets cannot widen past it.
+     28:    - a2a            # agent-to-agent chat surface — interactive only
+     29:    - browser        # browser-use cloud session; git/gh/KiCad need no browser
+     30:    - computer_use   # drives a desktop GUI; nothing to drive headless
+     31:    - connections    # desktop multi-gateway connection surface
+     32:    - homeassistant  # home control; unrelated to the mailbox loop
+     33:    - image_gen      # no image generation in scheduled work
+     34:    - kanban         # this worker does not dispatch board tasks
+     35:    - session_search  # one job per tick; no cross-session recall to do
+     36:    - tts            # no voice output on a headless tick
+     37:    - vision         # no image analysis in the loop
+     108:  # headless worker has no microphone
+     140:  # this worker is not an orchestrator
+     221:  # Cron runs resolve their toolset from THIS key
+   semantic check — value tree identical to the pre-write bytes:
+     values identical
+
+=== 7. Post-state: both configs are back to their exact pre-task bytes (comments included)
+   default: 4 comment lines; sha256 now=b941422f0acfa8e7630a2a90057095bee129662255364e7adb0aef9d247778de
+   default: sha256 pristine=b941422f0acfa8e7630a2a90057095bee129662255364e7adb0aef9d247778de
+   cronrunner: 20 comment lines; sha256 now=90ff1b9a15c6bfb669d31d08897057e4cd781c6277af7b63bca5ec5a9a0ee21f
+   cronrunner: sha256 pristine=90ff1b9a15c6bfb669d31d08897057e4cd781c6277af7b63bca5ec5a9a0ee21f
+   hermes-config-guard.py --all --check:
+     2026-09-22T21:55:47-0600 ok       [/home/astroboy/.hermes/config.yaml] all 2 ledger block(s) present
+     2026-09-22T21:55:47-0600 ok       [/home/astroboy/.hermes/profiles/cronrunner/config.yaml] all 25 ledger block(s) present
