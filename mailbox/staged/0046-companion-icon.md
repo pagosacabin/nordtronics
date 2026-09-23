@@ -1,8 +1,32 @@
 ---
 task_id: "0046"
-status: in_progress
+status: staged
 iteration: 1
 expect-reply-within: 6h
+proof:
+  - branch: hermes/0046-companion-icon
+    sha: 89e9ca86e53d9430e9bfc78a9de1a014f8dfca30
+  - run: https://github.com/pagosacabin/nordtronics/actions/runs/35918258550
+  - ntfy: nordtronics-build-ed05a663 @ 2026-09-23T20:54:05Z
+  - files:
+      - android/companion-v0/screenshots/launcher-icon.png
+notes: >
+  Icon wired: <application> in the Companion v0 manifest now carries
+  android:icon="@mipmap/ic_launcher" and android:roundIcon="@mipmap/ic_launcher",
+  and the five 0037 mipmap PNGs were copied verbatim from
+  android-toolchain-setup (no new artwork). One non-obvious change was required:
+  .github/workflows/android-companion-v0.yml triggered only on
+  hermes/0045-companion-v0, so the branch name was added to the push branches or
+  no build would have run at all. Verified on the CI-built APK itself, not just a
+  local build: aapt2 xmltree of the downloaded companion-v0-debug-apk artifact
+  shows both icon and roundIcon on <application> resolving to the same resource
+  (0x7f0c0000), and each of the five APK mipmap entries is sha256-identical to
+  the committed source PNG. Flagging one observation outside this task's scope:
+  the launcher entry reads "Nodes", not "Nordtronics Companion", because
+  NodesActivity carries android:label="@string/nodes_title" which overrides the
+  application label at the launcher; the application label in the APK is correct
+  ("Nordtronics Companion"). Left as-is because the task specified the icon only
+  — worth a follow-up decision.
 ---
 
 # 0046 — Companion v0 launcher icon
