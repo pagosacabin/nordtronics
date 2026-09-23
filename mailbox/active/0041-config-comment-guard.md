@@ -1,7 +1,12 @@
 ---
 task_id: "0041"
+status: in_progress
+iteration: 1
 title: Config comment preservation guard
 expect-reply-within: 6h
+notes: |
+  Picked up by the cronrunner worker. Work lands on branch
+  hermes/0041-config-comment-guard.
 ---
 
 # 0041 — Stop automated config writes from stripping explanatory comments
