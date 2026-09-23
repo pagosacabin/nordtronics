@@ -1,0 +1,52 @@
+plugins {
+    id 'com.android.application' version '8.3.0'
+}
+
+android {
+    namespace 'com.nordtronics.companion'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId = "com.nordtronics.companion"
+        minSdk = 24
+        targetSdk = 35
+        versionCode = 1
+        versionName = "0.1"
+
+        // ---------------------------------------------------------------------
+        // THE API BASE URL. This is the single place the app's server location
+        // is defined; ApiClient.java reads it as BuildConfig.API_BASE_URL and no
+        // other file hardcodes a host. Repointing the app at the real VPS API is
+        // a one-line change, right here.
+        //
+        // 10.0.2.2 is the Android emulator's alias for the host machine's
+        // loopback interface, where the mock backend listens (see
+        // mock-server/server.py, which binds 127.0.0.1 only).
+        // ---------------------------------------------------------------------
+        buildConfigField "String", "API_BASE_URL", "\"http://10.0.2.2:8000\""
+    }
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    buildTypes {
+        debug {
+            applicationIdSuffix = ""
+        }
+        release {
+            minifyEnabled false
+        }
+    }
+}
+
+dependencies {
+    // appcompat pulls kotlin-stdlib-jdk8 (1.6.21) transitively while another
+    // path brings kotlin-stdlib (1.8.22); the two disagree and the older jdk8
+    // artifact re-declares classes that 1.8.x moved into kotlin-stdlib, so the
+    // dex merge fails with "Duplicate class kotlin.streams.jdk8.StreamsKt".
+    // The BOM aligns every kotlin-stdlib* module on one version, which is the
+    // supported fix (the jdk8/jdk7 artifacts are empty shims from 1.8 onwards).
+    implementation platform("org.jetbrains.kotlin:kotlin-bom:1.8.22")
+    implementation "androidx.appcompat:appcompat:1.7.0"
+}

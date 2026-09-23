@@ -1,0 +1,3 @@
+// Root build file for Companion v0.
+// All plugin resolution (including the Android Gradle Plugin version) lives in
+// settings.gradle.kts / app/build.gradle, so this file is intentionally empty.

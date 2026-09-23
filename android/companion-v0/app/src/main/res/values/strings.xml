@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Nordtronics Companion</string>
+    <string name="nodes_title">Nodes</string>
+    <string name="alerts_title">Alerts</string>
+    <string name="detail_title">Node detail</string>
+    <string name="refresh">Refresh</string>
+    <string name="alerts">Alerts</string>
+    <string name="nodes">Nodes</string>
+    <string name="send_ping">Send test ping</string>
+    <string name="loading">Contacting server…</string>
+</resources>

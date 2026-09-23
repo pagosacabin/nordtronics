@@ -1,0 +1,17 @@
+2026-09-23T17:49:58Z mock backend listening on http://127.0.0.1:8000 (loopback only)
+2026-09-23T17:49:58Z endpoints: GET /api/nodes, GET /api/alerts, POST /api/nodes/{id}/ping
+2026-09-23T17:50:00Z <- GET /api/nodes from 127.0.0.1
+2026-09-23T17:50:00Z access: "GET /api/nodes HTTP/1.1" 200 -
+2026-09-23T17:50:00Z -> 200 /api/nodes (242 bytes) body=[{"id": "node-01", "pm25": 12.4, "temp_c": 21.3, "humidity": 38, "battery_v": 4.05, "last_seen": "2026-09-23T14:00:00Z"}, {"id": "node-02", "pm25": 47.9, "temp_c": 27.8, "humidity": 22, "battery_v": 3.71, "last_seen": "2026-09-23T13:59:30Z"}]
+2026-09-23T17:50:11Z <- GET /api/alerts from 127.0.0.1
+2026-09-23T17:50:11Z access: "GET /api/alerts HTTP/1.1" 200 -
+2026-09-23T17:50:11Z -> 200 /api/alerts (359 bytes) body=[{"id": "a1", "node_id": "node-01", "type": "smoke", "message": "PM2.5 rising fast", "at": "2026-09-23T13:58:00Z"}, {"id": "a2", "node_id": "node-02", "type": "battery", "message": "Battery below 3.8 V", "at": "2026-09-23T12:41:00Z"}, {"id": "a3", "node_id": "node-02", "type": "heat", "message": "Temperature above 27 \u00b0C", "at": "2026-09-23T11:06:00Z"}]
+2026-09-23T17:50:19Z <- GET /api/nodes from 127.0.0.1
+2026-09-23T17:50:19Z access: "GET /api/nodes HTTP/1.1" 200 -
+2026-09-23T17:50:19Z -> 200 /api/nodes (242 bytes) body=[{"id": "node-01", "pm25": 12.4, "temp_c": 21.3, "humidity": 38, "battery_v": 4.05, "last_seen": "2026-09-23T14:00:00Z"}, {"id": "node-02", "pm25": 47.9, "temp_c": 27.8, "humidity": 22, "battery_v": 3.71, "last_seen": "2026-09-23T13:59:30Z"}]
+2026-09-23T17:50:25Z <- GET /api/nodes from 127.0.0.1
+2026-09-23T17:50:25Z access: "GET /api/nodes HTTP/1.1" 200 -
+2026-09-23T17:50:25Z -> 200 /api/nodes (242 bytes) body=[{"id": "node-01", "pm25": 12.4, "temp_c": 21.3, "humidity": 38, "battery_v": 4.05, "last_seen": "2026-09-23T14:00:00Z"}, {"id": "node-02", "pm25": 47.9, "temp_c": 27.8, "humidity": 22, "battery_v": 3.71, "last_seen": "2026-09-23T13:59:30Z"}]
+2026-09-23T17:50:32Z <- POST /api/nodes/node-01/ping from 127.0.0.1 body={}
+2026-09-23T17:50:32Z access: "POST /api/nodes/node-01/ping HTTP/1.1" 200 -
+2026-09-23T17:50:32Z -> 200 /api/nodes/node-01/ping (34 bytes) body={"ok": true, "node_id": "node-01"}
