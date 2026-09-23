@@ -1,7 +1,7 @@
 ---
 task_id: "0047"
-status: inbox
-iteration: 0
+status: in_progress
+iteration: 1
 expect-reply-within: 6h
 ---
 
