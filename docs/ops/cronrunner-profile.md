@@ -130,7 +130,10 @@ loop on the new profile: loaded the `handoff-mailbox` / `github` /
 First commit on origin carrying the worker identity:
 
 ```
-_pending — the live tick of 2026-09-22T18:15:01-06:00 is still running task 0043; this section is filled by the staged reply._
+25993dc3562b15ccb43572ebed643e50f1473140
+hermes-cronrunner <hermes-cronrunner@nordtronics.local>
+0043: swap D1 TLV431 -> TL431 (SOT-23 DBZ pinout, 2.5 V)
+branch: hermes/0043-tl431-swap
 ```
 
 ## 6. Rollback
