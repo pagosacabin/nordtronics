@@ -73,14 +73,19 @@ proves itself on our land before anyone pays.
 
 > Clean flat technical system-architecture diagram, left-to-right data flow, white
 > background, titled "Wildfire Detect v1 - Communication Stream". Four stages
-> connected by labeled arrows: 1) small solar-powered sensor nodes mounted on fence
-> posts in a grassy field (label: "Fire watch nodes - ESP32-S3, LoRa 915 MHz"); 2)
-> a house with a small rooftop receiver unit (label: "Fire watch base - LoRa RX,
-> WiFi, MQTT + TLS"); 3) a cloud server-rack icon (label: "VPS - MQTT broker,
-> ingest, time-series DB, API + alert engine"); 4) a smartphone showing a wildfire
-> alert notification (label: "Android app - HTTPS API, push alerts"). Minimal text,
-> icon-driven, professional IoT product-diagram style, muted greens and ambers, flat
-> vector look, no photorealism.
+> connected by arrows, each marked with a large numbered badge (1-4), NO text
+> labels anywhere on the diagram itself: 1) small solar-powered sensor nodes
+> mounted on fence posts in a grassy field; 2) a house with a small rooftop
+> receiver unit; 3) a cloud server-rack icon; 4) a smartphone showing a wildfire
+> alert notification. Leave clean empty space along the bottom for a legend to be
+> added later. Icon-driven, professional IoT product-diagram style, muted greens
+> and ambers, flat vector look, no photorealism.
+>
+> Legend (added manually after generation):
+> 1. Fire watch nodes - ESP32-S3, LoRa 915 MHz
+> 2. Fire watch base - LoRa RX, WiFi, MQTT + TLS
+> 3. VPS - MQTT broker, ingest, time-series DB, API + alert engine
+> 4. Android app - HTTPS API, push alerts
 
-Note: AI image generators still mangle rendered text. Expect to overlay the labels
-yourself or request a version with numbered callouts and add the legend manually.
+Text is kept out of the generated image because AI image generators still mangle
+rendered lettering. Numbered badges plus a manually added legend sidestep it.
