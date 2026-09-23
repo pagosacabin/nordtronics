@@ -11,4 +11,11 @@
         <item name="colorAccent">@color/companion_accent</item>
         <item name="android:windowBackground">@color/companion_window</item>
     </style>
+
+    <!-- Splash theme for the launcher activity (0048). Its parent carries every
+         window attribute, so it is a drop-in replacement: the activity keeps
+         this theme for its whole life. values-v31 overrides it with the Android
+         12+ SplashScreen attributes, which is why the two are separate names
+         instead of a partial re-declaration of Theme.Companion. -->
+    <style name="Theme.Companion.Start" parent="Theme.Companion" />
 </resources>

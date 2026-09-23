@@ -32,8 +32,11 @@ public class NodeDetailActivity extends AppCompatActivity {
         if (extra != null && !extra.isEmpty()) {
             nodeId = extra;
         }
-        // The node id used to be the action bar title; it is now the header bar.
-        ((TextView) findViewById(R.id.header)).setText(getString(R.string.detail_title) + " — " + nodeId);
+        // The node id used to be the action bar title; it is now the header bar,
+        // which since 0048 also carries the Nordtronics mark (R.id.header is the
+        // header row, R.id.header_title the text inside it).
+        ((TextView) findViewById(R.id.header_title))
+                .setText(getString(R.string.detail_title) + " — " + nodeId);
 
         findViewById(R.id.btn_ping).setOnClickListener(v -> sendPing());
         loadNode();

@@ -14,7 +14,8 @@
 
         <activity
             android:name=".NodesActivity"
-            android:label="@string/nodes_title"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.Companion.Start"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Android 12+ SplashScreen API (0048), platform flavour — no core-splashscreen
+  dependency is added, so this is the framework's own splash screen and its
+  attributes only exist from API 31 up (hence values-v31).
+
+  The launcher activity's theme (Theme.Companion.Start) inherits everything from
+  Theme.Companion, so declaring only the three splash attributes here is
+  complete. On API 24..30 this folder is not used and the app starts without a
+  splash, exactly as before.
+-->
+<resources>
+    <style name="Theme.Companion.Start" parent="Theme.Companion">
+        <!-- Brand dark plate, matching the launcher-icon background layer and
+             the artwork (res/values/colors.xml -> brand_dark). -->
+        <item name="android:windowSplashScreenBackground">@color/brand_dark</item>
+        <!-- The Nordtronics mark, extracted from the repo asset by
+             tools/make_branding_assets.py. The drawable is a padded 288dp
+             canvas so the framework's icon mask cannot clip the emblem. -->
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_mark</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">@color/brand_dark</item>
+    </style>
+</resources>

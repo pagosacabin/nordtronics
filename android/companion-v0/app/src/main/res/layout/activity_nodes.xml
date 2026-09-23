@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Nodes screen (0047). The "Nodes" header bar is a view in this layout, not the
-  framework action bar: edge-to-edge, the decor drew the action bar over the
-  content and the REFRESH / ALERTS toolbar disappeared underneath it. The window
-  is padded by the real system-bar insets in NodesActivity, so the header sits
-  below the status bar and the toolbar below the header on any device.
+  Nodes screen (0048). 0047's inset fix, unchanged: the "Nodes" header bar is a
+  view in this layout, not the framework action bar, because edge-to-edge the
+  decor drew the action bar over the content and the REFRESH / ALERTS toolbar
+  disappeared underneath it. The window is padded by the real system-bar insets
+  in NodesActivity, so the header sits below the status bar and the toolbar below
+  the header on any device. 0048 adds the Nordtronics mark to the header row.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/nodes_root"
@@ -12,19 +13,36 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <TextView
+    <LinearLayout
         android:id="@+id/header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/companion_primary"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
         android:paddingStart="16dp"
         android:paddingTop="14dp"
         android:paddingEnd="16dp"
-        android:paddingBottom="14dp"
-        android:text="@string/nodes_title"
-        android:textColor="@color/companion_on_primary"
-        android:textSize="20sp"
-        android:textStyle="bold" />
+        android:paddingBottom="14dp">
+
+        <ImageView
+            android:id="@+id/header_mark"
+            android:layout_width="wrap_content"
+            android:layout_height="24dp"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/app_name"
+            android:src="@drawable/brand_mark" />
+
+        <TextView
+            android:id="@+id/header_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:text="@string/nodes_title"
+            android:textColor="@color/companion_on_primary"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"

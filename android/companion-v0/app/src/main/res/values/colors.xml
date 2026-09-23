@@ -7,4 +7,10 @@
     <color name="companion_accent">#FF7043</color>
     <color name="companion_window">#FDF7F4</color>
     <color name="companion_on_primary">#FFFFFF</color>
+
+    <!-- Brand dark (0048). Sampled from the plate of the repo logo asset
+         branding/nordtronics-logo/nordtronics-logo-mark-only.png, so the
+         launcher-icon background and the splash background match the artwork
+         exactly rather than a hand-picked near-black. -->
+    <color name="brand_dark">#222629</color>
 </resources>
