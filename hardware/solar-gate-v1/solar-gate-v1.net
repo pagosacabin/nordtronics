@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <export version="E">
   <design>
-    <source>/home/astroboy/nordtronics/hardware/solar-gate-v1/solar-gate-v1.kicad_sch</source>
-    <date>2026-09-22T17:32:08</date>
+    <source>/home/astroboy/wt-0043/hardware/solar-gate-v1/solar-gate-v1.kicad_sch</source>
+    <date>2026-09-22T18:46:44</date>
     <tool>Eeschema 10.0.6</tool>
     <sheet number="1" name="/" tstamps="/">
       <title_block>
@@ -75,26 +75,27 @@
       </units>
     </comp>
     <comp ref="D1">
-      <value>TLV431</value>
+      <value>TL431</value>
       <footprint>Package_TO_SOT_SMD:SOT-23</footprint>
-      <description>Low-voltage adjustable precision shunt regulator 1.24V, SOT-23-3</description>
+      <description>2.5 V adjustable precision shunt regulator, SOT-23-3 (DBZ pinout: 1=K, 2=REF, 3=A)</description>
       <fields>
         <field name="Footprint">Package_TO_SOT_SMD:SOT-23</field>
         <field name="Datasheet"/>
-        <field name="Description">Low-voltage adjustable precision shunt regulator 1.24V, SOT-23-3</field>
+        <field name="Description">2.5 V adjustable precision shunt regulator, SOT-23-3 (DBZ pinout: 1=K, 2=REF, 3=A)</field>
       </fields>
-      <libsource lib="solar-gate-v1" part="TLV431" description="Low-voltage adjustable precision shunt regulator 1.24V, SOT-23-3"/>
+      <libsource lib="solar-gate-v1" part="TL431" description="2.5 V adjustable precision shunt regulator, SOT-23-3 (DBZ pinout: 1=K, 2=REF, 3=A)"/>
       <property name="Sheetname" value="solar-gate-v1"/>
       <property name="Sheetfile" value="solar-gate-v1.kicad_sch"/>
-      <property name="ki_keywords" value="shunt reference regulator voltage"/>
+      <property name="ki_keywords" value="diode device shunt regulator"/>
+      <property name="ki_fp_filters" value="SOT?23*"/>
       <sheetpath names="/" tstamps="/"/>
-      <tstamps>8a15b138-1940-4ad7-b23b-f88cd046339c</tstamps>
+      <tstamps>59254d58-7b87-42f9-aef2-1eea4fadd32b</tstamps>
       <units>
         <unit name="A">
           <pins>
-            <pin num="1"/>
             <pin num="3"/>
             <pin num="2"/>
+            <pin num="1"/>
           </pins>
         </unit>
       </units>
@@ -525,6 +526,25 @@
         <pin num="3" name="D" type="passive"/>
       </pins>
     </libpart>
+    <libpart lib="solar-gate-v1" part="TL431">
+      <description>2.5 V adjustable precision shunt regulator, SOT-23-3 (DBZ pinout: 1=K, 2=REF, 3=A)</description>
+      <docs>http://www.ti.com/lit/ds/symlink/tl431.pdf</docs>
+      <footprints>
+        <fp>SOT?23*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">TL431</field>
+        <field name="Footprint">Package_TO_SOT_SMD:SOT-23</field>
+        <field name="Datasheet">http://www.ti.com/lit/ds/symlink/tl431.pdf</field>
+        <field name="Description">2.5 V adjustable precision shunt regulator, SOT-23-3 (DBZ pinout: 1=K, 2=REF, 3=A)</field>
+      </fields>
+      <pins>
+        <pin num="1" name="K" type="passive"/>
+        <pin num="2" name="REF" type="passive"/>
+        <pin num="3" name="A" type="passive"/>
+      </pins>
+    </libpart>
     <libpart lib="solar-gate-v1" part="TLV3401">
       <description>Nanopower open-drain comparator, single, SOT-23-5</description>
       <docs>~</docs>
@@ -543,22 +563,6 @@
         <pin num="5" name="VCC" type="power_in"/>
       </pins>
     </libpart>
-    <libpart lib="solar-gate-v1" part="TLV431">
-      <description>Low-voltage adjustable precision shunt regulator 1.24V, SOT-23-3</description>
-      <docs>~</docs>
-      <fields>
-        <field name="Reference">D</field>
-        <field name="Value">TLV431</field>
-        <field name="Footprint">Package_TO_SOT_SMD:SOT-23</field>
-        <field name="Datasheet">~</field>
-        <field name="Description">Low-voltage adjustable precision shunt regulator 1.24V, SOT-23-3</field>
-      </fields>
-      <pins>
-        <pin num="1" name="REF" type="input"/>
-        <pin num="2" name="CATHODE" type="passive"/>
-        <pin num="3" name="ANODE" type="passive"/>
-      </pins>
-    </libpart>
   </libparts>
   <libraries>
     <library logical="Connector_Generic">
@@ -571,7 +575,7 @@
       <uri>${KICAD10_SYMBOL_DIR}/Transistor_FET.kicad_sym</uri>
     </library>
     <library logical="solar-gate-v1">
-      <uri>/home/astroboy/nordtronics/hardware/solar-gate-v1/solar-gate-v1.kicad_sym</uri>
+      <uri>${KIPRJMOD}/solar-gate-v1.kicad_sym</uri>
     </library>
   </libraries>
   <nets>
@@ -589,7 +593,7 @@
     <net code="3" name="/GND" class="Default">
       <node ref="C1" pin="2" pintype="passive"/>
       <node ref="C2" pin="2" pintype="passive"/>
-      <node ref="D1" pin="3" pinfunction="ANODE_3" pintype="passive"/>
+      <node ref="D1" pin="3" pinfunction="A_3" pintype="passive"/>
       <node ref="J1" pin="2" pinfunction="Pin_2_2" pintype="passive"/>
       <node ref="J2" pin="2" pinfunction="Pin_2_2" pintype="passive"/>
       <node ref="J4" pin="2" pinfunction="Pin_2_2" pintype="passive"/>
@@ -607,8 +611,8 @@
     </net>
     <net code="5" name="/REF2V5" class="Default">
       <node ref="C1" pin="1" pintype="passive"/>
-      <node ref="D1" pin="1" pinfunction="REF_1" pintype="input"/>
-      <node ref="D1" pin="2" pinfunction="CATHODE_2" pintype="passive"/>
+      <node ref="D1" pin="1" pinfunction="K_1" pintype="passive"/>
+      <node ref="D1" pin="2" pinfunction="REF_2" pintype="passive"/>
       <node ref="R1" pin="1" pintype="passive"/>
       <node ref="R2" pin="1" pintype="passive"/>
       <node ref="Rs" pin="2" pintype="passive"/>

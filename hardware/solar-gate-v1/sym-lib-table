@@ -1,4 +1,4 @@
 (sym_lib_table
   (version 7)
-  (lib (name "solar-gate-v1")(type "KiCad")(uri "/home/astroboy/nordtronics/hardware/solar-gate-v1/solar-gate-v1.kicad_sym")(options "")(descr "Solar gate v1 project symbols (TLV3401, TLV431)"))
+  (lib (name "solar-gate-v1")(type "KiCad")(uri "${KIPRJMOD}/solar-gate-v1.kicad_sym")(options "")(descr "Solar gate v1 project symbols (TLV3401, TLV431)"))
 )

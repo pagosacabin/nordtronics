@@ -17,7 +17,7 @@ Cold / no sun → `GATE` floats to `Panel+` through Rg → Q1 off.
 |-----|------|---------|-------|
 | Q1  | AO3401 (P-ch MOSFET) | SOT-23 | 1=G, 2=S, 3=D |
 | U1  | TLV3401 (nanopower comparator, open-drain) | **SOT-23-5** | see pinout note below |
-| D1  | TLV431 (shunt reference) | SOT-23-3 | 1=REF, 2=CATHODE, 3=ANODE |
+| D1  | TL431 (2.5 V shunt reference) | SOT-23-3 | 1=K, 2=REF, 3=A (TI DBZ); REF tied to K |
 | TH1 | 10k NTC B=3950, **off-board** → 2-pin JST GH 1.25 mm | — | board-edge connector |
 | Rs  | 12k | 0805 | Panel+ → REF2V5 |
 | R1, R2, R3 | 30k | 0805 | VA / VTH dividers |
@@ -29,6 +29,27 @@ Cold / no sun → `GATE` floats to `Panel+` through Rg → Q1 off.
 | J1, J2, J4 | JST GH 1.25 mm 2-pin | — | panel in / charger out / telemetry out |
 
 Nets: `Panel+`, `GND`, `REF2V5`, `VA`, `VTH`, `GATE`, `CHG+`, `TELEM`.
+
+### D1 reference — TL431 (task 0043)
+
+The first pass drew D1 as a TLV431, whose `VREF` is 1.24 V, so the
+`REF2V5`/`VTH` targets did not hold (0039 open item 1). D1 is now a **TL431**
+(TI SLVS543S, DBZ SOT-23-3: **1 = K, 2 = REF, 3 = A**), with the divider values
+left as computed for 2.5 V.
+
+The board did not change. `REF` and `K` are both on `REF2V5` by design, so
+D1 pad 1 (K) and pad 2 (REF) were already shorted on that net, pad 3 (A) was
+already on `GND`, and the footprint is the same `Package_TO_SOT_SMD:SOT-23`.
+`solar-gate-v1.kicad_pcb` is byte-identical to the 0039 tip
+(`sha256 95c7c0b279688f20cd8d84435e144e05e4ca9093e4f3c9af582df41f32b13893`).
+Note the pinout trap: a TLV431 in DBZ is 1=REF / 2=CATHODE / 3=ANODE, the
+*opposite* of the TL431 in the same package — the two are interchangeable here
+only because REF and K are tied together.
+
+Bias current: the TL431 needs 0.4–1 mA of cathode current to regulate
+(TLV431: 55–80 µA), and `Rs` = 12k from `Panel+` sets that current. The
+implication is reported in the 0043 reply; no bias-network or divider change
+was made.
 
 ## Board
 
@@ -62,11 +83,12 @@ files, no hand-routing.
 
 ## Open items for review
 
-1. **D1 is spec'd as a 2.5 V reference but TLV431's VREF is 1.24 V.** With REF
-   tied to CATHODE (the only sensible wiring, and required to make the net
-   complete) this node is ~1.24 V, so R2/R3 halve it to ~0.62 V, not the
-   specified 1.25 V. Either the reference should be a 2.5 V part (TL431) or the
-   divider must be re-scaled.
+1. **Resolved in 0043 — D1 is now a TL431, a true 2.5 V reference.** With REF
+   tied to K the reference node sits at 2.5 V, so R2/R3 halve it to the
+   specified 1.25 V and the divider values stand. What replaces it as a live
+   question is bias current: the TL431 needs 0.4–1 mA of cathode current to
+   regulate where the TLV431 needed 55–80 µA, and `Rs` = 12k sets that current
+   from `Panel+`. Numbers are in the 0043 reply; nothing was re-scaled.
 2. **U1 pin 5 = VCC, pin 2 = GND, pin 3 = IN+, pin 4 = IN−** (TLV3401 has no
    SC-70-5 package; the spec's SC-70-5 call was corrected to SOT-23-5).
 3. **J4 (telemetry out) is an addition** — the spec listed only panel in,
@@ -86,6 +108,11 @@ invisible to it:
   the host `pcbnew` backend and the sandboxed `kicad-cli` 10 can read. Pointing
   at `/usr/share/kicad/footprints` instead makes ERC/DRC report every footprint
   library as "not enabled in the current configuration".
+- `sym-lib-table` now points the project library at
+  `${KIPRJMOD}/solar-gate-v1.kicad_sym` instead of an absolute checkout path.
+  The old absolute path broke ERC the moment the project was opened from any
+  other checkout or worktree: `kicad-cli` reported `The symbol library
+  'solar-gate-v1' was not found at '<abs path>'` for every project symbol.
 - The MCP server's symbol loader needs `KICAD_SYMBOL_DIR` set to the same
   runtime's `symbols/` directory, or the schematic's cached symbols are written
   from the host KiCad 9 libraries and every symbol then mismatches the KiCad 10

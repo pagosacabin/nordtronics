@@ -1175,6 +1175,203 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "solar-gate-v1:TL431"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "U"
+				(at -2.54 2.54 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "TL431"
+				(at 0 -2.54 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
+				(at 0 -4.826 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+						(italic yes)
+					)
+				)
+			)
+			(property "Datasheet" "http://www.ti.com/lit/ds/symlink/tl431.pdf"
+				(at 1.778 -9.144 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+						(italic yes)
+					)
+				)
+			)
+			(property "Description" "2.5 V adjustable precision shunt regulator, SOT-23-3 (DBZ pinout: 1=K, 2=REF, 3=A)"
+				(at 0 -7.112 0)
+				(hide yes)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "diode device shunt regulator"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_fp_filters" "SOT?23*"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "TL431_0_1"
+				(polyline
+					(pts
+						(xy -1.27 0) (xy 0 0) (xy 1.27 0)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -0.762 -0.762) (xy -0.762 0.762) (xy 0.762 0) (xy -0.762 -0.762)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.254 -0.762) (xy 0.762 -0.762) (xy 0.762 0.762) (xy 0.762 0.762)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "TL431_1_1"
+				(polyline
+					(pts
+						(xy 0 1.27) (xy 0 0)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(pin passive line
+					(at 2.54 0 180)
+					(length 1.27)
+					(name "K"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 0 2.54 270)
+					(length 1.27)
+					(name "REF"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -2.54 0 0)
+					(length 1.27)
+					(name "A"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 	)
 	(symbol
 		(lib_id "Connector_Generic:Conn_01x02")
@@ -1803,88 +2000,6 @@
 			(project "solar-gate-v1"
 				(path "/0c31090d-ef25-44de-977d-fcaf1aa2b30e"
 					(reference "Rg")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "solar-gate-v1:TLV431")
-		(at 76.2 63.5 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "8a15b138-1940-4ad7-b23b-f88cd046339c")
-		(property "Reference" "D1"
-			(at 76.2 60.96 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "TLV431"
-			(at 76.2 66.04 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
-			(at 76.2 58.42 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 76.2 55.88 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Low-voltage adjustable precision shunt regulator 1.24V, SOT-23-3"
-			(at 76.2 53.34 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "be7106cb-f1ec-4c17-a510-c9e92551b53f")
-		)
-		(pin "2"
-			(uuid "44e352f6-8caa-4acc-9669-787d11ac4ec0")
-		)
-		(pin "3"
-			(uuid "ba6b11d0-0f3b-4b92-a24b-01b67967edde")
-		)
-		(instances
-			(project "solar-gate-v1"
-				(path "/0c31090d-ef25-44de-977d-fcaf1aa2b30e"
-					(reference "D1")
 					(unit 1)
 				)
 			)
@@ -2766,16 +2881,6 @@
 		(uuid "ed95f767-054b-41b8-bd13-84d9364167b4")
 	)
 	(label "GND"
-		(at 76.2 68.58 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "881de06e-a908-4d88-9b73-ae8c15512eb5")
-	)
-	(label "GND"
 		(at 45.72 78.74000000000001 180)
 		(effects
 			(font
@@ -2874,26 +2979,6 @@
 			(justify right bottom)
 		)
 		(uuid "942512cb-6d33-4a90-831c-71e5561bc552")
-	)
-	(label "REF2V5"
-		(at 81.28 60.96 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "0d964fc2-bbca-4487-bdf8-34bd1e67a6fe")
-	)
-	(label "REF2V5"
-		(at 71.12 63.5 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "4e01889b-652e-451e-bde5-90eae8dfb6f5")
 	)
 	(label "REF2V5"
 		(at 101.6 40.64 90)
@@ -3104,6 +3189,120 @@
 			(justify right bottom)
 		)
 		(uuid "d2a9749f-e1f8-4601-8ad4-36f251fa9c81")
+	)
+	(symbol
+		(lib_id "solar-gate-v1:TL431")
+		(at 76.2 63.5 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "59254d58-7b87-42f9-aef2-1eea4fadd32b")
+		(property "Reference" "D1"
+			(at 76.2 58.42 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TL431"
+			(at 76.2 67.31 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
+			(at 76.2 58.674 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+			)
+		)
+		(property "Datasheet" "http://www.ti.com/lit/ds/symlink/tl431.pdf"
+			(at 77.978 54.356 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+			)
+		)
+		(property "Description" "2.5 V adjustable precision shunt regulator, SOT-23-3 (DBZ pinout: 1=K, 2=REF, 3=A)"
+			(at 76.2 56.388 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "e9814172-763c-4803-be67-4fc6185b44d9")
+		)
+		(pin "2"
+			(uuid "8ff4c8e7-65bc-4a7e-b383-849f5865c866")
+		)
+		(pin "3"
+			(uuid "0d15ee19-8a23-4fc7-8517-ea140f375ee9")
+		)
+		(instances
+			(project "solar-gate-v1"
+				(path "/0c31090d-ef25-44de-977d-fcaf1aa2b30e"
+					(reference "D1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "REF2V5"
+		(at 78.74000000000001 63.5 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "2fe782e3-6b3c-4fc7-a4d5-a17d4dafa438")
+	)
+	(label "REF2V5"
+		(at 76.2 60.96 90)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "f681dc08-ea94-479d-842c-ebc5019151e8")
+	)
+	(label "GND"
+		(at 73.66 63.5 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "cc4e65fc-92e0-481e-9545-4bf654111312")
 	)
 	(sheet_instances
 		(path "/"
