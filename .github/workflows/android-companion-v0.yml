@@ -27,8 +27,10 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
         with:
-          api-level: 35
-          build-tools-version: 35.0.0
+          # android-actions/setup-android takes a `packages` list, not
+          # api-level/build-tools-version (those belong to the emulator
+          # runner action). Passing them fails the step outright.
+          packages: 'platforms;android-35 build-tools;35.0.0 platform-tools'
 
       - name: Assemble debug APK
         run: chmod +x gradlew && ./gradlew --no-daemon assembleDebug
