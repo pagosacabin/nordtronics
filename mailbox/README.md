@@ -1,5 +1,17 @@
 # Mailbox protocol — global rules
 
+protocol_version: 1.0.0
+
+## Protocol versioning
+
+Semver. MAJOR = states or transitions change. MINOR = new rule or field.
+PATCH = clarification only. Every version bump ships as a mailbox task written
+in the previous format, carrying the exact skill-patch text to apply verbatim.
+
+## Changelog
+
+- 1.0.0 — 2026-09-23: baseline. Existing rules versioned; no behavior change.
+
 The mailbox is a state machine. Task files move through directories; every
 transition is a `git mv` + commit + push. Never copy a task file — move it.
 
