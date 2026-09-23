@@ -87,5 +87,11 @@ proves itself on our land before anyone pays.
 > 3. VPS - MQTT broker, ingest, time-series DB, API + alert engine
 > 4. Android app - HTTPS API, push alerts
 
-Text is kept out of the generated image because AI image generators still mangle
-rendered lettering. Numbered badges plus a manually added legend sidestep it.
+## Generated diagram
+
+![Wildfire Detect v1 - Communication Stream](communication-stream-v1.png)
+
+Generated 2026-09-23 from the merged prompt below. The generator rendered the
+legend text cleanly, so the manual-legend fallback was not needed. If a future
+regeneration mangles lettering, fall back to the no-text prompt variant plus a
+manually added legend.
