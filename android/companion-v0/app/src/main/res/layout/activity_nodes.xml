@@ -1,23 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  Nodes screen (0047). The "Nodes" header bar is a view in this layout, not the
+  framework action bar: edge-to-edge, the decor drew the action bar over the
+  content and the REFRESH / ALERTS toolbar disappeared underneath it. The window
+  is padded by the real system-bar insets in NodesActivity, so the header sits
+  below the status bar and the toolbar below the header on any device.
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/nodes_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <TextView
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/companion_primary"
+        android:paddingStart="16dp"
+        android:paddingTop="14dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="14dp"
+        android:text="@string/nodes_title"
+        android:textColor="@color/companion_on_primary"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="end|center_vertical"
         android:orientation="horizontal"
-        android:gravity="center_vertical"
         android:padding="12dp">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/nodes_title"
-            android:textSize="20sp"
-            android:textStyle="bold" />
 
         <Button
             android:id="@+id/btn_refresh"
@@ -29,6 +43,7 @@
             android:id="@+id/btn_alerts"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
             android:text="@string/alerts" />
     </LinearLayout>
 

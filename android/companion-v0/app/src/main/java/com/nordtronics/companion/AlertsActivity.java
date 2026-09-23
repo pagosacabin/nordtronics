@@ -22,6 +22,7 @@ public class AlertsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alerts);
+        WindowInsetsHelper.applySystemBarInsets(this);
 
         list = findViewById(R.id.list);
         status = findViewById(R.id.status);

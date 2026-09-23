@@ -2,7 +2,7 @@ name: Android Companion v0
 
 on:
   push:
-    branches: [hermes/0045-companion-v0, hermes/0046-companion-icon]
+    branches: [hermes/0045-companion-v0, hermes/0046-companion-icon, hermes/0047-nodes-toolbar-insets]
     paths:
       - 'android/companion-v0/**'
       - '.github/workflows/android-companion-v0.yml'

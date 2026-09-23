@@ -22,6 +22,7 @@ public class NodesActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_nodes);
+        WindowInsetsHelper.applySystemBarInsets(this);
 
         list = findViewById(R.id.list);
         status = findViewById(R.id.status);

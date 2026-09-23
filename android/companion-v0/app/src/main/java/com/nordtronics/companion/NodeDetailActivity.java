@@ -22,6 +22,7 @@ public class NodeDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_node_detail);
+        WindowInsetsHelper.applySystemBarInsets(this);
 
         detail = findViewById(R.id.detail);
         pingResult = findViewById(R.id.ping_result);
@@ -31,7 +32,8 @@ public class NodeDetailActivity extends AppCompatActivity {
         if (extra != null && !extra.isEmpty()) {
             nodeId = extra;
         }
-        setTitle("Node " + nodeId);
+        // The node id used to be the action bar title; it is now the header bar.
+        ((TextView) findViewById(R.id.header)).setText(getString(R.string.detail_title) + " — " + nodeId);
 
         findViewById(R.id.btn_ping).setOnClickListener(v -> sendPing());
         loadNode();

@@ -1,8 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.Companion" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="colorPrimary">#B23A1E</item>
-        <item name="colorPrimaryDark">#7A2410</item>
-        <item name="colorAccent">#FF7043</item>
-        <item name="android:windowBackground">#FDF7F4</item>
+    <!-- NoActionBar (0047): the framework/AppCompat action bar is drawn *over*
+         the content when the app runs edge-to-edge (Android 15+, targetSdk 35),
+         which hid this screen's toolbar underneath the "Nodes" header. Each
+         screen now owns its header bar in its own layout and pads the window by
+         the real system-bar insets — see WindowInsetsHelper. -->
+    <style name="Theme.Companion" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/companion_primary</item>
+        <item name="colorPrimaryDark">@color/companion_primary_dark</item>
+        <item name="colorAccent">@color/companion_accent</item>
+        <item name="android:windowBackground">@color/companion_window</item>
     </style>
 </resources>

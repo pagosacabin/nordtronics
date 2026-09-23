@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Shell colours. Kept here so the header bar and the theme share one
+         definition; the values match the original Theme.Companion palette. -->
+    <color name="companion_primary">#B23A1E</color>
+    <color name="companion_primary_dark">#7A2410</color>
+    <color name="companion_accent">#FF7043</color>
+    <color name="companion_window">#FDF7F4</color>
+    <color name="companion_on_primary">#FFFFFF</color>
+</resources>
