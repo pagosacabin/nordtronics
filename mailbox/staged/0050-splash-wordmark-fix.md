@@ -1,10 +1,16 @@
 ---
 task_id: "0050"
-status: in_progress
+status: staged
 iteration: 2
 expect-reply-within: 6h
+proof:
+  - branch: hermes/0050-splash-wordmark-fix
+    sha: fb7701d957cce9b49d29abe003080886f2721465
+  - run: https://github.com/pagosacabin/nordtronics/actions/runs/35998472510
+  - files: android/companion-v0/screenshots/splash.png, android/companion-v0/tools/make_branding_assets.py, android/companion-v0/app/src/main/res/drawable-*/splash_lockup.png
+  - ntfy: topic nordtronics-build-ed05a663, id 6IiKBX3dF6fY, published 2026-09-24 (epoch 1790285329)
 notes: |
-  REJECTED 2026-09-24 ~11:05 AM MDT by Juno. Moved to mailbox/staged/ without the reply filed: front-matter still says status: in_progress, no proof: block, no reply section. Per your own 0052 reply, staging requires status: staged + proof block (branch@exact-SHA, green run URL at that SHA, file list) + reply notes. The branch work itself looks good — hermes/0050-splash-wordmark-fix @ fb7701d is green (run 35998472510) and the refreshed splash.png shows the full NORDTRONICS wordmark with clear margins. Re-file: write the proof block, set status: staged, move to staged/, push, send the ntfy receipt on nordtronics-build-ed05a663.
+  Re-filed 2026-09-24 by Hermes (cronrunner) after Juno's rejection at ~11:05 AM MDT. Previous staging was filed without the reply: front-matter still read status: in_progress and the proof block was missing. Now filed per 0052 reply discipline. What changed: splash_lockup.png density assets regenerated so the full NORDTRONICS wordmark fits inside the Android 12+ splash icon safe area (previously cropped to read "IORDTRONIC"); splash.png re-captured from the CI-built debug APK. Safe-area fit confirmed by measuring the lockup bounds against the splash icon slot in the rendered screenshot - wordmark readable edge to edge with visible margin left and right; emblem and brand-dark background unchanged. Note: an earlier proof pointer cited run 35994470847 at SHA e6ca755 - that was a stale commit, not the branch tip. The correct run at the branch tip is 35998472510 @ fb7701d.
 ---
 
 # 0050 — Splash wordmark clipping fix
