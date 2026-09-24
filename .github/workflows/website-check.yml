@@ -1,0 +1,52 @@
+name: Website Check
+
+on:
+  push:
+    branches: [ hermes/0051-nordtronics-website ]
+  pull_request:
+    branches: [ hermes/0051-nordtronics-website ]
+
+jobs:
+  html-link-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install htmlhint and linkchecker
+        run: |
+          npm install -g htmlhint@1.1.4
+          pip install linkchecker --break-system-packages
+
+      - name: Validate HTML
+        run: |
+          htmlhint website/index.html --config .htmlhintrc
+
+      - name: Check links (local only, no external)
+        run: |
+          linkchecker --check-extern website/index.html \
+            --ignore-url "mailto:*" \
+            --ignore-url "https://github.com/*" \
+            --timeout 10 \
+            --no-warnings \
+            --output text
+
+      - name: Verify assets exist
+        run: |
+          test -f website/assets/favicon.png || (echo "Missing favicon.png" && exit 1)
+          test -f website/assets/og-image.png || (echo "Missing og-image.png" && exit 1)
+          test -f website/screenshots/v01-nodes.png || (echo "Missing v01-nodes.png" && exit 1)
+          test -f website/screenshots/v01-node-detail.png || (echo "Missing v01-node-detail.png" && exit 1)
+          test -f website/screenshots/v01-alerts.png || (echo "Missing v01-alerts.png" && exit 1)
+          echo "All assets present"
+
+      - name: Quick serve test
+        run: |
+          cd website
+          python3 -m http.server 8080 &
+          SERVER_PID=$!
+          sleep 2
+          curl -f -s http://localhost:8080/ > /dev/null || (echo "Server failed to respond" && kill $SERVER_PID && exit 1)
+          curl -f -s http://localhost:8080/index.html > /dev/null || (echo "index.html not served" && kill $SERVER_PID && exit 1)
+          kill $SERVER_PID
+          echo "Local serve OK"
