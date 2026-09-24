@@ -32,5 +32,10 @@
             android:name=".NodeDetailActivity"
             android:label="@string/detail_title"
             android:exported="false" />
+
+        <activity
+            android:name=".SystemActivity"
+            android:label="@string/system_title"
+            android:exported="false" />
     </application>
 </manifest>

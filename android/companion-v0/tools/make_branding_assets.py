@@ -13,7 +13,8 @@ the emblem from the plate and the wordmark into an alpha channel, then emits:
   res/mipmap-{mdpi..xxxhdpi}/ic_launcher.png             legacy icon (pre-API-26)
   res/mipmap-{mdpi..xxxhdpi}/ic_launcher_foreground.png  adaptive-icon foreground
   res/drawable-{mdpi..xxxhdpi}/brand_mark.png            in-app app-bar mark (24dp)
-  res/drawable-{mdpi..xxxhdpi}/splash_mark.png           splash-screen mark (288dp)
+  res/drawable-{mdpi..xxxhdpi}/splash_mark.png           splash emblem (288dp)
+  res/drawable-{mdpi..xxxhdpi}/splash_lockup.png         splash full lockup (0049)
 
 Run from android/companion-v0:  python3 tools/make_branding_assets.py
 Requires Pillow only (a host tool, not an app dependency).
@@ -28,6 +29,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 APP = os.path.dirname(HERE)                       # android/companion-v0
 REPO = os.path.dirname(os.path.dirname(APP))      # repo root
 SRC_MARK = os.path.join(REPO, "branding/nordtronics-logo/nordtronics-logo-mark-only.png")
+SRC_LOCKUP = os.path.join(REPO, "branding/nordtronics-logo/nordtronics-logo-full-lockup.png")
 RES = os.path.join(APP, "app/src/main/res")
 
 # Plate colour of the source artwork; also the brand dark used by the icon
@@ -37,6 +39,18 @@ ORANGE = (247, 165, 67)  # #F7A543
 
 # Emblem bounding box inside the 1600x1600 source (measured, see module docstring).
 EMBLEM_BOX = (307, 381, 1294, 1042)
+
+# Full-lockup source (1920x1280), measured the same way: the emblem occupies rows
+# 232..760 / cols 403..1525, the NORDTRONICS wordmark rows 963..1068 / cols
+# 345..1567. The union crop keeps the artwork's own gap between the two.
+LOCKUP_BOX = (345, 232, 1568, 1069)
+
+# The lockup carries a faint texture band between the emblem and the wordmark
+# (per-pixel plate distance up to ~137). The ramp starts above it so the band
+# comes back fully transparent instead of ghosting as a grey smear; the real
+# artwork sits at ~450 and stays solid.
+LOCKUP_FLOOR = 170.0
+LOCKUP_RAMP = 80.0
 
 DENSITIES = {"mdpi": 1.0, "hdpi": 1.5, "xhdpi": 2.0, "xxhdpi": 3.0, "xxxhdpi": 4.0}
 
@@ -53,6 +67,23 @@ def emblem_rgba():
     # so a ramp above the plate noise keeps the mark solid instead of ghosting
     # its dimmer interior, while still antialiasing the true edges.
     alpha = np.clip((dist - 40.0) / 80.0, 0.0, 1.0)
+    out = np.zeros(crop.shape[:2] + (4,), dtype=np.uint8)
+    out[..., 0], out[..., 1], out[..., 2] = ORANGE
+    out[..., 3] = (alpha * 255).round().astype(np.uint8)
+    return Image.fromarray(out, "RGBA")
+
+
+def lockup_rgba():
+    """The emblem + NORDTRONICS wordmark as one RGBA lockup (task 0049).
+
+    Same treatment as the emblem: the plate colour is ramped out of the alpha
+    channel, so only the artwork survives and the brand orange is exact.
+    """
+    src = np.asarray(Image.open(SRC_LOCKUP).convert("RGB")).astype(float)
+    crop = src[LOCKUP_BOX[1]:LOCKUP_BOX[3], LOCKUP_BOX[0]:LOCKUP_BOX[2]]
+    plate = np.array(PLATE, dtype=float)
+    dist = np.abs(crop - plate).sum(axis=2)
+    alpha = np.clip((dist - LOCKUP_FLOOR) / LOCKUP_RAMP, 0.0, 1.0)
     out = np.zeros(crop.shape[:2] + (4,), dtype=np.uint8)
     out[..., 0], out[..., 1], out[..., 2] = ORANGE
     out[..., 3] = (alpha * 255).round().astype(np.uint8)
@@ -97,6 +128,7 @@ def save(img, *path):
 
 def main():
     mark = emblem_rgba()
+    lockup = lockup_rgba()
 
     for dens, f in DENSITIES.items():
         # --- legacy launcher icon: mark on the brand-dark plate ---------------
@@ -128,6 +160,13 @@ def main():
         c = int(round(288 * f))
         save(fit(mark, c, c, c, c, scale=176.0 / 288.0),
              f"drawable-{dens}", "splash_mark.png")
+
+        # --- splash lockup (0049): the full emblem + NORDTRONICS wordmark ----
+        # The launcher splash now shows the lockup, not the bare emblem: same
+        # 288dp padded canvas and the same 176dp fit, so the framework's icon
+        # mask still has the margin it needs around the wider artwork.
+        save(fit(lockup, c, c, c, c, scale=176.0 / 288.0),
+             f"drawable-{dens}", "splash_lockup.png")
 
 
 if __name__ == "__main__":

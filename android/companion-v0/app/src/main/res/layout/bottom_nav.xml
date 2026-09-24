@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Bottom navigation (mockup: .bottom-nav — the mobile layout's primary nav).
+  Three items; each screen marks its own item active at runtime through
+  Ui.markNav(), which tints the 3dp indicator bar and the label.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/bottom_nav"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/nt_rail"
+    android:orientation="horizontal"
+    android:paddingStart="10dp"
+    android:paddingTop="4dp"
+    android:paddingEnd="10dp"
+    android:paddingBottom="4dp">
+
+    <LinearLayout
+        android:id="@+id/nav_nodes"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingTop="4dp"
+        android:paddingBottom="2dp">
+
+        <View
+            android:id="@+id/nav_nodes_bar"
+            android:layout_width="26dp"
+            android:layout_height="3dp" />
+
+        <TextView
+            android:id="@+id/nav_nodes_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:text="@string/nav_nodes"
+            android:textSize="10sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/nav_alerts"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingTop="4dp"
+        android:paddingBottom="2dp">
+
+        <View
+            android:id="@+id/nav_alerts_bar"
+            android:layout_width="26dp"
+            android:layout_height="3dp" />
+
+        <TextView
+            android:id="@+id/nav_alerts_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:text="@string/nav_alerts"
+            android:textSize="10sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/nav_system"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingTop="4dp"
+        android:paddingBottom="2dp">
+
+        <View
+            android:id="@+id/nav_system_bar"
+            android:layout_width="26dp"
+            android:layout_height="3dp" />
+
+        <TextView
+            android:id="@+id/nav_system_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:text="@string/nav_system"
+            android:textSize="10sp" />
+    </LinearLayout>
+</LinearLayout>

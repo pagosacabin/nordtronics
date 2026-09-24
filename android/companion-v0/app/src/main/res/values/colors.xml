@@ -1,16 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Shell colours. Kept here so the header bar and the theme share one
-         definition; the values match the original Theme.Companion palette. -->
-    <color name="companion_primary">#B23A1E</color>
-    <color name="companion_primary_dark">#7A2410</color>
-    <color name="companion_accent">#FF7043</color>
-    <color name="companion_window">#FDF7F4</color>
-    <color name="companion_on_primary">#FFFFFF</color>
+    <!-- Dark Nordtronics palette, taken from the approved v0.1 mockup
+         (docs/wildfire/companion-v0.1-mockup.html, dark scheme) so the app and
+         the design reference share one set of values. -->
+    <color name="nt_bg">#121718</color>
+    <color name="nt_rail">#171D1E</color>
+    <color name="nt_surface_2">#242D2D</color>
+    <color name="nt_surface_3">#2C3535</color>
+    <color name="nt_ink">#F2F4EF</color>
+    <color name="nt_muted">#AAB3B0</color>
+    <color name="nt_line">#394342</color>
+    <color name="nt_accent">#FF9E36</color>
+    <color name="nt_accent_strong">#FFB35E</color>
+    <color name="nt_accent_soft">#4B3321</color>
+    <color name="nt_ok">#65C99B</color>
+    <color name="nt_ok_soft">#203D31</color>
+    <color name="nt_warn">#FF9B6E</color>
+    <color name="nt_warn_soft">#4B2C24</color>
+    <color name="nt_blue">#74BBD1</color>
+    <color name="nt_blue_soft">#213C45</color>
+    <color name="nt_hero_text">#CBD1CF</color>
 
     <!-- Brand dark (0048). Sampled from the plate of the repo logo asset
          branding/nordtronics-logo/nordtronics-logo-mark-only.png, so the
          launcher-icon background and the splash background match the artwork
-         exactly rather than a hand-picked near-black. -->
+         exactly rather than a hand-picked near-black. Unchanged by 0049. -->
     <color name="brand_dark">#222629</color>
 </resources>

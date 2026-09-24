@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Health-bar fill (mockup: .bar i). -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/nt_ok" />
+    <corners android:radius="9dp" />
+</shape>

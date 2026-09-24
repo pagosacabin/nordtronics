@@ -49,12 +49,14 @@ final class WindowInsetsHelper {
         });
 
         // Edge-to-edge makes the system bars transparent, so the app decides
-        // whether their icons are drawn light or dark. The strips this app
-        // reserves are the light window background, so the icons are dark.
+        // whether their icons are drawn light or dark. Since 0049 the screens are
+        // dark-first (the v0.1 mockup's dark scheme, #121718), so the bar icons
+        // must be LIGHT — with the previous dark-icon setting the status bar and
+        // the gesture pill were invisible against the dark background.
         WindowInsetsControllerCompat controller =
                 WindowCompat.getInsetsController(activity.getWindow(), content);
-        controller.setAppearanceLightStatusBars(true);
-        controller.setAppearanceLightNavigationBars(true);
+        controller.setAppearanceLightStatusBars(false);
+        controller.setAppearanceLightNavigationBars(false);
 
         ViewCompat.requestApplyInsets(content);
     }

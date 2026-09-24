@@ -14,10 +14,12 @@
         <!-- Brand dark plate, matching the launcher-icon background layer and
              the artwork (res/values/colors.xml -> brand_dark). -->
         <item name="android:windowSplashScreenBackground">@color/brand_dark</item>
-        <!-- The Nordtronics mark, extracted from the repo asset by
+        <!-- 0049: the splash now shows the FULL LOCKUP — emblem with the
+             NORDTRONICS wordmark beneath it — derived from
+             branding/nordtronics-logo/nordtronics-logo-full-lockup.png by
              tools/make_branding_assets.py. The drawable is a padded 288dp
-             canvas so the framework's icon mask cannot clip the emblem. -->
-        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_mark</item>
+             canvas sized so the framework's icon mask cannot clip the lockup. -->
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_lockup</item>
         <item name="android:windowSplashScreenIconBackgroundColor">@color/brand_dark</item>
     </style>
 </resources>

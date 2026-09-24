@@ -1,11 +1,79 @@
 <resources>
     <string name="app_name">Nordtronics Companion</string>
-    <string name="nodes_title">Nodes</string>
+    <string name="brand_name">Nordtronics</string>
+    <string name="brand_sub">Wildfire companion</string>
+    <string name="demo_badge">Prototype data</string>
+
+    <string name="nodes_title">Property line</string>
     <string name="alerts_title">Alerts</string>
+    <string name="alerts_subtitle">Consensus-based detection cuts down false alarms</string>
+    <string name="system_title">System</string>
+    <string name="system_subtitle">What is connected and what leaves the property</string>
     <string name="detail_title">Node detail</string>
-    <string name="refresh">Refresh</string>
-    <string name="alerts">Alerts</string>
-    <string name="nodes">Nodes</string>
+
+    <string name="nav_nodes">Nodes</string>
+    <string name="nav_alerts">Alerts</string>
+    <string name="nav_system">System</string>
+
+    <string name="field_nodes">Field nodes</string>
+    <string name="recent_activity">Recent activity</string>
+    <string name="recent_history">Recent history</string>
+    <string name="link_hardware">Link &amp; hardware</string>
+    <string name="reading_history">Readings</string>
+
+    <string name="stat_pm">PM2.5 median</string>
+    <string name="stat_temp">Air temperature</string>
+    <string name="stat_humidity">Humidity</string>
+    <string name="stat_reporting">Reporting</string>
+    <string name="unit_pm">µg/m³</string>
+    <string name="unit_f">F</string>
+    <string name="unit_rh">% RH</string>
+    <string name="unit_nodes">NODES</string>
+
+    <string name="filter_all">All</string>
+    <string name="filter_watch">Watch</string>
+    <string name="filter_smoke">Smoke</string>
+    <string name="filter_battery">Battery</string>
+    <string name="filter_heat">Heat</string>
+
+    <string name="back_to_nodes">Back to nodes</string>
     <string name="send_ping">Send test ping</string>
     <string name="loading">Contacting server…</string>
+    <string name="empty_nodes">No nodes need attention.</string>
+    <string name="empty_alerts">No alerts match this filter.</string>
+
+    <string name="reading_pm">PM2.5</string>
+    <string name="reading_temp">Temperature</string>
+    <string name="reading_humidity">Humidity</string>
+    <string name="reading_battery">Battery</string>
+    <string name="bar_recency">Packet recency</string>
+    <string name="bar_headroom">PM2.5 headroom</string>
+    <string name="bar_battery">Battery</string>
+
+    <string name="panel_base_station">Base station</string>
+    <string name="panel_base_station_body">Receiving 915 MHz LoRa packets from the field nodes and applying the local consensus rules.</string>
+    <string name="panel_privacy">Privacy</string>
+    <string name="panel_privacy_body">Only environmental telemetry leaves the property: PM2.5, temperature, humidity and battery voltage. No cameras, no audio, no location trail.</string>
+    <string name="panel_prototype">Prototype mode</string>
+    <string name="panel_prototype_body">Every reading and alert on these screens is demonstration data served by the local mock backend. Nothing here is a live field deployment yet.</string>
+    <string name="panel_about">About</string>
+    <string name="panel_about_body">The wildfire early-warning companion.</string>
+
+    <string name="row_status">Status</string>
+    <string name="row_local_address">Local address</string>
+    <string name="row_last_heartbeat">Last heartbeat</string>
+    <string name="row_leaves_property">Leaves the property</string>
+    <string name="row_cameras">Cameras / audio</string>
+    <string name="row_location">Location trail</string>
+    <string name="row_mode">Mode</string>
+    <string name="row_data_source">Data source</string>
+    <string name="row_version">Version</string>
+    <string name="row_build">Build</string>
+
+    <string name="value_none">NONE</string>
+    <string name="value_telemetry">PM2.5 / TEMP / HUMIDITY / BATTERY</string>
+    <string name="version_placeholder">v0.1</string>
+    <string name="value_prototype">PROTOTYPE — MOCK BACKEND</string>
+    <string name="value_online">ONLINE</string>
+    <string name="value_unreachable">UNREACHABLE</string>
 </resources>

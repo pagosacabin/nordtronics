@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Network-consensus hero, the dark rail card at the top of the Nodes screen
+     (mockup: .hero). -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/nt_rail" />
+    <corners android:radius="22dp" />
+</shape>

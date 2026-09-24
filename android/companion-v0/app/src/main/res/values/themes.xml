@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- NoActionBar (0047): the framework/AppCompat action bar is drawn *over*
-         the content when the app runs edge-to-edge (Android 15+, targetSdk 35),
-         which hid this screen's toolbar underneath the "Nodes" header. Each
-         screen now owns its header bar in its own layout and pads the window by
-         the real system-bar insets — see WindowInsetsHelper. -->
-    <style name="Theme.Companion" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorPrimary">@color/companion_primary</item>
-        <item name="colorPrimaryDark">@color/companion_primary_dark</item>
-        <item name="colorAccent">@color/companion_accent</item>
-        <item name="android:windowBackground">@color/companion_window</item>
+    <!-- Dark shell (0049). The v0.1 screens are dark-first, exactly like the
+         approved mockup, so the theme base is AppCompat's dark theme and the
+         window background is the mockup's dark background — the screens, not an
+         action bar, paint everything. NoActionBar is still required: since 0047
+         the app runs edge-to-edge (targetSdk 35) and each screen owns its own
+         header row rather than letting the decor draw one over the content. -->
+    <style name="Theme.Companion" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorPrimary">@color/nt_accent</item>
+        <item name="colorPrimaryDark">@color/brand_dark</item>
+        <item name="colorAccent">@color/nt_accent</item>
+        <item name="android:windowBackground">@color/nt_bg</item>
+        <item name="android:textColorPrimary">@color/nt_ink</item>
+        <item name="android:textColorSecondary">@color/nt_muted</item>
     </style>
 
     <!-- Splash theme for the launcher activity (0048). Its parent carries every

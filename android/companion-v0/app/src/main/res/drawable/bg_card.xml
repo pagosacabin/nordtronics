@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Surface card: a field-node card / reading tile (mockup: .node, .reading). -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/nt_surface_2" />
+    <corners android:radius="16dp" />
+</shape>
