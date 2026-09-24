@@ -52,7 +52,35 @@ LOCKUP_BOX = (345, 232, 1568, 1069)
 LOCKUP_FLOOR = 170.0
 LOCKUP_RAMP = 80.0
 
+# Android 12+ splash icon geometry, measured on the API 35 / 420 dpi emulator
+# (task 0050) with a full-bleed probe drawable in windowSplashScreenAnimatedIcon:
+# the framework draws the icon at its intrinsic size, centred, inside a FIXED
+# circle of radius 95.97 dp (~192 dp diameter) centred on the frame, and clips
+# everything outside it. The circle does not scale with the drawable's own
+# canvas — probes on 288 dp and 384 dp canvases rendered the identical circle —
+# so a lockup wider than the circle loses its ends (0049: the wordmark read
+# "IORDTRONIC"). Fit the lockup's outer ink inside SPLASH_SAFE_R_DP, which keeps
+# ~8 dp of clearance inside the 96 dp circle at every angle.
+SPLASH_SAFE_R_DP = 88.0
+
+# Alpha above which a lockup pixel counts as ink when measuring that radius.
+INK_ALPHA = 0.15
+
 DENSITIES = {"mdpi": 1.0, "hdpi": 1.5, "xhdpi": 2.0, "xxhdpi": 3.0, "xxxhdpi": 4.0}
+
+
+def ink_radius_frac(img):
+    """Max distance from the artwork's centre to any ink pixel, / image width.
+
+    The splash mask is a circle centred on the icon, so what has to fit is the
+    lockup's furthest ink, not its bounding box.
+    """
+    a = np.asarray(img.getchannel("A")).astype(float) / 255.0
+    ys, xs = np.nonzero(a > INK_ALPHA)
+    w = xs.max() - xs.min() + 1
+    cx, cy = (xs.min() + xs.max() + 1) / 2.0, (ys.min() + ys.max() + 1) / 2.0
+    r = np.sqrt((xs + 0.5 - cx) ** 2 + (ys + 0.5 - cy) ** 2).max()
+    return r / w
 
 
 def emblem_rgba():
@@ -77,7 +105,9 @@ def lockup_rgba():
     """The emblem + NORDTRONICS wordmark as one RGBA lockup (task 0049).
 
     Same treatment as the emblem: the plate colour is ramped out of the alpha
-    channel, so only the artwork survives and the brand orange is exact.
+    channel, so only the artwork survives and the brand orange is exact. The crop
+    is then trimmed to the artwork's ink box, so the caller's centring is the
+    artwork's centring (task 0050 fits the ink to the splash mask circle).
     """
     src = np.asarray(Image.open(SRC_LOCKUP).convert("RGB")).astype(float)
     crop = src[LOCKUP_BOX[1]:LOCKUP_BOX[3], LOCKUP_BOX[0]:LOCKUP_BOX[2]]
@@ -87,7 +117,9 @@ def lockup_rgba():
     out = np.zeros(crop.shape[:2] + (4,), dtype=np.uint8)
     out[..., 0], out[..., 1], out[..., 2] = ORANGE
     out[..., 3] = (alpha * 255).round().astype(np.uint8)
-    return Image.fromarray(out, "RGBA")
+    ys, xs = np.nonzero(alpha > INK_ALPHA)
+    return Image.fromarray(out, "RGBA").crop(
+        (xs.min(), ys.min(), xs.max() + 1, ys.max() + 1))
 
 
 def fit(mark, box_w, box_h, canvas_w, canvas_h, scale=1.0):
@@ -161,11 +193,21 @@ def main():
         save(fit(mark, c, c, c, c, scale=176.0 / 288.0),
              f"drawable-{dens}", "splash_mark.png")
 
-        # --- splash lockup (0049): the full emblem + NORDTRONICS wordmark ----
-        # The launcher splash now shows the lockup, not the bare emblem: same
-        # 288dp padded canvas and the same 176dp fit, so the framework's icon
-        # mask still has the margin it needs around the wider artwork.
-        save(fit(lockup, c, c, c, c, scale=176.0 / 288.0),
+        # --- splash lockup (0049, refit in 0050 for the framework's icon mask) --
+        # The launcher splash shows the lockup, not the bare emblem. The 288dp
+        # padded canvas is kept, but the lockup is no longer fitted to a square
+        # box: its outer ink is fitted into SPLASH_SAFE_R_DP, because the
+        # framework clips the icon to a fixed 96dp-radius circle (see the constant
+        # above). 0049's 176dp fit put the wordmark's ends ~10dp outside that
+        # circle and the system cropped them.
+        rf = ink_radius_frac(lockup)
+        lockup_w_dp = SPLASH_SAFE_R_DP / rf
+        if dens == "mdpi":
+            print("lockup ink radius %.4f of width -> splash lockup %.1f dp wide, "
+                  "%.1f dp tall, fit scale %.4f of the 288dp canvas"
+                  % (rf, lockup_w_dp, lockup_w_dp * lockup.height / lockup.width,
+                     lockup_w_dp / 288.0))
+        save(fit(lockup, c, c, c, c, scale=lockup_w_dp / 288.0),
              f"drawable-{dens}", "splash_lockup.png")
 
 
