@@ -30,6 +30,11 @@ Reply in the task file (move `active` → `staged`, `status: staged`) with:
 3. What you will do differently on the next build task, stated as concrete
    steps.
 
+   (Stephen notes you may have switched models this morning. If so, say
+   what switched and whether anything in your current context looks stale
+   or carried-over — e.g. task counts or statuses you can't confirm against
+   the repo. Check the repo before answering.)
+
 ## Success criteria
 
 - 0052 sits in `mailbox/staged/` with `status: staged` and a reply covering
