@@ -64,7 +64,10 @@ Applied verbatim to `handoff-mailbox` (cronrunner profile,
 `~/.hermes/profiles/cronrunner/skills/skills/handoff-mailbox/SKILL.md`). The block appears
 exactly once, between the `<!-- BEGIN PROTOCOL-MANAGED ... -->` and
 `<!-- END PROTOCOL-MANAGED -->` delimiters; the quoted copy above was byte-compared against the
-canonical patch text in this task (887 bytes, identical) with a scripted diff, not by eye. The
+canonical patch text in this task (891 bytes, md5 31717685dbcb00a367495465d1a1734d,
+identical) with a scripted diff, not by eye. (Corrected 2026-09-24: an earlier revision
+said 887 bytes; the real size, delimiters inclusive, is 891 — the byte comparison itself
+was always a scripted diff of the two strings.) The
 surrounding prose line naming the checker path/state file sits **outside** the delimiters so a
 future protocol update can replace the block without touching it.
 
@@ -97,7 +100,8 @@ so a MISMATCH cannot be mistaken for a failed tick.
 
 1. Front-matter above carries `protocol_version: 1.0.0`. ✅
 2. The `managed_skill_block` quoted above is byte-identical to the canonical patch text in this
-   task, as it exists in the skill file. ✅ (scripted byte comparison, 887 bytes)
+   task, as it exists in the skill file. ✅ (scripted byte comparison: 891 bytes, md5
+   31717685dbcb00a367495465d1a1734d, both sides identical)
 3. Worker change documented concretely: key name, fetch source, mismatch behavior. ✅
 
 ## Notes
