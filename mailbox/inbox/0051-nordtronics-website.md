@@ -5,7 +5,7 @@ iteration: 0
 expect-reply-within: 6h
 ---
 
-# 0051 — Nordtronics static website (GitHub Pages)
+# 0051 — Nordtronics static website (VPS deploy)
 
 ## Context
 
@@ -13,15 +13,23 @@ Nordtronics has no public face yet. Build a static marketing/product website
 for it, in the same dark theme as the companion app, covering everything we
 have so far: the wildfire early-warning sensor network (flagship), the
 off-grid solar / battery / embedded services, and a pilot-program call to
-action. The site deploys to GitHub Pages via Actions, all version controlled.
+action.
+
+Deploy target changed since this task was first drafted: `nordtronics.io` is
+now purchased and its DNS points at our VPS, where nginx already serves a
+placeholder page from `website/index.html` (see main). There is NO GitHub
+Pages involved — the site source lives in `website/` in this repo, and
+deployment to the VPS is handled separately after your work is verified. Do
+not add any Pages workflow, CNAME file, or DNS records.
 
 Base the work on origin/main @
-`ba7a6c1741a8d4bb5090574a75d1ca3ce6dd376e`. Create branch
+`9289a0eebcda354f120919605ab4b7069a1b369b`. Create branch
 `hermes/0051-nordtronics-website` from that tip.
 
 ## Task
 
-Build a static website in a new `website/` directory at the repo root:
+Build the full static website, replacing the placeholder in the `website/`
+directory at the repo root:
 
 1. **Pages/sections** (single-page with anchored sections is fine):
    - Hero: Nordtronics — off-grid solar, custom batteries, embedded IoT.
@@ -56,12 +64,13 @@ Build a static website in a new `website/` directory at the repo root:
    Use the repo logo assets in `branding/nordtronics-logo/` (full lockup +
    mark-only PNGs); favicon from the mark-only PNG.
 3. **Tech**: plain HTML + CSS, vanilla JS only if needed. No build step, no
-   npm, no frameworks — it must deploy to Pages as committed. Mobile-first
-   responsive. Meta/OG tags for sharing.
-4. **Deploy**: add `.github/workflows/pages.yml` (or extend the existing
-   Pages setup if one exists on main) so pushing the branch builds and
-   deploys `website/` to GitHub Pages. Do NOT add a CNAME file —
-   `nordtronics.io` is not purchased yet; that is a follow-up task.
+   npm, no frameworks — the files in `website/` are deployed to the VPS web
+   root exactly as committed. Mobile-first responsive. Meta/OG tags for
+   sharing.
+4. **Deploy is out of scope for this task.** Do not touch the server, DNS, or
+   any workflow that publishes the site. Juno syncs `website/` to the VPS
+   after your branch is verified. Your job ends at a complete, correct
+   `website/` directory on your branch.
 5. **App screenshots**: you may copy the real 0049 emulator screenshots
    (`android/companion-v0/screenshots/*.png` on branch
    `hermes/0049-companion-v01-ui`) into the site to show the companion app.
@@ -72,11 +81,15 @@ Build a static website in a new `website/` directory at the repo root:
 - `website/index.html` (+ assets) renders the full site with all sections
   above; dark theme matches the palette hex-for-hex.
 - SVG architecture diagram is legible at mobile width.
-- No broken links/images; valid HTML (no console errors when served).
-- GitHub Actions Pages workflow is green at the branch tip SHA and the site
-  is reachable at the `*.github.io` Pages URL.
+- No broken links/images; valid HTML (no console errors when served from a
+  local static server).
+- Site works served as plain static files — no server-side rewrites,
+  no assumed base path other than `/`.
 - Desktop (1280px) and mobile (390px) screenshots of the rendered site are
   committed under `website/screenshots/`.
+- A CI workflow (`.github/workflows/website-check.yml`) runs an HTML/link
+  sanity check on the branch and is green at the branch tip SHA. It must NOT
+  deploy anywhere.
 
 ## Constraints
 
@@ -89,21 +102,23 @@ Build a static website in a new `website/` directory at the repo root:
   (e.g. `hello@example.com` with an HTML comment `<!-- STEPHEN: replace -->`).
 - Do NOT publish server IPs, internal infrastructure, or anything about the
   VPS.
+- Do NOT add GitHub Pages config, CNAME files, DNS records, or any deploy
+  workflow. Server and DNS are not yours in this task.
 - Keep the copy plainspoken and human, no corporate polish.
-- One deliverable: the website + its deploy workflow. No firmware, app,
-  hardware, or DNS work.
+- One deliverable: the website source. No firmware, app, hardware, DNS, or
+  server work.
 
 ## Proof
 
 - Origin branch: `hermes/0051-nordtronics-website` with full SHA.
-- Green GitHub Actions run at that exact SHA (Pages build + deploy).
-- Live GitHub Pages URL of the deployed site.
+- Green GitHub Actions run of `website-check.yml` at that exact SHA.
 - Committed `website/screenshots/desktop.png` and `website/screenshots/mobile.png`.
 - ntfy build-green receipt on topic `nordtronics-build-ed05a663`.
 
 ## Reply format
 
 Front-matter `status: staged` with the `proof:` block (branch + SHA, run
-URL, Pages URL, ntfy receipt, files list) and a `notes:` field describing
-the site structure, how the theme match was verified, and anything marked
-TBD/placeholder for Stephen.
+URL, ntfy receipt, files list) and a `notes:` field describing the site
+structure, how the theme match was verified, how the local-serve check was
+done, and anything marked TBD/placeholder for Stephen. Note explicitly that
+VPS deployment is left to Juno.
