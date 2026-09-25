@@ -1,0 +1,127 @@
+name: Backend
+
+# The backend has two things worth proving on every change:
+#   1. the ingest worker and the API pass their test suites, and
+#   2. the Mosquitto config actually starts a broker and enforces TLS +
+#      password auth + per-node topic isolation.
+#
+# `paths` is used WITHOUT a `branches` filter on purpose: a workflow that pins
+# an explicit branch list silently never runs for the next hermes/NNNN-*
+# branch, and a silent no-run leaves nothing to cite as proof.
+on:
+  push:
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend.yml'
+  pull_request:
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend.yml'
+  workflow_dispatch:
+
+jobs:
+  tests:
+    name: Ingest + API tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install --upgrade pip && pip install -r backend/requirements-dev.txt
+
+      - name: Compile every module
+        run: python -m compileall -q backend
+
+      - name: Run the test suite
+        run: |
+          set -o pipefail
+          cd backend && python -m pytest -q 2>&1 | tee test-report.txt
+
+      - name: Upload the test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-report
+          path: backend/test-report.txt
+          if-no-files-found: warn
+
+  mosquitto-config:
+    name: Mosquitto config check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install mosquitto, clients and helpers
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            mosquitto mosquitto-clients acl openssl shellcheck
+          # the package's own broker would otherwise hold 1883
+          sudo systemctl stop mosquitto 2>/dev/null || true
+
+      - name: Show which options this broker build supports
+        run: |
+          # capture first: piping `mosquitto -h` into `head` makes mosquitto die
+          # of SIGPIPE, which `set -o pipefail` would report as a failure
+          help_text="$(mosquitto -h 2>&1 || true)"
+          printf '%s\n' "$help_text"
+          if printf '%s\n' "$help_text" | grep -q -- '--test-config'; then
+            echo "HAS_TEST_CONFIG=true" >> "$GITHUB_ENV"
+          else
+            echo "HAS_TEST_CONFIG=false" >> "$GITHUB_ENV"
+          fi
+
+      - name: Lint the shell scripts
+        run: shellcheck backend/mosquitto/*.sh
+
+      - name: Verify the systemd units
+        run: |
+          # the units point at the deploy paths; stub the ones this runner
+          # does not have so systemd-analyze checks structure, not presence
+          sudo install -d /opt/nordtronics/venv/bin
+          sudo ln -sf "$(command -v python3)" /opt/nordtronics/venv/bin/python
+          systemd-analyze verify \
+            backend/mosquitto/mosquitto.service \
+            backend/ingest/wildfire-ingest.service \
+            backend/api/wildfire-api.service
+
+      - name: Install the config the way DEPLOY.md does
+        run: |
+          sudo install -o root -g mosquitto -m 0640 \
+            backend/mosquitto/mosquitto.conf /etc/mosquitto/nordtronics.conf
+
+      - name: Validate the config file
+        run: |
+          # `--test-config` is the documented validate-and-exit flag, and it
+          # only exists from mosquitto 2.1 (Ubuntu 24.04 ships 2.0.18).
+          if [ "$HAS_TEST_CONFIG" = "true" ]; then
+            sudo mosquitto --test-config -c /etc/mosquitto/nordtronics.conf
+          else
+            echo "no --test-config on this build; the live probe below is the check"
+          fi
+
+      - name: Create the deploy-time fixtures
+        run: sudo bash backend/mosquitto/test-fixture.sh
+
+      - name: Start the broker with the shipped config and probe it
+        run: |
+          set -o pipefail
+          sudo MOSQUITTO_CONF=/etc/mosquitto/nordtronics.conf \
+               MQTT_TEST_NODE_PASS=ci-fixture-not-a-secret \
+               MQTT_TEST_INGEST_PASS=ci-fixture-not-a-secret \
+               bash backend/mosquitto/smoke-test.sh 2>&1 | tee mosquitto-config-check.log
+
+      - name: Upload the broker check log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mosquitto-config-check
+          path: mosquitto-config-check.log
+          if-no-files-found: warn

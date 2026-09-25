@@ -1,0 +1,47 @@
+[Unit]
+Description=Nordtronics wildfire HTTPS API
+Documentation=file:/opt/nordtronics/backend/README.md
+After=network-online.target wildfire-ingest.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+# Own service user. `wildfire-data` is the group that owns the telemetry
+# database; the API opens it with SQLite's mode=ro, so this group membership
+# is for WAL sidecar access, not for writes.
+User=wildfire-api
+Group=wildfire-api
+SupplementaryGroups=wildfire-data
+WorkingDirectory=/opt/nordtronics/backend/api
+Environment=PYTHONPATH=/opt/nordtronics/backend
+Environment=PYTHONUNBUFFERED=1
+# no secrets are required for the API; the file only tunes paths/ports
+EnvironmentFile=-/etc/nordtronics/api.env
+# binds 127.0.0.1:8000 — nginx on api.nordtronics.io terminates TLS and proxies
+ExecStart=/opt/nordtronics/venv/bin/python -m api.app
+Restart=on-failure
+RestartSec=10s
+# same group-rw umask as the ingest worker: a WAL sidecar this process creates
+# in /var/lib/nordtronics belongs to wildfire-data too
+UMask=0007
+
+# ------------------------------------------------------------- hardening ---
+NoNewPrivileges=true
+PrivateDevices=true
+PrivateTmp=true
+ProtectControlGroups=true
+ProtectHome=true
+ProtectKernelModules=true
+ProtectKernelTunables=true
+ProtectSystem=strict
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictNamespaces=true
+RestrictRealtime=true
+# SQLite WAL readers need to map the -shm sidecar next to the database, so the
+# directory is writable in the sandbox even though the connection itself is
+# opened read-only (backend/api/api/app.py, common/db.py).
+ReadWritePaths=/var/lib/nordtronics
+CapabilityBoundingSet=
+
+[Install]
+WantedBy=multi-user.target

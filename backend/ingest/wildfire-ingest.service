@@ -1,0 +1,47 @@
+[Unit]
+Description=Nordtronics wildfire telemetry ingest worker
+Documentation=file:/opt/nordtronics/backend/README.md
+After=network-online.target mosquitto.service
+Wants=network-online.target
+Requires=mosquitto.service
+
+[Service]
+Type=simple
+# One service user per service; `wildfire-data` is the shared group that owns
+# the telemetry database (the API reads it).
+User=wildfire-ingest
+Group=wildfire-ingest
+SupplementaryGroups=wildfire-data
+WorkingDirectory=/opt/nordtronics/backend/ingest
+# mirrors the layout on disk: `common` is importable, `ingest` comes from the
+# working directory
+Environment=PYTHONPATH=/opt/nordtronics/backend
+Environment=PYTHONUNBUFFERED=1
+# holds WILDFIRE_MQTT_USERNAME / WILDFIRE_MQTT_PASSWORD — mode 0600, root-owned
+EnvironmentFile=/etc/nordtronics/ingest.env
+ExecStart=/opt/nordtronics/venv/bin/python -m ingest.worker
+Restart=on-failure
+RestartSec=10s
+# group-rw for everything the worker creates: the database lives in the
+# setgid /var/lib/nordtronics, so `wildfire-api` reads it through the
+# `wildfire-data` group
+UMask=0007
+
+# ------------------------------------------------------------- hardening ---
+NoNewPrivileges=true
+PrivateDevices=true
+PrivateTmp=true
+ProtectControlGroups=true
+ProtectHome=true
+ProtectKernelModules=true
+ProtectKernelTunables=true
+ProtectSystem=strict
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictNamespaces=true
+RestrictRealtime=true
+# the worker owns the telemetry database and its WAL sidecars
+ReadWritePaths=/var/lib/nordtronics
+CapabilityBoundingSet=
+
+[Install]
+WantedBy=multi-user.target

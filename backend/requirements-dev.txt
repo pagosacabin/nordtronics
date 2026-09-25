@@ -1,0 +1,7 @@
+# Development/test-only dependencies for the backend tree.
+# Runtime dependencies live next to each service (ingest/requirements.txt,
+# api/requirements.txt) so a service can be installed without the other.
+-r ingest/requirements.txt
+-r api/requirements.txt
+pytest>=8.0,<9.0
+httpx>=0.27,<1.0

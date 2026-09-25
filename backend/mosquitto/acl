@@ -1,0 +1,19 @@
+# Nordtronics wildfire MQTT access control.
+# Deployed to /etc/mosquitto/acl (see backend/DEPLOY.md).
+#
+# With an acl_file defined mosquitto denies everything that is not listed
+# below, so this is a default-deny policy.
+
+# The ingest worker subscribes to every node's telemetry and may not publish.
+user wildfire-ingest
+topic read nordtronics/wildfire/+/telemetry
+
+# A base station authenticates with its node id as the username (the MQTT
+# username equals the node id the firmware sends on the wire), so these
+# patterns give every node read/write access to exactly its own subtree and
+# nothing else. `%u` is substituted with the authenticated username.
+pattern readwrite nordtronics/wildfire/%u/telemetry
+
+# Uncomment per node if a station ever needs a separate command topic — do not
+# widen the pattern above, it would let any node impersonate any other.
+# pattern readwrite nordtronics/wildfire/%u/command
