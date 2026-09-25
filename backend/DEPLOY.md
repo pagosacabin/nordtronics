@@ -14,8 +14,9 @@ Where everything lands:
 |---|---|---|
 | `/opt/nordtronics/backend` | root | the tree from this repo |
 | `/opt/nordtronics/venv` | root | one venv both services share |
-| `/etc/mosquitto/nordtronics.conf`, `/etc/mosquitto/acl` | root:mosquitto 0640 | broker config |
-| `/etc/mosquitto/passwd` | root:mosquitto 0640 | MQTT users (created here, never in git) |
+| `/etc/mosquitto/nordtronics.conf` | root:mosquitto 0640 | broker config |
+| `/etc/mosquitto/acl` | mosquitto:mosquitto 0640 | topic ACL — the broker's own user owns it (step 5) |
+| `/etc/mosquitto/passwd` | mosquitto:mosquitto 0600 | MQTT users (created here, never in git) |
 | `/etc/nordtronics/ingest.env` | root 0600 | the ingest worker's MQTT password |
 | `/etc/nordtronics/mqtt-ca.pem` | root:wildfire-data 0640 | the ingest worker's pinned MQTT CA bundle (step 7) |
 | `/var/lib/nordtronics/` | wildfire-ingest:wildfire-data 2770, database files 0660 | the SQLite database and its WAL sidecars |
@@ -80,7 +81,7 @@ both service users only read and execute from it.
 ```bash
 sudo install -o root -g mosquitto -m 0640 \
   /opt/nordtronics/backend/mosquitto/mosquitto.conf /etc/mosquitto/nordtronics.conf
-sudo install -o root -g mosquitto -m 0640 \
+sudo install -o mosquitto -g mosquitto -m 0640 \
   /opt/nordtronics/backend/mosquitto/acl /etc/mosquitto/acl
 
 # certbot's private key is root-only, so the unprivileged `mosquitto` user
@@ -130,8 +131,23 @@ INGEST_PW="$(openssl rand -base64 24)"
 NODE01_PW="$(openssl rand -base64 24)"
 sudo mosquitto_passwd -c -b /etc/mosquitto/passwd wildfire-ingest "$INGEST_PW"
 sudo mosquitto_passwd -b /etc/mosquitto/passwd node-01 "$NODE01_PW"
-sudo chown root:mosquitto /etc/mosquitto/passwd && sudo chmod 0640 /etc/mosquitto/passwd
 echo "node-01 password (record it for the base station): $NODE01_PW"
+
+# Hand both files to the user the broker runs as. While they belong to anyone
+# else, mosquitto warns on every start and a future version will refuse them:
+#   Warning: File /etc/mosquitto/passwd owner is not mosquitto. Future versions
+#   will refuse to load this file.To fix this, use `chown mosquitto ...`.
+# `acl` is installed `mosquitto:mosquitto 0640` in step 4; this applies the same
+# ownership to both files, so it is safe (and expected) to re-run on a host that
+# was deployed before this step existed.
+sudo chown mosquitto:mosquitto /etc/mosquitto/passwd /etc/mosquitto/acl
+sudo chmod 0600 /etc/mosquitto/passwd   # password file: the broker only
+sudo chmod 0640 /etc/mosquitto/acl      # ACL: the broker only, group-readable
+
+# `password_file` and `acl_file` are re-read on SIGHUP (the unit's ExecReload),
+# so a user added here takes effect without dropping connections. On a fresh
+# host no broker is up yet — step 8 starts it — which is the only way this fails.
+sudo systemctl reload mosquitto || echo "mosquitto not running yet; step 8 starts it"
 ```
 
 `$INGEST_PW` is used in step 7. Keep that shell open, or re-run this step.
@@ -191,6 +207,13 @@ sudo sh -c 'cat /etc/letsencrypt/live/nordtronics.io/chain.pem \
 sudo chown root:wildfire-data /etc/nordtronics/mqtt-ca.pem
 sudo chmod 0640 /etc/nordtronics/mqtt-ca.pem
 
+# The operator needs to probe this bundle (TLS verification, issuer/expiry
+# checks) without joining `wildfire-data`, so `deploy` gets a read ACL — the
+# same named-user setfacl pattern step 4 uses for mosquitto/wildfire-ingest.
+# A read ACL is enough: it leaves the 0640 root:wildfire-data modes above, and
+# therefore the worker's own access, exactly as they are.
+sudo setfacl -m u:deploy:r /etc/nordtronics/mqtt-ca.pem
+
 # The certificate's SANs are DNS names only (nordtronics.io, www., api.,
 # mqtt.) — there is no IP SAN — and Python/paho verify the host they are
 # given, so WILDFIRE_MQTT_HOST=127.0.0.1 can never pass hostname
@@ -218,11 +241,14 @@ host is an IP, and the right hostname does not help while the CA cannot build a
 path to a trust anchor.
 
 Step 4's renewal hook rebuilds this bundle from the renewed `chain.pem`, so a
-renewal cannot leave the worker trusting a stale chain. Confirm the worker can
-read its CA before starting the service:
+renewal cannot leave the worker trusting a stale chain. Confirm both readers can
+open the CA before starting the service — the worker (owner group) and the
+operator (the read ACL above):
 
 ```bash
 sudo -u wildfire-ingest head -1 /etc/nordtronics/mqtt-ca.pem   # -----BEGIN CERTIFICATE-----
+sudo -u deploy head -1 /etc/nordtronics/mqtt-ca.pem            # -----BEGIN CERTIFICATE-----
+getfacl -p /etc/nordtronics/mqtt-ca.pem                        # user:deploy:r--
 ```
 
 ## 8. systemd units
@@ -244,7 +270,11 @@ service user and data directory are reused.
 
 ## 9. nginx for api.nordtronics.io
 
-Add to the existing nginx config (e.g. `/etc/nginx/sites-available/nordtronics`):
+Append this vhost to the site file that already serves the apex,
+`/etc/nginx/sites-available/nordtronics.io` (take a backup first). The two
+`include` lines are the ones the apex `server` block already uses, so the API
+carries the same TLS policy and the same response headers (HSTS,
+`X-Content-Type-Options`, CSP, …) instead of the nginx defaults:
 
 ```nginx
 server {
@@ -254,6 +284,8 @@ server {
 
     ssl_certificate     /etc/letsencrypt/live/nordtronics.io/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/nordtronics.io/privkey.pem;
+    include /etc/nginx/snippets/nordtronics-tls.conf;
+    include /etc/nginx/snippets/nordtronics-headers.conf;
 
     location / {
         proxy_pass         http://127.0.0.1:8000;
@@ -290,11 +322,12 @@ curl -sS https://api.nordtronics.io/healthz
 Then push a reading through the real path and watch it come back:
 
 ```bash
-# `deploy` is not in the `wildfire-data` group, so it cannot read the worker's
-# pinned bundle (step 7, 0640 root:wildfire-data). The operator-side client
-# below therefore verifies against the system CA store, which contains the same
-# self-signed ISRG Root X1 and anchors the identical chain — the worker's own
-# bundle is proven by `wildfire-ingest` starting and staying up in check 1.
+# step 7 grants `deploy` a read ACL on the worker's pinned bundle, so this
+# operator-side client can verify against it directly — swap the --cafile for
+# /etc/nordtronics/mqtt-ca.pem to exercise the bundle itself. The system CA
+# store is used below as the independent check: it holds the same self-signed
+# ISRG Root X1 and anchors the identical chain, so the two agreeing is what
+# rules out a stale or malformed bundle.
 mosquitto_pub -h mqtt.nordtronics.io -p 8883 \
   --cafile /etc/ssl/certs/ca-certificates.crt \
   -u node-01 -P "$NODE01_PW" -q 1 \
@@ -316,11 +349,20 @@ mosquitto_pub -h mqtt.nordtronics.io -p 8883 \
   -t nordtronics/wildfire/node-01/telemetry -m x -q 1
 # expect: Connection error / not authorised
 
-# plaintext 1883: must time out — UFW never opened it, and the broker has no
-# 1883 listener. Address the host by its PUBLIC IP here: step 7 pinned
-# mqtt.nordtronics.io to 127.0.0.1 in /etc/hosts, and a loopback connection
-# would be refused by the missing listener instead of dropped by the firewall.
+# plaintext 1883: UFW never opened it and the broker has no 1883 listener, so
+# the packet must be DROPPED. Run this from an off-host machine: there it hangs
+# for the full 5s and exits 124 with no output.
+#
+# On the VPS itself the very same command answers "Error: Connection refused"
+# at once. That is NOT a firewall hole: a host dialling its own public IP
+# routes over the loopback interface, which UFW accepts (its default rules do
+# not block `lo`), so the RST comes from the missing listener before any
+# firewall rule is consulted. The public IP is still the right address — step 7
+# pinned mqtt.nordtronics.io to 127.0.0.1 in /etc/hosts, so naming the host
+# would test the loopback path again and prove even less.
 timeout 5 mosquitto_pub -h 89.117.21.105 -p 1883 -t x -m y
+# off-host: silence, exit 124 after ~5s       (dropped, as intended)
+# on-host:  Error: Connection refused, exit 1 (expected here; proves nothing)
 ```
 
 ## 11. Adding a node
@@ -346,8 +388,16 @@ sudo /opt/nordtronics/venv/bin/pip install \
   -r /opt/nordtronics/backend/api/requirements.txt
 sudo install -o root -g mosquitto -m 0640 \
   /opt/nordtronics/backend/mosquitto/mosquitto.conf /etc/mosquitto/nordtronics.conf
-sudo install -o root -g mosquitto -m 0640 \
+sudo install -o mosquitto -g mosquitto -m 0640 \
   /opt/nordtronics/backend/mosquitto/acl /etc/mosquitto/acl
+
+# An install that predates step 5's ownership rule has passwd/acl as
+# root:mosquitto, which mosquitto warns about on every start and will refuse to
+# load in a future release. Re-assert it here, then let the restart below pick
+# the files up. (Step 5 is the first-time path; this is the upgrade path.)
+sudo chown mosquitto:mosquitto /etc/mosquitto/passwd /etc/mosquitto/acl
+sudo chmod 0600 /etc/mosquitto/passwd
+sudo chmod 0640 /etc/mosquitto/acl
 sudo install -o root -g root -m 0644 \
   /opt/nordtronics/backend/mosquitto/mosquitto.service /etc/systemd/system/mosquitto.service
 sudo install -o root -g root -m 0644 \
@@ -381,7 +431,8 @@ The database under `/var/lib/nordtronics` is never touched by a rollback.
 | Symptom | Cause / fix |
 |---|---|
 | `mosquitto` exits: `Unable to open /etc/letsencrypt/.../privkey.pem` | step 4's `setfacl` did not run, or was run before the cert existed — re-run both `setfacl` lines |
-| `mosquitto` exits: `Unable to open acl_file` / `password_file` | file missing or not readable by the `mosquitto` group (`0640 root:mosquitto`) |
+| `mosquitto` exits: `Unable to open acl_file` / `password_file` | file missing, or not readable by the `mosquitto` user — step 5 sets `mosquitto:mosquitto` `0600` (passwd) / `0640` (acl); re-apply both files and `sudo systemctl reload mosquitto` |
+| `mosquitto` starts but logs `Warning: File /etc/mosquitto/passwd owner is not mosquitto. Future versions will refuse to load this file` | the files are still owned by someone else (an install predating step 5, or the old `install -o root -g mosquitto` in step 12). Re-run step 5's `chown mosquitto:mosquitto` + `chmod` pair and reload — a forward-compatibility warning, not a broker fault |
 | `mosquitto` will not start at all after upgrade, port in use | the packaged broker is still running an old config: `sudo systemctl restart mosquitto` |
 | ingest worker: `unable to open database file` | `/var/lib/nordtronics` ownership — `sudo chown -R wildfire-ingest:wildfire-data /var/lib/nordtronics` |
 | ingest worker: `attempt to write a readonly database` while the API is up | the database or its `-wal`/`-shm` sidecars have no group-write bit: re-run step 6's `touch` + `find … -chmod 0660` pair, then `sudo systemctl restart wildfire-ingest wildfire-api` (a sidecar the other service created is what locks this one out) |
