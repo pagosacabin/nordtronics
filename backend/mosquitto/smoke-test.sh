@@ -85,6 +85,32 @@ done
 [[ "$ready" == 1 ]] || { echo "--- broker log ---"; cat "$BROKER_LOG" >&2; fail "no TLS listener on $HOST:$PORT within 20s"; }
 pass "broker is listening on $HOST:$PORT over TLS"
 
+# --------------------------------------------------------- file ownership ---
+# DEPLOY.md step 5 hands /etc/mosquitto/passwd and /etc/mosquitto/acl to the
+# user the broker runs as — mosquitto:mosquitto, 0600 for the password file and
+# 0640 for the ACL. While those files belong to anyone else mosquitto warns on
+# every start and a future version will refuse to load them, so this is the
+# check that makes the deploy rule fail CI instead of scrolling past. Read-only:
+# it reads the broker's own log and the files its config names.
+if grep -q 'owner is not mosquitto' "$BROKER_LOG"; then
+  echo "--- broker log ---"; cat "$BROKER_LOG" >&2
+  fail "the broker warned that a config file is not owned by mosquitto (DEPLOY.md step 5)"
+fi
+pass "the broker loaded password_file and acl_file without an ownership warning"
+
+# The broker only complains about ownership, so the modes need asserting too:
+# a fixture that gets the owner right and the password file 0640 would pass the
+# warning check while the runbook rule was still broken.
+for want in password_file:mosquitto:mosquitto:600 acl_file:mosquitto:mosquitto:640; do
+  IFS=: read -r key want_owner want_group want_mode <<<"$want"
+  path="$(awk -v k="$key" '$1 == k { print $2; exit }' "$CONF")"
+  [[ -n "$path" ]] || fail "$CONF names no $key"
+  got="$(stat -c '%U:%G %a' "$path")"
+  [[ "$got" == "$want_owner:$want_group $want_mode" ]] ||
+    fail "$key $path is '$got'; DEPLOY.md step 5 requires '$want_owner:$want_group $want_mode'"
+  pass "$key $path is $got"
+done
+
 # ------------------------------------------------------------- anonymous ---
 if mosquitto_pub -h "$HOST" -p "$PORT" --cafile "$CAFILE" -t "$TOPIC_OWN" -m anon -q 1 2>/dev/null; then
   fail "anonymous publish was accepted (allow_anonymous must be false)"

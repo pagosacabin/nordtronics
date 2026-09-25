@@ -9,7 +9,9 @@
 #
 # It deliberately mirrors the deploy-time steps in backend/DEPLOY.md, including
 # the Setfacl step that lets the unprivileged `mosquitto` user read certbot's
-# root-only private key — so if that step is wrong, CI fails here.
+# root-only private key and the step that hands /etc/mosquitto/passwd and
+# /etc/mosquitto/acl to that same user — so if either step is wrong, CI fails
+# here.
 #
 # Never run this on the VPS: it would overwrite the real certificate with a
 # self-signed one. Requires root.
@@ -27,6 +29,15 @@ NODE_USERS="node-01 node-02"
 TEST_PASSWORD="ci-fixture-not-a-secret"
 
 [[ "$(id -u)" == "0" ]] || { echo "test-fixture.sh must run as root" >&2; exit 1; }
+
+# Both files are handed to the broker's own user below (DEPLOY.md step 5), so
+# that user must exist before we get there. Install the package, do not skip the
+# ownership — a fixture that silently fell back to root-owned files would make
+# CI pass while the deploy rule it mirrors was broken.
+id -u mosquitto >/dev/null 2>&1 || {
+  echo "test-fixture.sh: no 'mosquitto' user on this host — install the mosquitto package (it creates the user and group); the passwd/acl ownership rule cannot be mirrored" >&2
+  exit 1
+}
 
 echo "== certificate (self-signed stand-in for $DOMAIN) =="
 mkdir -p "$LE_DIR" "$ARCHIVE"
@@ -55,12 +66,17 @@ mosquitto_passwd -c -b "$MOSQUITTO_DIR/passwd" "$INGEST_USER" "$TEST_PASSWORD"
 for user in $NODE_USERS; do
   mosquitto_passwd -b "$MOSQUITTO_DIR/passwd" "$user" "$TEST_PASSWORD"
 done
-chown root:mosquitto "$MOSQUITTO_DIR/passwd"
-chmod 0640 "$MOSQUITTO_DIR/passwd"
+# DEPLOY.md step 5 hands both files to the user the broker runs as, at mode
+# 0600 for the password file and 0640 for the ACL: while they belong to anyone
+# else mosquitto warns on every start and a future version will refuse them.
+# The fixture mirrors the runbook exactly, so CI runs the rule — smoke-test.sh
+# fails if the broker warns about either file, or if the owner or mode differs.
+chown mosquitto:mosquitto "$MOSQUITTO_DIR/passwd"
+chmod 0600 "$MOSQUITTO_DIR/passwd"
 
 echo "== acl =="
 cp "$(dirname "$(readlink -f "$0")")/acl" "$MOSQUITTO_DIR/acl"
-chown root:mosquitto "$MOSQUITTO_DIR/acl"
+chown mosquitto:mosquitto "$MOSQUITTO_DIR/acl"
 chmod 0640 "$MOSQUITTO_DIR/acl"
 
 echo "== persistence directory =="

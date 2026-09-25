@@ -125,3 +125,29 @@ jobs:
           name: mosquitto-config-check
           path: mosquitto-config-check.log
           if-no-files-found: warn
+
+      - name: Prove the ownership check is not vacuous (negative control)
+        run: |
+          # `smoke-test.sh` asserts the broker does NOT warn about the ownership
+          # of passwd/acl. That assertion is worth something only if the broker
+          # really does warn when the runbook rule is violated, so put the
+          # pre-0067 fixture back — root:mosquitto, still group-readable so the
+          # broker loads both files anyway — start the broker and require the
+          # very warning the check looks for. Only runner fixtures change here;
+          # this is the last step, so the files are deliberately left as they are.
+          sudo chown root:mosquitto /etc/mosquitto/passwd /etc/mosquitto/acl
+          sudo chmod 0640 /etc/mosquitto/passwd /etc/mosquitto/acl
+          log="$(mktemp)"
+          sudo mosquitto -c /etc/mosquitto/nordtronics.conf >"$log" 2>&1 &
+          broker=$!
+          for _ in $(seq 1 20); do
+            if grep -q 'owner is not mosquitto' "$log"; then break; fi
+            sleep 0.5
+          done
+          sudo kill "$broker" 2>/dev/null || true
+          wait "$broker" 2>/dev/null || true
+          echo "--- control broker log ---"
+          cat "$log"
+          grep -q 'File /etc/mosquitto/passwd owner is not mosquitto' "$log"
+          grep -q 'File /etc/mosquitto/acl owner is not mosquitto' "$log"
+          echo "both ownership warnings present with the rule broken: the check is not vacuous"
