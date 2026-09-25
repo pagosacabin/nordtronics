@@ -1,8 +1,8 @@
 ---
 id: "0054"
 title: Two-tier model routing — Nvidia polls, DeepSeek works
-status: inbox
-iteration: 1
+status: in_progress
+iteration: 2
 expect-reply-within: 6h
 ---
 
