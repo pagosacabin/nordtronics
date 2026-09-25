@@ -1,0 +1,114 @@
+{
+  "task": "0060",
+  "slug": "0060-worker-cron-mdt",
+  "captured_at_utc": "2026-09-25T13:20:40Z",
+  "host_tz": "America/Denver (MDT, UTC-6)",
+  "schedule_location": {
+    "kind": "hermes-cron-store (cron-runner bot), not the user crontab",
+    "store": "/home/astroboy/.hermes/profiles/cronrunner/cron/jobs.json",
+    "profile": "cronrunner",
+    "ticker": [
+      "SHELL=/bin/bash",
+      "PATH=/home/astroboy/.local/bin:/usr/sbin:/usr/bin:/bin",
+      "*/15 * * * * GIT_AUTHOR_NAME=hermes-cronrunner GIT_AUTHOR_EMAIL=hermes-cronrunner@nordtronics.local GIT_COMMITTER_NAME=hermes-cronrunner GIT_COMMITTER_EMAIL=hermes-cronrunner@nordtronics.local /home/astroboy/.local/bin/hermes -p cronrunner cron tick --accept-hooks >> /home/astroboy/.hermes/profiles/cronrunner/logs/cron-tick.log 2>&1"
+    ]
+  },
+  "worker_before": [
+    {
+      "id": "c0be50a686c6",
+      "name": "Mailbox worker (DeepSeek)",
+      "expr": "15 4-18,22,23 * * *",
+      "enabled": true,
+      "next_run_at": "2026-09-25T08:15:00-06:00"
+    }
+  ],
+  "worker_after": [
+    {
+      "id": "c0be50a686c6",
+      "name": "Mailbox worker (DeepSeek) Mon-Thu",
+      "expr": "15 4-18,22,23 * * 1-4",
+      "enabled": true,
+      "next_run_at": "2026-09-28T04:15:00-06:00"
+    },
+    {
+      "id": "5c1532977f15",
+      "name": "Mailbox worker (DeepSeek) Sun",
+      "expr": "15 0-18,22,23 * * 0",
+      "enabled": true,
+      "next_run_at": "2026-09-27T00:15:00-06:00"
+    },
+    {
+      "id": "7aff6948c2c1",
+      "name": "Mailbox worker (DeepSeek) Fri",
+      "expr": "15 4-23 * * 5",
+      "enabled": true,
+      "next_run_at": "2026-09-25T08:15:00-06:00"
+    },
+    {
+      "id": "8b1c9e1323c5",
+      "name": "Mailbox worker (DeepSeek) Sat",
+      "expr": "15 * * * 6",
+      "enabled": true,
+      "next_run_at": "2026-09-26T00:15:00-06:00"
+    }
+  ],
+  "poller_before": [
+    {
+      "id": "0b32bc199a4e",
+      "name": "Mailbox poll (Nvidia)",
+      "expr": "*/15 * * * *",
+      "enabled": false,
+      "next_run_at": "2026-09-24T18:45:00-06:00"
+    }
+  ],
+  "poller_after": [
+    {
+      "id": "0b32bc199a4e",
+      "name": "Mailbox poll (Nvidia)",
+      "expr": "*/15 * * * *",
+      "enabled": false,
+      "next_run_at": "2026-09-24T18:45:00-06:00"
+    }
+  ],
+  "requested_lines": [
+    "15 4-18,22,23 * * 1-4",
+    "15 0-18,22,23 * * 0",
+    "15 4-23 * * 5",
+    "15 * * * 6"
+  ],
+  "applied_verbatim": true,
+  "clones_byte_identical_to_original_worker": {
+    "c0be50a686c6": true,
+    "5c1532977f15": true,
+    "7aff6948c2c1": true,
+    "8b1c9e1323c5": true
+  },
+  "original_worker_prompt_sha256": "3fa1226182b74252a77c597ad048c46df09fa796ac07c78d0771e3b8f1c93190",
+  "peak_rule": "01:00-04:00 and 06:00-10:00 UTC, Monday-Friday (mailbox-protocol-check.py::peak_line)",
+  "sweep": {
+    "window": "2026-09-26..2026-10-10",
+    "rule": "every :15 slot, local wall clock",
+    "slots": 336,
+    "peak_slots": 70,
+    "peak_slots_covered": 0,
+    "offpeak_slots": 266,
+    "offpeak_uncovered": 0,
+    "offpeak_double_covered": 0
+  },
+  "scheduler_reparse": {
+    "parser": "cron.jobs.parse_schedule + compute_next_run (Hermes venv)",
+    "all_four_parse": true,
+    "next_run_matches_stored": true
+  },
+  "crontab_byte_identical": true,
+  "fired_for_this_proof": false,
+  "fired_for_this_proof_reason": "firing a worker job now would run a second mailbox worker over the same mailbox/ task file",
+  "first_expected_fire": {
+    "id": "7aff6948c2c1",
+    "at": "2026-09-25T08:15:00-06:00",
+    "line": "15 4-23 * * 5"
+  },
+  "ci_run": null,
+  "ci_run_reason": "no code changed and no workflow path filter matches evidence/**",
+  "rollback": "hermes -p cronrunner cron edit c0be50a686c6 --schedule '15 4-18,22,23 * * *' ; pause 7aff6948c2c1/8b1c9e1323c5/5c1532977f15"
+}

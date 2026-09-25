@@ -1,0 +1,9 @@
+SHELL=/bin/bash
+# Juno ⇄ Hermes mailbox loop — runs on the dedicated `cronrunner` Hermes profile
+# (mailbox task 0042) instead of inside the interactive `default` profile, so the
+# worker and the interactive session never share one Hermes home.
+# The GIT_* identity makes worker commits distinguishable from interactive ones
+# (the nordtronics repo-local user.name is `astroboy`).
+# PATH must include /usr/sbin (gh) and ~/.local/bin (node, hermes).
+PATH=/home/astroboy/.local/bin:/usr/sbin:/usr/bin:/bin
+*/15 * * * * GIT_AUTHOR_NAME=hermes-cronrunner GIT_AUTHOR_EMAIL=hermes-cronrunner@nordtronics.local GIT_COMMITTER_NAME=hermes-cronrunner GIT_COMMITTER_EMAIL=hermes-cronrunner@nordtronics.local /home/astroboy/.local/bin/hermes -p cronrunner cron tick --accept-hooks >> /home/astroboy/.hermes/profiles/cronrunner/logs/cron-tick.log 2>&1

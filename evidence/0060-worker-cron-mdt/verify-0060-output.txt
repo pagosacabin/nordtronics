@@ -1,0 +1,25 @@
+== worker jobs in the live store ==
+  8b1c9e1323c5  'Mailbox worker (DeepSeek) Sat'  expr='15 * * * 6'  enabled=True  model=deepseek-flash  next=2026-09-26T00:15:00-06:00
+  5c1532977f15  'Mailbox worker (DeepSeek) Sun'  expr='15 0-18,22,23 * * 0'  enabled=True  model=deepseek-flash  next=2026-09-27T00:15:00-06:00
+  c0be50a686c6  'Mailbox worker (DeepSeek) Mon-Thu'  expr='15 4-18,22,23 * * 1-4'  enabled=True  model=deepseek-flash  next=2026-09-28T04:15:00-06:00
+  7aff6948c2c1  'Mailbox worker (DeepSeek) Fri'  expr='15 4-23 * * 5'  enabled=True  model=deepseek-flash  next=2026-09-25T08:15:00-06:00
+
+== next 3 fires per requested line (local time) ==
+  15 4-18,22,23 * * 1-4  Mon-Thu 4 AM-6 PM + 10-11 PM       Mon 2026-09-28 04:15 | Mon 2026-09-28 05:15 | Mon 2026-09-28 06:15
+  15 0-18,22,23 * * 0    Sun midnight-6 PM + 10-11 PM       Sun 2026-09-27 00:15 | Sun 2026-09-27 01:15 | Sun 2026-09-27 02:15
+  15 4-23 * * 5          Fri 4 AM-11 PM                     Fri 2026-09-25 08:15 | Fri 2026-09-25 09:15 | Fri 2026-09-25 10:15
+  15 * * * 6             Sat all day                        Sat 2026-09-26 00:15 | Sat 2026-09-26 01:15 | Sat 2026-09-26 02:15
+
+== 14-day sweep of :15 slots from 2026-09-26 to 2026-10-10 ==
+  :15 slots swept          : 336
+  of those, peak-window    : 70  (worker fires there: 0)
+  off-peak slots           : 266
+  uncovered off-peak slots : 0
+  double-covered off-peak  : 0
+
+== poller / ticker untouched ==
+  job 0b32bc199a4e 'Mailbox poll (Nvidia)' expr='*/15 * * * *' enabled=False (unchanged)
+  user crontab: exactly one */15 '* * * * *' tick line, unchanged
+
+== verdict ==
+  PASS — four requested lines live, zero peak fires, every off-peak :15 slot covered exactly once, poller/ticker untouched

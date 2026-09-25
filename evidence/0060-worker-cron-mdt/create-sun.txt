@@ -1,0 +1,13 @@
+=== hermes cron create '15 0-18,22,23 * * 0' --name 'Mailbox worker (DeepSeek) Sun' ===
+Created job: 5c1532977f15
+  Name: Mailbox worker (DeepSeek) Sun
+  Schedule: 15 0-18,22,23 * * 0
+  Skills: github, kicad-mcp-server, handoff-mailbox
+  Script: mailbox-protocol-check.py
+  Workdir: /home/astroboy/nordtronics
+  Next run: 2026-09-27T00:15:00-06:00
+  ⚠  Scheduler is not ready: no gateway or no fresh profile heartbeat.
+     If no gateway is running: hermes gateway install
+                    sudo hermes gateway install --system  # Linux servers
+     Check status:  hermes cron status
+--- exit: 0 ---
