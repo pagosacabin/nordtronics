@@ -12,6 +12,7 @@ database and no broker.
 from __future__ import annotations
 
 import logging
+import os
 import re
 import signal
 import sys
@@ -93,8 +94,23 @@ class IngestWorker:
         )
         if self.config.mqtt_username:
             client.username_pw_set(self.config.mqtt_username, self.config.mqtt_password)
-        if self.config.mqtt_ca_file and Path(self.config.mqtt_ca_file).exists():
-            client.tls_set(ca_certs=self.config.mqtt_ca_file)
+        if self.config.mqtt_ca_file:
+            ca_path = Path(self.config.mqtt_ca_file)
+            if not ca_path.exists():
+                client.tls_set()  # system trust store; still TLS, never plaintext
+                LOG.warning("CA file %s missing — falling back to the system trust store",
+                            self.config.mqtt_ca_file)
+            elif not os.access(ca_path, os.R_OK):
+                # Path.exists() swallows ENOENT/ENOTDIR but reports True for a
+                # file this process may not open (EACCES), so tls_set() would
+                # die with a raw traceback. An unreadable CA is a deployment
+                # fault — name the path and stop rather than fall back to the
+                # system trust store, which cannot validate a private CA.
+                LOG.critical("FATAL: cannot read MQTT CA file %s: permission denied",
+                             self.config.mqtt_ca_file)
+                raise SystemExit(1)
+            else:
+                client.tls_set(ca_certs=self.config.mqtt_ca_file)
         else:
             client.tls_set()  # system trust store; still TLS, never plaintext
             LOG.warning("CA file %s missing — falling back to the system trust store",

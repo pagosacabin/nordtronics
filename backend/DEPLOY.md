@@ -88,6 +88,13 @@ sudo install -o root -g mosquitto -m 0640 \
 sudo setfacl -R  -m u:mosquitto:rX /etc/letsencrypt/live /etc/letsencrypt/archive
 sudo setfacl -R -d -m u:mosquitto:rX /etc/letsencrypt/live /etc/letsencrypt/archive
 
+# step 7 points the ingest worker at the same chain.pem to verify the broker's
+# certificate, and it runs as its own unprivileged user, so it needs the
+# identical access. Without this pair the worker cannot even traverse the
+# directory and dies at startup with `PermissionError` on the CA file.
+sudo setfacl -R  -m u:wildfire-ingest:rX /etc/letsencrypt/live /etc/letsencrypt/archive
+sudo setfacl -R -d -m u:wildfire-ingest:rX /etc/letsencrypt/live /etc/letsencrypt/archive
+
 # reload the broker whenever certbot renews
 sudo install -o root -g root -m 0755 \
   /opt/nordtronics/backend/mosquitto/renew-hook.sh \
@@ -98,6 +105,13 @@ Confirm the broker will be able to read the key — this must print the key:
 
 ```bash
 sudo -u mosquitto cat /etc/letsencrypt/live/nordtronics.io/privkey.pem | head -1
+```
+
+Confirm the ingest worker will be able to read the chain — this must print
+`-----BEGIN CERTIFICATE-----`:
+
+```bash
+sudo -u wildfire-ingest cat /etc/letsencrypt/live/nordtronics.io/chain.pem | head -1
 ```
 
 ## 5. MQTT users

@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+import logging
+import os
 
 import pytest
 
@@ -211,3 +213,76 @@ def test_process_payload_is_dispatched_by_topic_search(monkeypatch, tmp_path):
 
     assert worker_module.parse_node_id(TOPIC_TEMPLATE.replace("+", "node-01")) == "node-01"
     assert config.topic == TOPIC_TEMPLATE
+
+
+class _RecordingClient:
+    """Minimal stand-in for `mqtt.Client` that records how TLS was set up."""
+
+    def __init__(self, **kwargs):
+        self.kwargs = kwargs
+        self.tls_calls = []
+
+    def username_pw_set(self, username, password=None):
+        self.credentials = (username, password)
+
+    def tls_set(self, **kwargs):
+        self.tls_calls.append(kwargs)
+
+    def reconnect_delay_set(self, **kwargs):
+        pass
+
+
+def _record_clients(monkeypatch):
+    made: list[_RecordingClient] = []
+
+    def factory(**kwargs):
+        client = _RecordingClient(**kwargs)
+        made.append(client)
+        return client
+
+    monkeypatch.setattr(worker_module.mqtt, "Client", factory)
+    return made
+
+
+def test_build_client_loads_a_readable_ca_file(monkeypatch, tmp_path):
+    ca_file = tmp_path / "chain.pem"
+    ca_file.write_text("-----BEGIN CERTIFICATE-----\n")
+    config = make_config(tmp_path / "wildfire.db")
+    config.mqtt_ca_file = str(ca_file)
+
+    made = _record_clients(monkeypatch)
+    IngestWorker(config).build_client()
+
+    assert made[0].tls_calls == [{"ca_certs": str(ca_file)}]
+
+
+def test_build_client_falls_back_when_the_ca_file_is_missing(monkeypatch, tmp_path):
+    """An absent CA keeps the documented fallback; it must not become fatal."""
+    config = make_config(tmp_path / "wildfire.db")
+    config.mqtt_ca_file = str(tmp_path / "not-there.pem")
+
+    made = _record_clients(monkeypatch)
+    IngestWorker(config).build_client()  # must not raise
+
+    assert made[0].tls_calls == [{}]  # system trust store, still TLS
+
+
+def test_build_client_stops_on_an_unreadable_ca_file(tmp_path, caplog):
+    """EACCES: a clear fatal message and a non-zero exit, never a traceback."""
+    ca_file = tmp_path / "chain.pem"
+    ca_file.write_text("-----BEGIN CERTIFICATE-----\n")
+    ca_file.chmod(0o000)
+    if os.access(ca_file, os.R_OK):  # root ignores the mode bits
+        pytest.skip("this user can read anything, so the condition cannot be built")
+
+    config = make_config(tmp_path / "wildfire.db")
+    config.mqtt_ca_file = str(ca_file)
+
+    with caplog.at_level(logging.CRITICAL, logger="wildfire.ingest"):
+        with pytest.raises(SystemExit) as exit_info:
+            IngestWorker(config).build_client()
+
+    assert exit_info.value.code == 1
+    assert (
+        f"FATAL: cannot read MQTT CA file {ca_file}: permission denied" in caplog.text
+    )
