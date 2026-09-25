@@ -72,6 +72,88 @@ notes: |
   own `cafile /etc/letsencrypt/live/nordtronics.io/chain.pem` would hit defect A
   if client certificates were ever required (require_certificate is unset, so
   nothing verifies against it today).
+
+  ADDENDUM 2026-09-25 (later tick, ~18:20 CEST): the blocking failure has MOVED
+  to a THIRD, independent defect (C). The sentence above — that the worker "now
+  fails later, in the TLS handshake" — stopped being true at 17:18:45 CEST and
+  is corrected here.
+
+  C) WAL sidecar ownership: wildfire-ingest can no longer write the database,
+     and now dies BEFORE the TLS handshake. Every restart since 17:18:45 CEST:
+       File "/opt/nordtronics/backend/ingest/ingest/worker.py", line 82, in open_database
+         self.conn = db_module.init_db(self.config.db_path)
+       File "/opt/nordtronics/backend/common/db.py", line 53, in init_db
+         conn.executescript(SCHEMA_PATH.read_text(encoding="utf-8"))
+       sqlite3.OperationalError: attempt to write a readonly database
+       wildfire-ingest.service: Main process exited, code=exited, status=1/FAILURE
+
+     Journal counts (journalctl -u wildfire-ingest, 14:17:20 -> 18:19:34; 1420
+     "Started" lines, one restart per RestartSec=10s; nothing else appears):
+        1050  PermissionError on chain.pem      14:17:20 -> 17:16:32  (what 0061 fixed)
+          12  ssl.SSLCertVerificationError      17:16:42 -> 17:18:35  (defects A/B)
+         358  attempt to write a readonly db    17:18:45 -> now       (defect C)
+
+     Live file state (sudo ls -la /var/lib/nordtronics/):
+       -rw-r----- wildfire-ingest wildfire-data 40960  wildfire.db
+       -rw-r----- wildfire-api    wildfire-data 32768  wildfire.db-shm
+       -rw-r----- wildfire-api    wildfire-data     0  wildfire.db-wal
+     The -shm/-wal sidecars are owned by wildfire-api at mode 0640, so group
+     wildfire-data gets READ only and wildfire-ingest (uid 110, group member but
+     not owner) cannot write the WAL — hence "attempt to write a readonly
+     database". WAL readers AND writers need write access to -shm (db.py's own
+     docstring says so), so whichever process creates the sidecars locks the
+     other one out.
+
+     Why 0640 and not group-writable: SQLite's unix VFS creates the database and
+     its sidecars with base mode 0644, and a umask can only CLEAR bits, so
+     0644 & ~0007 = 0640. The units' UMask=0007 ("group-rw for everything the
+     worker creates") and DEPLOY.md step 6 ("every file the ingest worker
+     creates — including the -wal and -shm sidecars — stays in the
+     wildfire-data group, which is how the API reads them") both assume a
+     group-write bit that is never set.
+
+     Trigger: wildfire-api opens the DB read-only per request
+     (api/api/app.py read_connection() -> db.connect(read_only=True)) and
+     /healthz reads schema_version through it, so ANY API request materialises /
+     re-locks the api-owned sidecars. The API's first-ever DB touch was the
+     GET /healthz at 17:18:35 CEST issued by this task's own verification; the
+     worker's next restart (RestartSec=10s) at 17:18:45 was already locked out.
+     Step 10's health check is what kills step 8's worker, and the lockout
+     persists.
+
+     Mechanism proven this tick, non-destructively, on a byte copy of the three
+     live files (cp -a into /var/tmp, owners and modes preserved), as
+     wildfire-ingest, BEGIN IMMEDIATE then rollback:
+       copy as-is (api-owned 0640 sidecars) -> OperationalError: attempt to
+         write a readonly database
+       same copy, sidecars chmod 0660     -> write lock acquired
+     The live files were not chmod'ed, chown'ed or written; the copy was deleted.
+
+     Fix verified but NOT applied (a runbook decision, same class as A/B): the
+     sidecars must be group-writable. Options, each changing DEPLOY.md and/or
+     the units — (i) run both services under one uid; (ii) chmod 0660 the
+     database and its sidecars at unit start (ExecStartPre as root); (iii) chmod
+     them in db.py immediately after connect (each process can chmod only the
+     files it owns — exactly the set that locks the other out). A umask change
+     cannot work: the base mode has no group-write bit to preserve.
+
+     C is independent of A and B and blocks harder — with A and B fixed the
+     worker still cannot open the database. A was re-verified this tick as
+     wildfire-ingest: `openssl s_client -connect 127.0.0.1:8883 -servername
+     nordtronics.io -CAfile .../chain.pem -verify_return_error` ->
+     "depth=3 CN = ISRG Root X2", "verify error:num=2:unable to get issuer
+     certificate". B was not re-run this tick (the worker never reaches the
+     handshake).
+
+     Blind spot: /healthz answers {"status":"ok","database":"ok"} (HTTP 200)
+     while the writer is locked out — it only exercises a reader.
+
+     Nothing was changed this tick — no code, config, unit, ACL or runbook file.
+     ingest.env still carries WILDFIRE_MQTT_HOST=127.0.0.1 and
+     WILDFIRE_MQTT_CA=/etc/letsencrypt/live/nordtronics.io/chain.pem, and the
+     VPS tree is still hermes/0061-ingest-ca-acl @ 9eba1cec9716f2. Steps 9 and 10
+     still not run; no test reading published. Decision now owed: A/B (trust
+     anchor + host) and C (how the two service users share the WAL sidecars).
 ---
 
 # 0062 — Resume the backend deploy from step 8 (CA gap fixed)
@@ -282,4 +364,133 @@ today) carrying defect A for any future client-cert setup.
 No secret value appears in this file: the node-01 credentials were read only
 from `/etc/nordtronics/mqtt-credentials.env` on the VPS, and only the ingest
 worker's own `connect()` used the MQTT password.
+
+---
+
+## Reply addendum — the blocker moved to a THIRD defect (2026-09-25, later tick)
+
+Still not staged, still no `proof` block: the task is not done, so there is no
+success claim to make. The file stays in `active/` with `status: in_progress`.
+The entry above is accurate as of 17:18:35 CEST — the ACL fix worked and the
+worker really did reach the TLS handshake — but ten seconds later its first
+blocking failure changed, and it has been a different one ever since. This
+addendum records that, and corrects the one sentence above that is now stale
+("now fails later, in the TLS handshake").
+
+### The failure at step 8 now
+
+`wildfire-ingest` no longer reaches the MQTT client at all. Every restart dies
+in `open_database()`, before any TLS code runs:
+
+```
+$ sudo journalctl -u wildfire-ingest -o short-iso -n 22
+2026-09-25T18:18:53+02:00 python[24380]:  File "/opt/nordtronics/backend/ingest/ingest/worker.py", line 82, in open_database
+2026-09-25T18:18:53+02:00 python[24380]:    self.conn = db_module.init_db(self.config.db_path)
+2026-09-25T18:18:53+02:00 python[24380]:  File "/opt/nordtronics/backend/common/db.py", line 53, in init_db
+2026-09-25T18:18:53+02:00 python[24380]:    conn.executescript(SCHEMA_PATH.read_text(encoding="utf-8"))
+2026-09-25T18:18:53+02:00 python[24380]: sqlite3.OperationalError: attempt to write a readonly database
+2026-09-25T18:18:53+02:00 systemd[1]: wildfire-ingest.service: Failed with result 'exit-code'.
+
+$ systemctl show wildfire-ingest -p NRestarts -p SubState -p Result --value
+363
+auto-restart
+exit-code
+```
+
+### The three failures in order, with counts
+
+The journal is a clean sequence — 1420 `Started` lines, one restart every 10s
+(`RestartSec=10s`), every start ending in exactly one of three errors, to within
+10 seconds of the transition:
+
+| # | Error | Window (CEST) | Starts |
+|---|---|---|---|
+| 1 | `PermissionError` on chain.pem | 14:17:20 -> 17:16:32 | 1050 |
+| 2 | `ssl.SSLCertVerificationError` (unable to get issuer) | 17:16:42 -> 17:18:35 | 12 |
+| 3 | `sqlite3.OperationalError: attempt to write a readonly database` | 17:18:45 -> now | 358 |
+
+Failure 1 is what 0061 fixed — the worker ran the pre-0061 tree until this task
+synced `/opt/nordtronics/backend` at 17:16:3x. Failure 2 is defects A/B from the
+entry above, and it lasted 12 restarts. Failure 3 is new and is the current
+first blocking failure.
+
+### Defect C — evidence
+
+```
+$ sudo ls -la /var/lib/nordtronics/
+-rw-r----- 1 wildfire-ingest wildfire-data 40960 Sep 25 14:17 wildfire.db
+-rw-r----- 1 wildfire-api    wildfire-data 32768 Sep 25 18:17 wildfire.db-shm
+-rw-r----- 1 wildfire-api    wildfire-data     0 Sep 25 17:18 wildfire.db-wal
+```
+
+The `-shm`/`-wal` sidecars belong to `wildfire-api`, mode `0640`. Group
+`wildfire-data` therefore has **read** on them, and `wildfire-ingest` (uid 110,
+member of the group but not the owner) cannot write the WAL — so SQLite answers
+"attempt to write a readonly database" for what is meant to be the *writer*.
+`db.py`'s own docstring states the requirement ("WAL readers still need write
+access to the `-shm`/`-wal` sidecars"), and the units' `UMask=0007` comment
+assumes it is satisfied; it is not. Sharing a *group* is not enough, because
+SQLite's unix VFS creates the database and its sidecars with base mode `0644`,
+and a umask can only clear bits: `0644 & ~0007 = 0640`. "Group-rw" was never
+going to happen, in either direction — whichever process creates the sidecars
+locks the other one out.
+
+**Trigger, and it is step 10 doing it to step 8:** the API opens the database
+read-only on *every* request (`api/api/app.py` -> `read_connection()` ->
+`db.connect(read_only=True)`, and `/healthz` reads `schema_version` through it).
+The API's first-ever DB touch in the journal is the `GET /healthz` at 17:18:35 —
+the health check this task ran as part of its verification. The worker's next
+restart, `RestartSec=10s` later at 17:18:45, was already locked out. Repeated
+`GET /healthz` calls keep the sidecars api-owned (`-shm` mtime moved to 18:17 on
+the next check).
+
+### Mechanism proven this tick — non-destructively
+
+On a byte copy of the three live files (`cp -a` into `/var/tmp`, owners and
+modes preserved), as `wildfire-ingest`, `BEGIN IMMEDIATE` then rollback:
+
+```
+copy as-is (api-owned 0640 sidecars) -> OperationalError: attempt to write a readonly database
+same copy, sidecars chmod 0660      -> write lock acquired
+```
+
+The live database was never chmod'ed, chown'ed or written; the copy was deleted.
+`/var/lib/nordtronics` itself *is* writable by `wildfire-ingest`
+(`sudo -u wildfire-ingest touch` on the directory succeeds), which is what
+isolates the failure to the sidecar files rather than the directory.
+
+### The fix, verified but not applied
+
+Making the sidecars group-writable is sufficient (probe above). Applying it
+means choosing between, e.g.: (i) run both services under one uid; (ii) `chmod
+0660` the database and sidecars at unit start (`ExecStartPre` as root);
+(iii) `chmod` them in `db.py` right after connect — each process can only chmod
+files it owns, which is exactly the set that locks the other out. A umask change
+alone cannot fix it. All three change DEPLOY.md step 6 / the unit files, i.e. the
+runbook, so none was applied — the same call this task left to you for A and B.
+
+Defect C also changes the order of the decision: it is independent of A and B and
+blocks harder, so fixing A and B as previously proposed would still leave the
+worker unable to open its database. A was re-verified as still true this tick as
+`wildfire-ingest` (`openssl s_client -CAfile .../chain.pem -verify_return_error`
+-> `depth=3 CN = ISRG Root X2`, `verify error:num=2:unable to get issuer
+certificate`); B was not re-run, because the worker no longer reaches the
+handshake.
+
+### Also worth knowing
+
+`curl http://127.0.0.1:8000/healthz` returns `200` with
+`{"status":"ok","database":"ok", ...}` while the writer is locked out — the
+endpoint only exercises a reader, so it cannot see this failure. Step 10's check
+3 would pass on a dead pipeline.
+
+### Not done, and why
+
+Steps 9 (nginx) and 10 (end-to-end) were not run: step 8 is the first blocking
+failure and it is not transient. No test reading was published, so no synthetic
+row exists to delete. Nothing on the VPS was changed this tick — no code, config,
+unit, ACL, database or runbook file; `ingest.env` still carries
+`WILDFIRE_MQTT_HOST=127.0.0.1` and `WILDFIRE_MQTT_CA=/etc/letsencrypt/live/
+nordtronics.io/chain.pem`, and the tree is still
+`hermes/0061-ingest-ca-acl @ 9eba1cec9716f2`.
 
