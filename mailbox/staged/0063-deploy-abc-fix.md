@@ -141,9 +141,11 @@ success**, 2026-09-25T17:57Z, both jobs:
 
 That workflow also runs `shellcheck backend/mosquitto/*.sh` and
 `systemd-analyze verify` over all three units, so the changed hook and the
-edited units are lint-verified in CI. I reproduced both steps locally first
-(shellcheck 0.11.0: clean; `systemd-analyze verify`: clean) plus `sh -n` over
-all 19 bash blocks in `DEPLOY.md` (0 syntax errors).
+edited units are lint-verified in CI. I ran the same two steps locally first —
+shellcheck 0.11.0 over `backend/mosquitto/*.sh`: clean; `systemd-analyze verify`
+over the three units: no findings (it only notes that this laptop has no
+`/usr/sbin/mosquitto`, which the CI runner installs) — plus `sh -n` over all 19
+bash blocks in `DEPLOY.md` (0 syntax errors).
 
 Diff, `origin/hermes/0061-ingest-ca-acl..hermes/0063-deploy-abc-fix`
 (4 files, +143 −26):
