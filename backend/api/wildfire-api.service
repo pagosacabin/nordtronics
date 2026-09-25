@@ -21,8 +21,11 @@ EnvironmentFile=-/etc/nordtronics/api.env
 ExecStart=/opt/nordtronics/venv/bin/python -m api.app
 Restart=on-failure
 RestartSec=10s
-# same group-rw umask as the ingest worker: a WAL sidecar this process creates
-# in /var/lib/nordtronics belongs to wildfire-data too
+# Same umask as the ingest worker, with the same limit: it only clears bits
+# from SQLite's 0644 base mode, so it cannot make a sidecar group-writable by
+# itself. What makes the WAL sidecars shareable is the database file's mode
+# (0660, DEPLOY.md step 6) — SQLite gives a new `-shm`/`-wal` the mode of the
+# database it belongs to, and this reader needs to write `-shm`.
 UMask=0007
 
 # ------------------------------------------------------------- hardening ---

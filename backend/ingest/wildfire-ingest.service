@@ -22,9 +22,13 @@ EnvironmentFile=/etc/nordtronics/ingest.env
 ExecStart=/opt/nordtronics/venv/bin/python -m ingest.worker
 Restart=on-failure
 RestartSec=10s
-# group-rw for everything the worker creates: the database lives in the
-# setgid /var/lib/nordtronics, so `wildfire-api` reads it through the
-# `wildfire-data` group
+# Shared group-rw for the directory's contents. Note what this can and cannot
+# do: a umask only CLEARS bits from the mode SQLite uses for a new file (0644),
+# so on its own it yields 0640 — not group-writable. The group-write bit that
+# the API needs comes from the database file's own mode (0660, DEPLOY.md
+# step 6), which SQLite also applies to the `-shm`/`-wal` sidecars it creates
+# for that database. This umask keeps everything else the worker writes under
+# the setgid /var/lib/nordtronics group-readable.
 UMask=0007
 
 # ------------------------------------------------------------- hardening ---
