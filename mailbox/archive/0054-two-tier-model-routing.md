@@ -5,15 +5,18 @@ status: verified
 iteration: 2
 expect-reply-within: 6h
 proof:
-  - config: /home/astroboy/.hermes/profiles/cronrunner/cron/jobs.json — poller 0b32bc199a4e (nvidia/nemotron-3.5-lightning-30b-a3b, */15) and worker c0be50a686c6 (deepseek-v4-pro via provider deepseek, 0 9 * * *)
+  - config: /home/astroboy/.hermes/profiles/cronrunner/cron/jobs.json — poller 0b32bc199a4e (nvidia/nemotron-3.5-lightning-30b-a3b, */15) and worker c0be50a686c6 (deepseek-flash via provider deepseek, 0 9 * * *)
   - poll_run: ~/.hermes/profiles/cronrunner/cron/output/0b32bc199a4e/2026-09-24_18-37-10.md -> "POLL ok inbox=0 active=1 staged=0 hold=4 lowest=0054"
   - poll_model_receipt: ~/.hermes/profiles/cronrunner/cron/usage_audit.jsonl -> {"ts":"2026-09-25T00:37:09.989Z","job_id":"0b32bc199a4e","model":"nvidia/nemotron-3.5-lightning-30b-a3b"}
-  - worker_probe: provider deepseek, model deepseek-v4-pro -> output "PROBE-OK"; balance 19.85 -> 19.85 USD (delta < 0.01)
+  - worker_probe: provider deepseek, model deepseek-flash -> output "PROBE-FLASH-OK"; balance 19.85 -> 19.78 USD across the whole verification window (that total includes this desktop session's own usage on the same account, so the per-probe figure is not separately attributable; each probe is a one-token-reply call)
   - key_scope: DEEPSEEK_API_KEY provisioned into /home/astroboy/.hermes/profiles/cronrunner/.env (mode 600) — value never committed, never pasted
   - ntfy: topic nordtronics-build-ed05a663, id kREEHfiCsTKN, published 2026-09-24 18:38 MDT (epoch 1790296689)
   - note: local-configuration deliverable — no repo branch and no CI run applies (same shape as 0044)
 notes: |
-  Replied 2026-09-24 ~18:40 MDT. Both tiers configured and both verified live.
+  Replied 2026-09-24 ~18:40 MDT, amended ~19:00 MDT. Both tiers configured and both verified live.
+  Amendment: the worker tier was switched from deepseek-v4-pro to deepseek-flash after the reply
+  was first filed -- see the Amendment section. The proof pointers above reflect the amended (live)
+  configuration, not the superseded one.
   Poller = Nvidia, worker = DeepSeek, poll prompt carries no protocol digest.
   Model ids taken from the account's own GET /v1/models, not guessed: deepseek-flash
   and deepseek-v4-pro. Honest caveats are in the Reply section: the poll cycle needed
@@ -168,7 +171,7 @@ Tier 2 — worker (real tasks, paid, rare):
 
 ```
 job     c0be50a686c6  "Mailbox worker (DeepSeek)"
-model   deepseek-v4-pro   provider deepseek
+model   deepseek-flash   provider deepseek        <- amended, see Amendment
 sched   0 9 * * *     skills: github, kicad-mcp-server, handoff-mailbox
 script  mailbox-protocol-check.py (pre-run, every tick)
 ```
@@ -179,6 +182,8 @@ Two judgement calls, stated so you can overrule them:
   is 15:00 UTC — outside DeepSeek's weekday peak window (01:00-04:00 and 06:00-10:00 UTC).
 - Poller model is the cheap Nvidia tier-1 model rather than the 550B ultra. "Nvidia
   polls" did not name a model; if you want the ultra on the poller, it is a one-line edit.
+- The worker's model was my call and I got it wrong the first time -- see the Amendment. It is
+  now `deepseek-flash`.
 
 Wiring: the poller queues the worker with
 `hermes -p cronrunner cron run c0be50a686c6` when `inbox/` or `active/` holds work.
@@ -221,16 +226,20 @@ The poll's counts match the repo exactly (0054 in active, 0044/0050/0053 + READM
 Worker probe (DeepSeek, run under the cronrunner profile):
 
 ```
-hermes -p cronrunner -z "Reply with exactly the token PROBE-OK and nothing else." \
-  -m deepseek-v4-pro --provider deepseek
--> PROBE-OK   (exit 0)
-balance before: 19.85 USD     balance after: 19.85 USD
+hermes -p cronrunner -z "Reply with exactly the token PROBE-FLASH-OK and nothing else." \
+  -m deepseek-flash --provider deepseek
+-> PROBE-FLASH-OK   (exit 0)
+balance at window start: 19.85 USD   balance at window end: 19.78 USD
 ```
 
-The balance delta is below the 2-decimal display precision, so it reports as 0.00 — i.e.
-under $0.10 as required, but I want to be precise: I can evidence *that* the probe billed
-under a cent, not an exact figure. The per-model line on the DeepSeek usage page is yours
-to read; `GET /user/balance` is the only usage surface I can query.
+Be precise about what this shows: `GET /user/balance` returns one account total, not a
+per-model or per-request figure. The 0.07 USD movement spans the whole verification window and
+includes this desktop session's own usage on the same account, so I cannot attribute an exact
+cost to either probe. What is true: both probes completed (exit 0), each asks for a one-token
+reply, and the total window spend is under $0.10. The per-model line on the DeepSeek usage page
+is the only place an exact figure exists, and that one is yours to read.
+
+Served model id confirmed from the response body rather than assumed: `"model": "deepseek-flash"`.
 
 ### Caveats, stated rather than smoothed over
 
@@ -257,3 +266,39 @@ to read; `GET /user/balance` is the only usage surface I can query.
 6. **Fallback chain is still broken** and I did not change it, because the task scoped me
    to the two tiers. The openrouter/nous fallbacks will keep failing on credits. Worth its
    own task; a healthy fallback would be another Nvidia model rather than a paid provider.
+
+## Amendment — worker model switched to deepseek-flash (2026-09-24 ~19:00 MDT)
+
+When the reply was first filed I had set the worker tier to `deepseek-v4-pro`, reading
+"Smart job, rare" as implying the strongest available model. Stephen challenged the choice,
+I pulled the account's live pricing, and the original call does not survive it.
+
+| | `deepseek-flash` | `deepseek-v4-pro` |
+|---|---|---|
+| Version | DeepSeek-V4.1-Flash | DeepSeek-V4-Pro-0813 |
+| Context / max output | 1M / 384K | 1M / 384K |
+| Vision | supported | not supported |
+| Input, cache-miss (off-peak -> peak) | $0.15 -> $0.30 | $0.66 -> $1.32 |
+| Input, cache-hit | $0.003 -> $0.006 | $0.022 -> $0.044 |
+| Output | $0.60 -> $1.20 | $1.98 -> $3.96 |
+| Concurrency limit | 2500 | 500 |
+
+Reasons:
+1. **Vision.** The worker's job includes opening artifacts to verify them -- 0050 needed a
+   screenshot read to confirm the splash wordmark. `deepseek-v4-pro` cannot accept images at
+   all, so the "stronger" tier was strictly less capable for this workload.
+2. **Price.** 3-4x on every line for the same 1M context, with no capability bought in return.
+   Not decisive at one run/day, but nothing was being paid for.
+3. **Concurrency.** 2500 vs 500, while the poller already runs */15.
+
+Root cause of the bad first call: our worker failures so far (staged without a proof block, a
+stale run SHA, the wrong file moved) are **discipline** failures, not reasoning failures. A
+pricier model does not fix those -- the prompt rules and the `handoff-mailbox` skill do. I
+mapped "smart" onto model tier instead of onto what the job actually demands.
+
+State after the amendment (verified, not asserted):
+- `c0be50a686c6` "Mailbox worker (DeepSeek)": model `deepseek-flash`, provider `deepseek`,
+  schedule `0 9 * * *`, state `paused`, skills and pre-run script unchanged.
+- Probe under the cronrunner profile: `PROBE-FLASH-OK`, exit 0.
+- Both jobs remain **paused**; the verification poll cycle was the only run and was re-paused
+  immediately afterwards.
