@@ -1,7 +1,7 @@
 ---
 task_id: "0068"
-status: inbox
-iteration: 0
+status: in_progress
+iteration: 1
 ---
 
 # 0068 — Website: replace placeholder email and refresh stale content
