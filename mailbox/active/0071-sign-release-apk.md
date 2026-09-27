@@ -1,6 +1,12 @@
-# 0071 — Mint the production release key, sign the 0069 release APK, install
-
+---
+task_id: "0071"
+protocol_version: 1.0.0
+status: in_progress
+iteration: 1
 expect-reply-within: 6h
+---
+
+# 0071 — Mint the production release key, sign the 0069 release APK, install
 
 ## Context
 
