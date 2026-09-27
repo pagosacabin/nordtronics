@@ -1,6 +1,16 @@
-# 0070 — Site copy rewrite: commercial positioning
-
+---
+task_id: "0070"
+protocol_version: 1.0.0
+status: in_progress
+iteration: 1
 expect-reply-within: 6h
+notes: |
+  Picked up 2026-09-27T05:16Z at main tip 232564c. Working branch
+  hermes/0070-site-rewrite. (Task file arrived without front-matter; added on
+  pickup.)
+---
+
+# 0070 — Site copy rewrite: commercial positioning
 
 ## Context
 
