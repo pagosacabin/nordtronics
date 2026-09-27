@@ -1,7 +1,7 @@
 ---
 task_id: "0069"
-status: inbox
-iteration: 0
+status: in_progress
+iteration: 1
 ---
 
 # 0069 — Android app: point API base URL at api.nordtronics.io
