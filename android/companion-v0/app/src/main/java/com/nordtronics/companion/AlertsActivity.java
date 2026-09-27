@@ -17,9 +17,13 @@ import java.util.List;
  *
  * <p>Consensus statement hero ("no active alerts" unless something inside the
  * active window is firing), a severity/type filter, then the alert history from
- * {@code GET /api/alerts}. Filter chips are built from the types the payload
- * actually contains plus the two named tones, so an unknown type still lands in
- * "All".
+ * the alerts feed. Filter chips are built from the types the payload actually
+ * contains plus the two named tones, so an unknown type still lands in "All".
+ *
+ * <p>Since task 0069 the production API is the app's backend, and it serves no
+ * alerts feed — so the release build states that plainly and makes no request
+ * instead of calling a route that does not exist. The debug build still reads
+ * the local mock's feed.
  */
 public class AlertsActivity extends AppCompatActivity {
 
@@ -78,10 +82,14 @@ public class AlertsActivity extends AppCompatActivity {
     }
 
     private void load() {
-        status.setText("GET " + ApiClient.BASE_URL + "/api/alerts \u2026");
+        if (!ApiClient.alertsAvailable()) {
+            loadUnavailable();
+            return;
+        }
+        status.setText("GET " + ApiClient.BASE_URL + BuildConfig.PATH_ALERTS + " \u2026");
         new Thread(() -> {
             try {
-                JSONArray arr = new JSONArray(ApiClient.get("/api/alerts"));
+                JSONArray arr = ApiClient.getAlerts();
                 final List<Alert> fetched = new ArrayList<>();
                 for (int i = 0; i < arr.length(); i++) {
                     fetched.add(new Alert(arr.getJSONObject(i)));
@@ -97,10 +105,29 @@ public class AlertsActivity extends AppCompatActivity {
         }, "alerts-fetch").start();
     }
 
+    /**
+     * This build's backend serves no alerts feed. Say so, and make no request:
+     * the release APK must not call an endpoint the production API lacks.
+     */
+    private void loadUnavailable() {
+        alerts.clear();
+        alertList.removeAllViews();
+
+        heroTitle.setText("Alerts unavailable");
+        heroBody.setText(ApiClient.ALERTS_UNAVAILABLE);
+        heroState.setText("\u2014");
+        heroState.setTextColor(Ui.col(this, R.color.nt_muted));
+        heroState.setBackgroundResource(R.drawable.bg_disc_blue);
+
+        emptyAlerts.setText(ApiClient.ALERTS_UNAVAILABLE);
+        emptyAlerts.setVisibility(View.VISIBLE);
+        status.setText("No request made: " + ApiClient.BASE_URL + " serves no alerts feed");
+    }
+
     private void render(List<Alert> fetched) {
         alerts.clear();
         alerts.addAll(fetched);
-        status.setText(alerts.size() + " alerts from " + ApiClient.BASE_URL + "/api/alerts");
+        status.setText(alerts.size() + " alerts from " + ApiClient.BASE_URL + BuildConfig.PATH_ALERTS);
 
         int active = 0;
         for (Alert a : alerts) {

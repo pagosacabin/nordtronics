@@ -17,16 +17,16 @@ import java.util.List;
 /**
  * Nodes screen — the v0.1 mockup's "Property line" view (task 0049).
  *
- * <p>Everything on screen is derived from {@code GET /api/nodes}: the consensus
- * hero (how many nodes are reporting, how many need attention), the four stat
- * tiles (medians across the reporting nodes) and the node cards (status, PM2.5,
+ * <p>Everything on screen is derived from the node list ({@code GET /v1/nodes} in
+ * release, {@code GET /api/nodes} against the local mock): the consensus hero
+ * (how many nodes are reporting, how many need attention), the four stat tiles
+ * (medians across the reporting nodes) and the node cards (status, PM2.5,
  * temperature, humidity, battery voltage, last seen). The All/Watch filter hides
  * cards that are inside their limits.
  *
- * <p>The data layer is the same mock backend 0045 wired up — the API base URL is
- * still the single {@code BuildConfig.API_BASE_URL} field and the payload shapes
- * are untouched. The screens label themselves "Prototype data" because that is
- * what they are.
+ * <p>Since task 0069 the path comes from {@code ApiClient.nodesPath()} — a
+ * build-type field, not a literal — and {@code ApiClient.getNodes()} accepts
+ * either backend's payload shape.
  */
 public class NodesActivity extends AppCompatActivity {
 
@@ -97,10 +97,10 @@ public class NodesActivity extends AppCompatActivity {
     }
 
     private void load() {
-        status.setText("GET " + ApiClient.BASE_URL + "/api/nodes \u2026");
+        status.setText("GET " + ApiClient.BASE_URL + ApiClient.nodesPath() + " \u2026");
         new Thread(() -> {
             try {
-                JSONArray arr = new JSONArray(ApiClient.get("/api/nodes"));
+                JSONArray arr = ApiClient.getNodes();
                 final List<Node> fetched = new ArrayList<>();
                 for (int i = 0; i < arr.length(); i++) {
                     fetched.add(new Node(arr.getJSONObject(i)));
@@ -119,7 +119,7 @@ public class NodesActivity extends AppCompatActivity {
     private void render(List<Node> fetched) {
         nodes.clear();
         nodes.addAll(fetched);
-        status.setText(nodes.size() + " nodes from " + ApiClient.BASE_URL + "/api/nodes");
+        status.setText(nodes.size() + " nodes from " + ApiClient.BASE_URL + ApiClient.nodesPath());
 
         int reporting = 0;
         int attention = 0;

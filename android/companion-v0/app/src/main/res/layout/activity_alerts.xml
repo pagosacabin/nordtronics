@@ -2,7 +2,7 @@
 <!--
   Alerts — the v0.1 mockup's alerts view (0049): the consensus statement hero,
   a severity/type filter (All / Smoke / Battery / Heat), then the alert history
-  from GET /api/alerts. Rows are built in AlertsActivity.
+  from the alerts feed (debug/mock builds only). Rows are built in AlertsActivity.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/alerts_root"

@@ -14,8 +14,8 @@ Run (from the repository root):
     python3 android/companion-v0/mock-server/server.py --port 8000 \\
         2>&1 | tee android/companion-v0/mock-server/ping-test.log
 
-The Android app reaches it at http://10.0.2.2:8000 (the emulator's alias for the
-host loopback interface) — see app/build.gradle, the single API_BASE_URL field.
+The Android app reaches it at the emulator's loopback alias for the host
+interface, port 8000 (see app/build.gradle, the single debug API_BASE_URL field).
 """
 
 import argparse

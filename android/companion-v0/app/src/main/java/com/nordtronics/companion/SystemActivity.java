@@ -15,9 +15,11 @@ import java.util.TimeZone;
 /**
  * System / privacy — the v0.1 mockup's system view (task 0049).
  *
- * <p>Backend connection status (the result of a real {@code GET /api/nodes} to
- * the app's API base URL, not a constant), the privacy statement — only
- * environmental telemetry leaves the property — the prototype/mock-mode
+ * <p>Backend connection status (the result of a real request to the app's API
+ * base URL, not a constant) — since task 0069 the reachability probe is the
+ * live {@code GET /healthz} in release, falling back to the node-list path
+ * where the backend has no health route — the privacy statement (only
+ * environmental telemetry leaves the property) — the prototype/mock-mode
  * indicator, and About with the app version.
  */
 public class SystemActivity extends AppCompatActivity {
@@ -45,7 +47,7 @@ public class SystemActivity extends AppCompatActivity {
         aboutBuild = findViewById(R.id.about_build);
 
         baseAddress.setText(ApiClient.BASE_URL);
-        protoSource.setText(ApiClient.BASE_URL + "/api/nodes");
+        protoSource.setText(ApiClient.BASE_URL + ApiClient.healthPath());
         aboutVersion.setText("v" + BuildConfig.VERSION_NAME);
         aboutBuild.setText(BuildConfig.VERSION_CODE + " \u00B7 " + BuildConfig.BUILD_TYPE.toUpperCase(Locale.US));
 
@@ -58,17 +60,19 @@ public class SystemActivity extends AppCompatActivity {
 
     /** A live read of the backend, so the status line on screen is earned. */
     private void checkBackend() {
-        status.setText("GET " + ApiClient.BASE_URL + "/api/nodes \u2026");
+        status.setText("GET " + ApiClient.BASE_URL + ApiClient.healthPath() + " \u2026");
         new Thread(() -> {
             try {
-                JSONArray arr = new JSONArray(ApiClient.get("/api/nodes"));
+                ApiClient.getHealth();
+                JSONArray arr = ApiClient.getNodes();
                 final int count = arr.length();
                 runOnUiThread(() -> {
                     baseStatus.setText(R.string.value_online);
                     baseStatus.setTextColor(Ui.col(this, R.color.nt_ok));
                     baseHeartbeat.setText(count + " NODES \u00B7 " + utcNow());
                     status.setText("Backend reachable at " + ApiClient.BASE_URL
-                            + " \u2014 " + count + " nodes in /api/nodes");
+                            + " \u2014 " + ApiClient.healthPath() + " ok \u00B7 " + count
+                            + " nodes in " + ApiClient.nodesPath());
                 });
             } catch (final Exception e) {
                 runOnUiThread(() -> {

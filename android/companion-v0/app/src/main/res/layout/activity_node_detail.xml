@@ -2,7 +2,7 @@
 <!--
   Node detail — the v0.1 mockup's drill-down view (0049): back link, node header,
   2x2 reading grid, "Link & hardware" health bars, the node's own recent history
-  from GET /api/alerts, and the ping-test button. Values are filled in by
+  from the alerts feed (debug/mock builds only), and the ping-test button. Values are filled in by
   NodeDetailActivity, so every figure on screen comes from the API response.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -439,7 +439,7 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Recent history for this node (GET /api/alerts, filtered) -->
+            <!-- Recent history for this node (alerts feed, debug/mock builds only) -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

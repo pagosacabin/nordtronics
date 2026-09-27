@@ -6,7 +6,7 @@
   "Prototype data" badge, screen title + last-packet subtitle, the dark
   network-consensus hero, the 2x2 stat grid, the "Field nodes" section head with
   its All/Watch filter, then the node cards. The cards themselves are built in
-  NodesActivity (one per node from GET /api/nodes) because the list is dynamic.
+  NodesActivity (one per node from the node list) because the list is dynamic.
 
   The window is padded by the real system-bar insets in NodesActivity
   (WindowInsetsHelper) — edge-to-edge, so this layout owns the whole screen.

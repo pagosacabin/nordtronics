@@ -8,8 +8,9 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 /**
- * One alert-history entry, exactly as {@code GET /api/alerts} returns it, plus
- * the severity/type presentation the v0.1 Alerts screen needs (task 0049).
+ * One alert-history entry, exactly as the alerts feed returns it (the mock's
+ * {@code /api/alerts}; the production API serves no such feed), plus the
+ * severity/type presentation the v0.1 Alerts screen needs (task 0049).
  *
  * <p>The mock payload carries no explicit severity, so the screen derives one
  * from the alert type (smoke and heat are warnings, battery and everything else

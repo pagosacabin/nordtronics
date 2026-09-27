@@ -8,13 +8,21 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 /**
- * One sensor node, exactly as {@code GET /api/nodes} returns it, plus the
- * presentation rules the v0.1 screens need (task 0049).
+ * One sensor node, read from either API dialect, plus the presentation rules
+ * the v0.1 screens need (tasks 0049, 0069).
+ *
+ * <p>The production {@code GET /v1/nodes} entry is
+ * {@code {node_id, last_seen_utc, status, age_seconds, latest:{pm25,
+ * temperature_c, humidity_pct, battery_v}}}; the mock's flat
+ * {@code GET /api/nodes} entry is {@code {id, pm25, temp_c, humidity,
+ * battery_v, last_seen}}. This constructor reads the nested form when
+ * {@code latest} is present and the flat form otherwise, so both backends
+ * render identically without a second model class.
  *
  * <p>Nothing here invents a reading: every display value is either a field from
  * the API response or a documented transformation of one (C to F, volts to a
- * percentage of a 4.2 V cell). Values the mock payload does not carry — LoRa RSSI
- * and packet-delivery percentage, which the mockup shows — are deliberately not
+ * percentage of a 4.2 V cell). Values neither payload carries — LoRa RSSI and
+ * packet-delivery percentage, which the mockup shows — are deliberately not
  * fabricated; the detail screen's health panel is built from packet recency,
  * PM2.5 headroom and battery instead.
  */
@@ -35,12 +43,40 @@ public class Node {
     public final String lastSeen;
 
     public Node(JSONObject o) {
-        this.id = o.optString("id", "?");
-        this.pm25 = o.optDouble("pm25", Double.NaN);
-        this.tempC = o.optDouble("temp_c", Double.NaN);
-        this.humidity = o.optDouble("humidity", Double.NaN);
-        this.batteryV = o.optDouble("battery_v", Double.NaN);
-        this.lastSeen = o.optString("last_seen", "");
+        this.id = firstNonEmpty(o.optString("node_id", ""), o.optString("id", ""), "?");
+
+        // The production payload nests the newest reading; the mock flattens it
+        // onto the node object itself.
+        JSONObject r = o.optJSONObject("latest");
+        if (r == null) {
+            r = o;
+        }
+        this.pm25 = num(r, "pm25");
+        this.tempC = firstNum(r, "temperature_c", "temp_c");
+        this.humidity = firstNum(r, "humidity_pct", "humidity");
+        this.batteryV = num(r, "battery_v");
+
+        this.lastSeen = firstNonEmpty(
+                o.optString("last_seen_utc", ""), o.optString("last_seen", ""), "");
+    }
+
+    private static double num(JSONObject o, String key) {
+        return o.has(key) && !o.isNull(key) ? o.optDouble(key, Double.NaN) : Double.NaN;
+    }
+
+    private static double firstNum(JSONObject o, String a, String b) {
+        double v = num(o, a);
+        return Double.isNaN(v) ? num(o, b) : v;
+    }
+
+    private static String firstNonEmpty(String a, String b, String fallback) {
+        if (a != null && !a.isEmpty()) {
+            return a;
+        }
+        if (b != null && !b.isEmpty()) {
+            return b;
+        }
+        return fallback;
     }
 
     /** "node-01" -> "Node 01", so cards read like the mockup's field names. */
@@ -77,7 +113,7 @@ public class Node {
         return statusWord() + " \u00B7 " + lastSeenPhrase();
     }
 
-    /** "received 18 sec ago", from the API's own last_seen timestamp. */
+    /** "received 18 sec ago", from the API's own last-seen timestamp. */
     public String lastSeenPhrase() {
         long age = ageSeconds();
         if (age < 0) {
@@ -95,7 +131,7 @@ public class Node {
         return "received " + Math.round(age / 86400.0) + " d ago";
     }
 
-    /** Seconds since last_seen, or -1 when the timestamp cannot be read. */
+    /** Seconds since last-seen, or -1 when the timestamp cannot be read. */
     public long ageSeconds() {
         if (lastSeen == null || lastSeen.isEmpty()) {
             return -1;

@@ -16,10 +16,15 @@ import java.util.List;
  * Node detail — the v0.1 mockup's drill-down view (task 0049).
  *
  * <p>Readings (PM2.5, temperature, humidity, battery), the link/hardware bars,
- * the node's own recent history from {@code GET /api/alerts} and the ping-test
- * button. The health bars are built from values the API actually returns —
- * packet recency, PM2.5 headroom and battery voltage — because the mock payload
- * carries no RSSI or packet-delivery figures.
+ * the node's own recent history and the ping-test button. The health bars are
+ * built from values the API actually returns — packet recency, PM2.5 headroom
+ * and battery voltage — because neither payload carries RSSI or
+ * packet-delivery figures.
+ *
+ * <p>Since task 0069 the node list is read through {@code ApiClient.nodesPath()}.
+ * The alert history and the ping button have no production endpoint (the live
+ * API serves neither), so those two panels say so and make no request unless
+ * the build's backend — the debug build's mock — actually serves them.
  */
 public class NodeDetailActivity extends AppCompatActivity {
 
@@ -85,10 +90,10 @@ public class NodeDetailActivity extends AppCompatActivity {
     // ------------------------------------------------------------ node data
 
     private void loadNode() {
-        status.setText("GET " + ApiClient.BASE_URL + "/api/nodes \u2026");
+        status.setText("GET " + ApiClient.BASE_URL + ApiClient.nodesPath() + " \u2026");
         new Thread(() -> {
             try {
-                JSONArray arr = new JSONArray(ApiClient.get("/api/nodes"));
+                JSONArray arr = ApiClient.getNodes();
                 Node found = null;
                 for (int i = 0; i < arr.length(); i++) {
                     Node n = new Node(arr.getJSONObject(i));
@@ -100,8 +105,9 @@ public class NodeDetailActivity extends AppCompatActivity {
                 final Node node = found;
                 runOnUiThread(() -> {
                     if (node == null) {
-                        detailMeta.setText("Node " + nodeId + " is not in /api/nodes");
-                        status.setText("GET " + ApiClient.BASE_URL + "/api/nodes \u2192 no node " + nodeId);
+                        detailMeta.setText("Node " + nodeId + " is not in " + ApiClient.nodesPath());
+                        status.setText("GET " + ApiClient.BASE_URL + ApiClient.nodesPath()
+                                + " \u2192 no node " + nodeId);
                     } else {
                         renderDetail(node);
                     }
@@ -149,15 +155,23 @@ public class NodeDetailActivity extends AppCompatActivity {
                 (TextView) findViewById(R.id.val_battery), n.batteryPercent(),
                 n.batteryPercent() + "% \u00B7 " + Ui.fmt2(n.batteryV) + " V");
 
-        status.setText("Readings from " + ApiClient.BASE_URL + "/api/nodes");
+        status.setText("Readings from " + ApiClient.BASE_URL + ApiClient.nodesPath());
     }
 
     // -------------------------------------------------------- alert history
 
     private void loadHistory() {
+        if (!ApiClient.alertsAvailable()) {
+            // The production API serves no alerts feed, so there is nothing to
+            // request: say so rather than firing a call that must 404.
+            historyList.removeAllViews();
+            historyEmpty.setText(ApiClient.ALERTS_UNAVAILABLE);
+            historyEmpty.setVisibility(View.VISIBLE);
+            return;
+        }
         new Thread(() -> {
             try {
-                JSONArray arr = new JSONArray(ApiClient.get("/api/alerts"));
+                JSONArray arr = ApiClient.getAlerts();
                 final List<Alert> mine = new ArrayList<>();
                 for (int i = 0; i < arr.length(); i++) {
                     Alert a = new Alert(arr.getJSONObject(i));
@@ -188,12 +202,18 @@ public class NodeDetailActivity extends AppCompatActivity {
     // ----------------------------------------------------------------- ping
 
     private void sendPing() {
-        final String url = ApiClient.BASE_URL + "/api/nodes/" + nodeId + "/ping";
+        if (!ApiClient.pingAvailable()) {
+            // No production endpoint to POST to; do not invent one.
+            pingResult.setText(ApiClient.PING_UNAVAILABLE);
+            status.setText("Ping unavailable on " + ApiClient.BASE_URL);
+            return;
+        }
+        final String url = ApiClient.BASE_URL + ApiClient.pingPath(nodeId);
         pingResult.setText("POST " + url + " \u2026");
         status.setText("POST " + url + " \u2026");
         new Thread(() -> {
             try {
-                final String body = ApiClient.post("/api/nodes/" + nodeId + "/ping");
+                final String body = ApiClient.postPing(nodeId);
                 runOnUiThread(() -> {
                     pingResult.setText("Ping confirmed by server:\n" + body);
                     status.setText("POST " + url + " \u2192 200 OK");
