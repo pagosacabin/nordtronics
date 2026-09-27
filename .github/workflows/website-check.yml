@@ -2,7 +2,7 @@ name: Website Check
 
 on:
   push:
-    branches: [ main, hermes/0068-site-email-refresh ]
+    branches: [ main, hermes/0068-site-email-refresh, hermes/0070-site-rewrite ]
   pull_request:
     branches: [ main ]
 

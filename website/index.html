@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Nordtronics — Off-grid solar, custom batteries, and embedded IoT. Wildfire early-warning sensor network in prototype. Pagosa Springs, Colorado.">
+<meta name="description" content="Nordtronics designs off-grid power and sensing systems for remote environments. Featured platform: Wildfire Detect, an autonomous early-warning sensor network. Pagosa Springs, Colorado.">
 <meta property="og:title" content="Nordtronics">
 <meta property="og:description" content="Off-grid solar, custom LiFePO4 batteries, ESP32/LoRa IoT, and a wildfire early-warning sensor network. Pagosa Springs, Colorado.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="/assets/og-image.png">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
-<title>Nordtronics — Off-grid power &amp; embedded sensing</title>
+<title>Nordtronics — Engineering for places beyond the grid</title>
 <style>
   :root {
     --nt-bg: #121718;
@@ -236,6 +236,48 @@
   .footer-links a { color: var(--nt-muted); font-size: 0.85rem; }
   .footer-links a:hover { color: var(--nt-accent); }
 
+  /* Section lede (shared) */
+  .section-lede { text-align: center; color: var(--nt-muted); max-width: 700px; margin: 0 auto 2.5rem; }
+
+  /* Hero actions */
+  .hero-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; }
+
+  /* Featured platform — Wildfire Detect */
+  #wildfire { position: relative; background: var(--nt-bg); overflow: hidden; }
+  #wildfire::before {
+    content: ""; position: absolute; inset: 0;
+    background: radial-gradient(ellipse 70% 45% at 50% 0%, var(--nt-accent-soft) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  #wildfire .container { position: relative; z-index: 1; }
+  .featured-lede { text-align: center; color: var(--nt-ink); font-weight: 600; font-size: clamp(1.15rem, 2.5vw, 1.45rem); max-width: 700px; margin: 0 auto 1.5rem; }
+  .featured-body { text-align: center; color: var(--nt-muted); max-width: 780px; margin: 0 auto 3rem; line-height: 1.8; }
+  .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem; }
+  .step { background: var(--nt-surface-2); border: 1px solid var(--nt-line); border-radius: 10px; padding: 1.75rem 1.5rem; }
+  .step h3 { font-size: 1.05rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.6rem; }
+  .step-num { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; border: 1.5px dashed var(--nt-accent); color: var(--nt-accent); font-size: 0.8rem; font-weight: 700; }
+  .step p { color: var(--nt-muted); font-size: 0.95rem; line-height: 1.6; }
+  .privacy-strip { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.6rem 1rem; max-width: 900px; margin: 0 auto 1.5rem; padding: 1.25rem 1.5rem; background: var(--nt-ok-soft); border: 1px solid var(--nt-ok); border-radius: 12px; }
+  .privacy-lead { color: var(--nt-ink); font-weight: 700; }
+  .privacy-item { color: var(--nt-ok); font-size: 0.9rem; background: var(--nt-surface-2); border: 1px solid var(--nt-line); border-radius: 999px; padding: 0.25rem 0.75rem; }
+  .featured-note { text-align: center; color: var(--nt-muted); font-size: 0.85rem; max-width: 700px; margin: 0 auto; }
+
+  /* Why Nordtronics */
+  #why-nordtronics { background: var(--nt-rail); }
+  .why-content { max-width: 780px; margin: 0 auto; text-align: center; }
+  .why-content p { color: var(--nt-muted); font-size: 1.05rem; line-height: 1.8; }
+
+  /* Services featured-platform callout */
+  .platform-callout { margin-top: 2rem; padding: 1.25rem 1.5rem; background: var(--nt-surface-2); border: 1px solid var(--nt-line); border-radius: 10px; text-align: center; color: var(--nt-muted); font-size: 0.95rem; }
+  .platform-callout strong { color: var(--nt-ink); }
+
+  /* Contact paths */
+  .contact-paths { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+  .contact-path { display: flex; flex-direction: column; gap: 0.35rem; padding: 1.25rem; background: var(--nt-surface-2); border: 1px solid var(--nt-line); border-radius: 10px; text-align: left; transition: border-color 0.2s, transform 0.2s; }
+  .contact-path:hover { border-color: var(--nt-accent); transform: translateY(-2px); text-decoration: none; }
+  .contact-path-title { color: var(--nt-ink); font-weight: 700; }
+  .contact-path-action { color: var(--nt-accent); font-size: 0.9rem; }
+
   /* Mobile adjustments */
   @media (max-width: 768px) {
     section { padding: 3.5rem 0; }
@@ -264,9 +306,12 @@
       <img src="assets/favicon.png" alt="Nordtronics logo" class="hero-logo">
       <div class="hero-tagline">Pagosa Springs, Colorado</div>
       <h1 class="hero-title">NORDTRONICS</h1>
-      <p class="hero-subtitle">Off-grid solar, custom batteries, and embedded IoT — built by hand. The wildfire early-warning network is our flagship prototype.</p>
+      <p class="hero-subtitle">Built for places the grid doesn't reach.<br>Off-grid power, energy storage, and intelligent sensing — designed and built by one engineer, supported directly.</p>
       <div class="hero-location">Pagosa Springs, Colorado</div>
-      <a href="#pilot" class="btn btn-primary">Request Pilot Pricing</a>
+      <div class="hero-actions">
+        <a href="#wildfire" class="btn btn-primary">Explore Wildfire Detect</a>
+        <a href="#contact" class="btn btn-outline">Discuss a Project</a>
+      </div>
     </div>
     <div class="scroll-indicator" aria-hidden="true">
       <span>Scroll</span>
@@ -278,12 +323,50 @@
 </header>
 
 <main>
+  <section id="wildfire">
+    <div class="container">
+      <header class="section-header">
+        <span class="section-label">Featured Platform</span>
+        <h2 class="section-title">Wildfire Detect</h2>
+      </header>
+      <p class="featured-lede">Know about a fire before you can see it.</p>
+      <p class="featured-body">A network of solar-powered sensor nodes watches your property line around the clock. When the air starts changing — smoke particles rising, temperature climbing — the nodes compare notes with each other and send an early warning to your phone. Not a confirmed fire. An early warning, while there's still time to act.</p>
+      <div class="steps-grid">
+        <article class="step">
+          <h3><span class="step-num">1</span>Detect</h3>
+          <p>Distributed nodes monitor PM2.5, temperature, and conditions continuously.</p>
+        </article>
+        <article class="step">
+          <h3><span class="step-num">2</span>Relay</h3>
+          <p>LoRa sends events to the base station on your property. No cellular, no subscription.</p>
+        </article>
+        <article class="step">
+          <h3><span class="step-num">3</span>Verify</h3>
+          <p>The system correlates triggers across multiple nodes and looks for real change, not noise.</p>
+        </article>
+        <article class="step">
+          <h3><span class="step-num">4</span>Alert</h3>
+          <p>You get an early warning on your phone.</p>
+        </article>
+      </div>
+      <div class="privacy-strip">
+        <span class="privacy-lead">Your property. Your data.</span>
+        <span class="privacy-item">No cameras.</span>
+        <span class="privacy-item">No microphones.</span>
+        <span class="privacy-item">No GPS tracking.</span>
+        <span class="privacy-item">No required cloud connection.</span>
+      </div>
+      <p class="featured-note">Wildfire Detect is a working prototype, not a finished product. Specs will change as field testing teaches us things.</p>
+    </div>
+  </section>
+
   <section id="architecture">
     <div class="container">
       <header class="section-header">
         <span class="section-label">Architecture</span>
         <h2 class="section-title">How the <span>Wildfire Network</span> Works</h2>
       </header>
+      <p class="section-lede">A network of autonomous sensors watches the environment continuously and sends only meaningful changes back to the property gateway.</p>
       <div class="architecture-svg">
         <svg viewBox="0 0 1200 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Nordtronics wildfire early-warning network architecture diagram">
           <defs>
@@ -528,7 +611,7 @@
         <article class="detection-card">
           <span class="prototype-badge">Prototype</span>
           <h3>Detection Radius &amp; Logic</h3>
-          <p>Each node targets approximately <strong>100 m sensing radius</strong> in typical forest terrain (field validation pending). Detection uses rate-of-change on PM2.5 and temperature, combined with lightning proximity from the AS3935. Multi-node statistical consensus (requiring correlated triggers across ≥2 nodes within a time window) rejects single-node false positives from dust, cooking smoke, or sensor glitches.</p>
+          <p>Each node targets approximately <strong>100 m sensing radius</strong> in typical forest terrain (field validation pending). Detection uses rate-of-change on PM2.5 and temperature, combined with lightning proximity from the AS3935. Multi-node statistical consensus (requiring correlated triggers across ≥2 nodes within a time window) rejects single-node false positives from dust, cooking smoke, or sensor glitches. The system reports environmental signatures consistent with an emerging fire — an early warning, not a confirmed fire.</p>
         </article>
         <article class="detection-card">
           <span class="prototype-badge">Prototype</span>
@@ -539,11 +622,37 @@
     </div>
   </section>
 
+  <section id="app">
+    <div class="container">
+      <header class="section-header">
+        <span class="section-label">Companion App</span>
+        <h2 class="section-title">Android App <span>(Prototype)</span></h2>
+      </header>
+      <p style="text-align: center; color: var(--nt-muted); max-width: 700px; margin: 0 auto 2.5rem;">
+        The companion app is a <strong>prototype</strong> — not on the Play Store. Screenshots from the v0.1 emulator build.
+      </p>
+      <div class="app-showcase">
+        <figure class="app-screen">
+          <img src="screenshots/v01-nodes.png" alt="Nordtronics companion app — node list screen showing sensor nodes with signal strength and battery">
+          <figcaption class="app-screen-caption">Node list — signal strength, battery, last seen</figcaption>
+        </figure>
+        <figure class="app-screen">
+          <img src="screenshots/v01-node-detail.png" alt="Nordtronics companion app — node detail screen with PM2.5, temperature, humidity charts">
+          <figcaption class="app-screen-caption">Node detail — live telemetry charts</figcaption>
+        </figure>
+        <figure class="app-screen">
+          <img src="screenshots/v01-alerts.png" alt="Nordtronics companion app — alerts screen showing fire weather warnings and detection events">
+          <figcaption class="app-screen-caption">Alerts — rate-of-change triggers, consensus events</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
   <section id="services">
     <div class="container">
       <header class="section-header">
-        <span class="section-label">Services</span>
-        <h2 class="section-title">What We <span>Build</span></h2>
+        <span class="section-label">What Nordtronics Builds</span>
+        <h2 class="section-title">Power, Sensing, and Custom Engineering</h2>
       </header>
       <div class="services-grid">
         <article class="service-card">
@@ -551,16 +660,16 @@
             <path d="M12 2v20M17 5H7a2 2 0 0 1 0-4h10a2 2 0 0 1 0 4z"/>
             <path d="M7 9v11a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9"/>
           </svg>
-          <h3>Off-Grid Solar Installs</h3>
-          <p>Custom off-grid and hybrid solar systems for cabins, remote sites, and backup power. Site assessment, design, component sourcing, and commissioning.</p>
+          <h3>Remote Power Systems</h3>
+          <p>Solar + storage + battery systems for cabins, remote sites, and backup power. Site assessment, design, sourcing, commissioning.</p>
         </article>
         <article class="service-card">
           <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--nt-ok);">
             <rect x="2" y="6" width="20" height="12" rx="2"/>
             <path d="M10 6V4a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v2M2 14h20"/>
           </svg>
-          <h3>Custom LiFePO4 Battery Builds</h3>
-          <p>Quality prismatic cells with JK BMS. 12 V, 24 V, 48 V packs for solar storage, RV, marine, and custom applications. Cell matching, compression fixtures, thermal pads, busbar fabrication.</p>
+          <h3>Custom Engineering</h3>
+          <p>Hardware, firmware, telemetry, automation. If it needs to work where nothing else does, that's the job.</p>
         </article>
         <article class="service-card">
           <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--nt-blue);">
@@ -568,9 +677,24 @@
             <path d="M8 17h8M12 11v6"/>
             <circle cx="12" cy="17" r="1"/>
           </svg>
-          <h3>ESP32 / LoRa / MQTT / HA Consulting</h3>
-          <p>Firmware development, sensor integration, LoRaWAN / Meshtastic / custom LoRa, MQTT broker setup, Home Assistant integration, OTA updates, low-power optimization.</p>
+          <h3>Remote Sensing</h3>
+          <p>LoRa + ESP32 environmental monitoring. Sensors that run for years on sunshine and report back over miles, not feet.</p>
         </article>
+      </div>
+      <div class="platform-callout">
+        <strong>Wildfire Detect</strong> is the proof of what Nordtronics can engineer — not just another service. <a href="#wildfire">Explore the platform →</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="why-nordtronics">
+    <div class="container">
+      <header class="section-header">
+        <span class="section-label">Why Nordtronics</span>
+        <h2 class="section-title">Why Nordtronics?</h2>
+      </header>
+      <div class="why-content">
+        <p>Built for places the grid doesn't reach. Nordtronics designs power and sensing systems for remote environments — where conventional infrastructure is expensive, unreliable, or just not there. Solar becomes the power plant. Batteries become the grid. LoRa becomes the network. One engineer designs it, builds it, and answers your email when you have questions.</p>
       </div>
     </div>
   </section>
@@ -606,35 +730,9 @@
         </div>
         <div class="about-text">
           <p>Stephen Nordlund founded Nordtronics to build the off-grid power and sensing tools he wanted for his own property in Pagosa Springs, Colorado — a place where the grid ends and the forest begins.</p>
-          <p>Background: embedded firmware (ESP32, STM32, Nordic), power electronics (BMS design, solar charge controllers), and LoRa/802.15.4 mesh networks. Previously built telemetry systems for industrial and scientific applications.</p>
-          <p>Nordtronics is a one-person shop. Every board is laid out, every line of firmware written, every battery pack assembled here. No outside investors. No corporate roadmap. Just honest engineering for people who live off-grid.</p>
+          <p>Stephen Nordlund is a systems engineer turned off-grid power and embedded-systems builder. Background: systems engineering, Unix and VMware infrastructure, field service — now solar installs, custom LiFePO4 batteries, and embedded electronics (ESP32, LoRa, Home Assistant) from a shop in Pagosa Springs, Colorado.</p>
+          <p>Nordtronics is a one-person shop, and that's the point. Direct engineering. Direct support. The person who designs your system is the person who answers your email — six months later, too.</p>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="app">
-    <div class="container">
-      <header class="section-header">
-        <span class="section-label">Companion App</span>
-        <h2 class="section-title">Android App <span>(Prototype)</span></h2>
-      </header>
-      <p style="text-align: center; color: var(--nt-muted); max-width: 700px; margin: 0 auto 2.5rem;">
-        The companion app is a <strong>prototype</strong> — not on the Play Store. Screenshots from the v0.1 emulator build.
-      </p>
-      <div class="app-showcase">
-        <figure class="app-screen">
-          <img src="screenshots/v01-nodes.png" alt="Nordtronics companion app — node list screen showing sensor nodes with signal strength and battery">
-          <figcaption class="app-screen-caption">Node list — signal strength, battery, last seen</figcaption>
-        </figure>
-        <figure class="app-screen">
-          <img src="screenshots/v01-node-detail.png" alt="Nordtronics companion app — node detail screen with PM2.5, temperature, humidity charts">
-          <figcaption class="app-screen-caption">Node detail — live telemetry charts</figcaption>
-        </figure>
-        <figure class="app-screen">
-          <img src="screenshots/v01-alerts.png" alt="Nordtronics companion app — alerts screen showing fire weather warnings and detection events">
-          <figcaption class="app-screen-caption">Alerts — rate-of-change triggers, consensus events</figcaption>
-        </figure>
       </div>
     </div>
   </section>
@@ -643,15 +741,25 @@
     <div class="container">
       <header class="section-header">
         <span class="section-label">Contact</span>
-        <h2 class="section-title">Get in <span>Touch</span></h2>
+        <h2 class="section-title">Have a remote-system problem?</h2>
       </header>
       <div class="contact-content">
-        <p>No sales funnel. No newsletter. Just email.</p>
-        <div class="contact-links">
-          <a href="mailto:hello@nordtronics.io" class="contact-link">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-            <span>hello@nordtronics.io</span>
+        <p>Talk directly to the engineer building the solution. No sales pitch.</p>
+        <div class="contact-paths">
+          <a href="#pilot" class="contact-path">
+            <span class="contact-path-title">Wildfire Detect</span>
+            <span class="contact-path-action">Request a pilot</span>
           </a>
+          <a href="mailto:hello@nordtronics.io?subject=Off-grid%20power%20inquiry" class="contact-path">
+            <span class="contact-path-title">Off-Grid Power</span>
+            <span class="contact-path-action">Discuss a system</span>
+          </a>
+          <a href="mailto:hello@nordtronics.io?subject=Custom%20electronics%20inquiry" class="contact-path">
+            <span class="contact-path-title">Custom Electronics</span>
+            <span class="contact-path-action">Discuss your project</span>
+          </a>
+        </div>
+        <div class="contact-links">
           <a href="https://github.com/pagosacabin/nordtronics" target="_blank" rel="noopener" class="contact-link">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
             <span>GitHub</span>
