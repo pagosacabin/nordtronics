@@ -1772,6 +1772,148 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "Connector_Generic:Conn_01x02"
+			(pin_names
+				(offset 1.016)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "J"
+				(at 0 2.54 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "Conn_01x02"
+				(at 0 -5.08 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "connector"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "Connector*:*_1x??_*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "Conn_01x02_1_1"
+				(rectangle
+					(start -1.27 1.27)
+					(end 1.27 -3.81)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(rectangle
+					(start -1.27 0.127)
+					(end 0 -0.127)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start -1.27 -2.413)
+					(end 0 -2.667)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(pin passive line
+					(at -5.08 0 0)
+					(length 3.81)
+					(name "Pin_1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 -2.54 0)
+					(length 3.81)
+					(name "Pin_2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -4403,13 +4545,23 @@
 	)
 	(wire
 		(pts
-			(xy 254 90.17) (xy 254 30.48)
+			(xy 254.0 90.17) (xy 254.0 40.64)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "aaa91c6e-c215-4520-86b1-bec3528df0c0")
+		(uuid "9f02c5f0-a87d-45dd-b1ba-f12f3c8d8c0d")
+	)
+	(wire
+		(pts
+			(xy 254.0 40.64) (xy 254.0 30.48)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a568b44f-b743-4136-89c8-ba877f058cd1")
 	)
 	(wire
 		(pts
@@ -4423,13 +4575,23 @@
 	)
 	(wire
 		(pts
-			(xy 260.35 60.96) (xy 260.35 111.76)
+			(xy 260.35 60.96) (xy 260.35 96.52)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "0afdf73d-0f27-4c18-b846-ba289e4da3f7")
+		(uuid "d678c482-8587-425d-b4e0-65fde471a688")
+	)
+	(wire
+		(pts
+			(xy 260.35 96.52) (xy 260.35 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "813fd2a6-86c1-4631-ab59-f9be3b44e525")
 	)
 	(wire
 		(pts
@@ -5794,6 +5956,367 @@
 			(justify right bottom)
 		)
 		(uuid "3f528b76-6765-4169-9b7a-cfffb0b0e551")
+	)
+	(symbol
+		(lib_id "Connector_Generic:Conn_01x02")
+		(at 283.21 40.64 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "227aff77-2e30-4c7f-82ac-a8e0475118d8")
+		(property "Reference" "J1"
+			(at 279.4 34.29 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "SOLAR IN"
+			(at 279.4 36.83 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Connector_JST:JST_GH_SM02B-GHS-TB_1x02-1MP_P1.25mm_Horizontal"
+			(at 283.21 40.64 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 283.21 40.64 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(at 283.21 40.64 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "bd80991a-8bf1-40c6-8f2a-ae5c7d0d2180")
+		)
+		(pin "2"
+			(uuid "f25a64e9-ffc7-44b8-8d72-6230304289f2")
+		)
+		(instances
+			(project "solar-gate-v2"
+				(path "/a96b19dc-cc73-47e7-87d4-84e3b6447683"
+					(reference "J1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector_Generic:Conn_01x02")
+		(at 276.86 96.52 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "81465809-4bf5-4036-9c86-831e56a21371")
+		(property "Reference" "J2"
+			(at 279.4 102.87 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TO HELTEC"
+			(at 279.4 105.41 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Connector_JST:JST_GH_SM02B-GHS-TB_1x02-1MP_P1.25mm_Horizontal"
+			(at 276.86 96.52 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 276.86 96.52 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(at 276.86 96.52 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "5268f587-673b-4c14-ba0f-0aa925766397")
+		)
+		(pin "2"
+			(uuid "7298bf9a-7f08-4a2a-abc0-c980fe7a8570")
+		)
+		(instances
+			(project "solar-gate-v2"
+				(path "/a96b19dc-cc73-47e7-87d4-84e3b6447683"
+					(reference "J2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(wire
+		(pts
+			(xy 226.06 147.32) (xy 266.7 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7aaed6d5-1307-4ab8-a795-5ca90373f800")
+	)
+	(wire
+		(pts
+			(xy 266.7 147.32) (xy 273.05 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "920d7778-10d6-4f42-b310-1ff031934976")
+	)
+	(junction
+		(at 226.06 147.32)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "702191c1-4269-43bb-8589-064c56f064f9")
+	)
+	(wire
+		(pts
+			(xy 271.78000000000003 99.06) (xy 266.7 99.06)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "57b77558-900f-49ee-8077-174c83721a15")
+	)
+	(wire
+		(pts
+			(xy 266.7 99.06) (xy 266.7 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "719ca474-336f-4e78-a936-a5819ce0ee0a")
+	)
+	(junction
+		(at 266.7 147.32)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "084a52e7-ed38-402d-8168-d18e83b4e9e0")
+	)
+	(wire
+		(pts
+			(xy 278.13 43.18) (xy 273.05 43.18)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ff085d87-52a7-440d-81c1-46e6f5d73487")
+	)
+	(wire
+		(pts
+			(xy 273.05 43.18) (xy 273.05 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4c4376ef-1a26-4539-9805-b4a6dc962c47")
+	)
+	(wire
+		(pts
+			(xy 254 40.64) (xy 278.13 40.64)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a7e8c2b0-5d9c-496d-9c4f-cfff05bfe134")
+	)
+	(junction
+		(at 254.0 40.64)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "8eeeb1e1-8c42-4dc8-82fb-39efc2e22510")
+	)
+	(wire
+		(pts
+			(xy 260.35 96.52) (xy 271.78000000000003 96.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "214bbacf-d8e9-41c8-a602-ee34f89292a8")
+	)
+	(junction
+		(at 260.35 96.52)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "de090a06-cfaa-4b79-ac4c-d0128107ebd8")
+	)
+	(text "SOLAR PANEL IN (+/-) — 13 W, 5 V panel"
+		(exclude_from_sim no)
+		(at 284.48 26.67 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "62b63e77-6545-400b-b687-aaa140c4cf6a")
+	)
+	(text "TO HELTEC LoRa 32 V4 SOLAR INPUT — gated charge output"
+		(exclude_from_sim no)
+		(at 284.48 151.13 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "59b3d4cc-10d9-4a60-a5c9-da1e9e289acc")
+	)
+	(text "NTC on leads — thermally couple to the battery cell"
+		(exclude_from_sim no)
+		(at 56 155 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "537e6b15-9dee-4eaa-89d9-24df9a746094")
+	)
+	(text "Vref (U2/TL431)"
+		(exclude_from_sim no)
+		(at 56 86 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "d29c9af5-cca8-4557-8df3-fd1a635defdf")
+	)
+	(text "cold comparator"
+		(exclude_from_sim no)
+		(at 157 74 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "692bbf5b-8130-444a-a396-e19563507d9f")
+	)
+	(text "hot comparator"
+		(exclude_from_sim no)
+		(at 150 138 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "90ee4f62-5418-4cb4-b06e-451faefa8636")
+	)
+	(text "fault-OR (DA/DB)"
+		(exclude_from_sim no)
+		(at 221.6 92 90)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "e40ce92d-83d8-4c14-b418-a0c356527f93")
+	)
+	(text "gate drive (Q3)"
+		(exclude_from_sim no)
+		(at 207.5 135 90)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "93f45897-7f0f-43be-9003-1349cf99c4b0")
+	)
+	(text "pass switch (Q1A/Q1B/Q2A/Q2B back-to-back)"
+		(exclude_from_sim no)
+		(at 204 158.75 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "ad4c238b-8688-4439-95b6-8dbc2d4bef24")
 	)
 	(sheet_instances
 		(path "/"

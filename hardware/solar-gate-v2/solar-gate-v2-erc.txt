@@ -1,4 +1,4 @@
-ERC report (2026-09-28T00:01:54, Encoding UTF8)
+ERC report (2026-09-28T05:28:24, Encoding UTF8)
 Report includes: Errors, Warnings, Exclusions
 
 ***** Sheet /
@@ -68,8 +68,14 @@ Report includes: Errors, Warnings, Exclusions
 [lib_symbol_mismatch]: Symbol 'D_Schottky' doesn't match copy in library 'Device'
     ; warning
     @(243.84 mm, 60.96 mm): Symbol D2 [D_Schottky]
+[lib_symbol_mismatch]: Symbol 'Conn_01x02' doesn't match copy in library 'Connector_Generic'
+    ; warning
+    @(276.86 mm, 96.52 mm): Symbol J2 [Conn_01x02]
+[lib_symbol_mismatch]: Symbol 'Conn_01x02' doesn't match copy in library 'Connector_Generic'
+    ; warning
+    @(283.21 mm, 40.64 mm): Symbol J1 [Conn_01x02]
 
- ** ERC messages: 22  Errors 0  Warnings 22
+ ** ERC messages: 24  Errors 0  Warnings 24
 
  ** Ignored checks:
     - Global label only appears once in the schematic

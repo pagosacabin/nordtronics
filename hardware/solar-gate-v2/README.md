@@ -5,10 +5,20 @@ the passives.** Layout deliberately waits for the trip points to be validated on
 bench (task 0073). Nothing here supersedes `hardware/solar-gate-v1/`, which is a
 different topology and is untouched by this project.
 
+**0075 revision (current state of the files here):** the wired capture gained its I/O
+connectors — **J1 "SOLAR IN"** on `P`/`GND` and **J2 "TO HELTEC"** on
+`SOLAR_OUT`/`GND` — plus the NTC lead note and six functional-block annotations. No
+component value, reference, net name or pre-existing wire was changed; the only netlist
+difference is the two connectors (verified net-by-net, see Verification).
+
 ## Provenance
 
 - Circuit: the Claude clean-sheet design selected from the four-way AI design review
   (ChatGPT, Grok, Claude, Copilot), Juno-verified, captured here verbatim in task 0073.
+- Revision history of this directory: **0073** captured the circuit with net labels only
+  (0 wires); **0074** redrew it so every connection is a real wire; **0075** added the
+  I/O connectors, the NTC lead note and the functional-block annotations. Each revision
+  is a separate branch; the files here are the 0075 state.
 - Tooling: built entirely through the KiCad MCP server (mixelpixx/KiCAD-MCP-Server)
   driving KiCad 10; ERC executed by the Flatpak KiCad 10 `kicad-cli`. No KiCad file was
   hand-edited (the two library tables were written by tool calls, see Library
@@ -31,6 +41,8 @@ the deliberate topology, not an oversight — do not "simplify" it to a single F
 
 | Ref | Part | Value | Notes |
 |-----|------|-------|-------|
+| J1 | 2-pin header (`Connector_Generic:Conn_01x02`) | SOLAR IN | pin 1 → `P` (panel +), pin 2 → `GND`; JST GH 1.25 mm footprint |
+| J2 | 2-pin header (`Connector_Generic:Conn_01x02`) | TO HELTEC | pin 1 → `SOLAR_OUT` (gated charge out), pin 2 → `GND`; JST GH 1.25 mm footprint |
 | U1 | LM393 dual comparator | LM393 | drawn as both units + the power unit (pins 8/4) |
 | U2 | TL431 shunt reference | TL431 | K = `VREF`, A = `GND`, REF tied to K → 2.5 V |
 | Q1a, Q1b, Q2a, Q2b | AO3401 P-MOSFET | AO3401 | two paralleled pairs, gates on `G`, back to back on `M` |
@@ -55,9 +67,9 @@ the deliberate topology, not an oversight — do not "simplify" it to a single F
 
 | Net | Pins |
 |-----|------|
-| `P` | C1/1, D1/A, Q1a/S, Q1b/S, Rbias/1, U1/8 (V+) |
-| `SOLAR_OUT` | D2/A, Q2a/S, Q2b/S |
-| `GND` | C1/2, C2/2, NTC/2, Q3/E, R2/2, Rb2/2, U1/4 (V−), U2/A |
+| `P` | C1/1, D1/A, **J1/1**, Q1a/S, Q1b/S, Rbias/1, U1/8 (V+) |
+| `SOLAR_OUT` | D2/A, **J2/1**, Q2a/S, Q2b/S |
+| `GND` | C1/2, C2/2, **J1/2**, **J2/2**, NTC/2, Q3/E, R2/2, Rb2/2, U1/4 (V−), U2/A |
 | `VREF` | C2/1, R1/1, Rb1/1, Rbias/2, Rpua/1, Rpub/1, Rpuc/1, Rt/1, U2/K, U2/REF |
 | `N` | NTC/1, Rfb/2, Rt/2, U1/A-IN−, U1/B-IN+ |
 | `PA` | R1/2, R2/1, Rfa/2, U1/A-IN+ |
@@ -98,20 +110,23 @@ intended, because it moves the cold trip by half a degree.
 ## ERC
 
 ```
-** ERC messages: 22  Errors 0  Warnings 22
+** ERC messages: 24  Errors 0  Warnings 24
 ```
 
 Full report: `solar-gate-v2-erc.txt` (written by `kicad-cli sch erc --severity-all`).
 
-**Zero errors.** All 22 warnings are the single rule `[lib_symbol_mismatch]`
-("Symbol 'R' / 'C' / 'D_Schottky' / 'Thermistor_NTC' doesn't match copy in library
-'Device'", and `PWR_FLAG` in `power`). This is a cache-vs-library version skew, not a
-schematic fault: the MCP symbol loader embeds symbol copies from the host RPM KiCad
-9.0.7 libraries, while ERC runs inside the Flatpak KiCad 10 sandbox and compares
-against its own KiCad 10 copies of `Device`/`power`. The project's own symbol (TL431)
-and the comparator/transistor libraries raise no warning, which is the tell: only the
-libraries whose content differs between 9.0.7 and 10 mismatch. No pin, net or
-connection is affected.
+**Zero errors.** All 24 warnings are the single rule `[lib_symbol_mismatch]`
+("Symbol 'R' / 'C' / 'D_Schottky' / 'Thermistor_NTC' / 'Conn_01x02' doesn't match copy in
+library 'Device' / 'Connector_Generic'", and `PWR_FLAG` in `power`). 22 of them are the
+same warnings 0074 reported; the two new ones are J1 and J2, i.e. the connector symbol
+inherits the same cache-vs-library version skew and no new *class* of warning appeared.
+This is a cache-vs-library version skew, not a schematic fault: the MCP symbol loader
+embeds symbol copies from the host RPM KiCad 9.0.7 libraries, while ERC runs inside the
+Flatpak KiCad 10 sandbox and compares against its own KiCad 10 copies of
+`Device`/`power`/`Connector_Generic`. The project's own symbol (TL431) and the
+comparator/transistor libraries raise no warning, which is the tell: only the libraries
+whose content differs between 9.0.7 and 10 mismatch. No pin, net or connection is
+affected.
 
 The systemic fix is to point the kicad MCP server's environment at the Flatpak symbol
 runtime (`KICAD_SYMBOL_DIR=/var/lib/flatpak/runtime/org.kicad.KiCad.Library.Symbols/x86_64/stable/active/files/symbols`),
@@ -123,23 +138,74 @@ mid-run was judged the larger risk. Adding stock-library entries to a project
 per library name, so `update_symbol_from_library` simply re-injects the already-cached
 host bytes.
 
-## Render verification (geometry measured on the committed revision)
+## Verification (geometry measured on the committed revision)
 
 The sheet was checked against its own SVG export (KiCad stroke-font glyph paths give
-exact mm boxes for every string) and the raster render. **The 0074 redraw passed that
-check on the committed revision**; the numbers below are the 0073 capture (labels only)
-next to this revision:
+exact mm boxes for every string) and the raster render. Every revision passed that check
+on its own committed state; the columns are 0073 (labels only), 0074 (wired) and 0075
+(wired + connectors + annotations):
 
-| Check | 0073 capture | 0074 wired revision |
-|-------|--------------|---------------------|
-| `(wire` entries in the `.kicad_sch` | **0** | **115** (81 routed segments, broken at T-points by the tool) |
-| `(junction` entries | **0** | **39** |
-| Net labels (now supplements only) | 68 (the sole connectivity) | 14 |
-| Real text-vs-text collisions (distinct strings, distinct places) | **85 pairs** | **0** |
-| Text-over-wire overlaps | not measured | **0** |
-| Symbol bodies inside the title-block region (x>177, y>166) | 0 | **0** |
-| Labels crossing the frame's inner border | 0 | **0** |
-| Symbol bodies found | 30 (+ U1C, pins only) | 30 (+ U1C) |
+| Check | 0073 capture | 0074 wired revision | 0075 revision |
+|-------|--------------|---------------------|---------------|
+| `(wire` entries in the `.kicad_sch` | **0** | **115** (81 routed segments, broken at T-points by the tool) | **125** (7 new segments drawn, 3 existing wires split at the new T-points) |
+| `(junction` entries | **0** | **39** | **43** |
+| Net labels (supplements only since 0074) | 68 (the sole connectivity) | 14 | 14 |
+| Free-form `(text` annotations | 0 | 0 | **9** (J1/J2 notes, NTC note, 6 block labels) |
+| Wire-wire crossings (meeting strictly inside both segments) | 0 | 0 | **0** |
+| Collinear wire overlaps | 0 | 0 | **0** |
+| Real text-vs-text collisions (distinct strings, distinct places) | **85 pairs** | **0** | **0** |
+| Text-over-wire overlaps | not measured | 0 | **0** |
+| Text-over-symbol-body overlaps | not measured | 0 | **0** |
+| Symbol bodies inside the title-block region (x>177, y>166) | 0 | **0** | **0** |
+| Labels/text crossing the frame's inner border | 0 | **0** | **0** |
+| Symbol instances | 30 (+ U1C, pins only) | 30 (+ U1C) | 32 (+ U1C, J1, J2) |
+
+### 0075 connector wiring — why it is routed the way it is
+
+Both connectors are `Connector_Generic:Conn_01x02` (2-pin, pins pointing left) at the
+right-hand edge, and both are connected by **real wires**, not labels:
+
+| Connector | Position | Signal pin | Ground pin |
+|-----------|----------|------------|------------|
+| J1 `SOLAR IN` | (283.21, 40.64) | pin 1 → `P`: wire west to a T-tap at (254.00, 40.64) on the existing `P` riser | pin 2 → wire west to a riser at x = 273.05, down to the extended bottom `GND` rail |
+| J2 `TO HELTEC` | (276.86, 96.52) | pin 1 → `SOLAR_OUT`: wire west to a T-tap at (260.35, 96.52) on the existing `SOLAR_OUT` riser | pin 2 → wire west to a riser at x = 266.70, down to the same rail |
+
+The two connectors are deliberately **staggered by 6.35 mm in x**: J2's pins end at
+x = 271.78 and its body starts at 275.59, which leaves a 3.81 mm lane for J1's `GND`
+riser to descend past J2 without touching anything. Aligning J1 with J2 instead forces
+that riser to cross J2's `SOLAR_OUT` tap wire (electrically harmless in KiCad, but it
+reads as a junction-free crossing on a sheet whose whole point is traceability), and any
+shared riser left of the `SOLAR_OUT` column crosses the `M` net twice. The staggering is
+therefore the crossing-free solution, and the checker above confirms **0 crossings and 0
+collinear overlaps** on the whole sheet, 115-segment baseline included.
+
+The bottom `GND` rail was extended from its old end (226.06, 147.32) east to
+(273.05, 147.32); the two risers land on it as T-junctions. `(junction` went 39 → 43:
+(254.00, 40.64), (260.35, 96.52), (266.70, 147.32), plus (226.06, 147.32) which the
+extension turned from a 2-endpoint corner into a 3-way.
+
+### 0075 annotation placement — measured clearances
+
+The six block labels are placed in the widest free gap nearest each block (two of them
+rotated 90° because the only gap local to their block is a narrow vertical lane), and
+the two connector notes sit in the free strips above/below the right-hand column:
+
+| Text | Position (mm) | Nearest other text | Nearest wire | Nearest symbol/frame ink |
+|------|---------------|--------------------|--------------|--------------------------|
+| `SOLAR PANEL IN (+/-) — 13 W, 5 V panel` | right-justified at (284.48, 26.67) | 6.93 | 33.43 | 0.80 (frame line x=285) |
+| `TO HELTEC LoRa 32 V4 SOLAR INPUT — gated charge output` | right-justified at (284.48, 151.13) | 6.17 | 28.78 | 0.74 (frame line x=285) |
+| `NTC on leads — thermally couple to the battery cell` | (56, 155) | 16.46 | 21.34 | 5.54 |
+| `Vref (U2/TL431)` | (56, 86) | 9.27 | 8.56 | 2.88 |
+| `cold comparator` | (157, 74) | 6.39 | 17.17 | 3.71 |
+| `hot comparator` | (150, 138) | 4.94 | 10.66 | 9.31 |
+| `fault-OR (DA/DB)` | rotated 90° at (221.6, 92) | 4.29 | 5.54 | 2.08 |
+| `gate drive (Q3)` | rotated 90° at (207.5, 135) | 3.94 | 16.50 | 5.23 |
+| `pass switch (Q1A/Q1B/Q2A/Q2B back-to-back)` | (204, 158.75) | 6.17 | 36.30 | 7.19 |
+
+All distances are ink-to-ink in mm from the committed SVG export; every one is
+positive (no overlap of any kind), and the numbers are reproducible from the SVG the
+same way the 0074 checks were. The two long notes are `justify right` and end 0.74/0.80 mm
+inside the frame's inner border line at x = 285 — close, but not on it.
 
 Every Reference and Value is placed explicitly (`batch_set_schematic_property_positions`),
 so the "auto-placed fields sitting on the body outlines" noted for 0073 is fixed: a value
@@ -161,7 +227,8 @@ Residual, measured, all cosmetic and none affecting connectivity:
 
 **Counting trap:** KiCad 10 serialises the token as `(wire\n`, so the obvious
 `grep '(wire '` (trailing space) returns **0 on a fully wired sheet**. Count with
-`grep -c '(wire'` or `grep -cE '^[[:space:]]*\(wire\b'` — both give 115 here.
+`grep -c '(wire'` or `grep -cE '^[[:space:]]*\(wire\b'` — both give 125 here (115 in the
+0074 revision).
 
 ## Library conventions
 
@@ -171,8 +238,17 @@ Residual, measured, all cosmetic and none affecting connectivity:
 - `solar-gate-v2.kicad_sym` — the project symbol library. Currently holds `TL431`
   (imported from the v1 project library, the 0043 SOT-23 DBZ pinout:
   1 = K, 2 = REF, 3 = A).
-- **No `fp-lib-table` yet** — no footprint has been assigned, so no footprint table is
-  needed. Layout (and the track-width classes v1 documents) is a later task.
+- **Connectors use the stock `Connector_Generic:Conn_01x02` symbol**, so nothing was
+  added to the project library for them. The footprint family chosen (0075) is
+  **JST GH 1.25 mm, 2-pin, horizontal** —
+  `Connector_JST:JST_GH_SM02B-GHS-TB_1x02-1MP_P1.25mm_Horizontal` — because v1 already
+  standardises on JST GH 1.25 mm, the part is stocked (Digi-Key/Mouser/JLC), and it is a
+  latching connector suited to a cable that plugs in at the panel. That reference
+  resolves through KiCad's **global** `fp-lib-table` (shipped with KiCad), which is why
+  no project `fp-lib-table` is needed yet even though J1/J2 carry footprints.
+- **No `fp-lib-table` yet** — the passives/diodes/NTC still have no footprint assigned,
+  so a project footprint table would have nothing project-specific to register. Layout
+  (and the track-width classes v1 documents) is a later task.
 - Note for whoever edits `sym-lib-table` next: `kicad-cli` 10 rejects `;` comment lines
   in a symbol library table. A commented table makes ERC report *"The current
   configuration does not include the symbol library 'solar-gate-v2'"* instead of
@@ -180,17 +256,21 @@ Residual, measured, all cosmetic and none affecting connectivity:
 
 ## Deferred / open items
 
-1. **Footprints are not assigned** to the passives, diodes or NTC. Q1a/Q1b/Q2a/Q2b
-   (SOT-23), Q3 (TO-92) and U2 (SOT-23) carry the symbol-default footprints only.
-   Package selection (0805 vs 0603) belongs with layout, after bench validation.
-2. **No footprint library table** — deliberately absent while no footprints are set.
-3. **22 `lib_symbol_mismatch` warnings** — see ERC above; a server-env fix, not a
+1. **Footprints are not assigned** to the passives, diodes or NTC (J1/J2 are the
+   exception — see Library conventions). Q1a/Q1b/Q2a/Q2b (SOT-23), Q3 (TO-92) and U2
+   (SOT-23) carry the symbol-default footprints only. Package selection (0805 vs 0603)
+   belongs with layout, after bench validation.
+2. **No project footprint library table** — J1/J2's footprints resolve through KiCad's
+   global table; the passives have no footprints yet.
+3. **24 `lib_symbol_mismatch` warnings** — see ERC above; a server-env fix, not a
    schematic fix.
 4. **Cold trip ~0.5 °C below spec** — see the trip-point table; needs a decision on the
    assumption, not a schematic change.
-5. **No connectors.** The spec lists no connectors, so `P`, `SOLAR_OUT` and `GND` are
-   bare labelled nets. Whoever lays this out needs to choose the panel/charger/NTC
-   terminations; v1's JST GH 1.25 mm choice is a reasonable precedent.
+5. **Connectors are schematic-level only.** J1/J2 exist as symbols with a chosen
+   footprint family; no connector part has been bought or placed, and the panel/Heltec
+   cable pinout (which wire goes to pin 1) is only implied by the sheet, not yet
+   confirmed against the physical harness. NTC termination is still unusual: the
+   10k B3950 is specified "on leads", so it is not going to be a board connector.
 6. `solar-gate-v2.kicad_pcb` and `.kicad_prl` are what the project template emits; no
    layout exists in them.
 
