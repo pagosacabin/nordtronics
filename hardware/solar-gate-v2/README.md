@@ -126,23 +126,42 @@ host bytes.
 ## Render verification (geometry measured on the committed revision)
 
 The sheet was checked against its own SVG export (KiCad stroke-font glyph paths give
-exact mm boxes for every string) and the raster render, and the first layout was
-rejected and rebuilt because of what the check found:
+exact mm boxes for every string) and the raster render. **The 0074 redraw passed that
+check on the committed revision**; the numbers below are the 0073 capture (labels only)
+next to this revision:
 
-| Check | First layout | Committed revision |
-|-------|--------------|--------------------|
-| Symbol bodies inside the title-block region (x>177, y>166) | **4** (DB, Rb, Q3, Q2B; Q3 bisected by the rule at y=166) | **0** |
-| Labels crossing the frame's inner border | **1** (`SOLAR_OUT` through x=285) | **0** |
-| Symbol bodies found | 30 (+ U1C, which KiCad draws as pins only) | 30 (+ U1C) |
-| Drawing extents (material only) | x 34.5–275.6, y 40.6–180.3 mm | x 33.1–279.7, y 36.1–162.5 mm |
+| Check | 0073 capture | 0074 wired revision |
+|-------|--------------|---------------------|
+| `(wire` entries in the `.kicad_sch` | **0** | **115** (81 routed segments, broken at T-points by the tool) |
+| `(junction` entries | **0** | **39** |
+| Net labels (now supplements only) | 68 (the sole connectivity) | 14 |
+| Real text-vs-text collisions (distinct strings, distinct places) | **85 pairs** | **0** |
+| Text-over-wire overlaps | not measured | **0** |
+| Symbol bodies inside the title-block region (x>177, y>166) | 0 | **0** |
+| Labels crossing the frame's inner border | 0 | **0** |
+| Symbol bodies found | 30 (+ U1C, pins only) | 30 (+ U1C) |
 
-Residual cosmetic overlaps, measured, all inside the border and none affecting
-connectivity: the `#FLG02` `PWR_FLAG` value crossing its own vertical `GND` label
-(1.27 × 1.39 mm, 41 % of the smaller box), the `U1C` pin name `V-` sitting inside that
-unit's `LM393` value (0.79 × 1.27 mm), `U2` clipping a `VREF` label (0.45 × 0.47 mm),
-and one `M`/`SOLAR_OUT` label pair at the `Q2B` drain overlapping by 0.26 mm². A future
-polish pass should also nudge the auto-placed Reference/Value fields, which sit on the
-body outlines. None of these is visible at normal zoom.
+Every Reference and Value is placed explicitly (`batch_set_schematic_property_positions`),
+so the "auto-placed fields sitting on the body outlines" noted for 0073 is fixed: a value
+now overlaps neither a symbol body nor a wire. Two placement traps worth remembering:
+a field's **stored angle is relative to the symbol's rotation**, so a field on a rotated
+symbol needs angle 90/270 to render horizontal (0 renders *vertical* on a rotated symbol),
+and the **justification carries over**, so on a `justify:left` field the stored `(at x y)`
+is the left edge of the ink, not its centre.
+
+Residual, measured, all cosmetic and none affecting connectivity:
+
+1. The SVG exporter draws six parts' fields and pin stubs **twice at identical
+   coordinates** (12 strings + 12 stubs) — the `.kicad_sch` holds one instance of each
+   (verified by uuid and property counts), the ink is byte-identical, and the effect is
+   only ~6 % bolder glyphs in the raster.
+2. The two `~` pin-name marks of each `Device:C` overlap each other by 0.02 mm² (stock
+   symbol shape, not this capture).
+3. The `H` net label clears the `Rb` value by 2.5 mm.
+
+**Counting trap:** KiCad 10 serialises the token as `(wire\n`, so the obvious
+`grep '(wire '` (trailing space) returns **0 on a fully wired sheet**. Count with
+`grep -c '(wire'` or `grep -cE '^[[:space:]]*\(wire\b'` — both give 115 here.
 
 ## Library conventions
 
