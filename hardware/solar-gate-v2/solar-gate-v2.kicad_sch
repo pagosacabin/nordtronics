@@ -2,7 +2,7 @@
 	(version 20260101)
 	(generator "eeschema")
 	(generator_version "10.0")
-	(uuid cd794fa3-f80e-4826-90ee-7fb75214b367)
+	(uuid a96b19dc-cc73-47e7-87d4-84e3b6447683)
 	(paper "A4")
 	(lib_symbols
 		(symbol "Device:R"
@@ -111,6 +111,145 @@
 				(pin passive line
 					(at 0 -3.81 90)
 					(length 1.27)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "Device:C"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0.254)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "C"
+				(at 0.635 2.54 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Value" "C"
+				(at 0.635 -2.54 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Footprint" ""
+				(at 0.9652 -3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Unpolarized capacitor"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "cap capacitor"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "C_*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "C_0_1"
+				(polyline
+					(pts
+						(xy -2.032 0.762) (xy 2.032 0.762)
+					)
+					(stroke
+						(width 0.508)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -2.032 -0.762) (xy 2.032 -0.762)
+					)
+					(stroke
+						(width 0.508)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "C_1_1"
+				(pin passive line
+					(at 0 3.81 270)
+					(length 2.794)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 0 -3.81 90)
+					(length 2.794)
 					(name "~"
 						(effects
 							(font
@@ -316,145 +455,6 @@
 						)
 					)
 					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
-		(symbol "Device:C"
-			(pin_numbers
-				(hide yes)
-			)
-			(pin_names
-				(offset 0.254)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "C"
-				(at 0.635 2.54 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left)
-				)
-			)
-			(property "Value" "C"
-				(at 0.635 -2.54 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left)
-				)
-			)
-			(property "Footprint" ""
-				(at 0.9652 -3.81 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" "~"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" "Unpolarized capacitor"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_keywords" "cap capacitor"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_fp_filters" "C_*"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "C_0_1"
-				(polyline
-					(pts
-						(xy -2.032 0.762) (xy 2.032 0.762)
-					)
-					(stroke
-						(width 0.508)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy -2.032 -0.762) (xy 2.032 -0.762)
-					)
-					(stroke
-						(width 0.508)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "C_1_1"
-				(pin passive line
-					(at 0 3.81 270)
-					(length 2.794)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 0 -3.81 90)
-					(length 2.794)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1775,7 +1775,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 185.42 44.45 0)
+		(at 35.56 43.18 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -1783,9 +1783,9 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "23a146ab-feae-4bfe-a09d-b35df3395b5e")
+		(uuid "449a3777-d644-4c0e-81d8-72f8692d8424")
 		(property "Reference" "Rbias"
-			(at 182.88 44.45 0)
+			(at 30.48 41.91 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -1795,7 +1795,7 @@
 			)
 		)
 		(property "Value" "1.6k"
-			(at 187.96 44.45 0)
+			(at 30.48 44.45 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -1805,7 +1805,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 183.642 44.45 90)
+			(at 33.782 43.18 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1816,7 +1816,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 185.42 44.45 0)
+			(at 35.56 43.18 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1827,7 +1827,7 @@
 			)
 		)
 		(property "Description" "Resistor"
-			(at 185.42 44.45 0)
+			(at 35.56 43.18 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1838,14 +1838,14 @@
 			)
 		)
 		(pin "1"
-			(uuid "97d461d9-54c7-41be-a11f-348da8ffdd56")
+			(uuid "03a28e20-cbc6-4039-acd3-d2660258c745")
 		)
 		(pin "2"
-			(uuid "0a9eba5f-0e61-4ba4-9b64-fca3e7a45a52")
+			(uuid "19858c68-4357-4d98-89dd-a712dac27ef0")
 		)
 		(instances
 			(project "solar-gate-v2"
-				(path "/cd794fa3-f80e-4826-90ee-7fb75214b367"
+				(path "/a96b19dc-cc73-47e7-87d4-84e3b6447683"
 					(reference "Rbias")
 					(unit 1)
 				)
@@ -1853,8 +1853,8 @@
 		)
 	)
 	(symbol
-		(lib_id "solar-gate-v2:TL431")
-		(at 218.44 44.45 0)
+		(lib_id "Device:C")
+		(at 53.34 74.93 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -1862,9 +1862,90 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "0c2868c6-be42-41c4-aede-bef691e1c2cd")
+		(uuid "3099446a-9fea-480c-a6f5-590e66ee1990")
+		(property "Reference" "C2"
+			(at 45.72 73.66 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "0.1uF"
+			(at 44.45 76.2 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 54.305 71.12 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 53.34 74.93 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Unpolarized capacitor"
+			(at 53.34 74.93 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "1bb6dd85-e6cb-44ce-8da4-9cd9fa9f0291")
+		)
+		(pin "2"
+			(uuid "213ad4a8-a945-478d-aecb-fd29e30ff5b9")
+		)
+		(instances
+			(project "solar-gate-v2"
+				(path "/a96b19dc-cc73-47e7-87d4-84e3b6447683"
+					(reference "C2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "solar-gate-v2:TL431")
+		(at 66.04 74.93 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "0c62f5e7-0bac-408e-aac8-04efe80ff6b0")
 		(property "Reference" "U2"
-			(at 218.44 41.91 0)
+			(at 73.66 71.12 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -1874,7 +1955,7 @@
 			)
 		)
 		(property "Value" "TL431"
-			(at 218.44 46.99 0)
+			(at 73.66 73.66 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -1884,7 +1965,7 @@
 			)
 		)
 		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
-			(at 218.44 39.624 0)
+			(at 66.04 70.104 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1896,7 +1977,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/ds/symlink/tl431.pdf"
-			(at 220.218 35.306 0)
+			(at 67.818 65.786 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1908,7 +1989,7 @@
 			)
 		)
 		(property "Description" "2.5 V adjustable precision shunt regulator, SOT-23-3 (DBZ pinout: 1=K, 2=REF, 3=A)"
-			(at 218.44 37.338 0)
+			(at 66.04 67.818 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1919,17 +2000,17 @@
 			)
 		)
 		(pin "1"
-			(uuid "74c32698-58dd-475f-baf9-bca36a68f43c")
+			(uuid "06dcf71e-d241-4e00-a118-8cae6009a515")
 		)
 		(pin "2"
-			(uuid "b4180332-ac3b-4370-b47a-c949658b2a0d")
+			(uuid "7e661d5b-5e5c-4f75-a56d-fb7ddcec4c43")
 		)
 		(pin "3"
-			(uuid "620eec1f-55ad-42e3-9d7f-38764ec0d380")
+			(uuid "edf3011a-f455-4160-88d6-c490f2433a93")
 		)
 		(instances
 			(project "solar-gate-v2"
-				(path "/cd794fa3-f80e-4826-90ee-7fb75214b367"
+				(path "/a96b19dc-cc73-47e7-87d4-84e3b6447683"
 					(reference "U2")
 					(unit 1)
 				)
@@ -1937,89 +2018,8 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:C")
-		(at 245.11 44.45 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "889264e3-fbee-46b4-8558-58ebb2df4e1d")
-		(property "Reference" "C2"
-			(at 245.11 41.91 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "0.1uF"
-			(at 245.11 46.99 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 246.075 40.64 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 245.11 44.45 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Unpolarized capacitor"
-			(at 245.11 44.45 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "e952b8a8-5d2c-42c6-8e0c-a5ecfab4031c")
-		)
-		(pin "2"
-			(uuid "ea3d8d65-9eeb-4c71-bf63-dfaa2de1e027")
-		)
-		(instances
-			(project "solar-gate-v2"
-				(path "/cd794fa3-f80e-4826-90ee-7fb75214b367"
-					(reference "C2")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:R")
-		(at 149.86 44.45 0)
+		(at 90.17 71.12 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -2027,9 +2027,9 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "3a43fcb2-7e5d-4ee9-8856-e99b64fbc14b")
+		(uuid "9db0ef6a-f5fa-40fb-b3c5-c8b0fa1bd97c")
 		(property "Reference" "Rt"
-			(at 149.86 41.91 0)
+			(at 95.25 69.85 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2039,7 +2039,7 @@
 			)
 		)
 		(property "Value" "34.0k"
-			(at 149.86 46.99 0)
+			(at 95.25 72.39 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2049,7 +2049,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 148.082 44.45 90)
+			(at 88.392 71.12 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2060,7 +2060,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 149.86 44.45 0)
+			(at 90.17 71.12 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2071,7 +2071,7 @@
 			)
 		)
 		(property "Description" "Resistor"
-			(at 149.86 44.45 0)
+			(at 90.17 71.12 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2082,14 +2082,14 @@
 			)
 		)
 		(pin "1"
-			(uuid "cff22525-d2a0-4a66-a140-d96108b8bf7a")
+			(uuid "a8eb22d5-4812-44b0-bd32-0156b1af5dcd")
 		)
 		(pin "2"
-			(uuid "7a52e4bc-d0f2-48ee-9ef2-9cc0ff8cc008")
+			(uuid "9f0479c3-a9c5-46d2-83d2-fbc0d4685685")
 		)
 		(instances
 			(project "solar-gate-v2"
-				(path "/cd794fa3-f80e-4826-90ee-7fb75214b367"
+				(path "/a96b19dc-cc73-47e7-87d4-84e3b6447683"
 					(reference "Rt")
 					(unit 1)
 				)
@@ -2098,7 +2098,7 @@
 	)
 	(symbol
 		(lib_id "Device:Thermistor_NTC")
-		(at 149.86 82.55 0)
+		(at 90.17 96.52 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -2106,9 +2106,9 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "88622353-710d-41fa-8fa4-c3f37ef0f7b1")
+		(uuid "9caab111-ace3-4adb-9f63-5d8facb6b2fc")
 		(property "Reference" "NTC"
-			(at 149.86 80.01 0)
+			(at 81.28 95.25 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2118,7 +2118,7 @@
 			)
 		)
 		(property "Value" "10k B3950"
-			(at 149.86 85.09 0)
+			(at 81.28 97.79 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2128,7 +2128,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 149.86 83.82 0)
+			(at 90.17 97.79 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2139,7 +2139,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 149.86 83.82 0)
+			(at 90.17 97.79 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2150,7 +2150,7 @@
 			)
 		)
 		(property "Description" "Temperature dependent resistor, negative temperature coefficient"
-			(at 149.86 82.55 0)
+			(at 90.17 96.52 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2161,14 +2161,14 @@
 			)
 		)
 		(pin "1"
-			(uuid "665376fd-2df3-4aeb-b6d1-da5c062c9807")
+			(uuid "a6a57c0c-1fb0-4c91-9ba5-dfb6b32e8d42")
 		)
 		(pin "2"
-			(uuid "91ce6805-d086-4b38-ace6-4301cc7d4c78")
+			(uuid "9c3dde3c-82f0-4c37-8962-9c7961190fc0")
 		)
 		(instances
 			(project "solar-gate-v2"
-				(path "/cd794fa3-f80e-4826-90ee-7fb75214b367"
+				(path "/a96b19dc-cc73-47e7-87d4-84e3b6447683"
 					(reference "NTC")
 					(unit 1)
 				)
@@ -2177,7 +2177,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 35.56 69.85 0)
+		(at 118.11 63.5 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -2185,407 +2185,9 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "ab920568-88d7-40d2-b848-b6a4dbb85aba")
-		(property "Reference" "R1"
-			(at 35.56 67.31 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "100k"
-			(at 35.56 72.39 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 33.782 69.85 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 35.56 69.85 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 35.56 69.85 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "c5663175-da5b-4d23-a4b2-6cd72b52edb1")
-		)
-		(pin "2"
-			(uuid "a2304e12-c3bd-4e30-ade1-e64f8ac5aff5")
-		)
-		(instances
-			(project "solar-gate-v2"
-				(path "/cd794fa3-f80e-4826-90ee-7fb75214b367"
-					(reference "R1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 35.56 100.33 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "af4c400e-fa10-42b6-9834-11744c479cec")
-		(property "Reference" "R2"
-			(at 35.56 97.79 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "95.3k"
-			(at 35.56 102.87 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 33.782 100.33 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 35.56 100.33 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 35.56 100.33 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "02b69fe5-597f-45ad-aaf6-635768fef363")
-		)
-		(pin "2"
-			(uuid "a16e8885-8321-4020-b672-f5ce32f7c549")
-		)
-		(instances
-			(project "solar-gate-v2"
-				(path "/cd794fa3-f80e-4826-90ee-7fb75214b367"
-					(reference "R2")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Comparator:LM393")
-		(at 80.01 85.09 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "86eb5445-9867-46ea-ad88-6f7fe639f066")
-		(property "Reference" "U1"
-			(at 80.01 82.55 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "LM393"
-			(at 80.01 87.63 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 80.01 85.09 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "http://www.ti.com/lit/ds/symlink/lm393.pdf"
-			(at 80.01 85.09 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Low-Power, Low-Offset Voltage, Dual Comparators, DIP-8/SOIC-8/TO-99-8"
-			(at 80.01 85.09 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "9b5bf210-974d-49a4-82eb-e1f103f2f68a")
-		)
-		(pin "2"
-			(uuid "98ac4e46-50b8-4368-a388-2614dc680279")
-		)
-		(pin "3"
-			(uuid "a6d7d13a-ad27-4d52-ac01-abddb1c4b520")
-		)
-		(instances
-			(project "solar-gate-v2"
-				(path "/cd794fa3-f80e-4826-90ee-7fb75214b367"
-					(reference "U1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 119.38 69.85 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "a40245de-48d4-428b-a036-9a010b01b86e")
-		(property "Reference" "Rpua"
-			(at 119.38 67.31 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "100k"
-			(at 119.38 72.39 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 117.602 69.85 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 119.38 69.85 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 119.38 69.85 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "97bedd7a-a898-42f7-82b2-48faee2b6527")
-		)
-		(pin "2"
-			(uuid "afc967c5-0904-41af-b77e-4679bae49819")
-		)
-		(instances
-			(project "solar-gate-v2"
-				(path "/cd794fa3-f80e-4826-90ee-7fb75214b367"
-					(reference "Rpua")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 119.38 100.33 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "65a8f564-cb13-4530-88c3-e7af09a62479")
-		(property "Reference" "Rfa"
-			(at 119.38 97.79 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "1.5M"
-			(at 119.38 102.87 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 117.602 100.33 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 119.38 100.33 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 119.38 100.33 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "a59c586d-b505-4c46-a2a3-6d9ecdb8d5cc")
-		)
-		(pin "2"
-			(uuid "97725753-d48a-4696-99cd-25800e69d16d")
-		)
-		(instances
-			(project "solar-gate-v2"
-				(path "/cd794fa3-f80e-4826-90ee-7fb75214b367"
-					(reference "Rfa")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 35.56 124.46 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "fb65da72-86af-40ff-a130-47eb5541df5f")
+		(uuid "5cabaf98-43bd-484e-b446-7113af5fa68e")
 		(property "Reference" "Rb1"
-			(at 35.56 121.92 0)
+			(at 113.03 62.23 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2595,7 +2197,7 @@
 			)
 		)
 		(property "Value" "200k"
-			(at 35.56 127.0 0)
+			(at 113.03 64.77 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2605,7 +2207,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 33.782 124.46 90)
+			(at 116.332 63.5 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2616,7 +2218,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 35.56 124.46 0)
+			(at 118.11 63.5 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2627,7 +2229,7 @@
 			)
 		)
 		(property "Description" "Resistor"
-			(at 35.56 124.46 0)
+			(at 118.11 63.5 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2638,14 +2240,14 @@
 			)
 		)
 		(pin "1"
-			(uuid "5baa7032-0de5-4130-885a-974fe3619e27")
+			(uuid "d87f9083-302e-43ca-804a-f23d82e90d0e")
 		)
 		(pin "2"
-			(uuid "8eb68c2b-5f7b-4fc2-b7c5-68cfe9a35531")
+			(uuid "2739e7aa-78c5-4e21-85f4-20f01901da6b")
 		)
 		(instances
 			(project "solar-gate-v2"
-				(path "/cd794fa3-f80e-4826-90ee-7fb75214b367"
+				(path "/a96b19dc-cc73-47e7-87d4-84e3b6447683"
 					(reference "Rb1")
 					(unit 1)
 				)
@@ -2654,7 +2256,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 35.56 154.94 0)
+		(at 110.49 110.49 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -2662,9 +2264,9 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "ce98aaf9-9801-455b-8469-84c001f92e8e")
+		(uuid "7a4e430f-120a-46fb-8a83-ed01b2137dfd")
 		(property "Reference" "Rb2"
-			(at 35.56 152.4 0)
+			(at 104.14 109.22 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2674,7 +2276,7 @@
 			)
 		)
 		(property "Value" "23.2k"
-			(at 35.56 157.48 0)
+			(at 104.14 111.76 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2684,7 +2286,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 33.782 154.94 90)
+			(at 108.712 110.49 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2695,7 +2297,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 35.56 154.94 0)
+			(at 110.49 110.49 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2706,7 +2308,7 @@
 			)
 		)
 		(property "Description" "Resistor"
-			(at 35.56 154.94 0)
+			(at 110.49 110.49 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2717,14 +2319,14 @@
 			)
 		)
 		(pin "1"
-			(uuid "0f3e6b9b-09ec-4e37-9a15-da70c9f45b9d")
+			(uuid "7dcb39f5-3cf6-4ed4-bbc6-f16eff80f918")
 		)
 		(pin "2"
-			(uuid "a4bf1741-0fdc-41a8-acd3-cfdee4485ad0")
+			(uuid "4056ab7d-3339-41ec-bb2d-c2107e9b67bf")
 		)
 		(instances
 			(project "solar-gate-v2"
-				(path "/cd794fa3-f80e-4826-90ee-7fb75214b367"
+				(path "/a96b19dc-cc73-47e7-87d4-84e3b6447683"
 					(reference "Rb2")
 					(unit 1)
 				)
@@ -2732,18 +2334,18 @@
 		)
 	)
 	(symbol
-		(lib_id "Comparator:LM393")
-		(at 80.01 139.7 0)
-		(unit 2)
+		(lib_id "Device:R")
+		(at 127 63.5 0)
+		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "b1e9c7ca-defe-456d-a6c7-1eb879e669b8")
-		(property "Reference" "U1"
-			(at 80.01 137.16 0)
+		(uuid "17233989-e937-40b7-8a74-2575a80c3d46")
+		(property "Reference" "R1"
+			(at 132.08 62.23 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2752,8 +2354,8 @@
 				)
 			)
 		)
-		(property "Value" "LM393"
-			(at 80.01 142.24 0)
+		(property "Value" "100k"
+			(at 132.08 64.77 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2763,7 +2365,323 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 80.01 139.7 0)
+			(at 125.222 63.5 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 127 63.5 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 127 63.5 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "46c4692a-61ac-4bc8-87c9-fed0fff922a5")
+		)
+		(pin "2"
+			(uuid "5921e6bd-9e65-4ec7-b6d4-e86d2e7c3c99")
+		)
+		(instances
+			(project "solar-gate-v2"
+				(path "/a96b19dc-cc73-47e7-87d4-84e3b6447683"
+					(reference "R1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 127 99.06 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "146d6551-88a2-4620-a7dd-47a55d4f53f6")
+		(property "Reference" "R2"
+			(at 121.92 97.79 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "95.3k"
+			(at 121.92 100.33 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 125.222 99.06 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 127 99.06 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 127 99.06 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "834a7b6d-4e9d-4876-a0c2-6edc18164794")
+		)
+		(pin "2"
+			(uuid "b653b5a9-4252-48c8-8c08-08c185c12338")
+		)
+		(instances
+			(project "solar-gate-v2"
+				(path "/a96b19dc-cc73-47e7-87d4-84e3b6447683"
+					(reference "R2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 137.16 72.39 270)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "80617d52-87a7-423a-a618-26bfccc35b1a")
+		(property "Reference" "Rfa"
+			(at 137.16 66.04 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "1.5M"
+			(at 137.16 68.58 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 137.16 70.612 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 137.16 72.39 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 137.16 72.39 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "b860f99c-b321-4b0e-9919-45e4fe0af2fe")
+		)
+		(pin "2"
+			(uuid "d2498316-8972-4a01-9057-821b08f46b50")
+		)
+		(instances
+			(project "solar-gate-v2"
+				(path "/a96b19dc-cc73-47e7-87d4-84e3b6447683"
+					(reference "Rfa")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 148.59 64.77 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "0741edc2-45b7-4448-bedb-c198f8ea62fb")
+		(property "Reference" "Rpua"
+			(at 153.67 63.5 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "100k"
+			(at 153.67 66.04 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 146.812 64.77 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 148.59 64.77 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 148.59 64.77 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "d8f3aaf5-813c-4b39-856f-9f9ade99d36b")
+		)
+		(pin "2"
+			(uuid "a7a0eadc-a564-470b-ac3f-9661cb349bc4")
+		)
+		(instances
+			(project "solar-gate-v2"
+				(path "/a96b19dc-cc73-47e7-87d4-84e3b6447683"
+					(reference "Rpua")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Comparator:LM393")
+		(at 140.97 86.36 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "a8e47e63-626e-41df-ab36-143b0a89c5db")
+		(property "Reference" "U1"
+			(at 135.89 93.98 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "LM393"
+			(at 135.89 96.52 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 140.97 86.36 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2774,7 +2692,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/ds/symlink/lm393.pdf"
-			(at 80.01 139.7 0)
+			(at 140.97 86.36 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2785,7 +2703,89 @@
 			)
 		)
 		(property "Description" "Low-Power, Low-Offset Voltage, Dual Comparators, DIP-8/SOIC-8/TO-99-8"
-			(at 80.01 139.7 0)
+			(at 140.97 86.36 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "57271f89-e1e0-42d3-bcfd-3507c9d75be0")
+		)
+		(pin "2"
+			(uuid "e26a093a-c889-4bba-a7d1-7812b88ce7ad")
+		)
+		(pin "3"
+			(uuid "3e4456fd-01c0-4081-9b6f-9db4f484f396")
+		)
+		(instances
+			(project "solar-gate-v2"
+				(path "/a96b19dc-cc73-47e7-87d4-84e3b6447683"
+					(reference "U1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Comparator:LM393")
+		(at 168.91 120.65 0)
+		(unit 2)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "8c673c69-1cb1-4154-a6d3-b762a4fc3b96")
+		(property "Reference" "U1"
+			(at 163.83 128.27 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "LM393"
+			(at 163.83 130.81 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 168.91 120.65 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" "http://www.ti.com/lit/ds/symlink/lm393.pdf"
+			(at 168.91 120.65 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Low-Power, Low-Offset Voltage, Dual Comparators, DIP-8/SOIC-8/TO-99-8"
+			(at 168.91 120.65 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2796,17 +2796,17 @@
 			)
 		)
 		(pin "5"
-			(uuid "c90a6bab-e91f-47cc-83c0-11a4e880fdfb")
+			(uuid "51ceac52-fff6-49e3-a887-63c6e4ccdd7f")
 		)
 		(pin "6"
-			(uuid "a1a1ec13-ff5c-4bcc-b068-9884862b08c1")
+			(uuid "0142887b-a66b-4e40-8aa4-641e0a8a30a4")
 		)
 		(pin "7"
-			(uuid "f03cdb91-c979-40bf-aa2f-5f0100d4362a")
+			(uuid "18b46d73-e71f-44b7-b983-e764207679c9")
 		)
 		(instances
 			(project "solar-gate-v2"
-				(path "/cd794fa3-f80e-4826-90ee-7fb75214b367"
+				(path "/a96b19dc-cc73-47e7-87d4-84e3b6447683"
 					(reference "U1")
 					(unit 2)
 				)
@@ -2814,18 +2814,18 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:R")
-		(at 119.38 124.46 0)
-		(unit 1)
+		(lib_id "Comparator:LM393")
+		(at 203.2 45.72 0)
+		(unit 3)
 		(body_style 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "6f4786e8-37e9-46b1-b961-4fa2d03ba257")
-		(property "Reference" "Rpub"
-			(at 119.38 121.92 0)
+		(uuid "f51b9b53-5e14-40ba-ac46-91409ecb2d09")
+		(property "Reference" "U1"
+			(at 209.55 43.18 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2834,8 +2834,8 @@
 				)
 			)
 		)
-		(property "Value" "100k"
-			(at 119.38 127.0 0)
+		(property "Value" "LM393"
+			(at 209.55 45.72 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2845,7 +2845,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 117.602 124.46 90)
+			(at 203.2 45.72 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2855,8 +2855,8 @@
 				)
 			)
 		)
-		(property "Datasheet" ""
-			(at 119.38 124.46 0)
+		(property "Datasheet" "http://www.ti.com/lit/ds/symlink/lm393.pdf"
+			(at 203.2 45.72 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2866,8 +2866,8 @@
 				)
 			)
 		)
-		(property "Description" "Resistor"
-			(at 119.38 124.46 0)
+		(property "Description" "Low-Power, Low-Offset Voltage, Dual Comparators, DIP-8/SOIC-8/TO-99-8"
+			(at 203.2 45.72 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2877,24 +2877,24 @@
 				)
 			)
 		)
-		(pin "1"
-			(uuid "36d68b78-298e-4f36-bd63-cdd264c42a1b")
+		(pin "4"
+			(uuid "58874202-46c0-4bae-bcb6-8f5dbd7821e0")
 		)
-		(pin "2"
-			(uuid "1a96e2f4-1498-4a79-8a20-f67277f28c94")
+		(pin "8"
+			(uuid "cd0be2ed-8f48-47ef-a79d-cc78117b6a90")
 		)
 		(instances
 			(project "solar-gate-v2"
-				(path "/cd794fa3-f80e-4826-90ee-7fb75214b367"
-					(reference "Rpub")
-					(unit 1)
+				(path "/a96b19dc-cc73-47e7-87d4-84e3b6447683"
+					(reference "U1")
+					(unit 3)
 				)
 			)
 		)
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 119.38 154.94 0)
+		(at 168.91 104.14 270)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -2902,9 +2902,9 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "64141be4-d6f2-4a5f-b845-82277977b410")
+		(uuid "17547e55-1261-4e1f-b446-0779b30ce3c8")
 		(property "Reference" "Rfb"
-			(at 119.38 152.4 0)
+			(at 168.91 107.95 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2914,7 +2914,7 @@
 			)
 		)
 		(property "Value" "1.5M"
-			(at 119.38 157.48 0)
+			(at 168.91 110.49 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2924,7 +2924,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 117.602 154.94 90)
+			(at 168.91 102.362 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2935,7 +2935,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 119.38 154.94 0)
+			(at 168.91 104.14 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2946,7 +2946,7 @@
 			)
 		)
 		(property "Description" "Resistor"
-			(at 119.38 154.94 0)
+			(at 168.91 104.14 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2957,14 +2957,14 @@
 			)
 		)
 		(pin "1"
-			(uuid "dad5f296-8630-4a9b-97e2-bc6ac4f91c4e")
+			(uuid "1da669ad-d8e6-40bd-9acb-fff58354a0be")
 		)
 		(pin "2"
-			(uuid "e09afe21-cf09-439b-bf0d-d9d4e9865ecc")
+			(uuid "82eeee87-1513-44be-a3fe-a8a3ab763011")
 		)
 		(instances
 			(project "solar-gate-v2"
-				(path "/cd794fa3-f80e-4826-90ee-7fb75214b367"
+				(path "/a96b19dc-cc73-47e7-87d4-84e3b6447683"
 					(reference "Rfb")
 					(unit 1)
 				)
@@ -2973,7 +2973,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 148.59 139.7 0)
+		(at 176.53 99.06 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -2981,9 +2981,9 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "56a8b327-38ab-4424-a604-4818e8eabd68")
-		(property "Reference" "Rpuc"
-			(at 148.59 137.16 0)
+		(uuid "64788002-bb5c-4460-9ec2-29e3e37d8653")
+		(property "Reference" "Rpub"
+			(at 170.18 97.79 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2993,7 +2993,7 @@
 			)
 		)
 		(property "Value" "100k"
-			(at 148.59 142.24 0)
+			(at 170.18 100.33 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3003,7 +3003,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 146.812 139.7 90)
+			(at 174.752 99.06 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3014,7 +3014,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 148.59 139.7 0)
+			(at 176.53 99.06 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3025,7 +3025,7 @@
 			)
 		)
 		(property "Description" "Resistor"
-			(at 148.59 139.7 0)
+			(at 176.53 99.06 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3036,14 +3036,174 @@
 			)
 		)
 		(pin "1"
-			(uuid "18f49281-3a95-4d6f-b279-5bcaa4053fb9")
+			(uuid "0b7f40a2-e8dd-4040-bcf3-b27623b3321a")
 		)
 		(pin "2"
-			(uuid "6bfbf498-b0af-4670-a537-a83682b48767")
+			(uuid "0b7330c2-87ec-4002-824e-dbb7e9e2bf57")
 		)
 		(instances
 			(project "solar-gate-v2"
-				(path "/cd794fa3-f80e-4826-90ee-7fb75214b367"
+				(path "/a96b19dc-cc73-47e7-87d4-84e3b6447683"
+					(reference "Rpub")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 190.5 45.72 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "3cb02b0f-7706-4e9d-abae-e4581236f544")
+		(property "Reference" "C1"
+			(at 182.88 43.18 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "0.1uF"
+			(at 181.61 45.72 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 191.465 41.91 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 190.5 45.72 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Unpolarized capacitor"
+			(at 190.5 45.72 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "4075a6dc-33bb-487a-9b06-fdef088da6e5")
+		)
+		(pin "2"
+			(uuid "b2e7d061-55fd-48b0-a85c-c31306e9f19c")
+		)
+		(instances
+			(project "solar-gate-v2"
+				(path "/a96b19dc-cc73-47e7-87d4-84e3b6447683"
+					(reference "C1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 214.63 64.77 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "249d4407-0592-4998-b254-6a78689d0df5")
+		(property "Reference" "Rpuc"
+			(at 219.71 63.5 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "100k"
+			(at 219.71 66.04 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 212.852 64.77 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 214.63 64.77 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 214.63 64.77 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "b8acbc12-a20a-4a09-b10d-13f9a194c48f")
+		)
+		(pin "2"
+			(uuid "f94c4663-9961-4cd0-b6ce-555ec679c986")
+		)
+		(instances
+			(project "solar-gate-v2"
+				(path "/a96b19dc-cc73-47e7-87d4-84e3b6447683"
 					(reference "Rpuc")
 					(unit 1)
 				)
@@ -3052,7 +3212,7 @@
 	)
 	(symbol
 		(lib_id "Device:D_Schottky")
-		(at 170.18 133.35 0)
+		(at 209.55 80.01 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3060,9 +3220,9 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "40180254-a08b-4180-88de-c1448a26e1d4")
+		(uuid "7e9b1e18-cb9b-40d7-9d7d-e86edb364e8c")
 		(property "Reference" "DA"
-			(at 170.18 130.81 0)
+			(at 209.55 76.2 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3072,7 +3232,7 @@
 			)
 		)
 		(property "Value" "BAT54"
-			(at 170.18 135.89 0)
+			(at 209.55 83.82 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3082,7 +3242,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 170.18 133.35 0)
+			(at 209.55 80.01 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3093,7 +3253,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 170.18 133.35 0)
+			(at 209.55 80.01 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3104,7 +3264,7 @@
 			)
 		)
 		(property "Description" "Schottky diode"
-			(at 170.18 133.35 0)
+			(at 209.55 80.01 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3115,14 +3275,14 @@
 			)
 		)
 		(pin "1"
-			(uuid "ec705aa6-1c77-45dc-a28f-6f584db751c7")
+			(uuid "78cfbb63-982c-4da1-824d-8f3a048aea2d")
 		)
 		(pin "2"
-			(uuid "85a36b95-6dbb-4ae3-8b80-2d6c19d45102")
+			(uuid "bf5d26a4-fe26-4c21-bd0e-aec74db36e6b")
 		)
 		(instances
 			(project "solar-gate-v2"
-				(path "/cd794fa3-f80e-4826-90ee-7fb75214b367"
+				(path "/a96b19dc-cc73-47e7-87d4-84e3b6447683"
 					(reference "DA")
 					(unit 1)
 				)
@@ -3131,7 +3291,7 @@
 	)
 	(symbol
 		(lib_id "Device:D_Schottky")
-		(at 170.18 149.86 0)
+		(at 209.55 90.17 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3139,9 +3299,9 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "266d268f-3e83-44a5-b7a5-62bd9d2ccd13")
+		(uuid "8db35f46-8004-4932-8d6d-7064c54e9253")
 		(property "Reference" "DB"
-			(at 170.18 147.32 0)
+			(at 209.55 93.98 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3151,7 +3311,7 @@
 			)
 		)
 		(property "Value" "BAT54"
-			(at 170.18 152.4 0)
+			(at 209.55 86.36 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3161,7 +3321,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 170.18 149.86 0)
+			(at 209.55 90.17 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3172,7 +3332,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 170.18 149.86 0)
+			(at 209.55 90.17 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3183,7 +3343,7 @@
 			)
 		)
 		(property "Description" "Schottky diode"
-			(at 170.18 149.86 0)
+			(at 209.55 90.17 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3194,14 +3354,14 @@
 			)
 		)
 		(pin "1"
-			(uuid "2e727fa9-346f-4f74-8a9f-6b5570286a9b")
+			(uuid "e9786e6f-89e3-4ec7-83c7-7e6214054350")
 		)
 		(pin "2"
-			(uuid "58dca817-bf55-4dab-bc3d-389b5d6b4869")
+			(uuid "36c81c6d-ac62-4e1f-8e7b-3b15740c8692")
 		)
 		(instances
 			(project "solar-gate-v2"
-				(path "/cd794fa3-f80e-4826-90ee-7fb75214b367"
+				(path "/a96b19dc-cc73-47e7-87d4-84e3b6447683"
 					(reference "DB")
 					(unit 1)
 				)
@@ -3210,7 +3370,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 194.31 139.7 0)
+		(at 214.63 99.06 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3218,9 +3378,9 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "89db8b88-f5b2-4e27-ad37-c07df409fb02")
+		(uuid "d53269c2-d813-401e-bb74-f54c21eb1350")
 		(property "Reference" "Rb"
-			(at 194.31 137.16 0)
+			(at 219.71 97.79 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3230,7 +3390,7 @@
 			)
 		)
 		(property "Value" "10k"
-			(at 194.31 142.24 0)
+			(at 222.25 100.33 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3240,7 +3400,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 192.532 139.7 90)
+			(at 212.852 99.06 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3251,7 +3411,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 194.31 139.7 0)
+			(at 214.63 99.06 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3262,7 +3422,7 @@
 			)
 		)
 		(property "Description" "Resistor"
-			(at 194.31 139.7 0)
+			(at 214.63 99.06 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3273,14 +3433,14 @@
 			)
 		)
 		(pin "1"
-			(uuid "b6b0c12c-ab51-4bce-bb51-cecd783ec33b")
+			(uuid "07c30037-0f9b-4df1-965f-a67262444e03")
 		)
 		(pin "2"
-			(uuid "b6775634-5218-4f36-bfad-34941c909213")
+			(uuid "297b17f7-25ad-4a2c-bfff-23ec5712d6f4")
 		)
 		(instances
 			(project "solar-gate-v2"
-				(path "/cd794fa3-f80e-4826-90ee-7fb75214b367"
+				(path "/a96b19dc-cc73-47e7-87d4-84e3b6447683"
 					(reference "Rb")
 					(unit 1)
 				)
@@ -3289,7 +3449,7 @@
 	)
 	(symbol
 		(lib_id "Transistor_BJT:2N3904")
-		(at 215.9 139.7 0)
+		(at 223.52 110.49 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3297,9 +3457,9 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "77396375-86ee-4de3-bd24-00f468659a1e")
+		(uuid "99132816-4b79-44c4-a5bf-f3ead3872d36")
 		(property "Reference" "Q3"
-			(at 215.9 137.16 0)
+			(at 207.01 113.03 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3310,7 +3470,7 @@
 			)
 		)
 		(property "Value" "2N3904"
-			(at 215.9 142.24 0)
+			(at 207.01 115.57 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3321,7 +3481,7 @@
 			)
 		)
 		(property "Footprint" "Package_TO_SOT_THT:TO-92_Inline"
-			(at 220.98 137.795 0)
+			(at 228.6 108.585 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3334,7 +3494,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.onsemi.com/pub/Collateral/2N3903-D.PDF"
-			(at 215.9 139.7 0)
+			(at 223.52 110.49 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3346,7 +3506,7 @@
 			)
 		)
 		(property "Description" "0.2A Ic, 40V Vce, Small Signal NPN Transistor, TO-92"
-			(at 215.9 139.7 0)
+			(at 223.52 110.49 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3357,17 +3517,17 @@
 			)
 		)
 		(pin "1"
-			(uuid "db25bbc5-50e5-4d85-b831-6000cbf1b093")
+			(uuid "89ba1285-86ec-4948-b7e1-9c39276c3bb4")
 		)
 		(pin "2"
-			(uuid "d3018e15-184b-4ef4-9a2f-630c276033e7")
+			(uuid "b6cf9ee3-0d3c-4859-9174-f66e10ec8934")
 		)
 		(pin "3"
-			(uuid "923085a5-0f8d-4f5d-84ef-c85eed773d2f")
+			(uuid "2cddf945-c76a-4c11-960d-33e4410cd694")
 		)
 		(instances
 			(project "solar-gate-v2"
-				(path "/cd794fa3-f80e-4826-90ee-7fb75214b367"
+				(path "/a96b19dc-cc73-47e7-87d4-84e3b6447683"
 					(reference "Q3")
 					(unit 1)
 				)
@@ -3375,674 +3535,8 @@
 		)
 	)
 	(symbol
-		(lib_id "Comparator:LM393")
-		(at 185.42 105.41 0)
-		(unit 3)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "98d55735-1389-4e99-971a-c3e137c840f7")
-		(property "Reference" "U1"
-			(at 185.42 102.87 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "LM393"
-			(at 185.42 107.95 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 185.42 105.41 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "http://www.ti.com/lit/ds/symlink/lm393.pdf"
-			(at 185.42 105.41 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Low-Power, Low-Offset Voltage, Dual Comparators, DIP-8/SOIC-8/TO-99-8"
-			(at 185.42 105.41 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "4"
-			(uuid "7e00a4d6-f6c3-4918-bad8-968bc85b4498")
-		)
-		(pin "8"
-			(uuid "4245c7fb-4106-4c80-85a4-384fe718d709")
-		)
-		(instances
-			(project "solar-gate-v2"
-				(path "/cd794fa3-f80e-4826-90ee-7fb75214b367"
-					(reference "U1")
-					(unit 3)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:C")
-		(at 209.55 105.41 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "d112635c-e9a4-447f-b2b6-ef2f5a6f2a79")
-		(property "Reference" "C1"
-			(at 209.55 102.87 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "0.1uF"
-			(at 209.55 107.95 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 210.515 101.6 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 209.55 105.41 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Unpolarized capacitor"
-			(at 209.55 105.41 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "ffa007b7-4644-495b-8afe-ff40386372f5")
-		)
-		(pin "2"
-			(uuid "7f2bd95a-2952-490f-b0ca-802f6e0819e2")
-		)
-		(instances
-			(project "solar-gate-v2"
-				(path "/cd794fa3-f80e-4826-90ee-7fb75214b367"
-					(reference "C1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Transistor_FET:AO3401A")
-		(at 237.49 80.01 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "5eb0ec11-2978-4328-a0d1-f35f2c490d60")
-		(property "Reference" "Q1A"
-			(at 237.49 77.47 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "AO3401"
-			(at 237.49 82.55 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
-			(at 242.57 78.105 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-					(italic yes)
-				)
-				(justify left)
-			)
-		)
-		(property "Datasheet" "http://www.aosmd.com/pdfs/datasheet/AO3401A.pdf"
-			(at 242.57 76.2 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "-4.0A Id, -30V Vds, P-Channel MOSFET, SOT-23"
-			(at 237.49 80.01 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "ba9d1d9c-b782-4dfd-a1cc-2b658e822b6d")
-		)
-		(pin "2"
-			(uuid "86cd9e70-bd34-414a-a77d-baaf2e0fed24")
-		)
-		(pin "3"
-			(uuid "97de8bfe-ebf9-48de-978c-cd51496a64c1")
-		)
-		(instances
-			(project "solar-gate-v2"
-				(path "/cd794fa3-f80e-4826-90ee-7fb75214b367"
-					(reference "Q1A")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Transistor_FET:AO3401A")
-		(at 237.49 101.6 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "7793a553-25c8-426c-bc8d-f272358ab907")
-		(property "Reference" "Q1B"
-			(at 237.49 99.06 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "AO3401"
-			(at 237.49 104.14 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
-			(at 242.57 99.695 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-					(italic yes)
-				)
-				(justify left)
-			)
-		)
-		(property "Datasheet" "http://www.aosmd.com/pdfs/datasheet/AO3401A.pdf"
-			(at 242.57 97.79 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "-4.0A Id, -30V Vds, P-Channel MOSFET, SOT-23"
-			(at 237.49 101.6 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "c57c05c3-514e-40f9-b932-49f30948ffdf")
-		)
-		(pin "2"
-			(uuid "c4dd98f0-deee-48cd-ad9d-993519d606da")
-		)
-		(pin "3"
-			(uuid "eed951b4-8255-439d-ac67-b740df8365c3")
-		)
-		(instances
-			(project "solar-gate-v2"
-				(path "/cd794fa3-f80e-4826-90ee-7fb75214b367"
-					(reference "Q1B")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Transistor_FET:AO3401A")
-		(at 237.49 124.46 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "31b61235-fe6b-4310-a6f5-6a72ebe18e0f")
-		(property "Reference" "Q2A"
-			(at 237.49 121.92 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "AO3401"
-			(at 237.49 127.0 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
-			(at 242.57 122.555 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-					(italic yes)
-				)
-				(justify left)
-			)
-		)
-		(property "Datasheet" "http://www.aosmd.com/pdfs/datasheet/AO3401A.pdf"
-			(at 242.57 120.65 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "-4.0A Id, -30V Vds, P-Channel MOSFET, SOT-23"
-			(at 237.49 124.46 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "13269f09-4926-4622-8186-5f3a7983c86c")
-		)
-		(pin "2"
-			(uuid "a5e29b67-c9ed-46e3-aca4-b16e4178c911")
-		)
-		(pin "3"
-			(uuid "c479be4f-dc72-473e-a75b-66b5638fa23f")
-		)
-		(instances
-			(project "solar-gate-v2"
-				(path "/cd794fa3-f80e-4826-90ee-7fb75214b367"
-					(reference "Q2A")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Transistor_FET:AO3401A")
-		(at 237.49 146.05 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "9270ebec-dcbc-4d01-bde5-9ced29e5081c")
-		(property "Reference" "Q2B"
-			(at 237.49 143.51 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "AO3401"
-			(at 237.49 148.59 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
-			(at 242.57 144.145 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-					(italic yes)
-				)
-				(justify left)
-			)
-		)
-		(property "Datasheet" "http://www.aosmd.com/pdfs/datasheet/AO3401A.pdf"
-			(at 242.57 142.24 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Description" "-4.0A Id, -30V Vds, P-Channel MOSFET, SOT-23"
-			(at 237.49 146.05 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "13a69e50-83b4-4d0a-8098-31635cf3a593")
-		)
-		(pin "2"
-			(uuid "464d34b0-377f-4957-93b7-1e0a95103881")
-		)
-		(pin "3"
-			(uuid "07f370ef-ee07-403c-933a-b240a886a5c5")
-		)
-		(instances
-			(project "solar-gate-v2"
-				(path "/cd794fa3-f80e-4826-90ee-7fb75214b367"
-					(reference "Q2B")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:D_Schottky")
-		(at 265.43 80.01 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "0f84ca8e-074b-429a-8fe4-01cb34f72b0f")
-		(property "Reference" "D1"
-			(at 265.43 77.47 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "BAT54"
-			(at 265.43 82.55 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 265.43 80.01 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 265.43 80.01 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Schottky diode"
-			(at 265.43 80.01 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "9caa81ba-a910-49b5-831b-1df78563461a")
-		)
-		(pin "2"
-			(uuid "5dc7a163-074d-41e0-9a0b-a701f1de0b74")
-		)
-		(instances
-			(project "solar-gate-v2"
-				(path "/cd794fa3-f80e-4826-90ee-7fb75214b367"
-					(reference "D1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:D_Schottky")
-		(at 265.43 146.05 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "655df422-5cf5-49f6-bd30-2cfbdeae798b")
-		(property "Reference" "D2"
-			(at 265.43 143.51 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "BAT54"
-			(at 265.43 148.59 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 265.43 146.05 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 265.43 146.05 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Schottky diode"
-			(at 265.43 146.05 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "a6319773-07a2-4fdf-9928-2176f1cd7c50")
-		)
-		(pin "2"
-			(uuid "236c6fb7-898b-46aa-8494-f1a1910bd359")
-		)
-		(instances
-			(project "solar-gate-v2"
-				(path "/cd794fa3-f80e-4826-90ee-7fb75214b367"
-					(reference "D2")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:R")
-		(at 265.43 118.11 0)
+		(at 217.17 127 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4050,9 +3544,9 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "675d2ff3-b20d-429a-a2de-e649da1b19f3")
+		(uuid "c7664d41-cafd-4d0c-91ab-1134967e2d3e")
 		(property "Reference" "Rg"
-			(at 265.43 115.57 0)
+			(at 222.25 125.73 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4062,7 +3556,7 @@
 			)
 		)
 		(property "Value" "100k"
-			(at 265.43 120.65 0)
+			(at 222.25 128.27 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4072,7 +3566,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 263.652 118.11 90)
+			(at 215.392 127 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4083,7 +3577,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 265.43 118.11 0)
+			(at 217.17 127 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4094,7 +3588,7 @@
 			)
 		)
 		(property "Description" "Resistor"
-			(at 265.43 118.11 0)
+			(at 217.17 127 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4105,14 +3599,14 @@
 			)
 		)
 		(pin "1"
-			(uuid "63adb8df-9c1e-41b4-bbd7-ae9b6d6cc248")
+			(uuid "3cfed3d2-4584-420e-aeb6-42403e1394d1")
 		)
 		(pin "2"
-			(uuid "276f50c7-9748-48a0-8ac6-626d4d9862fb")
+			(uuid "cebc9efe-72b2-45af-95ec-ef173da963d5")
 		)
 		(instances
 			(project "solar-gate-v2"
-				(path "/cd794fa3-f80e-4826-90ee-7fb75214b367"
+				(path "/a96b19dc-cc73-47e7-87d4-84e3b6447683"
 					(reference "Rg")
 					(unit 1)
 				)
@@ -4120,8 +3614,8 @@
 		)
 	)
 	(symbol
-		(lib_id "power:PWR_FLAG")
-		(at 265.43 54.61 0)
+		(lib_id "Device:D_Schottky")
+		(at 228.6 72.39 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4129,9 +3623,9 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "f71dbfe0-cf10-492f-ab60-6fddce78a271")
-		(property "Reference" "#FLG01"
-			(at 265.43 52.07 0)
+		(uuid "194a539d-0bdf-4c02-a95f-1cae38562fef")
+		(property "Reference" "D1"
+			(at 228.6 76.2 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4140,8 +3634,8 @@
 				)
 			)
 		)
-		(property "Value" "PWR_FLAG"
-			(at 265.43 57.15 0)
+		(property "Value" "BAT54"
+			(at 228.6 78.74 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4151,7 +3645,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 265.43 54.61 0)
+			(at 228.6 72.39 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4162,7 +3656,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 265.43 54.61 0)
+			(at 228.6 72.39 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4172,8 +3666,8 @@
 				)
 			)
 		)
-		(property "Description" "Special symbol for telling ERC where power comes from"
-			(at 265.43 54.61 0)
+		(property "Description" "Schottky diode"
+			(at 228.6 72.39 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4184,11 +3678,517 @@
 			)
 		)
 		(pin "1"
-			(uuid "aaeda061-648e-48fb-9862-fae0ada436b0")
+			(uuid "a525adb6-d5b6-4850-a8f7-ab136e2fce8d")
+		)
+		(pin "2"
+			(uuid "72cce3e9-d8a0-46f7-90ae-e4d7072326ce")
 		)
 		(instances
 			(project "solar-gate-v2"
-				(path "/cd794fa3-f80e-4826-90ee-7fb75214b367"
+				(path "/a96b19dc-cc73-47e7-87d4-84e3b6447683"
+					(reference "D1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:D_Schottky")
+		(at 243.84 60.96 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "a33cd8eb-5a01-4c67-839d-7dd8f06e3d8a")
+		(property "Reference" "D2"
+			(at 243.84 66.04 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "BAT54"
+			(at 243.84 68.58 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 243.84 60.96 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 243.84 60.96 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Schottky diode"
+			(at 243.84 60.96 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "6005a25f-3a4e-4b74-8be9-0961028feea1")
+		)
+		(pin "2"
+			(uuid "da1716eb-e17a-475f-ae3a-d95b843c80c4")
+		)
+		(instances
+			(project "solar-gate-v2"
+				(path "/a96b19dc-cc73-47e7-87d4-84e3b6447683"
+					(reference "D2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Transistor_FET:AO3401A")
+		(at 233.68 92.71 90)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "7013d89d-b26c-42d3-a9a0-4254e1e19c2b")
+		(property "Reference" "Q1A"
+			(at 233.68 102.87 270)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "AO3401"
+			(at 233.68 105.41 270)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
+			(at 231.775 87.63 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+				(justify left)
+			)
+		)
+		(property "Datasheet" "http://www.aosmd.com/pdfs/datasheet/AO3401A.pdf"
+			(at 229.87 87.63 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Description" "-4.0A Id, -30V Vds, P-Channel MOSFET, SOT-23"
+			(at 233.68 92.71 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "3f271a38-8d7c-4589-a139-62bf39071f57")
+		)
+		(pin "2"
+			(uuid "420034b3-1520-44dd-b497-fc9407aab386")
+		)
+		(pin "3"
+			(uuid "081e5363-1b86-4deb-b1af-b38f9f52050b")
+		)
+		(instances
+			(project "solar-gate-v2"
+				(path "/a96b19dc-cc73-47e7-87d4-84e3b6447683"
+					(reference "Q1A")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Transistor_FET:AO3401A")
+		(at 248.92 92.71 90)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "92eb78b4-93bb-4832-9ee1-321f7ce27c29")
+		(property "Reference" "Q1B"
+			(at 246.38 102.87 270)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "AO3401"
+			(at 246.38 105.41 270)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
+			(at 247.015 87.63 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+				(justify left)
+			)
+		)
+		(property "Datasheet" "http://www.aosmd.com/pdfs/datasheet/AO3401A.pdf"
+			(at 245.11 87.63 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Description" "-4.0A Id, -30V Vds, P-Channel MOSFET, SOT-23"
+			(at 248.92 92.71 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "1814346d-c147-4f7a-8441-233a0b4e575b")
+		)
+		(pin "2"
+			(uuid "8ff1d842-def5-4ab9-90fa-cdc52e139719")
+		)
+		(pin "3"
+			(uuid "ce9bb6b1-53e6-4e36-bc2f-2804236f551d")
+		)
+		(instances
+			(project "solar-gate-v2"
+				(path "/a96b19dc-cc73-47e7-87d4-84e3b6447683"
+					(reference "Q1B")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Transistor_FET:AO3401A")
+		(at 233.68 118.11 90)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "1f23df58-1eca-495f-8231-59bbd681c24f")
+		(property "Reference" "Q2A"
+			(at 233.68 127 270)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "AO3401"
+			(at 233.68 129.54 270)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
+			(at 231.775 113.03 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+				(justify left)
+			)
+		)
+		(property "Datasheet" "http://www.aosmd.com/pdfs/datasheet/AO3401A.pdf"
+			(at 229.87 113.03 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Description" "-4.0A Id, -30V Vds, P-Channel MOSFET, SOT-23"
+			(at 233.68 118.11 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "c2eaab8d-628b-4511-b6c1-fb1d8986b6c4")
+		)
+		(pin "2"
+			(uuid "2c838c3e-e5f2-492c-9bcb-087c3464661f")
+		)
+		(pin "3"
+			(uuid "3c04ac05-5f6e-40b1-84a4-69af71c21edb")
+		)
+		(instances
+			(project "solar-gate-v2"
+				(path "/a96b19dc-cc73-47e7-87d4-84e3b6447683"
+					(reference "Q2A")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Transistor_FET:AO3401A")
+		(at 248.92 118.11 90)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "cdd54ffe-920f-499c-8470-dbd516e550fa")
+		(property "Reference" "Q2B"
+			(at 246.38 127 270)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "AO3401"
+			(at 246.38 129.54 270)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
+			(at 247.015 113.03 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+				(justify left)
+			)
+		)
+		(property "Datasheet" "http://www.aosmd.com/pdfs/datasheet/AO3401A.pdf"
+			(at 245.11 113.03 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Description" "-4.0A Id, -30V Vds, P-Channel MOSFET, SOT-23"
+			(at 248.92 118.11 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "a3dd8bec-8763-4438-b720-6905d3eeb417")
+		)
+		(pin "2"
+			(uuid "0681a3ca-669a-4ed8-b490-a7db5799cab3")
+		)
+		(pin "3"
+			(uuid "7eff73a8-a6cd-4a58-ac96-ec2ce9fe800e")
+		)
+		(instances
+			(project "solar-gate-v2"
+				(path "/a96b19dc-cc73-47e7-87d4-84e3b6447683"
+					(reference "Q2B")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:PWR_FLAG")
+		(at 35.56 30.48 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "dc6edc69-a3fd-465d-9fae-a272def41986")
+		(property "Reference" "#FLG01"
+			(at 43.18 26.67 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "PWR_FLAG"
+			(at 43.18 29.21 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 35.56 30.48 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 35.56 30.48 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Special symbol for telling ERC where power comes from"
+			(at 35.56 30.48 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "44ae528e-f4af-4028-b97b-0a9caff95a8b")
+		)
+		(instances
+			(project "solar-gate-v2"
+				(path "/a96b19dc-cc73-47e7-87d4-84e3b6447683"
 					(reference "#FLG01")
 					(unit 1)
 				)
@@ -4197,7 +4197,7 @@
 	)
 	(symbol
 		(lib_id "power:PWR_FLAG")
-		(at 265.43 104.14 0)
+		(at 35.56 147.32 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4205,9 +4205,9 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "fa7bfff6-7f12-44d8-a5c1-6e066c602267")
+		(uuid "337c435e-7c86-4676-9561-c48fd108d963")
 		(property "Reference" "#FLG02"
-			(at 265.43 101.6 0)
+			(at 35.56 149.225 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4217,7 +4217,7 @@
 			)
 		)
 		(property "Value" "PWR_FLAG"
-			(at 265.43 106.68 0)
+			(at 35.56 151.13 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4227,7 +4227,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 265.43 104.14 0)
+			(at 35.56 147.32 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4238,7 +4238,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 265.43 104.14 0)
+			(at 35.56 147.32 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4249,7 +4249,7 @@
 			)
 		)
 		(property "Description" "Special symbol for telling ERC where power comes from"
-			(at 265.43 104.14 0)
+			(at 35.56 147.32 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4260,718 +4260,1540 @@
 			)
 		)
 		(pin "1"
-			(uuid "4b486052-6c01-41b5-8108-2578afba9227")
+			(uuid "c44619f7-70d7-4779-827d-c09e9d515dee")
 		)
 		(instances
 			(project "solar-gate-v2"
-				(path "/cd794fa3-f80e-4826-90ee-7fb75214b367"
+				(path "/a96b19dc-cc73-47e7-87d4-84e3b6447683"
 					(reference "#FLG02")
 					(unit 1)
 				)
 			)
 		)
 	)
-	(label "P"
-		(at 265.43 54.61 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
+	(wire
+		(pts
+			(xy 35.56 39.37) (xy 35.56 30.48)
 		)
-		(uuid "446647d4-a9ff-4a3d-8f54-221e4ac481be")
-	)
-	(label "GND"
-		(at 265.43 104.14 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
+		(stroke
+			(width 0)
+			(type default)
 		)
-		(uuid "e5f973a5-fa26-4930-bba5-07cee2b92850")
+		(uuid "be217ffa-c272-47ed-9041-467ea986548a")
+	)
+	(wire
+		(pts
+			(xy 35.56 30.48) (xy 190.5 30.48)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f43f9379-1b0b-4084-9c0a-20d3dc4755b8")
+	)
+	(wire
+		(pts
+			(xy 190.5 30.48) (xy 200.66 30.48)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "639db907-a44e-42b7-8c96-483698fd3c70")
+	)
+	(wire
+		(pts
+			(xy 200.66 30.48) (xy 232.41 30.48)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "25691a81-b3f1-42e1-a898-9349f7ff3401")
+	)
+	(wire
+		(pts
+			(xy 232.41 30.48) (xy 238.76 30.48)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c0b514d9-8d81-4999-abc5-75e1deac1513")
+	)
+	(wire
+		(pts
+			(xy 238.76 30.48) (xy 254.0 30.48)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6a74cab3-dcb2-4497-ab8d-e3c2bd126837")
+	)
+	(junction
+		(at 35.56 30.48)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "e33174ef-1f8c-4195-8c8a-6e6cff465f42")
+	)
+	(wire
+		(pts
+			(xy 190.5 41.91) (xy 190.5 30.48)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b62c4372-6664-4d01-bae2-5d405d462c56")
+	)
+	(junction
+		(at 190.5 30.48)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "7d5291e6-fc23-4bb5-8ef7-a2b37c777fc2")
+	)
+	(wire
+		(pts
+			(xy 200.66 38.1) (xy 200.66 30.48)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3d837404-7f9e-4737-82c4-d5f063eb80f9")
+	)
+	(junction
+		(at 200.66 30.48)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "edf39675-1ebd-4aee-9346-0cf802e7f375")
+	)
+	(wire
+		(pts
+			(xy 232.41 72.39) (xy 232.41 30.48)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ba04cc63-387e-48cc-8de1-8de44e399308")
+	)
+	(junction
+		(at 232.41 30.48)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "667a9a41-2f6c-429f-b0af-827146a187e4")
+	)
+	(wire
+		(pts
+			(xy 238.76 90.17) (xy 238.76 30.48)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "71c94dda-b9be-4e59-81b6-0e8a6eb3f74f")
+	)
+	(junction
+		(at 238.76 30.48)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "3c7282c8-a7a5-4c64-88ed-d8e506078835")
+	)
+	(wire
+		(pts
+			(xy 254 90.17) (xy 254 30.48)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "aaa91c6e-c215-4520-86b1-bec3528df0c0")
+	)
+	(wire
+		(pts
+			(xy 247.65 60.96) (xy 260.35 60.96)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a6c60a2b-7268-4988-84d3-f99c3bc725ec")
+	)
+	(wire
+		(pts
+			(xy 260.35 60.96) (xy 260.35 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0afdf73d-0f27-4c18-b846-ba289e4da3f7")
+	)
+	(wire
+		(pts
+			(xy 260.35 111.76) (xy 254 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "347aea95-d949-412c-bf01-e54fde487596")
+	)
+	(wire
+		(pts
+			(xy 238.76 111.76) (xy 254 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8ba361f4-2b5a-4c27-a647-83fa64f35eb5")
+	)
+	(wire
+		(pts
+			(xy 238.76 115.57) (xy 238.76 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7d895d8b-8d3f-4eea-b5c3-c7ce8060449e")
+	)
+	(wire
+		(pts
+			(xy 254 111.76) (xy 254 115.57)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6c069a22-12a4-49d5-8850-bf9d22370941")
+	)
+	(junction
+		(at 254.0 111.76)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "3ab1e4de-56b4-4cfd-8fbc-c1bbee40c4c6")
+	)
+	(wire
+		(pts
+			(xy 35.56 147.32) (xy 53.34 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a612a307-324d-46ab-983e-1b8fd9e2e6ea")
+	)
+	(wire
+		(pts
+			(xy 53.34 147.32) (xy 90.17 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "056aff89-08b0-4290-921f-b10af8bd4692")
+	)
+	(wire
+		(pts
+			(xy 90.17 147.32) (xy 110.49 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f072dc96-7cc1-4b17-8bd1-ab8f121f1f08")
+	)
+	(wire
+		(pts
+			(xy 110.49 147.32) (xy 127.0 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "376fb553-79eb-4361-bfbb-47f02c6ba94e")
+	)
+	(wire
+		(pts
+			(xy 127.0 147.32) (xy 190.5 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e9edd498-003a-4bfe-a222-bfc6655e4759")
+	)
+	(wire
+		(pts
+			(xy 190.5 147.32) (xy 200.66 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "39e8314a-8f74-47b0-b8d2-58b22c200262")
+	)
+	(wire
+		(pts
+			(xy 200.66 147.32) (xy 226.06 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4423be61-988f-4674-afce-cc250ab6ae10")
+	)
+	(wire
+		(pts
+			(xy 53.34 78.74) (xy 53.34 80.01)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e8234321-dd8c-4d3e-9671-9ec5c02569d3")
+	)
+	(wire
+		(pts
+			(xy 53.34 80.01) (xy 53.34 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2dbb8f87-fe8b-4a17-b68e-33f8db7b0c08")
+	)
+	(junction
+		(at 53.34 147.32)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "380f84fb-8ff3-4899-923b-7c2ff75cc669")
+	)
+	(wire
+		(pts
+			(xy 53.34 80.01) (xy 63.5 80.01)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "02ac59e1-0d93-4570-a92c-9aca9e696a58")
+	)
+	(junction
+		(at 53.34 80.01)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "0130c64e-4ac7-4076-ab1d-3ad9c8e9787e")
+	)
+	(wire
+		(pts
+			(xy 63.5 74.93) (xy 63.5 80.01)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "39ad04c7-ad80-4716-a16d-fa7cf1d79281")
+	)
+	(wire
+		(pts
+			(xy 90.17 100.33) (xy 90.17 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e53e4d82-b06e-444d-a97b-097a723487eb")
+	)
+	(junction
+		(at 90.17 147.32)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "a30b1751-9572-4310-8105-0f74e195824b")
+	)
+	(wire
+		(pts
+			(xy 110.49 114.3) (xy 110.49 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "61240b34-d9ad-4483-8281-545ace9a2b8e")
+	)
+	(junction
+		(at 110.49 147.32)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "3acd9b83-1692-4f49-9595-4dca8f12796e")
+	)
+	(wire
+		(pts
+			(xy 127 102.87) (xy 127 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "75dd0a92-023b-495c-887a-103ead537853")
+	)
+	(junction
+		(at 127.0 147.32)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "698eeff5-97bf-4784-a079-f50f64c99ce6")
+	)
+	(wire
+		(pts
+			(xy 190.5 49.53) (xy 190.5 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "38016c14-d629-495e-a90d-ddd2d13fb0d5")
+	)
+	(junction
+		(at 190.5 147.32)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "73cb1c3f-999a-441c-99f3-41fca7d2fe9f")
+	)
+	(wire
+		(pts
+			(xy 200.66 53.34) (xy 200.66 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1fd7d632-124d-411e-8ffd-aa62ecc62865")
+	)
+	(junction
+		(at 200.66 147.32)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "8c488f99-89ad-433b-a8a6-527a7f1f2444")
+	)
+	(wire
+		(pts
+			(xy 226.06 115.57) (xy 226.06 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8ece5a51-31d9-421c-a4c3-b8f7ce67ea61")
+	)
+	(wire
+		(pts
+			(xy 35.56 55.88) (xy 53.34 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3fdae885-f800-4d90-9e30-a4ff9c741444")
+	)
+	(wire
+		(pts
+			(xy 53.34 55.88) (xy 68.58 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b6266da1-932c-4ae9-87da-b56aa2601fde")
+	)
+	(wire
+		(pts
+			(xy 68.58 55.88) (xy 90.17 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6fd5abcb-ccea-4a20-9ebd-6becc013a2fa")
+	)
+	(wire
+		(pts
+			(xy 90.17 55.88) (xy 118.11 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "28154c7a-c2b3-472c-a2fb-6f2a6e19f5d9")
+	)
+	(wire
+		(pts
+			(xy 118.11 55.88) (xy 127.0 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "00bfe0dd-d772-4b6a-9aef-b491a9a945e6")
+	)
+	(wire
+		(pts
+			(xy 127.0 55.88) (xy 148.59 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fca867cc-30a5-40cf-994c-f3659c26bf48")
+	)
+	(wire
+		(pts
+			(xy 148.59 55.88) (xy 176.53 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ae570d4e-391c-4218-a5f2-94597ddb5513")
+	)
+	(wire
+		(pts
+			(xy 176.53 55.88) (xy 214.63 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5ee9afd4-a926-4a30-9135-ddd69da54bae")
+	)
+	(wire
+		(pts
+			(xy 35.56 46.99) (xy 35.56 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d87bd388-810b-4e9f-a022-550d1800ba90")
+	)
+	(wire
+		(pts
+			(xy 53.34 71.12) (xy 53.34 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e3a64af1-7a2f-420e-8069-bda3a42e25b2")
+	)
+	(junction
+		(at 53.34 55.88)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "6fe29765-2d2b-4a58-b3ca-9eed22ea03dc")
+	)
+	(wire
+		(pts
+			(xy 68.58 74.93) (xy 68.58 72.39)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "69a9f56e-38ad-4f4a-b1ee-18abd2a3072b")
+	)
+	(wire
+		(pts
+			(xy 68.58 72.39) (xy 68.58 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "aeb6e2fc-03f1-4629-ad0d-178bfe741550")
+	)
+	(junction
+		(at 68.58 55.88)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "be6c3154-837e-4cb2-872f-d11c77262f44")
+	)
+	(wire
+		(pts
+			(xy 66.04 72.39) (xy 68.58 72.39)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c05e21ab-e1bb-4f6b-9008-4d5a94ac5d8b")
+	)
+	(junction
+		(at 68.58 72.39)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "3bf2470a-89ad-4fd7-8c7c-a7d215e2061b")
+	)
+	(wire
+		(pts
+			(xy 90.17 67.31) (xy 90.17 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f7bef516-f910-4001-bfa1-94ccbe32e1d6")
+	)
+	(junction
+		(at 90.17 55.88)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "7c470daa-8933-4856-91bf-6288e223270b")
+	)
+	(wire
+		(pts
+			(xy 118.11 59.69) (xy 118.11 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "45d8cd46-bebb-489e-af81-cd071fe89af4")
+	)
+	(junction
+		(at 118.11 55.88)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "68d8f21d-a7e1-4ee1-8b43-f7191da09b1e")
+	)
+	(wire
+		(pts
+			(xy 127 59.69) (xy 127 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "84f391a2-17b3-4df6-a502-cacbe8e4f992")
+	)
+	(junction
+		(at 127.0 55.88)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "7f8a472b-925e-4681-8e21-eec52d626bd6")
+	)
+	(wire
+		(pts
+			(xy 148.59 60.96) (xy 148.59 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9e91f9b7-827c-4cb8-8aae-fab38c6e7ccd")
+	)
+	(junction
+		(at 148.59 55.88)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "6f8bfdbc-a4ee-42f9-9210-4d80aae267d0")
+	)
+	(wire
+		(pts
+			(xy 176.53 95.25) (xy 176.53 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "37708a8c-c88d-485e-b8e8-9dc47b72aa3d")
+	)
+	(junction
+		(at 176.53 55.88)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "39b099d2-0dbf-4688-a8c2-57e188086685")
+	)
+	(wire
+		(pts
+			(xy 214.63 60.96) (xy 214.63 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4cf61dd9-586a-45d0-a1b2-c5ef2c334f1f")
+	)
+	(wire
+		(pts
+			(xy 90.17 74.93) (xy 90.17 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a316eccf-8a02-49ce-8364-93c313d966df")
+	)
+	(wire
+		(pts
+			(xy 90.17 78.74) (xy 90.17 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5438a9ec-5fb4-4b1c-ae63-4b37c4e83166")
+	)
+	(wire
+		(pts
+			(xy 90.17 81.28) (xy 90.17 92.71)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b4e50937-7f38-48da-81f3-b8ec2b62df50")
+	)
+	(wire
+		(pts
+			(xy 90.17 78.74) (xy 157.48 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "84c64638-3503-4868-ab1d-d0be5895b57d")
+	)
+	(junction
+		(at 90.17 78.74)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "029f2f84-0a5d-4954-9200-a8237682218a")
+	)
+	(wire
+		(pts
+			(xy 157.48 78.74) (xy 157.48 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8f55340a-e4f6-41ef-8421-90b5f8758134")
+	)
+	(wire
+		(pts
+			(xy 157.48 104.14) (xy 157.48 118.11)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "adaa3f1a-7323-4215-987f-5654d271df1e")
+	)
+	(wire
+		(pts
+			(xy 157.48 118.11) (xy 161.29 118.11)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ac055fed-2925-4e30-9784-72f00f9af8fe")
+	)
+	(wire
+		(pts
+			(xy 165.1 104.14) (xy 157.48 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "476c2a07-d60a-45b7-9373-33a364fcc4b1")
+	)
+	(junction
+		(at 157.48 104.14)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "e59e9e1d-838e-4a27-8916-9318c488749c")
+	)
+	(wire
+		(pts
+			(xy 90.17 81.28) (xy 130.81 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9c05e405-cf2f-4581-8e87-b9e6de02294a")
+	)
+	(junction
+		(at 90.17 81.28)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "32755785-809d-4f49-a460-2c30e17a02c4")
+	)
+	(wire
+		(pts
+			(xy 130.81 81.28) (xy 130.81 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d50d2770-a1f1-4df8-a0e4-0d8f3dac9e2d")
+	)
+	(wire
+		(pts
+			(xy 130.81 88.9) (xy 133.35 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ceac494a-147a-4cf2-94a0-b02e4727e179")
+	)
+	(wire
+		(pts
+			(xy 127.0 67.31) (xy 127.0 72.39)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ce48213c-fdb9-49b4-8e27-50248065e3d2")
+	)
+	(wire
+		(pts
+			(xy 127.0 72.39) (xy 127.0 83.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "407a3bc2-f5f7-4922-9894-29a01963c8c5")
+	)
+	(wire
+		(pts
+			(xy 127.0 83.82) (xy 127.0 95.25)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "dda58505-f78d-4530-8625-f49641060db5")
+	)
+	(wire
+		(pts
+			(xy 133.35 83.82) (xy 127 83.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f47c4d60-15e3-4720-b997-3d4e8094fb9c")
+	)
+	(junction
+		(at 127.0 83.82)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "37b27947-85cd-4d3a-8b6c-4b410efe6cf5")
+	)
+	(wire
+		(pts
+			(xy 133.35 72.39) (xy 127 72.39)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e10b9b6f-9ae2-48f8-8ddd-7bc06002d64b")
+	)
+	(junction
+		(at 127.0 72.39)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "333f317c-c6b2-4904-9d41-43eb202d3337")
+	)
+	(wire
+		(pts
+			(xy 118.11 67.31) (xy 118.11 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bd853663-fb7f-4287-9155-556de6b9ee25")
+	)
+	(wire
+		(pts
+			(xy 118.11 106.68) (xy 118.11 123.19)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d64dc17c-7943-48af-83a9-5e8dcd0f3320")
+	)
+	(wire
+		(pts
+			(xy 110.49 106.68) (xy 118.11 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8c843807-1a2c-41c6-9b52-87d2129f2d36")
+	)
+	(junction
+		(at 118.11 106.68)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "6af06421-c6fe-43c7-832e-700ec6d8f92c")
+	)
+	(wire
+		(pts
+			(xy 118.11 123.19) (xy 161.29 123.19)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "df90163f-488d-4d7d-8ac3-512c16ccc879")
+	)
+	(wire
+		(pts
+			(xy 148.59 68.58) (xy 148.59 72.39)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e1ba103c-2e1c-4946-a24c-bcd36c95fad2")
+	)
+	(wire
+		(pts
+			(xy 148.59 72.39) (xy 148.59 80.01)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bb936343-2d23-4057-ade8-ab4c18079ee4")
+	)
+	(wire
+		(pts
+			(xy 148.59 80.01) (xy 148.59 86.36)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0745ba99-3a7c-4dbb-a23d-22ee99058216")
+	)
+	(wire
+		(pts
+			(xy 140.97 72.39) (xy 148.59 72.39)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "41295fd2-be3c-4e42-8fbc-263392f830cb")
+	)
+	(junction
+		(at 148.59 72.39)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "9575119a-aeb2-4d62-894a-50004e0cf8d4")
+	)
+	(wire
+		(pts
+			(xy 205.74 80.01) (xy 148.59 80.01)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0a2c3498-8d55-4da5-91eb-21fbd14a527a")
+	)
+	(junction
+		(at 148.59 80.01)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "b4188bd1-5dc5-42a2-8853-78c5f0a1d47f")
+	)
+	(wire
+		(pts
+			(xy 176.53 102.87) (xy 176.53 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2ff6b58d-ed6e-4659-996b-989a3ab042ca")
+	)
+	(wire
+		(pts
+			(xy 176.53 104.14) (xy 176.53 120.65)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fffa5c05-5d06-4764-b921-73345c7ed461")
+	)
+	(wire
+		(pts
+			(xy 172.72 104.14) (xy 176.53 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b77ab96b-6313-4be1-9410-2c4631547a9d")
+	)
+	(junction
+		(at 176.53 104.14)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "d6d0f5e5-51c0-43c7-9de0-555c080bf123")
+	)
+	(wire
+		(pts
+			(xy 205.74 90.17) (xy 205.74 96.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7c2f5661-cd88-4f07-a773-b96aa95767da")
+	)
+	(wire
+		(pts
+			(xy 205.74 96.52) (xy 181.61 96.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "af1c9310-f7bd-4349-81c9-a5340b0b5334")
+	)
+	(wire
+		(pts
+			(xy 181.61 96.52) (xy 181.61 120.65)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "890a19ce-3262-4776-b6dc-5bb5daeb1dc2")
+	)
+	(wire
+		(pts
+			(xy 181.61 120.65) (xy 176.53 120.65)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "71639c5b-3349-4183-b61f-6012df116020")
+	)
+	(junction
+		(at 176.53 120.65)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "9afe75e9-520b-45b4-863d-d92f2cfa58db")
+	)
+	(wire
+		(pts
+			(xy 214.63 68.58) (xy 214.63 80.01)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "dac88f3a-66f7-4f19-b663-128bb1a6d101")
+	)
+	(wire
+		(pts
+			(xy 214.63 80.01) (xy 214.63 90.17)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3ad20e54-2849-4b54-afca-9779e5249f9e")
+	)
+	(wire
+		(pts
+			(xy 214.63 90.17) (xy 214.63 95.25)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "21665ecb-4659-435b-9f80-74efd5a34616")
+	)
+	(wire
+		(pts
+			(xy 213.36 80.01) (xy 214.63 80.01)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ac4b7cfb-39a0-4545-880a-d88d150e5581")
+	)
+	(junction
+		(at 214.63 80.01)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "970ec5b0-2f31-45d2-8831-a49cd88d1d53")
+	)
+	(wire
+		(pts
+			(xy 213.36 90.17) (xy 214.63 90.17)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "43e68406-68f5-44a3-91b5-65d326a9c7dc")
+	)
+	(junction
+		(at 214.63 90.17)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "b27e2a7b-b4f7-4489-a4c8-41961bdf0e53")
+	)
+	(wire
+		(pts
+			(xy 233.68 97.79) (xy 233.68 100.33)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8598d586-365b-427f-857a-3d69a2344867")
+	)
+	(wire
+		(pts
+			(xy 248.92 97.79) (xy 248.92 100.33)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "74717e0d-701d-4dda-934e-07cee2117456")
+	)
+	(wire
+		(pts
+			(xy 233.68 100.33) (xy 241.3 100.33)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9724f7b8-64bd-4b04-bba6-04fa5816374a")
+	)
+	(wire
+		(pts
+			(xy 241.3 100.33) (xy 248.92 100.33)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6786a5d6-57b9-4499-ac1b-ccc09df680d7")
+	)
+	(wire
+		(pts
+			(xy 233.68 123.19) (xy 233.68 125.73)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f03b0999-255b-4a5e-969b-65507336f26d")
+	)
+	(wire
+		(pts
+			(xy 248.92 123.19) (xy 248.92 125.73)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0c911ebe-e514-4813-b348-a62b23b609a5")
+	)
+	(wire
+		(pts
+			(xy 233.68 125.73) (xy 241.3 125.73)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3eee3ee2-f3e3-48e7-8f78-3bb9285d493c")
+	)
+	(wire
+		(pts
+			(xy 241.3 125.73) (xy 248.92 125.73)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a708a1de-5c87-4d88-8af3-fe5f10f3dd9e")
+	)
+	(wire
+		(pts
+			(xy 241.3 100.33) (xy 241.3 125.73)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "098d9f7a-ddf0-4c1e-8609-272c57e8f00f")
+	)
+	(junction
+		(at 241.3 125.73)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "ade8204c-afdd-4650-a2ea-460eca900cb9")
+	)
+	(junction
+		(at 241.3 100.33)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "3e25537f-2a4b-4440-b5cc-9e22d3775233")
+	)
+	(wire
+		(pts
+			(xy 226.06 105.41) (xy 231.14 105.41)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1d77b6a1-6a7a-42a2-b4e3-3a6889678c70")
+	)
+	(wire
+		(pts
+			(xy 231.14 105.41) (xy 231.14 100.33)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9e8a3e35-4400-474c-a0e7-67c5844e3b21")
+	)
+	(wire
+		(pts
+			(xy 231.14 100.33) (xy 233.68 100.33)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a783abb0-bdbe-456c-8b48-3b9608a86913")
+	)
+	(junction
+		(at 233.68 100.33)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "71bb1358-3e9a-4c29-8217-47cc7791c29a")
+	)
+	(wire
+		(pts
+			(xy 217.17 130.81) (xy 241.3 130.81)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7f153bdd-f959-41eb-a948-c8cb7507f8cf")
+	)
+	(wire
+		(pts
+			(xy 241.3 130.81) (xy 241.3 125.73)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a25257fd-febe-44cb-b505-352c2aba5e5b")
+	)
+	(wire
+		(pts
+			(xy 228.6 90.17) (xy 228.6 113.03)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "de5a738e-1831-4b6c-bbe3-988e8e525c87")
+	)
+	(wire
+		(pts
+			(xy 228.6 113.03) (xy 228.6 115.57)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c7b471af-4b7f-4d81-b1a1-e0ed6bf4aae9")
+	)
+	(wire
+		(pts
+			(xy 243.84 90.17) (xy 243.84 113.03)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bbef811a-0dde-4c81-b03a-84a4e5cbebb3")
+	)
+	(wire
+		(pts
+			(xy 243.84 113.03) (xy 243.84 115.57)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ab527086-aba0-4eba-b434-285893d76589")
+	)
+	(wire
+		(pts
+			(xy 228.6 113.03) (xy 243.84 113.03)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9825a5a6-5aef-4a51-b9c0-137dc44e67a6")
+	)
+	(junction
+		(at 243.84 113.03)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "a0cc1270-5f58-4c50-9c8c-4ead4cdba469")
+	)
+	(junction
+		(at 228.6 113.03)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "b680cebb-3a0c-460b-9a2e-ebc567cc17c9")
+	)
+	(wire
+		(pts
+			(xy 224.79 72.39) (xy 224.79 60.96)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "80ed2f75-788a-432c-82a6-3a0119e7946b")
+	)
+	(wire
+		(pts
+			(xy 224.79 60.96) (xy 240.03 60.96)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6de68172-5ae6-4a3c-ba24-7f6f192b0559")
+	)
+	(wire
+		(pts
+			(xy 224.79 72.39) (xy 217.17 72.39)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "07306cc4-8b6b-4422-ae4b-5bc82ff9888c")
+	)
+	(junction
+		(at 224.79 72.39)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "828d0b85-33ec-41e5-8181-e923eaedb431")
+	)
+	(wire
+		(pts
+			(xy 217.17 72.39) (xy 217.17 123.19)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "66402d69-1014-4a5e-8b9f-a93942597220")
+	)
+	(wire
+		(pts
+			(xy 214.63 102.87) (xy 214.63 110.49)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ef01c4ed-50fc-4cd1-9c67-ed30341f5cf2")
+	)
+	(wire
+		(pts
+			(xy 214.63 110.49) (xy 218.44 110.49)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "09e3e410-24a6-4f80-b6e2-3c58c800dc4f")
 	)
 	(label "P"
-		(at 209.55 101.6 90)
+		(at 165.1 30.48 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left bottom)
 		)
-		(uuid "bb684ac5-f7ed-4186-a947-5f49ef73600e")
-	)
-	(label "GND"
-		(at 209.55 109.22 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "f6002cbc-23d1-41f7-ba15-7af80511f464")
+		(uuid "c3f978a0-fde7-486c-b204-c7fa65d1c410")
 	)
 	(label "VREF"
-		(at 245.11 40.64 90)
+		(at 100.33 55.88 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left bottom)
 		)
-		(uuid "199add94-0d36-4373-8285-371572e5f4e7")
+		(uuid "7fe49334-12da-4ec8-b794-7f4a2f4282cb")
 	)
 	(label "GND"
-		(at 245.11 48.260000000000005 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "483e6ad2-610b-4ca2-9fff-754ca9293cd4")
-	)
-	(label "H"
-		(at 261.62 80.01 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "4a3bbe3e-af67-4040-9b93-e0e38fc613c1")
-	)
-	(label "P"
-		(at 269.24 80.01 0)
+		(at 144.78 147.32 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left bottom)
 		)
-		(uuid "98c93055-5b25-44dc-b2b2-af62cabb88d9")
-	)
-	(label "H"
-		(at 261.62 146.05 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "63353740-9773-4fbe-b168-51a0cac2b414")
+		(uuid "3210342a-85c9-47a6-8647-bf314ab156d8")
 	)
 	(label "SOLAR_OUT"
-		(at 269.24 146.05 0)
+		(at 260.35 90.17 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left bottom)
 		)
-		(uuid "8de616a0-d26f-4611-ac81-d37da7f23f08")
-	)
-	(label "OA"
-		(at 166.37 133.35 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "22305249-e557-4e97-b27d-276cdef99eb9")
-	)
-	(label "C"
-		(at 173.99 133.35 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "f0cc5729-289c-4cef-800b-09efef872761")
-	)
-	(label "OB"
-		(at 166.37 149.86 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "23df4edb-3161-4b95-a2c7-feee7e63f7e5")
-	)
-	(label "C"
-		(at 173.99 149.86 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "08b1b3a6-97d5-4886-89f3-00419254fc1a")
+		(uuid "70268fdb-67ef-44f9-a905-642c8bafe596")
 	)
 	(label "N"
-		(at 149.86 78.74 90)
+		(at 90.17 85.09 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left bottom)
 		)
-		(uuid "4e224963-ff11-45c8-87e0-db9876e1a3fa")
+		(uuid "ab405036-4a9f-4f64-8ebb-beace0a70b4a")
 	)
-	(label "GND"
-		(at 149.86 86.36 270)
+	(label "PA"
+		(at 127 90.17 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right bottom)
+			(justify left bottom)
 		)
-		(uuid "947de76d-31db-4afc-8ceb-11018726f974")
+		(uuid "454e930c-4645-4cf4-98dc-7f20fad6d031")
+	)
+	(label "Vb"
+		(at 118.11 110.49 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "1dfa0985-5c27-4594-9643-8b9c79c36a6a")
+	)
+	(label "OA"
+		(at 148.59 83.82 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "13e8478c-b0cb-483b-88b8-b05be19e65f9")
+	)
+	(label "OB"
+		(at 176.53 107.95 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "e2ba19f0-a975-42f8-9418-c1d11621d0d8")
+	)
+	(label "C"
+		(at 214.63 73.66 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "603d2e81-7bc8-4eda-b55b-f97366bff388")
 	)
 	(label "G"
-		(at 232.41 80.01 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "0658ddb6-f9dd-43b6-beca-20b415420a63")
-	)
-	(label "P"
-		(at 240.03 85.09 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "8208c15b-8f6e-47fa-b8cf-7c6ad747421d")
-	)
-	(label "M"
-		(at 240.03 74.93 90)
+		(at 241.3 125.73 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left bottom)
 		)
-		(uuid "feee9913-9638-4b9f-b065-0d491ae467ae")
-	)
-	(label "G"
-		(at 232.41 101.6 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "a59d50ed-fac7-4258-aa69-b1de6ac3c676")
-	)
-	(label "P"
-		(at 240.03 106.67999999999999 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "ac43c69b-7a26-43d5-8419-05b491f67532")
+		(uuid "e3c65c32-851d-4f77-ab90-c7d92fc57d38")
 	)
 	(label "M"
-		(at 240.03 96.52 90)
+		(at 236.22 113.03 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left bottom)
 		)
-		(uuid "1d46ffc4-d324-42f1-b622-f67c937d5a7f")
+		(uuid "444612c1-a969-4f78-b865-e90e807f031a")
 	)
-	(label "G"
-		(at 232.41 124.46 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "3f8011ef-4a45-48a9-b0ff-0a6ea389c11e")
-	)
-	(label "SOLAR_OUT"
-		(at 240.03 129.54 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "0ddf22a2-eac8-42dd-9ed8-23286f5a13b6")
-	)
-	(label "M"
-		(at 240.03 119.38 90)
+	(label "H"
+		(at 217.17 100.33 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left bottom)
 		)
-		(uuid "7ed4b7ee-7b88-496b-bb90-7d2a10f322db")
-	)
-	(label "G"
-		(at 232.41 146.05 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "4fc0b416-9556-42f8-a11b-fadceb35e9d8")
-	)
-	(label "SOLAR_OUT"
-		(at 240.03 151.13000000000002 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "7b7a5fc2-91d9-4ec9-ab67-b3ad77d2698c")
-	)
-	(label "M"
-		(at 240.03 140.97 90)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "f2249fb8-b467-4ad2-8f0b-ecae4e1f73ac")
-	)
-	(label "GND"
-		(at 218.44 144.78 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "4f902230-1e99-4816-9310-f0ce8dbc8491")
+		(uuid "98aae9e2-dd94-4889-85ac-58c9bca5a414")
 	)
 	(label "Q3B"
-		(at 210.82 139.7 180)
+		(at 214.63 110.49 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right bottom)
 		)
-		(uuid "a5d21a45-e69f-4da4-88d9-6e0da4635313")
-	)
-	(label "G"
-		(at 218.44 134.61999999999998 90)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "afc72b9b-a834-41bb-9f8d-bc41620aa5ff")
-	)
-	(label "VREF"
-		(at 35.56 66.03999999999999 90)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "b664f77e-9930-4570-a371-87fe01f67cd8")
-	)
-	(label "PA"
-		(at 35.56 73.66 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "84a3dfff-4fdd-44b3-9764-d6485639c4be")
-	)
-	(label "PA"
-		(at 35.56 96.52 90)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "4ae62114-0f80-41b7-8cc4-d95a66e2cd2c")
-	)
-	(label "GND"
-		(at 35.56 104.14 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "0015a3bd-20d3-4fc0-96e5-3ea26bbe5b1d")
-	)
-	(label "C"
-		(at 194.31 135.89 90)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "8d0ed2c3-5415-483d-9125-95c26dd4cb21")
-	)
-	(label "Q3B"
-		(at 194.31 143.51 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "f55d6936-1148-455e-bc1e-a560865d30ab")
-	)
-	(label "VREF"
-		(at 35.56 120.64999999999999 90)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "8a6af1d3-52df-4d0d-9c22-e040fa870577")
-	)
-	(label "Vb"
-		(at 35.56 128.26999999999998 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "20a49bfa-8a56-4bef-82e6-468348b17ef6")
-	)
-	(label "Vb"
-		(at 35.56 151.13 90)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "61bf93e8-625c-42d5-91c9-7c694e44e62b")
-	)
-	(label "GND"
-		(at 35.56 158.75 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "810c7009-d339-4fed-9cf4-bad53b024f74")
-	)
-	(label "P"
-		(at 185.42 40.64 90)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "5514a546-a18c-440c-a7ce-6b905924fbc6")
-	)
-	(label "VREF"
-		(at 185.42 48.260000000000005 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "f1c50df5-d344-4662-a107-962e5e78109e")
-	)
-	(label "OA"
-		(at 119.38 96.52 90)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "aed77a40-5efd-44f0-83dc-5d51797d5167")
-	)
-	(label "PA"
-		(at 119.38 104.14 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "61918b32-438b-46c3-9488-86853199ed7f")
-	)
-	(label "OB"
-		(at 119.38 151.13 90)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "21d9d6f7-bb08-4284-9d6d-e5b630768838")
-	)
-	(label "N"
-		(at 119.38 158.75 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "43e5a2ad-19cc-4306-9026-087f31e03c78")
-	)
-	(label "H"
-		(at 265.43 114.3 90)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "6e3b2bfc-f941-4bff-9afd-10c1a41b2181")
-	)
-	(label "G"
-		(at 265.43 121.92 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "98d95646-808c-46a0-a189-ca83a529477f")
-	)
-	(label "VREF"
-		(at 119.38 66.03999999999999 90)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "09018b04-dd59-4686-9d94-ff69dfd4626b")
-	)
-	(label "OA"
-		(at 119.38 73.66 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "8ba32646-70c3-427c-8bf4-fa1f55e3dffd")
-	)
-	(label "VREF"
-		(at 119.38 120.64999999999999 90)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "6f699860-47dc-4999-934c-1e014ec80efe")
-	)
-	(label "OB"
-		(at 119.38 128.26999999999998 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "3b92dfa0-ec7b-4287-ac6c-b64e8e7712be")
-	)
-	(label "VREF"
-		(at 148.59 135.89 90)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "95e1bf83-11e4-4268-ad81-26801df9b83b")
-	)
-	(label "C"
-		(at 148.59 143.51 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "f79b1abb-a75e-450b-a8bf-9a70b9e519f7")
-	)
-	(label "VREF"
-		(at 149.86 40.64 90)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "8ade25d1-3dbe-45d0-a6e9-2171591e73e0")
-	)
-	(label "N"
-		(at 149.86 48.260000000000005 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "70d9e9f6-8a0c-4e37-8fe4-c5826d6149f5")
-	)
-	(label "OA"
-		(at 87.63000000000001 85.09 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "c6a6af6e-9b34-436c-9ba0-790bb47bb525")
-	)
-	(label "N"
-		(at 72.39 87.63000000000001 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "5dfd24fb-0f5a-442e-990a-7606a6dd987d")
-	)
-	(label "PA"
-		(at 72.39 82.55 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "7f7a368c-3a69-482a-be57-6a8d738a16fd")
-	)
-	(label "GND"
-		(at 182.88 113.03 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "6f3502ac-1047-4900-a89a-fc8b27857d91")
-	)
-	(label "N"
-		(at 72.39 137.16 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "d6254623-e8be-43cf-8b66-9a359c438c4b")
-	)
-	(label "Vb"
-		(at 72.39 142.23999999999998 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "8f952356-eb5d-4106-acdf-7e54aca7a23e")
-	)
-	(label "OB"
-		(at 87.63000000000001 139.7 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "43799293-2cb6-400f-a15b-f08af32413dc")
-	)
-	(label "P"
-		(at 182.88 97.78999999999999 90)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "2303d366-efab-465f-a611-142ed80bff11")
-	)
-	(label "VREF"
-		(at 220.98 44.45 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "5dca652e-dda5-417f-bccb-320455c14576")
-	)
-	(label "VREF"
-		(at 218.44 41.910000000000004 90)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "095fd03b-d777-40c3-9a69-6bb2d13eb93f")
-	)
-	(label "GND"
-		(at 215.9 44.45 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "e5abb4dd-251d-462a-b976-afebc1fcdecb")
-	)
-	(text "solar-gate-v2 - temperature-gated solar charge switch. SCHEMATIC CAPTURE ONLY (task 0073): no PCB layout, no footprints assigned to the passives."
-		(exclude_from_sim no)
-		(at 20 25 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "f05158bf-7c0a-4d32-809c-a84488edba69")
-	)
-	(text "Q1a/Q1b sources on P, Q2a/Q2b sources on SOLAR_OUT, drains shared on M - back to back, deliberate. U1 power unit (unit C): 8=V+=P, 4=V-=GND. NTC is off-board, thermally on the cell."
-		(exclude_from_sim no)
-		(at 20 32 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "ae627b50-64a8-4c5a-bec8-bef690019a4e")
+		(uuid "3f528b76-6765-4169-9b7a-cfffb0b0e551")
 	)
 	(sheet_instances
 		(path "/"
