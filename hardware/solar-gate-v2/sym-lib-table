@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "solar-gate-v2")(type "KiCad")(uri "${KIPRJMOD}/solar-gate-v2.kicad_sym")(options "")(descr "Solar gate v2 project symbols (TL431)"))
+)

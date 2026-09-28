@@ -1,0 +1,78 @@
+ERC report (2026-09-27T22:41:00, Encoding UTF8)
+Report includes: Errors, Warnings, Exclusions
+
+***** Sheet /
+[lib_symbol_mismatch]: Symbol 'R' doesn't match copy in library 'Device'
+    ; warning
+    @(35.56 mm, 69.85 mm): Symbol R1 [R]
+[lib_symbol_mismatch]: Symbol 'R' doesn't match copy in library 'Device'
+    ; warning
+    @(35.56 mm, 100.33 mm): Symbol R2 [R]
+[lib_symbol_mismatch]: Symbol 'R' doesn't match copy in library 'Device'
+    ; warning
+    @(35.56 mm, 124.46 mm): Symbol Rb1 [R]
+[lib_symbol_mismatch]: Symbol 'R' doesn't match copy in library 'Device'
+    ; warning
+    @(35.56 mm, 154.94 mm): Symbol Rb2 [R]
+[lib_symbol_mismatch]: Symbol 'R' doesn't match copy in library 'Device'
+    ; warning
+    @(119.38 mm, 69.85 mm): Symbol Rpua [R]
+[lib_symbol_mismatch]: Symbol 'R' doesn't match copy in library 'Device'
+    ; warning
+    @(119.38 mm, 100.33 mm): Symbol Rfa [R]
+[lib_symbol_mismatch]: Symbol 'R' doesn't match copy in library 'Device'
+    ; warning
+    @(119.38 mm, 124.46 mm): Symbol Rpub [R]
+[lib_symbol_mismatch]: Symbol 'R' doesn't match copy in library 'Device'
+    ; warning
+    @(119.38 mm, 154.94 mm): Symbol Rfb [R]
+[lib_symbol_mismatch]: Symbol 'R' doesn't match copy in library 'Device'
+    ; warning
+    @(148.59 mm, 139.70 mm): Symbol Rpuc [R]
+[lib_symbol_mismatch]: Symbol 'R' doesn't match copy in library 'Device'
+    ; warning
+    @(149.86 mm, 44.45 mm): Symbol Rt [R]
+[lib_symbol_mismatch]: Symbol 'Thermistor_NTC' doesn't match copy in library 'Device'
+    ; warning
+    @(149.86 mm, 82.55 mm): Symbol NTC [Thermistor_NTC]
+[lib_symbol_mismatch]: Symbol 'D_Schottky' doesn't match copy in library 'Device'
+    ; warning
+    @(170.18 mm, 133.35 mm): Symbol DA [D_Schottky]
+[lib_symbol_mismatch]: Symbol 'D_Schottky' doesn't match copy in library 'Device'
+    ; warning
+    @(170.18 mm, 149.86 mm): Symbol DB [D_Schottky]
+[lib_symbol_mismatch]: Symbol 'R' doesn't match copy in library 'Device'
+    ; warning
+    @(185.42 mm, 44.45 mm): Symbol Rbias [R]
+[lib_symbol_mismatch]: Symbol 'R' doesn't match copy in library 'Device'
+    ; warning
+    @(194.31 mm, 139.70 mm): Symbol Rb [R]
+[lib_symbol_mismatch]: Symbol 'C' doesn't match copy in library 'Device'
+    ; warning
+    @(209.55 mm, 105.41 mm): Symbol C1 [C]
+[lib_symbol_mismatch]: Symbol 'C' doesn't match copy in library 'Device'
+    ; warning
+    @(245.11 mm, 44.45 mm): Symbol C2 [C]
+[lib_symbol_mismatch]: Symbol 'PWR_FLAG' doesn't match copy in library 'power'
+    ; warning
+    @(265.43 mm, 54.61 mm): Symbol #FLG01 [PWR_FLAG]
+[lib_symbol_mismatch]: Symbol 'D_Schottky' doesn't match copy in library 'Device'
+    ; warning
+    @(265.43 mm, 80.01 mm): Symbol D1 [D_Schottky]
+[lib_symbol_mismatch]: Symbol 'PWR_FLAG' doesn't match copy in library 'power'
+    ; warning
+    @(265.43 mm, 104.14 mm): Symbol #FLG02 [PWR_FLAG]
+[lib_symbol_mismatch]: Symbol 'R' doesn't match copy in library 'Device'
+    ; warning
+    @(265.43 mm, 118.11 mm): Symbol Rg [R]
+[lib_symbol_mismatch]: Symbol 'D_Schottky' doesn't match copy in library 'Device'
+    ; warning
+    @(265.43 mm, 146.05 mm): Symbol D2 [D_Schottky]
+
+ ** ERC messages: 22  Errors 0  Warnings 22
+
+ ** Ignored checks:
+    - Global label only appears once in the schematic
+    - Four connection points are joined together
+    - SPICE model issue
+    - Assigned footprint doesn't match footprint filters
