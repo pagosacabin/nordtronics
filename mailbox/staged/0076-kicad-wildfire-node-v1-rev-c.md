@@ -8,6 +8,7 @@ proof:
   branch: hermes/0076-wildfire-node-v1-rev-c
   sha: 68c6e2fcf1efc9335683b08c6273565e0ba35662
   run: none — no workflow in this repo triggers on this branch or these paths (enumeration below)
+  main_transition_run: https://github.com/pagosacabin/nordtronics/actions/runs/36634243804
   files:
     - hardware/wildfire-node-v1/wildfire-node-v1-rev-c.kicad_sch
     - hardware/wildfire-node-v1/wildfire-node-v1-rev-c.kicad_pro
