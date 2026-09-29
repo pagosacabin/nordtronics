@@ -2111,7 +2111,7 @@
 		(dnp no)
 		(uuid "f0390a95-6363-4b8c-aab6-f10c92dec257")
 		(property "Reference" "J1"
-			(at 17.36 17.56 180)
+			(at 17.36 17.56 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2121,7 +2121,7 @@
 			)
 		)
 		(property "Value" "BATT IN (JST-PH 2.0mm 2-pin PROPOSED)"
-			(at 33.53 29 180)
+			(at 33.53 29 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2270,7 +2270,7 @@
 		(dnp no)
 		(uuid "6761002a-c16b-4358-9be3-b2c13600825b")
 		(property "Reference" "TP1"
-			(at 37.16 15.13 0)
+			(at 35.89 13.86 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
