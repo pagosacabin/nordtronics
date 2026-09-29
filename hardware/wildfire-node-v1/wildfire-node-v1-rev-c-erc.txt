@@ -1,97 +1,97 @@
-ERC report (2026-09-29T15:30:19, Encoding UTF8)
+ERC report (2026-09-29T16:57:35, Encoding UTF8)
 Report includes: Errors, Warnings, Exclusions
 
 ***** Sheet /
 [lib_symbol_mismatch]: Symbol 'Conn_01x02' doesn't match copy in library 'Connector_Generic'
     ; warning
     @(17.78 mm, 21.59 mm): Symbol J1 [Conn_01x02]
-[lib_symbol_mismatch]: Symbol 'C' doesn't match copy in library 'Device'
-    ; warning
-    @(17.78 mm, 68.58 mm): Symbol C9 [C]
 [lib_symbol_mismatch]: Symbol 'TestPoint' doesn't match copy in library 'Connector'
     ; warning
-    @(19.05 mm, 35.56 mm): Symbol TP7 [TestPoint]
-[lib_symbol_mismatch]: Symbol 'C' doesn't match copy in library 'Device'
-    ; warning
-    @(24.13 mm, 68.58 mm): Symbol C10 [C]
-[lib_symbol_mismatch]: Symbol 'BME680_Breakout' doesn't match copy in library 'wildfire-node-v1'
-    ; warning
-    @(30.48 mm, 92.71 mm): Symbol U4 [BME680_Breakout]
+    @(17.78 mm, 38.10 mm): Symbol TP7 [TestPoint]
 [lib_symbol_mismatch]: Symbol 'Polyfuse' doesn't match copy in library 'Device'
     ; warning
-    @(33.02 mm, 21.59 mm): Symbol F1 [Polyfuse]
+    @(36.83 mm, 21.59 mm): Symbol F1 [Polyfuse]
+[lib_symbol_mismatch]: Symbol 'C' doesn't match copy in library 'Device'
+    ; warning
+    @(43.18 mm, 92.71 mm): Symbol C9 [C]
+[lib_symbol_mismatch]: Symbol 'C' doesn't match copy in library 'Device'
+    ; warning
+    @(48.26 mm, 92.71 mm): Symbol C10 [C]
 [lib_symbol_mismatch]: Symbol 'TestPoint' doesn't match copy in library 'Connector'
     ; warning
-    @(33.02 mm, 68.58 mm): Symbol TP4 [TestPoint]
+    @(53.34 mm, 19.05 mm): Symbol TP1 [TestPoint]
+[lib_symbol_mismatch]: Symbol 'TestPoint' doesn't match copy in library 'Connector'
+    ; warning
+    @(55.88 mm, 92.71 mm): Symbol TP4 [TestPoint]
+[lib_symbol_mismatch]: Symbol 'BME680_Breakout' doesn't match copy in library 'wildfire-node-v1'
+    ; warning
+    @(58.42 mm, 115.57 mm): Symbol U4 [BME680_Breakout]
 [lib_symbol_mismatch]: Symbol 'SolarGate_v2_TempGate' doesn't match copy in library 'wildfire-node-v1'
     ; warning
-    @(38.10 mm, 44.45 mm): Symbol A1 [SolarGate_v2_TempGate]
+    @(64.77 mm, 46.99 mm): Symbol A1 [SolarGate_v2_TempGate]
 [lib_symbol_mismatch]: Symbol 'TestPoint' doesn't match copy in library 'Connector'
     ; warning
-    @(46.99 mm, 13.97 mm): Symbol TP1 [TestPoint]
-[lib_symbol_mismatch]: Symbol 'TestPoint' doesn't match copy in library 'Connector'
-    ; warning
-    @(57.15 mm, 55.88 mm): Symbol TP3 [TestPoint]
+    @(104.14 mm, 86.36 mm): Symbol TP3 [TestPoint]
 [lib_symbol_mismatch]: Symbol 'C' doesn't match copy in library 'Device'
     ; warning
-    @(60.96 mm, 57.15 mm): Symbol C7 [C]
+    @(111.76 mm, 86.36 mm): Symbol C7 [C]
 [lib_symbol_mismatch]: Symbol 'C' doesn't match copy in library 'Device'
     ; warning
-    @(66.04 mm, 57.15 mm): Symbol C8 [C]
-[lib_symbol_mismatch]: Symbol 'Heltec_WB32LAF_V42' doesn't match copy in library 'wildfire-node-v1'
-    ; warning
-    @(73.66 mm, 85.09 mm): Symbol U1 [Heltec_WB32LAF_V42]
+    @(116.84 mm, 86.36 mm): Symbol C8 [C]
 [lib_symbol_mismatch]: Symbol 'R' doesn't match copy in library 'Device'
     ; warning
-    @(97.79 mm, 106.68 mm): Symbol R21 [R]
-[lib_symbol_mismatch]: Symbol 'R' doesn't match copy in library 'Device'
-    ; warning
-    @(97.79 mm, 118.11 mm): Symbol R22 [R]
-[lib_symbol_mismatch]: Symbol 'TestPoint' doesn't match copy in library 'Connector'
-    ; warning
-    @(99.06 mm, 156.21 mm): Symbol TP5 [TestPoint]
-[lib_symbol_mismatch]: Symbol 'TestPoint' doesn't match copy in library 'Connector'
-    ; warning
-    @(100.33 mm, 78.74 mm): Symbol TP6 [TestPoint]
-[lib_symbol_mismatch]: Symbol 'R' doesn't match copy in library 'Device'
-    ; warning
-    @(104.14 mm, 85.09 mm): Symbol R3 [R]
-[lib_symbol_mismatch]: Symbol 'Q_NMOS_GSD' doesn't match copy in library 'Transistor_FET'
-    ; warning
-    @(106.68 mm, 111.76 mm): Symbol Q7 [Q_NMOS_GSD]
-[lib_symbol_mismatch]: Symbol 'R' doesn't match copy in library 'Device'
-    ; warning
-    @(110.49 mm, 43.18 mm): Symbol R2 [R]
+    @(128.27 mm, 46.99 mm): Symbol R2 [R]
 [lib_symbol_mismatch]: Symbol 'C' doesn't match copy in library 'Device'
     ; warning
-    @(116.84 mm, 48.26 mm): Symbol C1 [C]
+    @(140.97 mm, 55.88 mm): Symbol C1 [C]
 [lib_symbol_mismatch]: Symbol 'C' doesn't match copy in library 'Device'
     ; warning
-    @(121.92 mm, 48.26 mm): Symbol C2 [C]
+    @(146.05 mm, 55.88 mm): Symbol C2 [C]
 [lib_symbol_mismatch]: Symbol 'MiniBoost5V' doesn't match copy in library 'wildfire-node-v1'
     ; warning
-    @(125.73 mm, 30.48 mm): Symbol U5 [MiniBoost5V]
+    @(148.59 mm, 36.83 mm): Symbol U5 [MiniBoost5V]
+[lib_symbol_mismatch]: Symbol 'Heltec_WB32LAF_V42' doesn't match copy in library 'wildfire-node-v1'
+    ; warning
+    @(148.59 mm, 105.41 mm): Symbol U1 [Heltec_WB32LAF_V42]
+[lib_symbol_mismatch]: Symbol 'R' doesn't match copy in library 'Device'
+    ; warning
+    @(168.91 mm, 124.46 mm): Symbol R21 [R]
+[lib_symbol_mismatch]: Symbol 'R' doesn't match copy in library 'Device'
+    ; warning
+    @(168.91 mm, 137.16 mm): Symbol R22 [R]
 [lib_symbol_mismatch]: Symbol 'C' doesn't match copy in library 'Device'
     ; warning
-    @(137.16 mm, 110.49 mm): Symbol C3 [C]
-[lib_symbol_mismatch]: Symbol 'PMS5003' doesn't match copy in library 'wildfire-node-v1'
-    ; warning
-    @(140.97 mm, 72.39 mm): Symbol U2 [PMS5003]
-[lib_symbol_mismatch]: Symbol 'C' doesn't match copy in library 'Device'
-    ; warning
-    @(142.24 mm, 110.49 mm): Symbol C4 [C]
-[lib_symbol_mismatch]: Symbol 'AS3935_SEN15441' doesn't match copy in library 'wildfire-node-v1'
-    ; warning
-    @(146.05 mm, 133.35 mm): Symbol U3 [AS3935_SEN15441]
+    @(168.91 mm, 157.48 mm): Symbol C5 [C]
 [lib_symbol_mismatch]: Symbol 'TestPoint' doesn't match copy in library 'Connector'
     ; warning
-    @(147.32 mm, 25.40 mm): Symbol TP2 [TestPoint]
+    @(172.72 mm, 33.02 mm): Symbol TP2 [TestPoint]
 [lib_symbol_mismatch]: Symbol 'C' doesn't match copy in library 'Device'
     ; warning
-    @(163.83 mm, 118.11 mm): Symbol C5 [C]
+    @(173.99 mm, 157.48 mm): Symbol C6 [C]
+[lib_symbol_mismatch]: Symbol 'TestPoint' doesn't match copy in library 'Connector'
+    ; warning
+    @(176.53 mm, 143.51 mm): Symbol TP5 [TestPoint]
+[lib_symbol_mismatch]: Symbol 'Q_NMOS_GSD' doesn't match copy in library 'Transistor_FET'
+    ; warning
+    @(181.61 mm, 130.81 mm): Symbol Q7 [Q_NMOS_GSD]
 [lib_symbol_mismatch]: Symbol 'C' doesn't match copy in library 'Device'
     ; warning
-    @(168.91 mm, 118.11 mm): Symbol C6 [C]
+    @(185.42 mm, 105.41 mm): Symbol C3 [C]
+[lib_symbol_mismatch]: Symbol 'TestPoint' doesn't match copy in library 'Connector'
+    ; warning
+    @(186.69 mm, 88.90 mm): Symbol TP6 [TestPoint]
+[lib_symbol_mismatch]: Symbol 'C' doesn't match copy in library 'Device'
+    ; warning
+    @(190.50 mm, 105.41 mm): Symbol C4 [C]
+[lib_symbol_mismatch]: Symbol 'R' doesn't match copy in library 'Device'
+    ; warning
+    @(199.39 mm, 88.90 mm): Symbol R3 [R]
+[lib_symbol_mismatch]: Symbol 'AS3935_SEN15441' doesn't match copy in library 'wildfire-node-v1'
+    ; warning
+    @(205.74 mm, 127.00 mm): Symbol U3 [AS3935_SEN15441]
+[lib_symbol_mismatch]: Symbol 'PMS5003' doesn't match copy in library 'wildfire-node-v1'
+    ; warning
+    @(231.14 mm, 76.20 mm): Symbol U2 [PMS5003]
 
  ** ERC messages: 30  Errors 0  Warnings 30
 
