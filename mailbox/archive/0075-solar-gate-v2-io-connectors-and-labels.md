@@ -1,7 +1,7 @@
 ---
 task_id: "0075"
 protocol_version: 1.0.0
-status: staged
+status: verified
 iteration: 2
 expect-reply-within: 6h
 proof:
