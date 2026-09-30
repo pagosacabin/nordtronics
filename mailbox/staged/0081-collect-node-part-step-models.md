@@ -8,6 +8,7 @@ proof:
   branch: hermes/0081-collect-node-part-step-models
   sha: 494ad4efa4d3b5704fe4dee26d535c3addb07ab1
   run: none — no workflow in this repo triggers on this branch or these paths (enumeration below)
+  main_transition_run: https://github.com/pagosacabin/nordtronics/actions/runs/36704366262
   files:
     - hardware/wildfire-node-v1/3d/SOURCES.md
     - hardware/wildfire-node-v1/3d/jst-ph-2pin-smd.step
