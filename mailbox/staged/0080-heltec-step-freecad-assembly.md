@@ -46,6 +46,12 @@ Two new files, one directory:
    the STEP commit SHA, the document structure, measured reference dimensions, the
    USB-C port window, and the verification performed.
 
+**Both files exist only on the task branch, not on main.** `git ls-tree -r --name-only
+main hardware/wildfire-node-v1/freecad/` returns **0 paths**, while the same command at
+`b29526237c85aa460ff826d8e742d0080bae49a2` lists `README.md` (8,671 bytes) and
+`wildfire-node-v1.FCStd` (1,688,556 bytes) — so the path in `proof.files` may look
+untracked from a main worktree; read it from the branch tip.
+
 The STEP file itself was **not modified** — read only, and `git diff` against it is
 empty.
 
