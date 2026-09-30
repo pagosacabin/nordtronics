@@ -22,7 +22,7 @@ crossed the notes block and labels overlapped. Placement and routing changed;
 
 | Zone | Contents |
 |---|---|
-| top-left | J1 battery input, F1 polyfuse, TP1, TP7 (GND star point), A1 solar-gate-v2 temp-gate |
+| top-left | J2 solar-panel input, J1 battery input, F1 polyfuse, TP1, TP7 (GND star point), A1 solar-gate-v2 temp-gate |
 | top-centre | U5 MiniBoost 5 V + C1/C2 + R2 (4.7 kΩ EN pull-down), TP2 on `5V2` |
 | centre | U1 Heltec module — the hub, GPIO wires radiating to its neighbours |
 | right | U2 PMS5003 + C3/C4 + R3 (1 kΩ) + TP6, on the `5V2` rail |
@@ -50,11 +50,11 @@ to a free site rather than left on a symbol body or on top of another string.
 
 ## Counts
 
-- **30 components**: J1, F1, A1 (temp-gate block), U1–U5 (Heltec, PMS5003, AS3935, BME680, MiniBoost), C1–C10, R2 (4.7 kΩ EN pull-down), R3 (1 kΩ PMS-TX series), R21/R22 (TBD), Q7 (TBD), TP1–TP7.
-- **19 nets** with more than one pin, plus 7 single-pin (intentionally unconnected) pins: PMS5003 `SET`/`RX`/`RESET`/`7`/`8` and BME680 `SDO`/`CS`, each carrying an explicit no-connect flag.
-- **109 wire segments** (63 routed connections) and **45 net labels**, on the five power rails only.
-- **17 note lines** on the sheet (the 16 from 0076 plus one describing the ERC warning class).
-- **ERC 2026-09-29: 0 errors / 30 warnings**, every warning `[lib_symbol_mismatch]` — the schematic library cache embedded on the host differs from the copies the Flatpak KiCad 10 sandbox compares against. This is a library-path artefact of the Flatpak install, not a connectivity or design fault; the connectivity was independently confirmed with `kicad-cli sch export netlist` (see below).
+- **31 components**: J1, J2 (panel input), F1, A1 (temp-gate block), U1–U5 (Heltec, PMS5003, AS3935, BME680, MiniBoost), C1–C10, R2 (4.7 kΩ EN pull-down), R3 (1 kΩ PMS-TX series), R21/R22 (TBD), Q7 (TBD), TP1–TP7.
+- **20 nets** with more than one pin, plus 35 single-pin (intentionally unconnected) pins: PMS5003 `SET`/`RX`/`RESET`/`7`/`8`, BME680 `SDO`/`CS`, and the 28 unused module pins of U1, each carrying an explicit no-connect flag.
+- **115 wire segments** and **46 net labels** — the five power rails (`VBAT_F`, `5V2`, `3V3`, `Vext`, `GND`) plus the signal net `SOLAR_IN`.
+- **19 note lines** on the sheet (the 17 from 0077 plus two describing the U1 pin-numbering policy and the A1/J2 interface).
+- **ERC 2026-09-29: 0 errors / 31 warnings**, every warning `[lib_symbol_mismatch]` — the schematic library cache embedded on the host differs from the copies the Flatpak KiCad 10 sandbox compares against. This is a library-path artefact of the Flatpak install, not a connectivity or design fault; the connectivity was independently confirmed with `kicad-cli sch export netlist` (see below).
 
 ## How it was verified
 
@@ -78,6 +78,39 @@ to a free site rather than left on a symbol body or on top of another string.
    values, same pins, same nets. The only non-geometric change is the field
    *angle* on the three rotated symbols (J1, F1, R3), which makes their Ref/Value
    render horizontally instead of vertically.
+
+## Rev C interface fixes (0079)
+
+Review of the 0077/0078 render found two interface defects that were electrical,
+not cosmetic. Task 0079 fixed both:
+
+1. **A1 is now a three-pin series gate.** It was drawn with the left pin = `GND`
+   and the right pin = `SOLAR_OUT`, which modelled the temp-gate board as a
+   shunt, and the panel input appeared nowhere on the sheet. A1 is now
+   `SOLAR_IN` (pin 1, left) → `SOLAR_OUT` (pin 2, right) → the Heltec `SOLAR`
+   pin, with `GND` (pin 3, bottom) to the ground star.
+2. **J2 is the panel input** — `PANEL IN (13W 5V panel)`, a 2-pin connector left
+   of A1. Its pin 1 feeds A1's `SOLAR_IN` on the new net `SOLAR_IN`; pin 2
+   returns to the ground star.
+3. **U1 shows the full Heltec V4.2 pinout — 42 pins.** The 14 previously
+   connected module pins keep their 0076/0077 *sites on the symbol* and their
+   original pin numbers 1–14, so every frozen net member is byte-identical; the
+   28 added pins are numbered 15–42 (Heltec header order: J2 header, then J3
+   header, then the XTAL pins) and each carries a no-connect flag. The block grew
+   from 30.48 × 30.48 mm to 30.48 × 55.88 mm with the pin rows interleaved — a
+   block re-ordered by header would have moved all 14 connected pins and
+   re-routed every frozen net.
+
+Netlist against the 0077/0078 baseline: 19 → 20 multi-pin nets, 7 → 35 NC
+singletons, and exactly three changes — the new `SOLAR_IN` net (`J2.1` + `A1.1`),
+the `GND` net gaining `J2.2` and renumbering `A1.2` → `A1.3`, and the unnamed
+`SOLAR_OUT` net renumbering `A1.1` → `A1.2` (the pin renumbering the task
+specifies). No other net changed and no net was lost.
+
+Layout was re-verified by measuring the exported vector: 0 text-vs-text overlaps,
+0 wire segments crossing a text glyph, 0 wires inside the notes-block or
+title-block keep-outs — over the whole sheet, including the 42 pin names, their
+42 pin numbers and the 28 no-connect flags.
 
 ## Open items carried on the sheet
 

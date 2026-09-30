@@ -1,4 +1,4 @@
-ERC report (2026-09-29T17:19:18, Encoding UTF8)
+ERC report (2026-09-29T18:26:20, Encoding UTF8)
 Report includes: Errors, Warnings, Exclusions
 
 ***** Sheet /
@@ -8,6 +8,9 @@ Report includes: Errors, Warnings, Exclusions
 [lib_symbol_mismatch]: Symbol 'TestPoint' doesn't match copy in library 'Connector'
     ; warning
     @(17.78 mm, 38.10 mm): Symbol TP7 [TestPoint]
+[lib_symbol_mismatch]: Symbol 'Conn_01x02' doesn't match copy in library 'Connector_Generic'
+    ; warning
+    @(33.02 mm, 46.99 mm): Symbol J2 [Conn_01x02]
 [lib_symbol_mismatch]: Symbol 'Polyfuse' doesn't match copy in library 'Device'
     ; warning
     @(36.83 mm, 21.59 mm): Symbol F1 [Polyfuse]
@@ -93,7 +96,7 @@ Report includes: Errors, Warnings, Exclusions
     ; warning
     @(231.14 mm, 76.20 mm): Symbol U2 [PMS5003]
 
- ** ERC messages: 30  Errors 0  Warnings 30
+ ** ERC messages: 31  Errors 0  Warnings 31
 
  ** Ignored checks:
     - Global label only appears once in the schematic

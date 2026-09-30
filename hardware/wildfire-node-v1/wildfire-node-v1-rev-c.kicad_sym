@@ -267,153 +267,433 @@
     )
     (symbol "Heltec_WB32LAF_V42_0_1"
       (rectangle
-        (start -15.24 -15.24)
-        (end 15.24 15.24)
+        (start -15.24 -30.48)
+        (end 15.24 25.4)
         (stroke (width 0.254) (type default))
         (fill (type background))
       )
     )
     (symbol "Heltec_WB32LAF_V42_1_1"
-      (pin passive line
-        (at -15.24 17.78 0)
-        (length 2.54)
-        (name "BAT"
-          (effects (font (size 1.27 1.27)))
-        )
-        (number "1"
-          (effects (font (size 1.27 1.27)))
-        )
+    (pin passive line
+      (at -15.24 22.86 0)
+      (length 2.54)
+      (name "5V"
+        (effects (font (size 1.27 1.27)))
       )
-      (pin passive line
-        (at -15.24 12.7 0)
-        (length 2.54)
-        (name "GND"
-          (effects (font (size 1.27 1.27)))
-        )
-        (number "2"
-          (effects (font (size 1.27 1.27)))
-        )
+      (number "15"
+        (effects (font (size 1.27 1.27)))
       )
-      (pin passive line
-        (at -15.24 7.62 0)
-        (length 2.54)
-        (name "SOLAR"
-          (effects (font (size 1.27 1.27)))
-        )
-        (number "3"
-          (effects (font (size 1.27 1.27)))
-        )
+    )
+    (pin passive line
+      (at -15.24 20.32 0)
+      (length 2.54)
+      (name "Ve"
+        (effects (font (size 1.27 1.27)))
       )
-      (pin passive line
-        (at -15.24 2.54 0)
-        (length 2.54)
-        (name "3V3"
-          (effects (font (size 1.27 1.27)))
-        )
-        (number "4"
-          (effects (font (size 1.27 1.27)))
-        )
+      (number "16"
+        (effects (font (size 1.27 1.27)))
       )
-      (pin passive line
-        (at -15.24 -2.54 0)
-        (length 2.54)
-        (name "GPIO36"
-          (effects (font (size 1.27 1.27)))
-        )
-        (number "5"
-          (effects (font (size 1.27 1.27)))
-        )
+    )
+    (pin passive line
+      (at -15.24 17.78 0)
+      (length 2.54)
+      (name "BAT"
+        (effects (font (size 1.27 1.27)))
       )
-      (pin passive line
-        (at -15.24 -7.62 0)
-        (length 2.54)
-        (name "GPIO17"
-          (effects (font (size 1.27 1.27)))
-        )
-        (number "6"
-          (effects (font (size 1.27 1.27)))
-        )
+      (number "1"
+        (effects (font (size 1.27 1.27)))
       )
-      (pin passive line
-        (at -15.24 -12.7 0)
-        (length 2.54)
-        (name "GPIO18"
-          (effects (font (size 1.27 1.27)))
-        )
-        (number "7"
-          (effects (font (size 1.27 1.27)))
-        )
+    )
+    (pin passive line
+      (at -15.24 15.24 0)
+      (length 2.54)
+      (name "Ve"
+        (effects (font (size 1.27 1.27)))
       )
-      (pin passive line
-        (at 15.24 17.78 180)
-        (length 2.54)
-        (name "GPIO4"
-          (effects (font (size 1.27 1.27)))
-        )
-        (number "8"
-          (effects (font (size 1.27 1.27)))
-        )
+      (number "17"
+        (effects (font (size 1.27 1.27)))
       )
-      (pin passive line
-        (at 15.24 12.7 180)
-        (length 2.54)
-        (name "GPIO5"
-          (effects (font (size 1.27 1.27)))
-        )
-        (number "9"
-          (effects (font (size 1.27 1.27)))
-        )
+    )
+    (pin passive line
+      (at -15.24 12.7 0)
+      (length 2.54)
+      (name "GND"
+        (effects (font (size 1.27 1.27)))
       )
-      (pin passive line
-        (at 15.24 7.62 180)
-        (length 2.54)
-        (name "GPIO6"
-          (effects (font (size 1.27 1.27)))
-        )
-        (number "10"
-          (effects (font (size 1.27 1.27)))
-        )
+      (number "2"
+        (effects (font (size 1.27 1.27)))
       )
-      (pin passive line
-        (at 15.24 2.54 180)
-        (length 2.54)
-        (name "GPIO33"
-          (effects (font (size 1.27 1.27)))
-        )
-        (number "11"
-          (effects (font (size 1.27 1.27)))
-        )
+    )
+    (pin passive line
+      (at -15.24 10.16 0)
+      (length 2.54)
+      (name "RX"
+        (effects (font (size 1.27 1.27)))
       )
-      (pin passive line
-        (at 15.24 -2.54 180)
-        (length 2.54)
-        (name "GPIO47"
-          (effects (font (size 1.27 1.27)))
-        )
-        (number "12"
-          (effects (font (size 1.27 1.27)))
-        )
+      (number "18"
+        (effects (font (size 1.27 1.27)))
       )
-      (pin passive line
-        (at 15.24 -7.62 180)
-        (length 2.54)
-        (name "GPIO48"
-          (effects (font (size 1.27 1.27)))
-        )
-        (number "13"
-          (effects (font (size 1.27 1.27)))
-        )
+    )
+    (pin passive line
+      (at -15.24 7.62 0)
+      (length 2.54)
+      (name "SOLAR"
+        (effects (font (size 1.27 1.27)))
       )
-      (pin passive line
-        (at 15.24 -12.7 180)
-        (length 2.54)
-        (name "GPIO34"
-          (effects (font (size 1.27 1.27)))
-        )
-        (number "14"
-          (effects (font (size 1.27 1.27)))
-        )
+      (number "3"
+        (effects (font (size 1.27 1.27)))
       )
+    )
+    (pin passive line
+      (at -15.24 5.08 0)
+      (length 2.54)
+      (name "TX"
+        (effects (font (size 1.27 1.27)))
+      )
+      (number "19"
+        (effects (font (size 1.27 1.27)))
+      )
+    )
+    (pin passive line
+      (at -15.24 2.54 0)
+      (length 2.54)
+      (name "3V3"
+        (effects (font (size 1.27 1.27)))
+      )
+      (number "4"
+        (effects (font (size 1.27 1.27)))
+      )
+    )
+    (pin passive line
+      (at -15.24 0 0)
+      (length 2.54)
+      (name "RST"
+        (effects (font (size 1.27 1.27)))
+      )
+      (number "20"
+        (effects (font (size 1.27 1.27)))
+      )
+    )
+    (pin passive line
+      (at -15.24 -2.54 0)
+      (length 2.54)
+      (name "GPIO36"
+        (effects (font (size 1.27 1.27)))
+      )
+      (number "5"
+        (effects (font (size 1.27 1.27)))
+      )
+    )
+    (pin passive line
+      (at -15.24 -5.08 0)
+      (length 2.54)
+      (name "GPIO0"
+        (effects (font (size 1.27 1.27)))
+      )
+      (number "21"
+        (effects (font (size 1.27 1.27)))
+      )
+    )
+    (pin passive line
+      (at -15.24 -7.62 0)
+      (length 2.54)
+      (name "GPIO17"
+        (effects (font (size 1.27 1.27)))
+      )
+      (number "6"
+        (effects (font (size 1.27 1.27)))
+      )
+    )
+    (pin passive line
+      (at -15.24 -10.16 0)
+      (length 2.54)
+      (name "GPIO35"
+        (effects (font (size 1.27 1.27)))
+      )
+      (number "22"
+        (effects (font (size 1.27 1.27)))
+      )
+    )
+    (pin passive line
+      (at -15.24 -12.7 0)
+      (length 2.54)
+      (name "GPIO18"
+        (effects (font (size 1.27 1.27)))
+      )
+      (number "7"
+        (effects (font (size 1.27 1.27)))
+      )
+    )
+    (pin passive line
+      (at -15.24 -15.24 0)
+      (length 2.54)
+      (name "GPIO26"
+        (effects (font (size 1.27 1.27)))
+      )
+      (number "23"
+        (effects (font (size 1.27 1.27)))
+      )
+    )
+    (pin passive line
+      (at -15.24 -17.78 0)
+      (length 2.54)
+      (name "GPIO21"
+        (effects (font (size 1.27 1.27)))
+      )
+      (number "24"
+        (effects (font (size 1.27 1.27)))
+      )
+    )
+    (pin passive line
+      (at -15.24 -20.32 0)
+      (length 2.54)
+      (name "GPIO20"
+        (effects (font (size 1.27 1.27)))
+      )
+      (number "25"
+        (effects (font (size 1.27 1.27)))
+      )
+    )
+    (pin passive line
+      (at -15.24 -22.86 0)
+      (length 2.54)
+      (name "GPIO19"
+        (effects (font (size 1.27 1.27)))
+      )
+      (number "26"
+        (effects (font (size 1.27 1.27)))
+      )
+    )
+    (pin passive line
+      (at -15.24 -25.4 0)
+      (length 2.54)
+      (name "GPIO16"
+        (effects (font (size 1.27 1.27)))
+      )
+      (number "41"
+        (effects (font (size 1.27 1.27)))
+      )
+    )
+    (pin passive line
+      (at -15.24 -27.94 0)
+      (length 2.54)
+      (name "GPIO15"
+        (effects (font (size 1.27 1.27)))
+      )
+      (number "42"
+        (effects (font (size 1.27 1.27)))
+      )
+    )
+    (pin passive line
+      (at 15.24 22.86 180)
+      (length 2.54)
+      (name "GND"
+        (effects (font (size 1.27 1.27)))
+      )
+      (number "27"
+        (effects (font (size 1.27 1.27)))
+      )
+    )
+    (pin passive line
+      (at 15.24 20.32 180)
+      (length 2.54)
+      (name "3V3"
+        (effects (font (size 1.27 1.27)))
+      )
+      (number "28"
+        (effects (font (size 1.27 1.27)))
+      )
+    )
+    (pin passive line
+      (at 15.24 17.78 180)
+      (length 2.54)
+      (name "GPIO4"
+        (effects (font (size 1.27 1.27)))
+      )
+      (number "8"
+        (effects (font (size 1.27 1.27)))
+      )
+    )
+    (pin passive line
+      (at 15.24 15.24 180)
+      (length 2.54)
+      (name "GPIO37"
+        (effects (font (size 1.27 1.27)))
+      )
+      (number "29"
+        (effects (font (size 1.27 1.27)))
+      )
+    )
+    (pin passive line
+      (at 15.24 12.7 180)
+      (length 2.54)
+      (name "GPIO5"
+        (effects (font (size 1.27 1.27)))
+      )
+      (number "9"
+        (effects (font (size 1.27 1.27)))
+      )
+    )
+    (pin passive line
+      (at 15.24 10.16 180)
+      (length 2.54)
+      (name "GPIO46"
+        (effects (font (size 1.27 1.27)))
+      )
+      (number "30"
+        (effects (font (size 1.27 1.27)))
+      )
+    )
+    (pin passive line
+      (at 15.24 7.62 180)
+      (length 2.54)
+      (name "GPIO6"
+        (effects (font (size 1.27 1.27)))
+      )
+      (number "10"
+        (effects (font (size 1.27 1.27)))
+      )
+    )
+    (pin passive line
+      (at 15.24 5.08 180)
+      (length 2.54)
+      (name "GPIO45"
+        (effects (font (size 1.27 1.27)))
+      )
+      (number "31"
+        (effects (font (size 1.27 1.27)))
+      )
+    )
+    (pin passive line
+      (at 15.24 2.54 180)
+      (length 2.54)
+      (name "GPIO33"
+        (effects (font (size 1.27 1.27)))
+      )
+      (number "11"
+        (effects (font (size 1.27 1.27)))
+      )
+    )
+    (pin passive line
+      (at 15.24 0 180)
+      (length 2.54)
+      (name "GPIO42"
+        (effects (font (size 1.27 1.27)))
+      )
+      (number "32"
+        (effects (font (size 1.27 1.27)))
+      )
+    )
+    (pin passive line
+      (at 15.24 -2.54 180)
+      (length 2.54)
+      (name "GPIO47"
+        (effects (font (size 1.27 1.27)))
+      )
+      (number "12"
+        (effects (font (size 1.27 1.27)))
+      )
+    )
+    (pin passive line
+      (at 15.24 -5.08 180)
+      (length 2.54)
+      (name "GPIO41"
+        (effects (font (size 1.27 1.27)))
+      )
+      (number "33"
+        (effects (font (size 1.27 1.27)))
+      )
+    )
+    (pin passive line
+      (at 15.24 -7.62 180)
+      (length 2.54)
+      (name "GPIO48"
+        (effects (font (size 1.27 1.27)))
+      )
+      (number "13"
+        (effects (font (size 1.27 1.27)))
+      )
+    )
+    (pin passive line
+      (at 15.24 -10.16 180)
+      (length 2.54)
+      (name "GPIO40"
+        (effects (font (size 1.27 1.27)))
+      )
+      (number "34"
+        (effects (font (size 1.27 1.27)))
+      )
+    )
+    (pin passive line
+      (at 15.24 -12.7 180)
+      (length 2.54)
+      (name "GPIO34"
+        (effects (font (size 1.27 1.27)))
+      )
+      (number "14"
+        (effects (font (size 1.27 1.27)))
+      )
+    )
+    (pin passive line
+      (at 15.24 -15.24 180)
+      (length 2.54)
+      (name "GPIO39"
+        (effects (font (size 1.27 1.27)))
+      )
+      (number "35"
+        (effects (font (size 1.27 1.27)))
+      )
+    )
+    (pin passive line
+      (at 15.24 -17.78 180)
+      (length 2.54)
+      (name "GPIO38"
+        (effects (font (size 1.27 1.27)))
+      )
+      (number "36"
+        (effects (font (size 1.27 1.27)))
+      )
+    )
+    (pin passive line
+      (at 15.24 -20.32 180)
+      (length 2.54)
+      (name "GPIO1"
+        (effects (font (size 1.27 1.27)))
+      )
+      (number "37"
+        (effects (font (size 1.27 1.27)))
+      )
+    )
+    (pin passive line
+      (at 15.24 -22.86 180)
+      (length 2.54)
+      (name "GPIO2"
+        (effects (font (size 1.27 1.27)))
+      )
+      (number "38"
+        (effects (font (size 1.27 1.27)))
+      )
+    )
+    (pin passive line
+      (at 15.24 -25.4 180)
+      (length 2.54)
+      (name "GPIO3"
+        (effects (font (size 1.27 1.27)))
+      )
+      (number "39"
+        (effects (font (size 1.27 1.27)))
+      )
+    )
+    (pin passive line
+      (at 15.24 -27.94 180)
+      (length 2.54)
+      (name "GPIO7"
+        (effects (font (size 1.27 1.27)))
+      )
+      (number "40"
+        (effects (font (size 1.27 1.27)))
+      )
+    )
     )
   )
   (symbol "AS3935_SEN15441"
@@ -688,26 +968,36 @@
       )
     )
     (symbol "SolarGate_v2_TempGate_1_1"
-      (pin passive line
-        (at 17.78 2.54 180)
-        (length 2.54)
-        (name "SOLAR_OUT"
-          (effects (font (size 1.27 1.27)))
-        )
-        (number "1"
-          (effects (font (size 1.27 1.27)))
-        )
+    (pin passive line
+      (at -17.78 0 0)
+      (length 2.54)
+      (name "SOLAR_IN"
+        (effects (font (size 1.27 1.27)))
       )
-      (pin passive line
-        (at -17.78 0 0)
-        (length 2.54)
-        (name "GND"
-          (effects (font (size 1.27 1.27)))
-        )
-        (number "2"
-          (effects (font (size 1.27 1.27)))
-        )
+      (number "1"
+        (effects (font (size 1.27 1.27)))
       )
+    )
+    (pin passive line
+      (at 17.78 0 180)
+      (length 2.54)
+      (name "SOLAR_OUT"
+        (effects (font (size 1.27 1.27)))
+      )
+      (number "2"
+        (effects (font (size 1.27 1.27)))
+      )
+    )
+    (pin passive line
+      (at 0 -10.16 90)
+      (length 2.54)
+      (name "GND"
+        (effects (font (size 1.27 1.27)))
+      )
+      (number "3"
+        (effects (font (size 1.27 1.27)))
+      )
+    )
     )
   )
 )
