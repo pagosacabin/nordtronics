@@ -1,8 +1,10 @@
 ---
 task_id: "0081"
 protocol_version: 1.0.0
-status: inbox
+status: in_progress
+iteration: 1
 expect-reply-within: 12h
+notes: "Pickup 2026-09-30: task shipped without an `iteration` field; added at pickup (iteration: 1) along with the status transition."
 ---
 
 # 0081 — Collect STEP 3D models for the wildfire-node v1 parts
