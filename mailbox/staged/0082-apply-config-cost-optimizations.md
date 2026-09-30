@@ -8,6 +8,7 @@ proof:
   branch: hermes/0082-config-cost-optimizations
   sha: f84a71a045b5d4c66886326c83d263eb757c4285
   run: "none — no workflow in this repo triggers on this branch or these paths; enumeration below plus a live `gh run list --branch` returning empty"
+  main_transition_run: https://github.com/pagosacabin/nordtronics/actions/runs/36744182021
   files:
     - hermes/scripts/mailbox-changed.sh
   applied_to_host:
