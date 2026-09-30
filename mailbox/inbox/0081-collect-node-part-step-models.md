@@ -30,7 +30,7 @@ Have STEP already or confirmed on SnapMagic — fetch these first:
 1. PMS5003 particulate sensor (Plantower)
 2. AS3935-BQFT bare IC (SnapMagic has the bare IC; the SparkFun SEN-15441
    breakout has no known model — get the bare IC, note the breakout gap)
-3. BME680 bare IC (SnapMagic; breakout TBD at bench — bare IC is fine)
+3. BME688 bare IC (SnapMagic; this is the production pick — the BME680 is end-of-life per the 2026-09-29 keep/replace decision, so model the 688, not the 680; breakout TBD at bench — bare IC is fine)
 4. JST-PH 2-pin SMD, 2.0 mm (J1 battery input)
 5. AO3401 (SOT-23)
 6. LM393 (SOIC-8 — confirm package against the Rev C schematic notes)
