@@ -1,6 +1,12 @@
-# 0082 — Apply config.yaml cost optimizations
-
+---
+task_id: "0082"
+protocol_version: 1.0.0
+status: in_progress
+iteration: 1
 expect-reply-within: 6h
+---
+
+# 0082 — Apply config.yaml cost optimizations
 
 ## Context
 
