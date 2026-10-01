@@ -50,7 +50,7 @@ final class WindowInsetsHelper {
 
         // Edge-to-edge makes the system bars transparent, so the app decides
         // whether their icons are drawn light or dark. Since 0049 the screens are
-        // dark-first (the v0.1 mockup's dark scheme, #121718), so the bar icons
+        // dark-first (the nt_bg background token, #0B120F), so the bar icons
         // must be LIGHT — with the previous dark-icon setting the status bar and
         // the gesture pill were invisible against the dark background.
         WindowInsetsControllerCompat controller =
