@@ -13,24 +13,24 @@
 <title>Nordtronics — Engineering for places beyond the grid</title>
 <style>
   :root {
-    --nt-bg: #121718;
-    --nt-rail: #171D1E;
-    --nt-surface-2: #242D2D;
-    --nt-surface-3: #2C3535;
-    --nt-ink: #F2F4EF;
-    --nt-muted: #AAB3B0;
-    --nt-line: #394342;
-    --nt-accent: #FF9E36;
-    --nt-accent-strong: #FFB35E;
-    --nt-accent-soft: #4B3321;
-    --nt-ok: #65C99B;
-    --nt-ok-soft: #203D31;
-    --nt-warn: #FF9B6E;
-    --nt-warn-soft: #4B2C24;
-    --nt-blue: #74BBD1;
-    --nt-blue-soft: #213C45;
-    --nt-hero-text: #CBD1CF;
-    --brand-dark: #222629;
+    --nt-bg: #0B120F;
+    --nt-rail: #101B15;
+    --nt-surface-2: #1C2E28;
+    --nt-surface-3: #274237;
+    --nt-ink: #EDE6D6;
+    --nt-muted: #A8B09E;
+    --nt-line: #3A554B;
+    --nt-accent: #F2A33C;
+    --nt-accent-strong: #F7B955;
+    --nt-accent-soft: #4A3319;
+    --nt-ok: #9DBE9C;
+    --nt-ok-soft: #1D3324;
+    --nt-warn: #E76F51;
+    --nt-warn-soft: #46271D;
+    --nt-blue: #86B8CC;
+    --nt-blue-soft: #1C3038;
+    --nt-hero-text: #D8D2BE;
+    --brand-dark: #171F1A;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -62,13 +62,14 @@
     position: absolute;
     inset: 0;
     background:
+      linear-gradient(180deg, rgba(134,184,204,0.14) 0%, rgba(134,184,204,0) 55%),
       radial-gradient(ellipse 80% 50% at 50% 0%, var(--nt-accent-soft) 0%, transparent 70%),
       radial-gradient(ellipse 60% 40% at 100% 100%, var(--nt-blue-soft) 0%, transparent 60%);
     pointer-events: none;
     z-index: 0;
   }
   .hero-content { position: relative; z-index: 1; text-align: center; }
-  .hero-logo { width: 180px; height: auto; margin: 0 auto 1.5rem; filter: drop-shadow(0 4px 24px rgba(255,158,54,0.15)); }
+  .hero-logo { width: 180px; height: auto; margin: 0 auto 1.5rem; filter: drop-shadow(0 4px 24px rgba(242,163,60,0.15)); }
   .hero-tagline {
     color: var(--nt-accent);
     font-size: 0.8rem;
@@ -113,7 +114,7 @@
   .btn-primary {
     background: var(--nt-accent); color: var(--nt-bg);
   }
-  .btn-primary:hover { background: var(--nt-accent-strong); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(255,158,54,0.3); }
+  .btn-primary:hover { background: var(--nt-accent-strong); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(242,163,60,0.3); }
   .btn-outline {
     background: transparent; color: var(--nt-accent); border: 2px solid var(--nt-accent);
   }
@@ -371,13 +372,13 @@
         <svg viewBox="0 0 1200 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Nordtronics wildfire early-warning network architecture diagram">
           <defs>
             <lineargradient id="grad-accent" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stop-color="#FF9E36"/><stop offset="100%" stop-color="#FFB35E"/>
+              <stop offset="0%" stop-color="#F2A33C"/><stop offset="100%" stop-color="#F7B955"/>
             </lineargradient>
             <lineargradient id="grad-blue" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stop-color="#74BBD1"/><stop offset="100%" stop-color="#9CDDE8"/>
+              <stop offset="0%" stop-color="#86B8CC"/><stop offset="100%" stop-color="#B7D6E2"/>
             </lineargradient>
             <lineargradient id="grad-ok" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stop-color="#65C99B"/><stop offset="100%" stop-color="#8AE5B8"/>
+              <stop offset="0%" stop-color="#9DBE9C"/><stop offset="100%" stop-color="#C4D8BE"/>
             </lineargradient>
             <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
               <path d="M0,0 L0,6 L9,3 z" fill="var(--nt-accent)"/>
