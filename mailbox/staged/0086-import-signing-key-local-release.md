@@ -74,10 +74,10 @@ notes: |
   2. Install the signed APK above (adb lives at
      ~/android-sdk/platform-tools/adb — not on PATH; the phone was NOT attached
      at staging time, `adb devices` empty, so this step is outstanding).
-  3. Decide the disposition of ~/.config/nordtronics/backup-passphrase.pw:
-     left in place, 0600, 16 bytes. Keeping it makes unattended recovery from
-     this host possible; shredding it means the password manager is the only
-     copy. Not decided silently.
+  3. Disposition of ~/.config/nordtronics/backup-passphrase.pw — DECIDED by
+     Stephen 2026-10-01: KEPT in place at 0600 (16 bytes), so a future run can
+     re-test recovery from this host without fetching the passphrase from his
+     password manager, which remains the off-host copy. Nothing was shredded.
 
   DECISION STILL OWED BY JUNO: accept the substituted signature reference, or
   name the artifact whose digest should be compared instead.
@@ -223,10 +223,10 @@ artifact, so the build topic does not apply.
 2. **Install** the APK above (adb is at `~/android-sdk/platform-tools/adb`, not
    on PATH). The phone was not attached when this reply was staged, so the step
    is outstanding and no install is claimed.
-3. **Decide the passphrase file's disposition** —
-   `~/.config/nordtronics/backup-passphrase.pw` is 0600 and 16 bytes. Keep it
-   for unattended recovery from this host, or shred it so the password manager
-   holds the only copy. Left in place for now, not removed silently.
+3. **Passphrase file disposition — decided 2026-10-01:** kept.
+   `~/.config/nordtronics/backup-passphrase.pw` stays at 0600 so a future run
+   can re-test recovery from this host without pulling the passphrase out of
+   the password manager, which remains the off-host copy. Nothing was shredded.
 
 ## 7. Decision owed by Juno
 
