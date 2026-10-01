@@ -1,9 +1,72 @@
 ---
 task_id: "0083"
 protocol_version: 1.0.0
-status: in_progress
+status: staged
 iteration: 1
 expect-reply-within: 6h
+proof:
+  branch: hermes/0083-website-reskin-dawn-pine
+  sha: 2f8ef8008696c20c2363217af4af51800b168bf3
+  run: "none — no workflow in this repo triggers on this branch or on website/ paths; enumeration below plus a live `gh run list --branch` returning empty"
+  files:
+    - website/index.html
+  htmlhint_local: "npx htmlhint@1.1.4 website/index.html --config .htmlhintrc -> 'Scanned 1 files, no errors found' (exit 0), i.e. the exact CI validation step, run locally because CI does not trigger on this branch"
+notes: |
+  Palette applied exactly as specified; no deviation from the token table, the
+  three gradient stop pairs, or the two rgba shadows.
+
+  Deliverable: website/index.html at branch tip
+  2f8ef8008696c20c2363217af4af51800b168bf3 (verified with
+  `git ls-remote --heads origin hermes/0083-website-reskin-dawn-pine`).
+  One commit on the branch: "0083: re-skin nordtronics.io to the dawn-pine palette".
+
+  Criteria checks, all run against the branch tip file:
+  1. :root holds all 18 new token values (lines 16-33).
+  2. `grep -inE '#121718|#171D1E|#242D2D|#2C3535|#F2F4EF|#AAB3B0|#394342|#FF9E36|
+     #FFB35E|#4B3321|#65C99B|#203D31|#FF9B6E|#4B2C24|#74BBD1|#213C45|#CBD1CF|
+     #222629|#9CDDE8|#8AE5B8|255,158,54' website/index.html` returns zero matches
+     (grep exit 1).
+  3. grad-accent #F2A33C->#F7B955, grad-blue #86B8CC->#B7D6E2,
+     grad-ok #9DBE9C->#C4D8BE.
+  4. `header::before` background stack gained the dawn layer
+     `linear-gradient(180deg, rgba(134,184,204,0.14) 0%, rgba(134,184,204,0) 55%),`
+     as its first line; the two radial layers are byte-identical otherwise.
+  5. Diff is 24 insertions / 23 deletions, all in website/index.html. Proven
+     value-only by normalising every removed line through the old->new palette
+     map and requiring it to equal an added line: all 23 removed lines map onto
+     23 of the added lines, and the single unmatched added line is the new dawn
+     layer. No copy, layout, link, or structure line moved; nothing under
+     website/assets/ and no new CSS/JS files (git diff --stat names one file).
+
+  Correction worth flagging for the record (found and fixed in this run, not
+  shipped): my first mechanical pass replaced the literal `rgba(255,158,54`
+  (without its trailing comma) and produced `rgba(242,163,60),0.15)` — a broken
+  value. Both shadows were corrected to `rgba(242,163,60,0.15)` /
+  `rgba(242,163,60,0.3)` before the commit; the committed file carries the
+  correct comma form. The alpha values are unchanged as specified.
+
+  CI: no run triggers on this branch, so `proof.run` is `none` rather than a
+  placeholder. Enumeration: .github/workflows holds three files —
+  android-build.yml (`on.push.branches: [android-toolchain-setup]`),
+  platformio.yml (`on.push.paths: firmware/tank-monitor/**,
+  firmware/node-v1/**, .github/workflows/platformio.yml`), and website-check.yml
+  (`on.push.branches: [main, hermes/0068-site-email-refresh,
+  hermes/0070-site-rewrite]`). This branch is not in the website-check list, and
+  website/ is not in the platformio paths, so a push to it starts nothing.
+  Confirmed live: `gh run list -R pagosacabin/nordtronics --branch
+  hermes/0083-website-reskin-dawn-pine` returns empty, while the same command
+  without `--branch` shows the Website Check runs on main (e.g. 36814275009),
+  so the empty result is a real absence, not an auth failure.
+
+  I did NOT add this branch to website-check.yml's trigger list: the spec states
+  one deliverable (website/index.html) and criterion 5 bounds the diff to colour
+  values, gradient defs and the header::before stack, so widening the trigger
+  would have been an undeclared scope extension. To compensate I ran the exact
+  CI validation step locally against the branch tip file
+  (`npx htmlhint@1.1.4 website/index.html --config .htmlhintrc` -> no errors,
+  exit 0) — that is a local run, not a CI run, and is labelled as such. If Juno
+  wants a real run on the branch, adding `hermes/0083-website-reskin-dawn-pine`
+  to that branch list in a follow-up commit is a one-line change.
 ---
 
 # 0083 — Re-skin nordtronics.io to the dawn-pine palette
