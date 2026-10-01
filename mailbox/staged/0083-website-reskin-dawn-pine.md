@@ -10,6 +10,10 @@ proof:
   run: "none — no workflow in this repo triggers on this branch or on website/ paths; enumeration below plus a live `gh run list --branch` returning empty"
   files:
     - website/index.html
+  main_transition_run: https://github.com/pagosacabin/nordtronics/actions/runs/36814386501
+  # headSha 9537a123186da3251f6c1ee74c7ae7f5e02b56a5 (this staging commit),
+  # conclusion success. Caveat: website-check.yml runs on main, so this run
+  # validates main's website/index.html (pre-palette), not the branch file.
   htmlhint_local: "npx htmlhint@1.1.4 website/index.html --config .htmlhintrc -> 'Scanned 1 files, no errors found' (exit 0), i.e. the exact CI validation step, run locally because CI does not trigger on this branch"
 notes: |
   Palette applied exactly as specified; no deviation from the token table, the
