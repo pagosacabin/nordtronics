@@ -39,6 +39,57 @@ android {
         buildConfig true
     }
 
+    // ---------------------------------------------------------------------
+    // RELEASE SIGNING (task 0086).
+    //
+    // The production keystore lives OUTSIDE this repository
+    // (~/.config/nordtronics/nordtronics-release.jks) and its password is
+    // stored in exactly one place, also outside the repo
+    // (~/.config/nordtronics/release-keystore.pw, 0600). Neither the
+    // keystore, the password, nor any passphrase is ever committed.
+    //
+    // This block therefore reads PATHS from the environment, never secret
+    // values:
+    //     NORDTRONICS_KEYSTORE                 - path to the .jks
+    //     NORDTRONICS_KEYSTORE_PASSWORD_FILE   - path to the 0600 password file
+    //     NORDTRONICS_KEY_ALIAS                - optional; defaults to
+    //                                            nordtronics-release
+    // A gitignored `keystore.properties` in this directory may supply the
+    // same two paths instead (keys `storeFile` / `storePasswordFile`); it
+    // holds paths only.
+    //
+    // The config is applied ONLY when both paths resolve to files that
+    // exist, so CI - which has neither - keeps building the unsigned
+    // app-release-unsigned.apk exactly as before. A local build with the
+    // paths set produces a production-signed app-release.apk.
+    // ---------------------------------------------------------------------
+    def ksp = rootProject.file('keystore.properties')
+    def localProps = [:]
+    if (ksp.exists()) {
+        def p = new Properties()
+        ksp.withInputStream { p.load(it) }
+        localProps = p
+    }
+    def ksPath = localProps['storeFile'] ?: System.getenv('NORDTRONICS_KEYSTORE')
+    def ksPwPath = localProps['storePasswordFile'] ?: System.getenv('NORDTRONICS_KEYSTORE_PASSWORD_FILE')
+    def ksAlias = localProps['keyAlias'] ?: System.getenv('NORDTRONICS_KEY_ALIAS') ?: 'nordtronics-release'
+    def signingReady = ksPath && ksPwPath && file(ksPath).exists() && file(ksPwPath).exists()
+
+    signingConfigs {
+        release {
+            if (signingReady) {
+                storeFile file(ksPath)
+                // Read as a FILE, never a literal: the password stays in the
+                // single 0600 file on disk and never appears in this build
+                // script, in git, or in a Gradle log.
+                storePassword file(ksPwPath).text.trim()
+                keyAlias ksAlias
+                keyPassword file(ksPwPath).text.trim()
+                storeType 'pkcs12'
+            }
+        }
+    }
+
     buildTypes {
         debug {
             applicationIdSuffix = ""
@@ -65,6 +116,12 @@ android {
         }
         release {
             minifyEnabled false
+            // Applied only when the external keystore paths resolve (see the
+            // RELEASE SIGNING block above); otherwise the release build stays
+            // unsigned, exactly as CI produces it.
+            if (signingReady) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 }

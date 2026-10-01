@@ -4,3 +4,8 @@ build
 local.properties
 *.iml
 .idea
+
+# Release signing: this file holds PATHS to the keystore and its 0600 password
+# file, both of which live outside the repository. It must never be committed.
+# (Task 0086.)
+keystore.properties
