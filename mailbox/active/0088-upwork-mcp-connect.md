@@ -1,6 +1,12 @@
-# 0088 — Connect Hermes to Upwork MCP (read-only check)
-
+---
+task_id: "0088"
+protocol_version: 1.0.0
+status: in_progress
+iteration: 1
 expect-reply-within: 6h
+---
+
+# 0088 — Connect Hermes to Upwork MCP (read-only check)
 
 # Context
 
