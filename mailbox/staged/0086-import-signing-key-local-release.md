@@ -71,9 +71,22 @@ notes: |
   1. Uninstall the debug build of com.nordtronics.companion from the phone once
      (a production key is a new app identity; installing over a debug-signed
      build fails with INSTALL_FAILED_UPDATE_INCOMPATIBLE).
-  2. Install the signed APK above (adb lives at
-     ~/android-sdk/platform-tools/adb — not on PATH; the phone was NOT attached
-     at staging time, `adb devices` empty, so this step is outstanding).
+  2. Install the signed APK above — DONE 2026-10-01 10:40 MDT, performed at
+     Stephen's instruction over adb, and verified ON THE DEVICE rather than
+     from adb's exit status: the installed APK was pulled back off the phone and
+     hashes to
+     fa15cfdc7708f5cec0d41d8e911fda29c0d6bb666c36e64fcfd97e3e6954d1f6
+     — identical to the deliverable file — and its signer cert SHA-256 is
+     e4389ce4cb173da155b63cadf24c999723130c209bd55ca2e11bbf82a2a44ddd, the
+     production identity. The app launches (PID live, nothing in the crash
+     buffer) and renders the dawn-pine UI against https://api.nordtronics.io/v1/nodes.
+     Two hiccups, recorded rather than smoothed over: `adb install -r` first
+     returned INSTALL_PARSE_FAILED_NOT_APK against its own streamed temp file and
+     then succeeded on the retry, and `adb uninstall` returned
+     DELETE_FAILED_INTERNAL_ERROR because this package was NOT installed on the
+     phone at all — so the clean-slate uninstall had nothing to remove and no
+     app data was lost. The end state is verified directly on the device, which
+     is why neither hiccup changes the outcome.
   3. Disposition of ~/.config/nordtronics/backup-passphrase.pw — DECIDED by
      Stephen 2026-10-01: KEPT in place at 0600 (16 bytes), so a future run can
      re-test recovery from this host without fetching the passphrase from his
@@ -193,6 +206,47 @@ lookalike:** the locally assembled *unsigned* release APK hashes to
 `7f30e494…5dba`, the same sha256 recorded for the CI artifact of run
 36818994897, and the packaged resources show the `nt_*` dawn-pine palette.
 
+## 3a. Installed and verified on the device (2026-10-01 10:40 MDT)
+
+The install was performed over adb at Stephen's instruction and then verified by
+reading the device back, because "adb said Success" is not evidence that the
+production-signed build is what landed:
+
+```
+$ adb install -r nordtronics-companion-v0-0084-release-signed.apk
+   … first attempt: INSTALL_PARSE_FAILED_NOT_APK on its streamed temp file
+   … retry: Performing Streamed Install / Success
+$ adb shell pm path com.nordtronics.companion
+/data/app/~~4Ytdu…/com.nordtronics.companion-…/base.apk
+$ adb pull <that> installed.apk && sha256sum installed.apk <the deliverable>
+fa15cfdc7708f5cec0d41d8e911fda29c0d6bb666c36e64fcfd97e3e6954d1f6  installed.apk
+fa15cfdc7708f5cec0d41d8e911fda29c0d6bb666c36e64fcfd97e3e6954d1f6  deliverable.apk
+$ apksigner verify --print-certs installed.apk
+Signer #1 certificate DN: CN=Nordtronics Companion, OU=Android, O=Nordtronics
+Signer #1 certificate SHA-256 digest: e4389ce4cb173da155b63cadf24c999723130c209bd55ca2e11bbf82a2a44ddd
+```
+
+So the APK running on the phone is byte-identical to the deliverable and carries
+the production identity — criterion 2's *intent*, proven at the only place it
+ultimately matters, after the criterion's literal wording proved impossible (§2).
+
+Runtime: the process is alive (PID present, nothing in the crash buffer),
+`mCurrentFocus` is `com.nordtronics.companion/.NodesActivity`, and the app
+renders the dawn-pine UI — header "Nordtronics / Wildfire companion" with the
+*Prototype data* badge, a "Property line / All clear" consensus card, the four
+metric tiles (PM2.5 8 µg/m³, 70 °F, 41 % RH, 1/1 nodes), and the "Field nodes →
+Node 01 – Healthy" row. The footer reads `1 nodes from https://api.nordtronics.io/v1/nodes`,
+so the release build is reaching the deployed backend, not a stub.
+
+Two hiccups, recorded rather than smoothed over: `adb install -r` returned
+`INSTALL_PARSE_FAILED_NOT_APK` against its streamed temp file before succeeding
+on the retry, and `adb uninstall` returned `DELETE_FAILED_INTERNAL_ERROR` because
+no build of this package was installed on the phone at all — the clean-slate
+uninstall had nothing to remove, so no app data was lost. Neither changes the
+verified end state. `versionCode=1`, `versionName=0.1`, `targetSdk=35`,
+`minSdk=24` as the device records it; `firstInstallTime` and `lastUpdateTime` are
+both `2026-10-01 10:40:18`.
+
 ## 4. Repository hygiene (criterion 3)
 
 - No keystore, no password file and no passphrase material is staged or
@@ -220,9 +274,8 @@ artifact, so the build topic does not apply.
 1. **Uninstall** the debug build of `com.nordtronics.companion` from the phone
    once. A production key is a new app identity, so installing over the
    debug-signed build fails with `INSTALL_FAILED_UPDATE_INCOMPATIBLE`.
-2. **Install** the APK above (adb is at `~/android-sdk/platform-tools/adb`, not
-   on PATH). The phone was not attached when this reply was staged, so the step
-   is outstanding and no install is claimed.
+2. **Install** — done, over adb, at 2026-10-01 10:40 MDT (device `SM-A356U1`,
+   Android 16) and verified on the device: see §3a. No manual install remains.
 3. **Passphrase file disposition — decided 2026-10-01:** kept.
    `~/.config/nordtronics/backup-passphrase.pw` stays at 0600 so a future run
    can re-test recovery from this host without pulling the passphrase out of
