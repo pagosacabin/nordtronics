@@ -2,7 +2,11 @@
 <!--
   Bottom navigation (mockup: .bottom-nav — the mobile layout's primary nav).
   Three items; each screen marks its own item active at runtime through
-  Ui.markNav(), which tints the 3dp indicator bar and the label.
+  Ui.bindNav(), which tints the 3dp indicator bar and the label.
+
+  0090: the Alerts item gained a badge (UI spec v2 — "Badge = 2 on every screen's
+  nav"). The badge is painted by Ui.bindNav(activity, activeId, badgeCount), which
+  reads the count from the alerts feed; at 0 the badge is hidden.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/bottom_nav"
@@ -58,13 +62,38 @@
             android:layout_width="26dp"
             android:layout_height="3dp" />
 
-        <TextView
-            android:id="@+id/nav_alerts_label"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
-            android:text="@string/nav_alerts"
-            android:textSize="10sp" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/nav_alerts_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/nav_alerts"
+                android:textSize="10sp" />
+
+            <TextView
+                android:id="@+id/nav_alerts_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:background="@drawable/bg_badge"
+                android:fontFamily="monospace"
+                android:gravity="center"
+                android:minWidth="15dp"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:paddingTop="1dp"
+                android:paddingBottom="1dp"
+                android:textColor="@color/nt_bg"
+                android:textSize="9sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout

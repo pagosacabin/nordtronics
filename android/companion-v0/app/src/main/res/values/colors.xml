@@ -26,6 +26,12 @@
          terracotta warn). The same table was applied to website/index.html by
          0083, so the two surfaces still share one palette. -->
 
+    <!-- 0090 (UI spec v2): the two remaining hexes the spec pins, added as new
+         tokens rather than retinting the existing ones, so the System screen
+         keeps the exact colours task 0084 verified. -->
+    <color name="nt_elev">#171F1A</color>
+    <color name="nt_text2">#9AA3AD</color>
+
     <!-- Brand dark (0048). Sampled from the plate of the repo logo asset
          branding/nordtronics-logo/nordtronics-logo-mark-only.png, so the
          launcher-icon background and the splash background match the artwork

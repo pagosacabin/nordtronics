@@ -335,8 +335,16 @@ final class Ui {
      * Wires the shared bottom nav for one screen: marks {@code activeId} and
      * makes the other two switch screens (finishing this one, since the nav is
      * a top-level destination switch, not a stack push).
+     *
+     * <p>The one-argument form leaves the Alerts badge hidden; the two-argument
+     * form (task 0090) paints it from the alerts feed's unacknowledged count.
      */
     static void bindNav(final Activity a, final int activeId) {
+        bindNav(a, activeId, 0);
+    }
+
+    /** As above, plus the Alerts nav badge (UI spec v2: "Badge = 2 everywhere"). */
+    static void bindNav(final Activity a, final int activeId, int badgeCount) {
         final Class<?>[] targets = {NodesActivity.class, AlertsActivity.class, SystemActivity.class};
         for (int i = 0; i < NAV_ITEMS.length; i++) {
             markNav(a, activeId, i, NAV_ITEMS[i] == activeId);
@@ -350,6 +358,21 @@ final class Ui {
                 a.finish();
             });
         }
+        setNavBadge(a, badgeCount);
+    }
+
+    /** Shows the unacknowledged-alert count on the Alerts nav item (0 hides it). */
+    static void setNavBadge(Activity a, int badgeCount) {
+        TextView badge = a.findViewById(R.id.nav_alerts_badge);
+        if (badge == null) {
+            return;
+        }
+        if (badgeCount <= 0) {
+            badge.setVisibility(View.GONE);
+            return;
+        }
+        badge.setText(String.format(Locale.US, "%d", badgeCount));
+        badge.setVisibility(View.VISIBLE);
     }
 
     private static void markNav(Activity a, int activeId, int index, boolean active) {

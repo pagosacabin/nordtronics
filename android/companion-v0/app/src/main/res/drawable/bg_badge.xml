@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The alert-count badge on the Alerts nav item (0090). A solid pill in the
+     brand amber with the dark background ink for the numeral, so it reads on the
+     rail without becoming a second alarm-orange alarm. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <corners android:radius="9dp" />
+    <solid android:color="@color/nt_accent" />
+</shape>

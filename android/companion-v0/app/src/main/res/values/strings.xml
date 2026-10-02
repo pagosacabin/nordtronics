@@ -4,6 +4,9 @@
     <string name="brand_sub">Wildfire companion</string>
     <string name="demo_badge">Prototype data</string>
 
+    <!-- 0090 (UI spec v2): the thin banner shown on every screen. -->
+    <string name="prototype_banner">PROTOTYPE – MOCK DATA</string>
+
     <string name="nodes_title">Property line</string>
     <string name="alerts_title">Alerts</string>
     <string name="alerts_subtitle">Consensus-based detection cuts down false alarms</string>

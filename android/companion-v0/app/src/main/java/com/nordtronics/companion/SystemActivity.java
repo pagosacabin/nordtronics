@@ -66,10 +66,21 @@ public class SystemActivity extends AppCompatActivity {
                 ApiClient.getHealth();
                 JSONArray arr = ApiClient.getNodes();
                 final int count = arr.length();
+                // The nav badge is the unacknowledged-alert count (0090). On this
+                // screen it is read straight from the API source; a backend that
+                // serves no alerts feed leaves the badge hidden rather than wrong.
+                int badgeCount = 0;
+                try {
+                    badgeCount = AlertItem.badgeCount(ApiSource.get().alerts());
+                } catch (Exception ignored) {
+                    badgeCount = 0;
+                }
+                final int badge = badgeCount;
                 runOnUiThread(() -> {
                     baseStatus.setText(R.string.value_online);
                     baseStatus.setTextColor(Ui.col(this, R.color.nt_ok));
                     baseHeartbeat.setText(count + " NODES \u00B7 " + utcNow());
+                    Ui.setNavBadge(this, badge);
                     status.setText("Backend reachable at " + ApiClient.BASE_URL
                             + " \u2014 " + ApiClient.healthPath() + " ok \u00B7 " + count
                             + " nodes in " + ApiClient.nodesPath());
@@ -78,7 +89,7 @@ public class SystemActivity extends AppCompatActivity {
                 runOnUiThread(() -> {
                     baseStatus.setText(R.string.value_unreachable);
                     baseStatus.setTextColor(Ui.col(this, R.color.nt_warn));
-                    baseHeartbeat.setText("—");
+                    baseHeartbeat.setText("\u2014");
                     status.setText("Backend unreachable: " + e.getMessage());
                 });
             }
