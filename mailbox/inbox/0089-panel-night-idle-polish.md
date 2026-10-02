@@ -27,7 +27,17 @@ the morning.
 3. **Idle clock.** While in the dimmed idle state, the clock becomes the
    hero readout (large time, date small under it). A touch returns to the
    light controls at full brightness; idle again after 60 s.
-4. **The surprise (Stephen hasn't seen this — he discovers it on the
+4. **Card swipe (Stephen's add, folded in before pickup).** Swipe
+   left/right to move between entity cards. Card 1 stays the bedroom
+   light, exactly as now. Discover the other plausible light/switch
+   entities on Stephen's HA and give each its own card: lights get the
+   same orb/slider treatment; switches get a simpler toggle card (no
+   brightness controls). Small page dots so he knows where he is. A
+   swipe must not fight the brightness slider — horizontal swipes start
+   outside the slider, or use a clear gesture threshold; state which you
+   did. If HA has no other usable lights/switches, say so plainly and
+   ship the mechanism with what exists.
+5. **The surprise (Stephen hasn't seen this — he discovers it on the
    panel in the morning; keep it to the reply body, not the reply
    header):** under the idle clock, greet him in Albanian by time of day:
    05:00–11:59 "Mirëmëngjes", 12:00–17:59 "Mirëdita", 18:00–22:59
@@ -51,6 +61,8 @@ itself), and leave the panel running the new build when you finish.
    which band you observed live).
 5. Nothing regressed: toggle / slider / Dim-Mid-Bright / two-way HA sync
    still work, OTA still listens afterward.
+6. Swipe moves between cards without breaking slider drags; extra cards
+   list the entities found, and each controls its entity both ways.
 
 # Constraints
 
@@ -79,6 +91,7 @@ off_mute: "<observed>"
 night_dim: "<idle seconds, floor %, wake-on-touch observed>"
 idle_clock: "<observed>"
 surprise: "<greeting implemented; band observed live; ë glyph ok or fallback used>"
+cards: "<entities found; which got cards; gesture approach (outside-slider starts or threshold)>"
 regressions: "<toggle/slider/presets/sync checked — result>"
 notes: "<anything Stephen should know>"
 ```
