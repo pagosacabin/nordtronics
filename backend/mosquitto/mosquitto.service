@@ -1,0 +1,40 @@
+[Unit]
+Description=Nordtronics wildfire MQTT broker (TLS, password auth)
+Documentation=file:/opt/nordtronics/backend/mosquitto/mosquitto.conf
+# The Ubuntu `mosquitto` package ships its own unit under the same name;
+# /etc/systemd/system/mosquitto.service takes precedence over /lib/systemd/...
+# so this file overrides the packaged one (see backend/DEPLOY.md).
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=notify
+NotifyAccess=main
+# The `mosquitto` user is created by the Ubuntu package and never has a shell.
+User=mosquitto
+Group=mosquitto
+ExecStart=/usr/sbin/mosquitto -c /etc/mosquitto/nordtronics.conf
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
+RestartSec=5s
+
+# ------------------------------------------------------------- hardening ---
+NoNewPrivileges=true
+PrivateDevices=true
+PrivateTmp=true
+ProtectControlGroups=true
+ProtectHome=true
+ProtectKernelModules=true
+ProtectKernelTunables=true
+ProtectSystem=strict
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictNamespaces=true
+RestrictRealtime=true
+# the packaged database directory is the only writable path the broker needs
+ReadWritePaths=/var/lib/mosquitto
+CapabilityBoundingSet=
+LockPersonality=true
+MemoryDenyWriteExecute=true
+
+[Install]
+WantedBy=multi-user.target

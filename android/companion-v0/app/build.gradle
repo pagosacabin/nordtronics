@@ -1,0 +1,81 @@
+plugins {
+    id 'com.android.application' version '8.3.0'
+}
+
+android {
+    namespace 'com.nordtronics.companion'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId = "com.nordtronics.companion"
+        minSdk = 24
+        targetSdk = 35
+        versionCode = 1
+        versionName = "0.1"
+
+        // ---------------------------------------------------------------------
+        // THE API LOCATION. Every server address and every request path the app
+        // uses is declared in this one block; ApiClient.java reads them as
+        // BuildConfig fields and no other file names a host or a path.
+        //
+        // defaultConfig is the RELEASE contract: the production backend on
+        // nordtronics.io DNS over HTTPS. The paths below are the live API
+        // contract, confirmed against the running service (task 0069):
+        //     GET /v1/nodes   -> 200  {"nodes":[...]}
+        //     GET /healthz    -> 200  {"status":"ok",...}
+        // Task 0095 added the alerts feed to the same service and un-gated it
+        // here: /v1/alerts now answers contract v1's alert objects, so the
+        // Alerts screen is no longer held behind a null path. The ping endpoint
+        // is still only served by the local mock, so that one stays null.
+        // ---------------------------------------------------------------------
+        buildConfigField "String", "API_BASE_URL", "\"https://api.nordtronics.io\""
+        buildConfigField "String", "PATH_NODES", "\"/v1/nodes\""
+        buildConfigField "String", "PATH_HEALTH", "\"/healthz\""
+        buildConfigField "String", "PATH_ALERTS", "\"/v1/alerts\""
+        buildConfigField "String", "PATH_NODE_PING", "null"
+    }
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    buildTypes {
+        debug {
+            applicationIdSuffix = ""
+
+            // -----------------------------------------------------------------
+            // THE DEV OVERRIDE, and the only place a literal address appears in
+            // the app tree. This is the Android emulator's alias for the host
+            // machine's loopback interface, where the local mock backend
+            // listens (see mock-server/server.py, which refuses a non-loopback
+            // bind). It is declared in the debug build type only, so it cannot
+            // reach a release APK.
+            //
+            // The mock serves its own dialect: flat payloads under /api/... .
+            // -----------------------------------------------------------------
+            buildConfigField "String", "API_BASE_URL", "\"http://10.0.2.2:8000\""
+            buildConfigField "String", "PATH_NODES", "\"/api/nodes\""
+            buildConfigField "String", "PATH_ALERTS", "\"/api/alerts\""
+            buildConfigField "String", "PATH_NODE_PING", "\"/api/nodes/%s/ping\""
+
+            // The mock backend has no dedicated health route; its node list is
+            // the only reachability probe it answers, so that is what the
+            // health probe falls back to here (see ApiClient.healthPath()).
+            buildConfigField "String", "PATH_HEALTH", "null"
+        }
+        release {
+            minifyEnabled false
+        }
+    }
+}
+
+dependencies {
+    // appcompat pulls kotlin-stdlib-jdk8 (1.6.21) transitively while another
+    // path brings kotlin-stdlib (1.8.22); the two disagree and the older jdk8
+    // artifact re-declares classes that 1.8.x moved into kotlin-stdlib, so the
+    // dex merge fails with "Duplicate class kotlin.streams.jdk8.StreamsKt".
+    // The BOM aligns every kotlin-stdlib* module on one version, which is the
+    // supported fix (the jdk8/jdk7 artifacts are empty shims from 1.8 onwards).
+    implementation platform("org.jetbrains.kotlin:kotlin-bom:1.8.22")
+    implementation "androidx.appcompat:appcompat:1.7.0"
+}

@@ -1,0 +1,64 @@
+name: Android Companion v0
+
+on:
+  push:
+    branches: [hermes/0045-companion-v0, hermes/0046-companion-icon, hermes/0047-nodes-toolbar-insets, hermes/0048-app-batch-1, hermes/0049-companion-v01-ui, hermes/0069-app-api-dns, hermes/0084-app-reskin-dawn-pine, hermes/0090-app-ui-v2, hermes/0095-alert-pipeline]
+    paths:
+      - 'android/companion-v0/**'
+      - '.github/workflows/android-companion-v0.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: android/companion-v0
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          # android-actions/setup-android takes a `packages` list, not
+          # api-level/build-tools-version (those belong to the emulator
+          # runner action). Passing them fails the step outright.
+          packages: 'platforms;android-35 build-tools;35.0.0 platform-tools'
+
+      - name: Assemble debug APK
+        run: chmod +x gradlew && ./gradlew --no-daemon assembleDebug
+
+      # The debug APK proves the mock workflow still builds; the release APK is
+      # what task 0069 is about — its BuildConfig carries the production base URL
+      # and the live API paths. It is unsigned here (the project declares no
+      # signing config), which is what app-release-unsigned.apk is.
+      - name: Assemble release APK (unsigned)
+        run: ./gradlew --no-daemon assembleRelease
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: companion-v0-debug-apk
+          path: android/companion-v0/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+
+      - name: Upload release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: companion-v0-release-apk
+          path: android/companion-v0/app/build/outputs/apk/release/app-release-unsigned.apk
+          if-no-files-found: error
+
+      - name: Upload screenshots (committed copies, for convenience)
+        uses: actions/upload-artifact@v4
+        with:
+          name: companion-v0-screenshots
+          path: android/companion-v0/screenshots/*.png
+          if-no-files-found: warn

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Adaptive launcher icon (0048), replacing the 0046 stopgap: that task pointed
+  android:icon at the flat PNGs from the earlier toolchain setup, which the
+  launcher then letterboxed inside its own mask. Here the foreground is the
+  Nordtronics mark lifted off the logo plate (res/mipmap-*/ic_launcher_foreground.png
+  at 108dp with the emblem inside the 66dp safe circle) over the brand-dark
+  background layer.
+
+  API 24..25 devices fall back to res/mipmap-*/ic_launcher.png, which
+  tools/make_branding_assets.py regenerates from the same asset.
+-->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/brand_dark" />
+    <foreground android:drawable="@mipmap/ic_launcher_foreground" />
+</adaptive-icon>

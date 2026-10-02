@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Release network policy: HTTPS only.
+
+  The app talks to the production backend at https://api.nordtronics.io (see
+  API_BASE_URL in app/build.gradle), so cleartext is denied app-wide and no
+  exception is granted to any host. This replaces the earlier manifest flag
+  android:usesCleartextTraffic="true", which permitted plaintext HTTP to any
+  host in every build type — a leftover from the mock-only era.
+
+  The debug build type overrides this file with its own copy under
+  app/src/debug/res/xml/, which permits cleartext to the emulator's loopback
+  alias and nothing else. The manifest attribute is the same in both builds;
+  only the resource differs.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false" />
+</network-security-config>
