@@ -268,7 +268,10 @@ local).
         flash size: 16MB, quad (4 data lines), 3.3V";
       * the base's application NVS namespace "wildfire" reads empty;
       * the base's console cannot currently be brought back to its v2.0-base
-        banner (last seen 23:15 UTC) from this host.
+        banner (last seen 23:15 UTC) from this host: by 23:55 UTC its CDC port
+        could no longer be opened at all (esptool: "Could not open
+        /dev/ttyACM1, the port is busy or doesn't exist") while the node's port
+        on the same host opened and read normally in the same minute.
     So the base's running firmware state is UNCONFIRMED and needs a physical
     power-cycle / re-plug at the bench before any flashing work — and a console
     read right after, to establish whether it still runs "tag v2.0-base".
