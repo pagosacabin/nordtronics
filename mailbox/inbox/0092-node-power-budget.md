@@ -34,10 +34,16 @@ Relevant prior art in the repo:
      ~30 s to trustworthy; verify against the Plantower datasheet and state what you use.
      IMPORTANT: the PMS5003 is a 5 V part on a 3.7 V cell — do the real boost math
      (5/3.7 ÷ converter efficiency), not a blanket 15% allowance. A blanket factor
-     understates this line by ~40%.
+     understates this line by ~40%. (The latest draft still shows 92 mAh/day from the
+     blanket factor — correct it.)
    - BME680: heater-profile current × duration per forced-mode reading (gas + T/RH/P).
      The first-cut budget omitted this sensor entirely — include it even if it lands at
      1–3 mAh/day. A budget with a missing sensor is a budget you can't trust.
+   - AS3935 lightning sensor: listening-mode current × 24 h continuous (70 µA → ~1.7 mAh/day),
+     PLUS the interrupt-service cost. Each lightning/disturber event wakes the MCU via the
+     INT pin for register readout and possible TX — model per-event cost × events/day for a
+     quiet day vs. an active storm day. The AS3935 is famous for disturbers; do not assume
+     zero events.
    - Heltec V4: ESP32-S3 wake + sensor readout + LoRa TX energy per packet. State the
      assumed spreading factor, TX power, and payload size, and compute time-on-air —
      do not guess it. Cite the SX1262 datasheet TX current (≈120 mA @ +22 dBm) against
@@ -64,10 +70,10 @@ Relevant prior art in the repo:
    fan warmup and waking only to sample + transmit — estimated to roughly halve the
    MCU-active line.
 
-Cross-check: Juno's independent pass over the first-cut budget landed at ~218 mAh/day
-(~11–12 days single cell, ~23–24 days 2P, no sun) after correcting the 5 V boost math and
-adding the BME680. If your total differs by more than ~20%, reconcile the difference
-explicitly in the reply notes.
+Cross-check: Juno's independent pass over the budget landed at ~220 mAh/day
+(~11–12 days single cell, ~23 days 2P, no sun) after correcting the 5 V boost math and
+adding the BME680 and AS3935 (~1.7 mAh/day listening + interrupt service). If your total
+differs by more than ~20%, reconcile the difference explicitly in the reply notes.
 
 # Success criteria
 
