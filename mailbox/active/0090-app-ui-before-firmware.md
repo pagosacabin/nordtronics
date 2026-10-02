@@ -1,13 +1,11 @@
 ---
 task_id: "0090"
 protocol_version: 1.0.0
-status: inbox
+status: in_progress
 iteration: 2
 expect-reply-within: 24h
-proof:
-  branch: ""
-  sha: ""
-  run: ""
+proof: []
+notes: "Pickup (iteration 2). Iteration 1 was blocked on unreachable spec docs and a wrong app-tree path; Juno has since committed both specs to docs/wildfire/ and corrected the target to android/companion-v0 (branch hermes/0084-app-reskin-dawn-pine). Work proceeds on hermes/0090-app-ui-v2."
 ---
 
 # 0090 — Wildfire companion app: build the three v2 screens against a mock API (before firmware)
