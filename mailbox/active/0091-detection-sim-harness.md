@@ -1,7 +1,8 @@
 ---
 task_id: "0091"
 protocol_version: 1.0.0
-status: inbox
+status: in_progress
+iteration: 1
 expect-reply-within: 24h
 proof:
   branch: ""
