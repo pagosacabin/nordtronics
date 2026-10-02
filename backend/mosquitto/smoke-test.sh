@@ -32,7 +32,16 @@ readonly TOPIC_OWN="nordtronics/wildfire/$NODE_USER/telemetry"
 readonly TOPIC_OTHER="nordtronics/wildfire/$OTHER_NODE/telemetry"
 
 pass() { printf '  ok   %s\n' "$1"; }
-fail() { printf '  FAIL %s\n' "$1" >&2; exit 1; }
+fail() {
+  printf '  FAIL %s\n' "$1" >&2
+  # A bare FAIL line sends the reader hunting; the broker's own log is the only
+  # place the reason (denied PUBLISH/SUBSCRIBE, TLS error) is written down.
+  if [[ -n "${BROKER_LOG:-}" && -s "${BROKER_LOG}" ]]; then
+    printf '  ---- broker log (last 30 lines) ----\n' >&2
+    tail -n 30 "$BROKER_LOG" >&2
+  fi
+  exit 1
+}
 
 cleanup() {
   if [[ -n "$BROKER_PID" ]] && kill -0 "$BROKER_PID" 2>/dev/null; then
@@ -167,10 +176,19 @@ wait "$SUB_PID" || fail "the ingest user did not receive $BASE_USER's event (no 
 grep -q 'watch_raised' "$RECEIVED" || fail "event payload did not survive the trip: $(cat "$RECEIVED")"
 pass "ingest user received $BASE_USER's event (ACL read on $TOPIC_EVENT_OWN)"
 
-if mosquitto_pub -h "$HOST" -p "$PORT" --cafile "$CAFILE" -u "$NODE_USER" -P "$NODE_PASS" \
-     -t "$TOPIC_EVENT_FOREIGN" -m '{"event":"alert_raised"}' -q 1 2>/dev/null; then
-  fail "$NODE_USER was able to publish an event to $TOPIC_EVENT_FOREIGN (only the base may publish events)"
+# A field node must not be able to publish an event, and that has to be checked
+# BY RECEIPT: on mosquitto 2.0.x a denied QoS-1 publish is still answered with
+# `PUBACK ... RC:0` (measured on the live broker, 2026-10-02), so a check of the
+# form `mosquitto_pub ... && fail` passes vacuously — it can never fire. What is
+# meaningful is that the subscriber never receives the message.
+mosquitto_sub -h "$HOST" -p "$PORT" --cafile "$CAFILE" -u "$INGEST_USER" -P "$INGEST_PASS" \
+  -t 'nordtronics/wildfire/+/events' -C 1 -W 3 >"$RECEIVED" 2>/dev/null &
+SUB_PID=$!
+sleep 1
+mosquitto_pub -h "$HOST" -p "$PORT" --cafile "$CAFILE" -u "$NODE_USER" -P "$NODE_PASS" \
+  -t "$TOPIC_EVENT_FOREIGN" -m '{"event":"alert_raised"}' -q 1 || true
+if wait "$SUB_PID" 2>/dev/null; then
+  fail "$NODE_USER published an event to $TOPIC_EVENT_FOREIGN (only the base may publish events)"
 fi
-pass "$NODE_USER cannot publish to $OTHER_NODE's events topic"
-
+pass "$NODE_USER cannot publish to $OTHER_NODE's events topic (denied by ACL, checked by receipt)"
 echo "mosquitto config: ALL CHECKS PASSED"
