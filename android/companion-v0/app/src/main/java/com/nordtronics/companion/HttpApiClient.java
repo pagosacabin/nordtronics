@@ -3,20 +3,37 @@ package com.nordtronics.companion;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 /**
- * The real REST client for contract v1 — wired, but not yet the app's data
- * source (task 0090).
+ * The real REST client for contract v1 — the app's primary data source since
+ * task 0096 ({@link ApiSource} prefers this and falls back to {@link MockApi}
+ * only when the backend is unreachable).
  *
- * <p>Every path it names is a path the contract defines. It is deliberately
- * <b>not</b> wired into {@link ApiSource} yet: the live backend answers
- * {@code /healthz} and {@code /v1/nodes} only, and {@code /v1/alerts} is still a
- * 404, so pointing the screens here today would blank the Alerts screen. The
- * switch is one line in {@code ApiSource} once the backend implements the three
- * new routes and the extended node fields.
+ * <p>Every path it names is a path the contract defines. The live backend is a
+ * subset of the contract today (confirmed 2026-10-02, task 0096): it serves
+ * {@code /healthz}, {@code /v1/nodes}, {@code /v1/nodes/{id}/readings} and
+ * {@code /v1/alerts}, but <b>not</b> {@code /v1/network/status} or
+ * {@code /v1/nodes/{id}}, and its readings payload carries one row per reading
+ * (every metric on the row) rather than contract v1's {@code points:[{t,v}]}.
+ * Three deliberate degradations keep the screens real without inventing data:
+ *
+ * <ul>
+ *   <li>{@link #networkStatus()} returns {@code null} for a 404 — the property
+ *       screen omits the watch banner when there is no summary to show
+ *       ({@code Screens.propertyOverview} guards the null). The app never
+ *       computes consensus itself: that rule belongs to the base station.</li>
+ *   <li>{@link #node(String)} falls back to the node's entry in
+ *       {@code GET /v1/nodes}, which carries the same node object (including
+ *       {@code latest}); only a node the backend has never heard from throws.</li>
+ *   <li>{@link #readings} accepts either payload: contract v1's
+ *       {@code points}, or the deployed {@code readings} rows, selecting the
+ *       requested metric off each row and reversing into the contract's
+ *       oldest-to-newest order.</li>
+ * </ul>
  *
  * <p>Requests go through {@link ApiClient}, so the base URL stays the single
  * BuildConfig field it has been since task 0069.
@@ -36,7 +53,11 @@ public class HttpApiClient implements WildfireApi {
 
     @Override
     public NetworkStatus networkStatus() throws Exception {
-        return new NetworkStatus(new JSONObject(ApiClient.get(PATH_NETWORK_STATUS)));
+        // 404 = this backend does not serve the consensus summary yet. That is
+        // an answer, not a failure: return null and let the screen show the
+        // node list without a banner, rather than falling back to mock data.
+        String body = ApiClient.getIfPresent(PATH_NETWORK_STATUS);
+        return body == null ? null : new NetworkStatus(new JSONObject(body));
     }
 
     @Override
@@ -53,8 +74,19 @@ public class HttpApiClient implements WildfireApi {
 
     @Override
     public NodeInfo node(String nodeId) throws Exception {
-        return new NodeInfo(new JSONObject(
-                ApiClient.get(String.format(Locale.US, PATH_NODE, nodeId))));
+        String body = ApiClient.getIfPresent(String.format(Locale.US, PATH_NODE, nodeId));
+        if (body != null) {
+            return new NodeInfo(new JSONObject(body));
+        }
+        // No GET /v1/nodes/{id} on this backend: the node list entry is the same
+        // node object, `latest` reading included, so the detail screen is served
+        // from it. Only an id the backend has no telemetry for throws.
+        for (NodeInfo n : nodes()) {
+            if (nodeId.equals(n.nodeId)) {
+                return n;
+            }
+        }
+        throw new IOException("unknown node: " + nodeId);
     }
 
     @Override
@@ -74,11 +106,33 @@ public class HttpApiClient implements WildfireApi {
     public List<TrendPoint> readings(String nodeId, String metric, int hours) throws Exception {
         List<TrendPoint> out = new ArrayList<>();
         String path = String.format(Locale.US, PATH_READINGS, nodeId, metric, hours);
-        JSONArray arr = new JSONObject(ApiClient.get(path)).optJSONArray("points");
-        if (arr != null) {
-            for (int i = 0; i < arr.length(); i++) {
-                out.add(new TrendPoint(arr.optJSONObject(i)));
+        JSONObject payload = new JSONObject(ApiClient.get(path));
+
+        JSONArray points = payload.optJSONArray("points");
+        if (points != null) {
+            // Contract v1 shape: {"points":[{"t":"...Z","v":9.8}, ...]}, already
+            // oldest to newest and already the requested metric.
+            for (int i = 0; i < points.length(); i++) {
+                out.add(new TrendPoint(points.optJSONObject(i)));
             }
+            return out;
+        }
+
+        // Deployed shape: {"readings":[{recorded_utc, observed_utc, pm25,
+        // temperature_c, humidity_pct, battery_v}, ...]}, newest first and
+        // carrying every metric on each row. Take the requested metric off each
+        // row and reverse into the contract's oldest-to-newest order.
+        JSONArray rows = payload.optJSONArray("readings");
+        if (rows == null) {
+            return out;
+        }
+        for (int i = rows.length() - 1; i >= 0; i--) {
+            JSONObject row = rows.optJSONObject(i);
+            if (row == null) {
+                continue;
+            }
+            String stamp = row.optString("observed_utc", row.optString("recorded_utc", ""));
+            out.add(new TrendPoint(stamp, row.optDouble(metric, Double.NaN)));
         }
         return out;
     }

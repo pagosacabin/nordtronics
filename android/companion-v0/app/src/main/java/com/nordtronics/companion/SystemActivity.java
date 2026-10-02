@@ -1,6 +1,7 @@
 package com.nordtronics.companion;
 
 import android.os.Bundle;
+import android.view.View;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -31,6 +32,8 @@ public class SystemActivity extends AppCompatActivity {
     private TextView protoSource;
     private TextView aboutVersion;
     private TextView aboutBuild;
+    private TextView demoBadge;
+    private View protoPanel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,16 +48,25 @@ public class SystemActivity extends AppCompatActivity {
         protoSource = findViewById(R.id.proto_source);
         aboutVersion = findViewById(R.id.about_version);
         aboutBuild = findViewById(R.id.about_build);
+        demoBadge = findViewById(R.id.demo_badge);
+        protoPanel = findViewById(R.id.panel_prototype);
 
         baseAddress.setText(ApiClient.BASE_URL);
         protoSource.setText(ApiClient.BASE_URL + ApiClient.healthPath());
         aboutVersion.setText("v" + BuildConfig.VERSION_NAME);
         aboutBuild.setText(BuildConfig.VERSION_CODE + " \u00B7 " + BuildConfig.BUILD_TYPE.toUpperCase(Locale.US));
 
+        // Neither indicator may be shown before the probe answers: the app now
+        // talks to the live API (task 0096), so "prototype data" is only ever a
+        // statement about a fallback that actually happened. checkBackend()
+        // turns both on again when the backend is unreachable.
+        demoBadge.setText(R.string.demo_badge_live);
+        protoPanel.setVisibility(View.GONE);
+
         Ui.bindNav(this, R.id.nav_system);
 
         // The "Prototype data" badge re-checks the connection.
-        findViewById(R.id.demo_badge).setOnClickListener(v -> checkBackend());
+        demoBadge.setOnClickListener(v -> checkBackend());
         checkBackend();
     }
 
@@ -84,6 +96,9 @@ public class SystemActivity extends AppCompatActivity {
                     status.setText("Backend reachable at " + ApiClient.BASE_URL
                             + " \u2014 " + ApiClient.healthPath() + " ok \u00B7 " + count
                             + " nodes in " + ApiClient.nodesPath());
+                    // Live backend: no prototype mode, no "prototype data" claim.
+                    demoBadge.setText(R.string.demo_badge_live);
+                    protoPanel.setVisibility(View.GONE);
                 });
             } catch (final Exception e) {
                 runOnUiThread(() -> {
@@ -91,6 +106,10 @@ public class SystemActivity extends AppCompatActivity {
                     baseStatus.setTextColor(Ui.col(this, R.color.nt_warn));
                     baseHeartbeat.setText("\u2014");
                     status.setText("Backend unreachable: " + e.getMessage());
+                    // Unreachable: the screens are being served by the bundled
+                    // mock, and the panel says so.
+                    demoBadge.setText(R.string.demo_badge);
+                    protoPanel.setVisibility(View.VISIBLE);
                 });
             }
         }, "system-check").start();

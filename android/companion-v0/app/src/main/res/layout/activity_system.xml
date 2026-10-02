@@ -299,8 +299,13 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Prototype mode indicator -->
+            <!-- Prototype mode indicator. Shown only while the mock fallback is
+                 answering (task 0096): with the live backend up there is no
+                 prototype mode, so SystemActivity hides this panel rather than
+                 leave a claim on screen that the readings are demonstration
+                 data. -->
             <LinearLayout
+                android:id="@+id/panel_prototype"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"

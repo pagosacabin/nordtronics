@@ -2,7 +2,7 @@ name: Android Companion v0
 
 on:
   push:
-    branches: [hermes/0045-companion-v0, hermes/0046-companion-icon, hermes/0047-nodes-toolbar-insets, hermes/0048-app-batch-1, hermes/0049-companion-v01-ui, hermes/0069-app-api-dns, hermes/0084-app-reskin-dawn-pine, hermes/0090-app-ui-v2, hermes/0095-alert-pipeline]
+    branches: [hermes/0045-companion-v0, hermes/0046-companion-icon, hermes/0047-nodes-toolbar-insets, hermes/0048-app-batch-1, hermes/0049-companion-v01-ui, hermes/0069-app-api-dns, hermes/0084-app-reskin-dawn-pine, hermes/0090-app-ui-v2, hermes/0095-alert-pipeline, hermes/0096-app-live-api]
     paths:
       - 'android/companion-v0/**'
       - '.github/workflows/android-companion-v0.yml'

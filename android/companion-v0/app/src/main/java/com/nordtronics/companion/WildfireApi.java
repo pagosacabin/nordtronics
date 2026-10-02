@@ -10,13 +10,11 @@ import java.util.List;
  * wire, UTC ISO-8601 timestamps, no coordinates. Two implementations exist:
  *
  * <ul>
- *   <li>{@link MockApi} — serves the exact mock state from UI spec v2. This is
- *       what the app runs against today, while the node/base-station firmware
- *       does not exist.</li>
- *   <li>{@link HttpApiClient} — the real REST client. Its endpoints are wired
- *       from the contract but it is not yet used, because the backend does not
- *       implement {@code /v1/alerts}, {@code /v1/network/status} or the extended
- *       node fields yet.</li>
+ *   <li>{@link HttpApiClient} — the real REST client, and since task 0096 the
+ *       app's primary data source ({@code https://api.nordtronics.io}).</li>
+ *   <li>{@link MockApi} — the bundled sample state from UI spec v2, now the
+ *       offline fallback {@link FallbackApi} serves when the backend cannot be
+ *       reached.</li>
  * </ul>
  *
  * <p>Screens only ever name this interface, via {@link ApiSource}; swapping the
@@ -26,7 +24,13 @@ import java.util.List;
  */
 public interface WildfireApi {
 
-    /** {@code GET /v1/network/status} — the property-wide consensus summary. */
+    /**
+     * {@code GET /v1/network/status} — the property-wide consensus summary.
+     *
+     * @return the summary, or {@code null} when this backend does not serve the
+     *         route (the live backend answers 404 today); the property screen
+     *         then draws no watch banner rather than inventing a state.
+     */
     NetworkStatus networkStatus() throws Exception;
 
     /** {@code GET /v1/nodes} — the field-node list. */

@@ -31,13 +31,22 @@ import java.util.Locale;
  */
 final class Screens {
 
-    /** UI spec v2: the thin banner on every screen. */
+    /**
+     * UI spec v2: the thin banner on every screen. Since task 0096 it is shown
+     * only while the bundled mock is answering — a live read leaves the banner
+     * hidden, so mock data is never passed off as real.
+     */
     static final String PROTOTYPE_BANNER = "PROTOTYPE \u2013 MOCK DATA";
 
-    /** UI spec v2: the footer on every screen. */
-    static final String FOOTER =
+    /** UI spec v2: the footer on every screen, for the mock fallback. */
+    static final String FOOTER_MOCK =
             "Readings from local mock backend \u00B7 Privacy-first \u00B7 No cameras \u00B7 "
                     + "Locations stay on your network";
+
+    /** The same footer with the live backend named, when the API answered. */
+    static final String FOOTER_LIVE =
+            "Readings from " + ApiClient.BASE_URL + " \u00B7 Privacy-first \u00B7 No cameras "
+                    + "\u00B7 Locations stay on your network";
 
     /** UI spec v2 chart bands, labelled exactly as the spec writes them. */
     static final String BAND_CLEAN = "Clean < 12";
@@ -51,12 +60,23 @@ final class Screens {
 
     // ------------------------------------------------------------------ shell
 
-    /** Insets + the prototype banner; call right after setContentView. */
+    /** Insets + the data-source banner; call right after setContentView. */
     static void shell(Activity a) {
         WindowInsetsHelper.applySystemBarInsets(a);
+        sourceBanner(a);
+    }
+
+    /**
+     * The "PROTOTYPE – MOCK DATA" banner, shown only while the bundled mock is
+     * answering (task 0096). Called by {@link #shell(Activity)} and again after
+     * each screen's read, so it follows a fallback that happens mid-session.
+     */
+    static void sourceBanner(Activity a) {
         TextView banner = a.findViewById(R.id.prototype_banner);
         if (banner != null) {
-            banner.setText(PROTOTYPE_BANNER);
+            boolean mock = ApiSource.usingMock();
+            banner.setVisibility(mock ? View.VISIBLE : View.GONE);
+            banner.setText(mock ? PROTOTYPE_BANNER : "");
         }
     }
 
@@ -816,7 +836,8 @@ final class Screens {
     }
 
     static View footer(Context c) {
-        TextView t = Ui.text(c, FOOTER, 10, Ui.col(c, R.color.nt_text2), false);
+        String text = ApiSource.usingMock() ? FOOTER_MOCK : FOOTER_LIVE;
+        TextView t = Ui.text(c, text, 10, Ui.col(c, R.color.nt_text2), false);
         t.setGravity(Gravity.CENTER);
         t.setPadding(0, Ui.dp(c, 18), 0, Ui.dp(c, 6));
         return t;
@@ -920,6 +941,7 @@ final class Screens {
                 final int badge = AlertItem.badgeCount(api.alerts());
                 a.runOnUiThread(() -> {
                     propertyOverview(a, nodes, status);
+                    sourceBanner(a);
                     Ui.bindNav(a, R.id.nav_nodes, badge);
                 });
             } catch (final Exception e) {
@@ -931,6 +953,7 @@ final class Screens {
                     err.addView(Ui.text(a, "Could not read the API: " + e.getMessage(), 12,
                             Ui.col(a, R.color.nt_ink), false));
                     into.addView(err);
+                    sourceBanner(a);
                     Ui.bindNav(a, R.id.nav_nodes, 0);
                 });
             }
@@ -951,6 +974,7 @@ final class Screens {
                 final int badge = AlertItem.badgeCount(api.alerts());
                 a.runOnUiThread(() -> {
                     nodeDetail(a, n, series);
+                    sourceBanner(a);
                     Ui.bindNav(a, R.id.nav_nodes, badge);
                 });
             } catch (final Exception e) {
@@ -962,6 +986,7 @@ final class Screens {
                     err.addView(Ui.text(a, "Could not read the API: " + e.getMessage(), 12,
                             Ui.col(a, R.color.nt_ink), false));
                     into.addView(err);
+                    sourceBanner(a);
                     Ui.bindNav(a, R.id.nav_nodes, 0);
                 });
             }
@@ -976,6 +1001,7 @@ final class Screens {
                 final List<AlertItem> alerts = api.alerts();
                 a.runOnUiThread(() -> {
                     alerts(a, alerts, filter);
+                    sourceBanner(a);
                     Ui.bindNav(a, R.id.nav_alerts, AlertItem.badgeCount(alerts));
                 });
             } catch (final Exception e) {
@@ -987,6 +1013,7 @@ final class Screens {
                     err.addView(Ui.text(a, "Could not read the alerts feed: " + e.getMessage(),
                             12, Ui.col(a, R.color.nt_ink), false));
                     into.addView(err);
+                    sourceBanner(a);
                     Ui.bindNav(a, R.id.nav_alerts, 0);
                 });
             }

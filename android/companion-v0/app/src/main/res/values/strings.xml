@@ -3,6 +3,7 @@
     <string name="brand_name">Nordtronics</string>
     <string name="brand_sub">Wildfire companion</string>
     <string name="demo_badge">Prototype data</string>
+    <string name="demo_badge_live">Live data</string>
 
     <!-- 0090 (UI spec v2): the thin banner shown on every screen. -->
     <string name="prototype_banner">PROTOTYPE – MOCK DATA</string>

@@ -18,15 +18,21 @@ android {
         // uses is declared in this one block; ApiClient.java reads them as
         // BuildConfig fields and no other file names a host or a path.
         //
-        // defaultConfig is the RELEASE contract: the production backend on
-        // nordtronics.io DNS over HTTPS. The paths below are the live API
-        // contract, confirmed against the running service (task 0069):
-        //     GET /v1/nodes   -> 200  {"nodes":[...]}
-        //     GET /healthz    -> 200  {"status":"ok",...}
-        // Task 0095 added the alerts feed to the same service and un-gated it
-        // here: /v1/alerts now answers contract v1's alert objects, so the
-        // Alerts screen is no longer held behind a null path. The ping endpoint
-        // is still only served by the local mock, so that one stays null.
+        // defaultConfig is the API contract for EVERY build type: the production
+        // backend on nordtronics.io DNS over HTTPS. Task 0096 flipped the debug
+        // build type onto this same contract — until then debug carried a dev
+        // override pointing at the local mock backend on the emulator's loopback
+        // alias, which is why the shipped debug APK showed mock data. The paths
+        // below are the live API contract, confirmed against the running service
+        // (tasks 0069, 0095, and re-confirmed 2026-10-02 for 0096):
+        //     GET /healthz                        -> 200  {"status":"ok",...}
+        //     GET /v1/nodes                       -> 200  {"nodes":[...]}
+        //     GET /v1/nodes/{id}/readings         -> 200  {"readings":[...]}
+        //     GET /v1/alerts                      -> 200  {"alerts":[...]}
+        // The ping endpoint is only served by the local mock, so that one stays
+        // null. A route this backend does not serve (GET /v1/network/status,
+        // GET /v1/nodes/{id}) is answered 404, and HttpApiClient degrades for it
+        // rather than failing the screen — see HttpApiClient's class comment.
         // ---------------------------------------------------------------------
         buildConfigField "String", "API_BASE_URL", "\"https://api.nordtronics.io\""
         buildConfigField "String", "PATH_NODES", "\"/v1/nodes\""
@@ -44,24 +50,19 @@ android {
             applicationIdSuffix = ""
 
             // -----------------------------------------------------------------
-            // THE DEV OVERRIDE, and the only place a literal address appears in
-            // the app tree. This is the Android emulator's alias for the host
-            // machine's loopback interface, where the local mock backend
-            // listens (see mock-server/server.py, which refuses a non-loopback
-            // bind). It is declared in the debug build type only, so it cannot
-            // reach a release APK.
+            // No dev override any more (task 0096). The debug build talks to the
+            // same live API as release, because the debug APK is what Stephen
+            // installs and it must show real readings, not mock ones. The bundled
+            // MockApi is still compiled in as the OFFLINE fallback: when the
+            // backend cannot be reached at all, ApiSource falls back to it and
+            // Screens re-shows the "PROTOTYPE – MOCK DATA" banner, so mock data
+            // is always labelled on screen and never mistaken for live data.
             //
-            // The mock serves its own dialect: flat payloads under /api/... .
+            // app/src/debug/res/xml/network_security_config.xml still permits
+            // cleartext to the emulator's loopback alias so that a developer can
+            // run mock-server/server.py and a local HTTP backend by hand; the
+            // app itself no longer names that address anywhere.
             // -----------------------------------------------------------------
-            buildConfigField "String", "API_BASE_URL", "\"http://10.0.2.2:8000\""
-            buildConfigField "String", "PATH_NODES", "\"/api/nodes\""
-            buildConfigField "String", "PATH_ALERTS", "\"/api/alerts\""
-            buildConfigField "String", "PATH_NODE_PING", "\"/api/nodes/%s/ping\""
-
-            // The mock backend has no dedicated health route; its node list is
-            // the only reachability probe it answers, so that is what the
-            // health probe falls back to here (see ApiClient.healthPath()).
-            buildConfigField "String", "PATH_HEALTH", "null"
         }
         release {
             minifyEnabled false
