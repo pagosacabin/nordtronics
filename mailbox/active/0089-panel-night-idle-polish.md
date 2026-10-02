@@ -1,6 +1,13 @@
-# 0089 — Panel polish: off-state mute, night dim, idle clock (+ surprise)
-
+---
+task_id: "0089"
+protocol_version: 1.0.0
+status: in_progress
+iteration: 1
 expect-reply-within: 6h
+proof: []
+notes: ""
+---
+# 0089 — Panel polish: off-state mute, night dim, idle clock (+ surprise)
 
 # Context
 
