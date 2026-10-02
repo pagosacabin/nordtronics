@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark Nordtronics palette, taken from the approved v0.1 mockup
+         (docs/wildfire/companion-v0.1-mockup.html, dark scheme) so the app and
+         the design reference share one set of values. -->
+    <color name="nt_bg">#0B120F</color>
+    <color name="nt_rail">#101B15</color>
+    <color name="nt_surface_2">#1C2E28</color>
+    <color name="nt_surface_3">#274237</color>
+    <color name="nt_ink">#EDE6D6</color>
+    <color name="nt_muted">#A8B09E</color>
+    <color name="nt_line">#3A554B</color>
+    <color name="nt_accent">#F2A33C</color>
+    <color name="nt_accent_strong">#F7B955</color>
+    <color name="nt_accent_soft">#4A3319</color>
+    <color name="nt_ok">#9DBE9C</color>
+    <color name="nt_ok_soft">#1D3324</color>
+    <color name="nt_warn">#E76F51</color>
+    <color name="nt_warn_soft">#46271D</color>
+    <color name="nt_blue">#86B8CC</color>
+    <color name="nt_blue_soft">#1C3038</color>
+    <color name="nt_hero_text">#D8D2BE</color>
+    <!-- 0084: the nt_* tokens above were retinted to the approved "dawn in the
+         pines" palette (darks pine-green, bone ink, solar amber kept as the
+         brand/action colour, sage healthy, muted desert sky for data,
+         terracotta warn). The same table was applied to website/index.html by
+         0083, so the two surfaces still share one palette. -->
+
+    <!-- 0090 (UI spec v2): the two remaining hexes the spec pins, added as new
+         tokens rather than retinting the existing ones, so the System screen
+         keeps the exact colours task 0084 verified. -->
+    <color name="nt_elev">#171F1A</color>
+    <color name="nt_text2">#9AA3AD</color>
+
+    <!-- Brand dark (0048). Sampled from the plate of the repo logo asset
+         branding/nordtronics-logo/nordtronics-logo-mark-only.png, so the
+         launcher-icon background and the splash background match the artwork
+         exactly rather than a hand-picked near-black. Unchanged by 0049. -->
+    <color name="brand_dark">#222629</color>
+</resources>
