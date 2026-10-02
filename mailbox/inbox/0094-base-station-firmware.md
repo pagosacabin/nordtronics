@@ -5,9 +5,14 @@ status: inbox
 expect-reply-within: 24h
 ---
 
-# 0094 — Base-station firmware: LoRa gateway + v0.2 consensus + MQTT uplink
+# 0094 — Unified v1 firmware: auto-detected node/base roles (LoRa + v0.2 consensus + MQTT)
 
 # Context
+
+Stephen's decision 2026-10-02: ONE firmware for both roles. The board detects
+whether it is a node or a base station at boot (mechanism in Task item 0).
+Rationale: one codebase, one CI target, and it becomes impossible to flash the
+wrong role image onto a board.
 
 The bench validated the full v1 sensing stack on 2026-10-02: BME680 (I2C 0x77,
 VIN on Vext, SCK→GPIO17 / SDI→GPIO18 — verified, do not flip) and PMS5003 (UART
@@ -42,8 +47,18 @@ a new default.
 
 # Task
 
-Write the base-station firmware (Heltec LoRa 32 V4, same PlatformIO target as
-the node) and the protocol doc it implements:
+One firmware, two roles. Role detection comes FIRST, before any radio, sensor,
+or power init:
+
+0. Role detection at boot: read a strap pin (choose it against the 0079 frozen
+   14 nets — name the pin and justify the choice in the reply); an NVS/portal
+   "role" value overrides the strap when set; unstrapped bench boards default
+   to node. Log the detected role (and its source: strap / NVS / default) to
+   serial on every boot. Branch ALL behavior on the detected role. HARD RULE:
+   the base role must never enter deep-sleep — assert role==node on every sleep
+   path, so a misdetection fails loudly instead of silently deafening the net.
+
+Then, per role:
 
 1. `docs/wildfire/radio-protocol-v1.md` — versioned packed-binary packet
    layout (version byte first, then node ID, sequence, PM1/PM2.5/PM10,
@@ -74,6 +89,10 @@ the node) and the protocol doc it implements:
   not re-arm inside the cooldown). Pasted serial output is a claim, not proof —
   the test must run in CI or as a one-command script like 0091's harness.
 - Every portal field has a firmware default and persists to NVS.
+- Both roles demonstrated from the SAME binary: serial log shows the detected
+  role and its source for strap / NVS-override / default cases; the consensus
+  test covers base behavior. The strap-pin choice is documented against 0079's
+  frozen nets (branch hermes/0079-wildfire-node-rev-c-interface-fixes @ 62e64adf).
 
 # Constraints
 
@@ -82,7 +101,10 @@ the node) and the protocol doc it implements:
 - BME680 on the bench is the 680; production is the 688 — the base does not
   care which Bosch sensor a node carries, so do not branch on it.
 - Worker cost: standard tier, off-peak preferred. State the tier used in the reply.
-- One deliverable: the base-station firmware + its protocol doc, on one branch.
+- The strap pin must not collide with any of the 14 frozen nets from 0079.
+  No PCB change is required for bench work — the NVS override covers unstrapped
+  boards; Rev C gets a solder jumper for the strap.
+- One deliverable: the unified firmware + its protocol doc, on one branch.
 
 # Proof
 
