@@ -32,10 +32,17 @@ Relevant prior art in the repo:
    datasheet (cite document + page/section) or labeled as an explicit assumption:
    - PMS5003: active current (fan + laser) × warmup + sample duration. Bench note says
      ~30 s to trustworthy; verify against the Plantower datasheet and state what you use.
+     IMPORTANT: the PMS5003 is a 5 V part on a 3.7 V cell — do the real boost math
+     (5/3.7 ÷ converter efficiency), not a blanket 15% allowance. A blanket factor
+     understates this line by ~40%.
    - BME680: heater-profile current × duration per forced-mode reading (gas + T/RH/P).
+     The first-cut budget omitted this sensor entirely — include it even if it lands at
+     1–3 mAh/day. A budget with a missing sensor is a budget you can't trust.
    - Heltec V4: ESP32-S3 wake + sensor readout + LoRa TX energy per packet. State the
      assumed spreading factor, TX power, and payload size, and compute time-on-air —
-     do not guess it.
+     do not guess it. Cite the SX1262 datasheet TX current (≈120 mA @ +22 dBm) against
+     any conservative figure you use — label which one the totals use so nobody later
+     "finds" phantom margin.
    - Always-on loads from the Rev C schematic: deep-sleep quiescent, temp-gate switch
      quiescent, battery-sense divider, anything else that never sleeps.
 2. Daily total at 12-minute cadence (120 wakes/day). Then the sensitivity table: same total
@@ -43,7 +50,9 @@ Relevant prior art in the repo:
    tradeoff needs.
 3. Battery sizing: days of autonomy with **zero** solar input for the actual cells —
    3.7 V 3000 mAh li-ion, single AND 2P (6000 mAh). Stephen confirmed these are the cells
-   and two may be paralleled if needed.
+   and two may be paralleled if needed. State the usable-capacity derating you apply AND a
+   cold-weather derating for Pagosa winter nights (li-ion gives back less below freezing) —
+   label both, don't bury them.
 4. Solar sizing for Pagosa Springs in **December** (worst month): state the peak-sun-hours
    figure you use and its source, apply a snow-cover/dirt derating you defend in one line,
    and compute the panel wattage needed for energy-neutral operation at 12-min cadence.
@@ -51,6 +60,14 @@ Relevant prior art in the repo:
    state the headroom or the shortfall.
 5. Write `docs/wildfire/node-power-budget-v1.md`: the tables, every source citation, every
    assumption labeled, the cadence sensitivity table, and a verdict section.
+6. Record as v2 opportunities (not required now): deep-sleeping the MCU through the PMS5003
+   fan warmup and waking only to sample + transmit — estimated to roughly halve the
+   MCU-active line.
+
+Cross-check: Juno's independent pass over the first-cut budget landed at ~218 mAh/day
+(~11–12 days single cell, ~23–24 days 2P, no sun) after correcting the 5 V boost math and
+adding the BME680. If your total differs by more than ~20%, reconcile the difference
+explicitly in the reply notes.
 
 # Success criteria
 
