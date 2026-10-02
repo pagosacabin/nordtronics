@@ -408,9 +408,9 @@
               <rect x="-45" y="-30" width="90" height="22" rx="4" fill="var(--nt-surface-2)" stroke="var(--nt-line)"/>
               <text x="0" y="-16" text-anchor="middle" font-size="10" fill="var(--nt-ink)" font-weight="600">PMS5003</text>
               <text x="0" y="-6" text-anchor="middle" font-size="8" fill="var(--nt-muted)">PM2.5 / Smoke</text>
-              <!-- BME680 -->
+              <!-- BME688 -->
               <rect x="-45" y="10" width="90" height="22" rx="4" fill="var(--nt-surface-2)" stroke="var(--nt-line)"/>
-              <text x="0" y="24" text-anchor="middle" font-size="10" fill="var(--nt-ink)" font-weight="600">BME680</text>
+              <text x="0" y="24" text-anchor="middle" font-size="10" fill="var(--nt-ink)" font-weight="600">BME688</text>
               <text x="0" y="34" text-anchor="middle" font-size="8" fill="var(--nt-muted)">T/H/P + VOC</text>
               <!-- AS3935 -->
               <rect x="-45" y="50" width="90" height="22" rx="4" fill="var(--nt-surface-2)" stroke="var(--nt-line)"/>
@@ -424,7 +424,7 @@
               <rect x="-35" y="-20" width="70" height="16" rx="3" fill="var(--nt-surface-2)" stroke="var(--nt-line)"/>
               <text x="0" y="-10" text-anchor="middle" font-size="9" fill="var(--nt-ink)" font-weight="600">PMS5003</text>
               <rect x="-35" y="6" width="70" height="16" rx="3" fill="var(--nt-surface-2)" stroke="var(--nt-line)"/>
-              <text x="0" y="16" text-anchor="middle" font-size="9" fill="var(--nt-ink)" font-weight="600">BME680</text>
+              <text x="0" y="16" text-anchor="middle" font-size="9" fill="var(--nt-ink)" font-weight="600">BME688</text>
             </g>
             <!-- Node 3 -->
             <g class="node" transform="translate(180, 120)" opacity="0.7">
@@ -433,7 +433,7 @@
               <rect x="-35" y="-20" width="70" height="16" rx="3" fill="var(--nt-surface-2)" stroke="var(--nt-line)"/>
               <text x="0" y="-10" text-anchor="middle" font-size="9" fill="var(--nt-ink)" font-weight="600">PMS5003</text>
               <rect x="-35" y="6" width="70" height="16" rx="3" fill="var(--nt-surface-2)" stroke="var(--nt-line)"/>
-              <text x="0" y="16" text-anchor="middle" font-size="9" fill="var(--nt-ink)" font-weight="600">BME680</text>
+              <text x="0" y="16" text-anchor="middle" font-size="9" fill="var(--nt-ink)" font-weight="600">BME688</text>
             </g>
           </g>
 
@@ -456,7 +456,7 @@
             </g>
             <!-- Power badge -->
             <rect x="30" y="140" width="140" height="36" rx="6" fill="var(--nt-accent-soft)" stroke="var(--nt-accent)" stroke-width="1"/>
-            <text x="100" y="165" text-anchor="middle" font-size="10" fill="var(--nt-accent)" font-weight="600">18650 + 5V Solar</text>
+            <text x="100" y="165" text-anchor="middle" font-size="10" fill="var(--nt-accent)" font-weight="600">Li-ion + 13 W Solar</text>
             <text x="100" y="190" text-anchor="middle" font-size="8" fill="var(--nt-muted)">Cold-charge gate</text>
           </g>
 
@@ -508,8 +508,8 @@
         <h2 class="section-title">Multi-Modal <span>Detection</span></h2>
       </header>
       <p style="text-align: center; color: var(--nt-muted); max-width: 700px; margin: 0 auto 2.5rem;">
-        Each node combines three sensors for redundant fire detection. Rate-of-change triggers
-        with multi-node statistical consensus reduce false positives.
+        Each node combines three sensors for redundant fire detection. Rate-of-change triggers,
+        confirmed by base-station consensus across neighboring nodes, reduce false positives.
       </p>
       <div class="sensor-grid">
         <article class="sensor-card">
@@ -533,10 +533,10 @@
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
             <path d="M12 6v6l4 2"/>
           </svg>
-          <h3 class="sensor-name">BME680</h3>
+          <h3 class="sensor-name">BME688</h3>
           <div class="sensor-role">Fire-Weather + Secondary VOC</div>
           <ul class="sensor-specs">
-            <li><strong>Temperature:</strong> –40 to 85 °C (±1.0 °C)</li>
+            <li><strong>Temperature:</strong> –40 to 85 °C (±0.5 °C)</li>
             <li><strong>Humidity:</strong> 0–100 % RH (±3 %)</li>
             <li><strong>Pressure:</strong> 300–1100 hPa (±0.6 hPa)</li>
             <li><strong>Gas (VOC):</strong> MOX sensor, IAQ index</li>
@@ -553,7 +553,7 @@
             <li><strong>Range:</strong> Up to 40 km</li>
             <li><strong>Sensitivity:</strong> Programmable threshold</li>
             <li><strong>Noise rejection:</strong> Built-in algorithm</li>
-            <li><strong>Interface:</strong> I²C / SPI</li>
+            <li><strong>Interface:</strong> SPI (INT on GPIO6)</li>
             <li><strong>Power:</strong> 3.3 V / &lt;50 µA listening</li>
           </ul>
         </article>
@@ -569,21 +569,20 @@
       </header>
       <div class="power-grid">
         <article class="power-card battery">
-          <h3>18650 Li-ion Cell</h3>
+          <h3>Li-ion Battery Pack</h3>
           <div class="power-detail">
-            <p><strong>Chemistry:</strong> Li-ion (NMC or LiFePO4 option)</p>
-            <p><strong>Capacity:</strong> 3000–3500 mAh typical</p>
-            <p><strong>Nominal:</strong> 3.7 V / 3.2 V (LiFePO4)</p>
-            <p><strong>Runtime:</strong> 7–14 days no sun (duty-cycled)</p>
+            <p><strong>Chemistry:</strong> Li-ion, 3.7 V nominal</p>
+            <p><strong>Capacity:</strong> 3000 mAh single cell, or 6000 mAh (2P)</p>
+            <p><strong>Runtime (design target):</strong> ≈11–12 days single cell, ≈23 days 2P, no sun</p>
             <p><strong>Protection:</strong> On-board BMS (over/under-voltage, current)</p>
           </div>
         </article>
         <article class="power-card solar">
-          <h3>5 V / 2 W Solar Panel</h3>
+          <h3>13 W / 5 V Solar Panel</h3>
           <div class="power-detail">
             <p><strong>Voltage:</strong> 5 V regulated output</p>
-            <p><strong>Power:</strong> 2 W (peak, full sun)</p>
-            <p><strong>Charge current:</strong> ~350 mA max into cell</p>
+            <p><strong>Power:</strong> 13 W (peak, full sun)</p>
+            <p><strong>Charge current:</strong> Set by the charge controller</p>
             <p><strong>Mounting:</strong> Adjustable tilt, pole or tree strap</p>
             <p><strong>Weatherproof:</strong> ETFE laminate, IP67</p>
           </div>
@@ -612,7 +611,7 @@
         <article class="detection-card">
           <span class="prototype-badge">Prototype</span>
           <h3>Detection Radius &amp; Logic</h3>
-          <p>Each node targets approximately <strong>100 m sensing radius</strong> in typical forest terrain (field validation pending). Detection uses rate-of-change on PM2.5 and temperature, combined with lightning proximity from the AS3935. Multi-node statistical consensus (requiring correlated triggers across ≥2 nodes within a time window) rejects single-node false positives from dust, cooking smoke, or sensor glitches. The system reports environmental signatures consistent with an emerging fire — an early warning, not a confirmed fire.</p>
+          <p>Each node targets approximately <strong>100 m sensing radius</strong> in typical forest terrain (field validation pending). A node flags a rise when <strong>PM2.5 reaches ≥ 25 µg/m³ and sits ≥ 15 µg/m³ above its own rolling baseline on two consecutive packets</strong>. Consensus lives in the <strong>base station</strong>, not the node: a network Watch requires <strong>≥ 2 neighboring nodes confirmed inside a 20-minute window</strong>, and a single elevated node never auto-escalates. Lightning proximity from the AS3935 is an independent input. These thresholds are <strong>design targets — field validation is pending</strong>. The system reports environmental signatures consistent with an emerging fire — an early warning, not a confirmed fire.</p>
         </article>
         <article class="detection-card">
           <span class="prototype-badge">Prototype</span>
