@@ -98,7 +98,7 @@ final class Screens {
         LinearLayout into = content(a);
         into.removeAllViews();
 
-        into.addView(propertyHeader(a, "Property line", "Last packet received " + ageOf(status)));
+        into.addView(propertyHeader(a, "Property line", "Last packet received " + ageOf(status, nodes)));
 
         if (status != null) {
             into.addView(watchBanner(a, status, nodes));
@@ -860,19 +860,35 @@ final class Screens {
         return nodes.isEmpty() ? null : nodes.get(0);
     }
 
-    /** "4 min ago" / "unknown" for the header's last-packet line. */
-    static String ageOf(NetworkStatus status) {
-        if (status == null || status.lastPacketUtc == null || status.lastPacketUtc.isEmpty()) {
-            return "unknown";
+    /**
+     * "Last packet received &lt;x&gt;": the summary's own {@code last_packet_utc}
+     * where the backend serves one, otherwise the freshest packet in the node
+     * list — the live backend has no {@code /v1/network/status} today (task
+     * 0096), and "unknown" next to cards reading "Updated 2 h ago" reads as a
+     * defect. Never a clock: the age is the payload's own {@code age_seconds},
+     * or derived from the timestamp it carries.
+     */
+    static String ageOf(NetworkStatus status, List<NodeInfo> nodes) {
+        if (status != null && status.lastPacketUtc != null && !status.lastPacketUtc.isEmpty()) {
+            long age = secondsSince(status.lastPacketUtc);
+            if (age >= 0) {
+                return agePhrase(age);
+            }
         }
-        long age = secondsSince(status.lastPacketUtc);
-        if (age < 0) {
-            return "unknown";
+        long freshest = -1;
+        for (NodeInfo n : nodes) {
+            if (n.ageSeconds >= 0 && (freshest < 0 || n.ageSeconds < freshest)) {
+                freshest = Math.round(n.ageSeconds);
+            }
         }
-        if (age < 5400) {
-            return Math.round(age / 60.0) + " min ago";
+        return freshest < 0 ? "unknown" : agePhrase(freshest);
+    }
+
+    private static String agePhrase(long ageSeconds) {
+        if (ageSeconds < 5400) {
+            return Math.round(ageSeconds / 60.0) + " min ago";
         }
-        return Math.round(age / 3600.0) + " h ago";
+        return Math.round(ageSeconds / 3600.0) + " h ago";
     }
 
     private static long secondsSince(String isoUtc) {
