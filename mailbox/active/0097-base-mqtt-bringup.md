@@ -98,10 +98,12 @@ notes: |
   port drops mid-operation. Operational consequence worth carrying forward: the
   base came back as /dev/ttyACM2 (it was ttyACM1), so the ACM minor number is
   NOT stable across a reset — resolve boards by MAC (80:F1:B2:A7:47:EC = base,
-  B0:A6:04:C5:75:4C = node) or via /dev/serial/by-id/. Both boards were re-read
-  on their consoles afterwards and are still running their original firmware;
-  nothing was written to either flash. The retry's outcome is recorded in the
-  reply body below.
+  B0:A6:04:C5:75:4C = node) or via /dev/serial/by-id/. The node was re-read on
+  its console afterwards and is unchanged; the base's console is now wedged (see
+  the reply body). No flash write was issued to either board — only reads. The retry's outcome — and a side effect
+  that needs a physical action at the bench — is recorded in the reply body
+  below: the base board's USB console is now wedged and needs a power-cycle or
+  re-plug before any flashing work.
 
   6. NOT DONE / NOT TOUCHED
    - No flash write, no NVS write, no portal field written on either board.
@@ -127,6 +129,10 @@ notes: |
       installed in it.
    Also decide who dumps the current bench image before anyone flashes (item 5);
    that dump did not complete from this host.
+   PHYSICAL ACTION FIRST: power-cycle or re-plug the base board
+   (80:F1:B2:A7:47:EC) so its USB console enumerates again, then re-read its
+   console to establish whether it is still running the v2.0-base bench firmware
+   before any flashing is attempted.
 ---
 
 # 0097 — Bench bring-up: base station publishes live telemetry to the backend
@@ -235,8 +241,47 @@ local).
     Retry on the re-enumerated port:
     $ /usr/bin/python3 -m esptool --chip esp32s3 --port /dev/ttyACM2 --baud 115200 \
         --no-stub --after hard_reset read_flash 0 0x1000000 ttyACM2-base-full-16MB.bin
-    [outcome recorded here]
-    $ ls -l ~/backups/pre-0097/
+    ... the read ran to 19 % and then:
+    A fatal error occurred: Invalid head of packet (0x45): Possible serial noise
+      or corruption.
+    -> again no .bin written; ~/backups/pre-0097/ is empty (no partial file left
+       behind). esptool: "Hint: Consider specifying flash size using
+       '--flash_size' argument".
+
+    SIDE EFFECT, DECLARED (this affects the bench — read it before flashing):
+    after these read-only attempts the base board's USB console is unstable.
+    The ESP32-S3 USB-JTAG re-enumerates whenever esptool puts the chip into ROM
+    download mode, so the port drops mid-operation: the base came back as
+    /dev/ttyACM2, then as /dev/ttyACM1 again. Later captures of it show a reset
+    cycle while a host holds the CDC port open:
+      boot -> getString(): nvs_get_str len fail: role NOT_FOUND
+           -> getBytesLength(): nvs_get_blob len fail: lora_mhz NOT_FOUND
+              (same for lora_bw, abs_floor, rel_delta; namespace "wildfire")
+           -> rst:0x15 (USB_UART_CHIP_RESET), boot:0x0 (DOWNLOAD(USB/UART0))
+              "waiting for download" -> boot again ...
+    and at other moments the ROM printed "invalid header: 0xffffff7f" in a loop.
+    Some of those bytes arrived over a demonstrably unstable link, so I do NOT
+    claim observed flash damage. What is certain and confirmed:
+      * the base's chip and flash are healthy and readable — esptool 4.9.1
+        `--no-stub --after hard_reset flash_id` on the base succeeded:
+        "MAC: 80:f1:b2:a7:47:ec ... Manufacturer: ef, Device: 4018, Detected
+        flash size: 16MB, quad (4 data lines), 3.3V";
+      * the base's application NVS namespace "wildfire" reads empty;
+      * the base's console cannot currently be brought back to its v2.0-base
+        banner (last seen 23:15 UTC) from this host.
+    So the base's running firmware state is UNCONFIRMED and needs a physical
+    power-cycle / re-plug at the bench before any flashing work — and a console
+    read right after, to establish whether it still runs "tag v2.0-base".
+    NO FLASH WRITE WAS EVER ISSUED: only `read_flash`, esptool's connect
+    sequence and `flash_id`, none of which write flash.
+    The node board (B0:A6:04:C5:75:4C, /dev/ttyACM0) is unaffected throughout:
+    it was still printing its "tag v2.0-node" banner, BME680 readings and PMS
+    frames at 23:30 UTC.
+    Operational note for whoever reconnects: the ACM minor number is NOT stable
+    across a reset — the base went ttyACM1 -> ttyACM2 -> ttyACM1 within this run;
+    resolve boards by MAC or /dev/serial/by-id.
+
+    $ ls -l ~/backups/pre-0097/   ->  total 0
 
 Everything the dump read is stored outside the repo (`~/backups/pre-0097/`,
 mode 700 parent) and nothing from it was committed; the dump was attempted as a
