@@ -17,6 +17,10 @@ python3 python/detection-sim/harness.py -v       # also dumps every detector eve
 Standard library only, no arguments, no network, deterministic (two consecutive runs produce
 byte-identical output; every RNG is seeded from the scenario name and its index).
 
+CI: `.github/workflows/detection-sim.yml` runs this same command on every push or PR that
+touches `python/detection-sim/**`, which is what makes the PASS/FAIL block below reproducible
+from the branch tip rather than from a pasted terminal session.
+
 | File | Role |
 |---|---|
 | `rules_v01.py` | Section A, clause by clause (each function quotes its clause). Pure, no I/O. |

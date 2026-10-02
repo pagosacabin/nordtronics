@@ -1,0 +1,35 @@
+name: Detection Sim
+
+# The detection simulation harness (task 0091) is pure-stdlib Python and asserts
+# the v0.1 detection rules against synthetic traces. Gate it so a future edit to
+# the rules or the traces cannot silently change the measured behaviour.
+#
+# Scoped to the harness's own paths: this workflow is the only one in the repo
+# that watches python/detection-sim/, and it stays out of the way of everything
+# else (see platformio.yml / android-build.yml / website-check.yml for their own
+# path and branch filters).
+on:
+  push:
+    paths:
+      - 'python/detection-sim/**'
+      - '.github/workflows/detection-sim.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'python/detection-sim/**'
+
+jobs:
+  harness:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run detection simulation harness
+        # Exits non-zero when any assertion fails, so this step is the gate.
+        run: python3 python/detection-sim/harness.py
