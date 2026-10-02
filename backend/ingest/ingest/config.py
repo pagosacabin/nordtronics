@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from typing import Mapping
 
 DEFAULT_TOPIC = "nordtronics/wildfire/+/telemetry"
+DEFAULT_EVENT_TOPIC = "nordtronics/wildfire/+/events"
 DEFAULT_DB_PATH = "/var/lib/nordtronics/wildfire.db"
 DEFAULT_CA_FILE = "/etc/letsencrypt/live/nordtronics.io/chain.pem"
 
@@ -37,6 +38,9 @@ class IngestConfig:
     topic: str
     db_path: str
     log_level: str
+    #: Watch/alert events (task 0095). Defaulted so the telemetry-only tests and
+    #: the pre-0095 call sites keep constructing the dataclass unchanged.
+    event_topic: str = DEFAULT_EVENT_TOPIC
 
     @classmethod
     def from_env(cls, env: Mapping[str, str] | None = None) -> "IngestConfig":
@@ -67,6 +71,7 @@ class IngestConfig:
             mqtt_ca_file=_lookup(env, "WILDFIRE_MQTT_CA", DEFAULT_CA_FILE),
             mqtt_client_id=_require(env, "WILDFIRE_MQTT_CLIENT_ID", "wildfire-ingest"),
             topic=_require(env, "WILDFIRE_TOPIC", DEFAULT_TOPIC),
+            event_topic=_require(env, "WILDFIRE_EVENT_TOPIC", DEFAULT_EVENT_TOPIC),
             db_path=_require(env, "WILDFIRE_DB_PATH", DEFAULT_DB_PATH),
             log_level=_require(env, "WILDFIRE_LOG_LEVEL", "INFO").upper(),
         )

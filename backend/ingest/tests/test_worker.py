@@ -169,7 +169,11 @@ class _StubClient:
 def test_on_connect_subscribes_when_the_broker_accepts(worker):
     client = _StubClient()
     worker.on_connect(client, None, None, 0)
-    assert client.subscriptions == [("nordtronics/wildfire/+/telemetry", 1)]
+    # task 0095: both topics, telemetry and the base station's event topic
+    assert client.subscriptions == [
+        ("nordtronics/wildfire/+/telemetry", 1),
+        ("nordtronics/wildfire/+/events", 1),
+    ]
 
 
 def test_on_connect_does_not_subscribe_when_refused(worker):

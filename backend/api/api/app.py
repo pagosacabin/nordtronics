@@ -13,7 +13,9 @@ from common import db as db_module
 
 from . import store
 from .config import (
+    DEFAULT_ALERTS_LIMIT,
     DEFAULT_READINGS_LIMIT,
+    MAX_ALERTS_LIMIT,
     MAX_READINGS_LIMIT,
     ApiConfig,
 )
@@ -95,6 +97,49 @@ def create_app(config: ApiConfig | None = None) -> FastAPI:
             "nodes": nodes,
             "count": len(nodes),
             "stale_after_seconds": config.stale_after_seconds,
+            "generated_utc": store.utc_now_iso(),
+        }
+
+    @app.get("/v1/alerts", tags=["alerts"])
+    def get_alerts(
+        limit: int = Query(DEFAULT_ALERTS_LIMIT, ge=1, le=MAX_ALERTS_LIMIT),
+        node_id: str | None = Query(None, pattern=NODE_ID_PATTERN,
+                                    description="only alerts involving this node"),
+    ):
+        """Watch/alert events, newest first (contract v1's alert feed)."""
+        with read_connection() as conn:
+            alerts = store.list_alerts(conn, limit=limit, node_id=node_id)
+        return {
+            "alerts": alerts,
+            "count": len(alerts),
+            "limit": limit,
+            "node_id": node_id,
+            "generated_utc": store.utc_now_iso(),
+        }
+
+    @app.get("/v1/nodes/{node_id}/alerts", tags=["alerts"])
+    def get_node_alerts(
+        node_id: str = Path(..., pattern=NODE_ID_PATTERN),
+        limit: int = Query(DEFAULT_ALERTS_LIMIT, ge=1, le=MAX_ALERTS_LIMIT),
+    ):
+        """Watch/alert events involving one node, newest first.
+
+        An alert involving a node is one raised *about* it (including the
+        confirming nodes of a multi-node alert), not one published by it. A
+        node with no telemetry row can still have alerts — a base station
+        reports on nodes it hears over LoRa, and a `network` alert names no
+        node at all — so 404 is returned only when nothing at all is known
+        about the id, matching `/readings` for a genuinely unknown node.
+        """
+        with read_connection() as conn:
+            alerts = store.list_alerts(conn, limit=limit, node_id=node_id)
+            if not alerts and not store.node_exists(conn, node_id):
+                raise HTTPException(status_code=404, detail=f"unknown node: {node_id}")
+        return {
+            "node_id": node_id,
+            "alerts": alerts,
+            "count": len(alerts),
+            "limit": limit,
             "generated_utc": store.utc_now_iso(),
         }
 

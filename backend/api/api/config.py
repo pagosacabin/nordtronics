@@ -14,6 +14,10 @@ DEFAULT_STALE_AFTER_SECONDS = 900
 MAX_READINGS_LIMIT = 1000
 DEFAULT_READINGS_LIMIT = 100
 
+#: the alerts feed is much smaller than the reading history; same shape of cap
+MAX_ALERTS_LIMIT = 500
+DEFAULT_ALERTS_LIMIT = 100
+
 
 def _lookup(env: Mapping[str, str], name: str, default: str) -> str:
     value = env.get(name)

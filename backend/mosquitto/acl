@@ -8,6 +8,12 @@
 user wildfire-ingest
 topic read nordtronics/wildfire/+/telemetry
 
+# Task 0095: and to the base stations' Watch/alert events, which it validates and
+# stores. Read only, same trust level as the telemetry read above — the worker
+# never publishes, and this does not widen any node's access.
+user wildfire-ingest
+topic read nordtronics/wildfire/+/events
+
 # A base station authenticates with its node id as the username (the MQTT
 # username equals the node id the firmware sends on the wire), so these
 # patterns give every node read/write access to exactly its own subtree and

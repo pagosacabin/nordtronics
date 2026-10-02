@@ -14,7 +14,7 @@ from pathlib import Path
 SCHEMA_PATH = Path(__file__).with_name("schema.sql")
 
 #: Kept in step with the `schema_version` row written by schema.sql.
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 
 def connect(path: str | Path, *, read_only: bool = False, timeout: float = 10.0) -> sqlite3.Connection:

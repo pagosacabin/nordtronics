@@ -60,7 +60,17 @@ Topic: `nordtronics/wildfire/<node-id>/telemetry`, QoS 1.
 
 Rejections are counted in memory and logged at WARNING with the reason
 (`ingest.worker` — `stored`, `duplicate`, `invalid`, `ignored_topic`,
-`node_mismatch`).
+`node_mismatch`, and for events `event_stored`, `event_duplicate`,
+`event_invalid`).
+
+The worker subscribes to two topics: `nordtronics/wildfire/+/telemetry` (node
+readings) and `nordtronics/wildfire/+/events` (a base station's Watch/alert
+events, task 0095). They are dispatched on the topic's leaf, so a telemetry body
+arriving on the events topic is rejected as an invalid event rather than stored
+as a reading, and vice versa. On the events path the topic's node id is the
+*publisher* (the base station, which is what the broker authenticated) while the
+payload's `node_id` names the elevated node or `network` — so, unlike telemetry,
+no agreement between the two is required, and no `nodes` row is created.
 
 ## Database
 
@@ -70,7 +80,17 @@ One SQLite file (`WILDFIRE_DB_PATH`, default
 - `nodes` — one row per node: first/last seen, reading count, latest values
 - `readings` — append-only telemetry, `recorded_utc` (server) and
   `observed_utc` (node), with an index on `(node_id, recorded_utc DESC)`
-- `meta` — `schema_version`
+- `alerts` — one row per Watch/alert event published by a base station on
+  `nordtronics/wildfire/<base-id>/events` (task 0095). It stores both the wire
+  fields (`event`, `nodes_json`, `window_min`, `baseline`) and contract v1's
+  display fields (`type`, `severity`, `state`, `title`, `detail`);
+  `alert_id` is derived from the event itself, so a QoS-1 redelivery collides
+  on its UNIQUE index instead of storing the alert twice. `publisher` is the
+  topic's node id (the base station); `node_id` is the elevated node, or the
+  literal `network` for a multi-node alert — which is why there is no foreign
+  key to `nodes`: a base station legitimately reports on nodes that have never
+  sent telemetry here
+- `meta` — `schema_version` (currently `2`)
 
 The ingest worker opens it read-write; the API opens it `mode=ro` so it cannot
 write telemetry even by accident.
@@ -82,6 +102,8 @@ write telemetry even by accident.
 | `GET /healthz` | liveness + `schema_version`; 503 when the database is unreadable |
 | `GET /v1/nodes` | every known node, latest reading, `age_seconds`, `status` (`ok` / `stale` / `unknown`) |
 | `GET /v1/nodes/{node_id}/readings?limit=&since=` | that node's history, newest first (`limit` 1-1000, default 100) |
+| `GET /v1/alerts?limit=&node_id=` | Watch/alert events, newest first (`limit` 1-500, default 100) — contract v1's alert objects, with the wire fields alongside |
+| `GET /v1/nodes/{node_id}/alerts?limit=` | the alerts *involving* that node: the ones raised about it and the multi-node alerts naming it in `nodes` |
 
 `stale` is decided by `WILDFIRE_STALE_AFTER_SECONDS` (default 900). Errors are
 explicit: `404` unknown node, `400` malformed `since`, `422` out-of-range

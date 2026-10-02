@@ -146,4 +146,31 @@ if wait "$SUB_PID" 2>/dev/null; then
 fi
 pass "$NODE_USER cannot publish to $OTHER_NODE's topic"
 
+# ---------------------------------------------------------------- events ---
+# Task 0095: the base station publishes Watch/alert events on its own events
+# topic, the ingest worker reads them, and a field node must not be able to
+# publish there. All three legs are checked, because the grant is what the
+# pipeline depends on and the two denials are what keep it least-privilege.
+BASE_USER="${MQTT_TEST_EVENT_USER:-base-01}"
+BASE_PASS="${MQTT_TEST_EVENT_PASS:-$NODE_PASS}"
+readonly TOPIC_EVENT_OWN="nordtronics/wildfire/$BASE_USER/events"
+readonly TOPIC_EVENT_FOREIGN="nordtronics/wildfire/$OTHER_NODE/events"
+
+mosquitto_sub -h "$HOST" -p "$PORT" --cafile "$CAFILE" -u "$INGEST_USER" -P "$INGEST_PASS" \
+  -t 'nordtronics/wildfire/+/events' -C 1 -W 10 >"$RECEIVED" 2>/dev/null &
+SUB_PID=$!
+sleep 1
+mosquitto_pub -h "$HOST" -p "$PORT" --cafile "$CAFILE" -u "$BASE_USER" -P "$BASE_PASS" \
+  -t "$TOPIC_EVENT_OWN" -m '{"node_id":"bench-01","event":"watch_raised","observed_utc":"2026-10-02T21:00:00Z"}' -q 1 \
+  || fail "$BASE_USER could not publish to its own events topic (the 0095 grant is missing)"
+wait "$SUB_PID" || fail "the ingest user did not receive $BASE_USER's event (no read grant on the events topic)"
+grep -q 'watch_raised' "$RECEIVED" || fail "event payload did not survive the trip: $(cat "$RECEIVED")"
+pass "ingest user received $BASE_USER's event (ACL read on $TOPIC_EVENT_OWN)"
+
+if mosquitto_pub -h "$HOST" -p "$PORT" --cafile "$CAFILE" -u "$NODE_USER" -P "$NODE_PASS" \
+     -t "$TOPIC_EVENT_FOREIGN" -m '{"event":"alert_raised"}' -q 1 2>/dev/null; then
+  fail "$NODE_USER was able to publish an event to $TOPIC_EVENT_FOREIGN (only the base may publish events)"
+fi
+pass "$NODE_USER cannot publish to $OTHER_NODE's events topic"
+
 echo "mosquitto config: ALL CHECKS PASSED"

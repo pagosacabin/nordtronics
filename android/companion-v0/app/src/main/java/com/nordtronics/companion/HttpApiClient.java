@@ -28,8 +28,11 @@ public class HttpApiClient implements WildfireApi {
     static final String PATH_NODES = "/v1/nodes";
     static final String PATH_NODE = "/v1/nodes/%s";
     static final String PATH_READINGS = "/v1/nodes/%s/readings?metric=%s&hours=%d";
-    static final String PATH_ALERTS = "/v1/alerts";
     static final String PATH_ACK = "/v1/alerts/%s/acknowledge";
+    // The alerts feed path is NOT declared here: it comes from the BuildConfig
+    // field (`ApiClient.PATH_ALERTS`), which is where the build type decides
+    // whether this backend serves one at all. A literal here would bypass that
+    // gate and point at a route the build may not have (task 0095).
 
     @Override
     public NetworkStatus networkStatus() throws Exception {
@@ -57,11 +60,12 @@ public class HttpApiClient implements WildfireApi {
     @Override
     public List<AlertItem> alerts() throws Exception {
         List<AlertItem> out = new ArrayList<>();
-        JSONArray arr = new JSONObject(ApiClient.get(PATH_ALERTS)).optJSONArray("alerts");
-        if (arr != null) {
-            for (int i = 0; i < arr.length(); i++) {
-                out.add(new AlertItem(arr.optJSONObject(i)));
-            }
+        // ApiClient.getAlerts() reads the BuildConfig path and throws the
+        // explained IOException when this build's backend has no feed, so a
+        // build without an alerts route fails with a sentence, not an HTTP 404.
+        JSONArray arr = ApiClient.getAlerts();
+        for (int i = 0; i < arr.length(); i++) {
+            out.add(new AlertItem(arr.optJSONObject(i)));
         }
         return out;
     }

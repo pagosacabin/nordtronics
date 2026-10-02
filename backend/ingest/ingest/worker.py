@@ -23,7 +23,8 @@ import paho.mqtt.client as mqtt
 from common import db as db_module
 
 from .config import IngestConfig
-from .store import record_reading
+from .events import EVENT_TOPIC_TEMPLATE, validate_event
+from .store import record_event, record_reading
 from .validation import TOPIC_TEMPLATE, validate_payload
 
 LOG = logging.getLogger("wildfire.ingest")
@@ -32,6 +33,15 @@ LOG = logging.getLogger("wildfire.ingest")
 _TOPIC_PARTS = TOPIC_TEMPLATE.split("/")  # ['nordtronics', 'wildfire', '+', 'telemetry']
 _NAMESPACE = "/".join(_TOPIC_PARTS[:2])
 _TRAILING = _TOPIC_PARTS[3]
+
+#: the events topic (task 0095) has the same shape with a different suffix
+_EVENT_PARTS = EVENT_TOPIC_TEMPLATE.split("/")
+_EVENT_TRAILING = _EVENT_PARTS[3]
+
+#: the two suffixes this worker understands, as a dispatch table
+KIND_TELEMETRY = "telemetry"
+KIND_EVENT = "events"
+_TRAILINGS = {_TRAILING: KIND_TELEMETRY, _EVENT_TRAILING: KIND_EVENT}
 
 #: node ids appear in topics and in the database key, so keep them boring
 NODE_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$")
@@ -42,23 +52,47 @@ DUPLICATE = "duplicate"
 INVALID = "invalid"
 IGNORED_TOPIC = "ignored_topic"
 NODE_MISMATCH = "node_mismatch"
+#: events (task 0095) get their own counters: the same words above would hide
+#: which path a rejected message came in on.
+EVENT_STORED = "event_stored"
+EVENT_DUPLICATE = "event_duplicate"
+EVENT_INVALID = "event_invalid"
+
+
+def parse_topic(topic: str) -> tuple[str, str] | None:
+    """Classify a topic as `(kind, node_id)`.
+
+    `kind` is `KIND_TELEMETRY` or `KIND_EVENT`; `node_id` is the id in the
+    topic — for telemetry the reporting node, for events the base station the
+    broker authenticated as the publisher. Returns None for anything outside
+    the two shapes, or for an id that fails NODE_ID_RE: a hostile or
+    fat-fingered topic must never reach the database.
+    """
+    parts = topic.split("/")
+    if len(parts) != 4:
+        return None
+    if parts[0] != _TOPIC_PARTS[0] or parts[1] != _TOPIC_PARTS[1]:
+        return None
+    kind = _TRAILINGS.get(parts[3])
+    if kind is None:
+        return None
+    node_id = parts[2]
+    if not NODE_ID_RE.match(node_id):
+        return None
+    return kind, node_id
 
 
 def parse_node_id(topic: str) -> str | None:
     """Extract the node id from `nordtronics/wildfire/<node-id>/telemetry`.
 
-    Returns None for any topic outside that shape, or for an id that fails
-    NODE_ID_RE — a hostile or fat-fingered topic must never reach the database.
+    Telemetry only, deliberately: the callers of this function are the
+    telemetry path, and an events topic has a different meaning for the id it
+    carries (see `parse_topic`).
     """
-    parts = topic.split("/")
-    if len(parts) != 4:
+    parsed = parse_topic(topic)
+    if parsed is None or parsed[0] != KIND_TELEMETRY:
         return None
-    if parts[0] != _TOPIC_PARTS[0] or parts[1] != _TOPIC_PARTS[1] or parts[3] != _TRAILING:
-        return None
-    node_id = parts[2]
-    if not NODE_ID_RE.match(node_id):
-        return None
-    return node_id
+    return parsed[1]
 
 
 class IngestWorker:
@@ -74,6 +108,9 @@ class IngestWorker:
             INVALID: 0,
             IGNORED_TOPIC: 0,
             NODE_MISMATCH: 0,
+            EVENT_STORED: 0,
+            EVENT_DUPLICATE: 0,
+            EVENT_INVALID: 0,
         }
 
     # ---------------------------------------------------------------- database
@@ -124,8 +161,12 @@ class IngestWorker:
     def on_connect(self, client, userdata, flags, reason_code, properties=None):
         if reason_code == 0:
             LOG.info("connected to %s:%s", self.config.mqtt_host, self.config.mqtt_port)
-            client.subscribe(self.config.topic, qos=1)
-            LOG.info("subscribed to %s (qos 1)", self.config.topic)
+            # Both topics are subscribed on every (re)connect: a session that
+            # came back after a broker restart must not be deaf to alerts, and
+            # clean_session=False does not guarantee the broker kept them.
+            for topic in (self.config.topic, self.config.event_topic):
+                client.subscribe(topic, qos=1)
+                LOG.info("subscribed to %s (qos 1)", topic)
         else:
             LOG.error("broker refused the connection: %s", reason_code)
 
@@ -141,14 +182,24 @@ class IngestWorker:
     # ------------------------------------------------------------ message path
 
     def handle_message(self, topic: str, payload: bytes | str) -> str:
-        """Validate and store one message. Returns a result code."""
-        node_id = parse_node_id(topic)
-        if node_id is None:
+        """Validate and store one message. Returns a result code.
+
+        Two topics arrive here now: telemetry (`.../<node-id>/telemetry`) and
+        Watch/alert events (`.../<base-id>/events`). They are dispatched by the
+        topic's leaf, so a payload can never be read as the wrong kind.
+        """
+        parsed = parse_topic(topic)
+        if parsed is None:
             self.counters[IGNORED_TOPIC] += 1
             LOG.warning("ignoring message on unsupported topic %r", topic)
             return IGNORED_TOPIC
 
+        kind, node_id = parsed
         raw_text = payload.decode("utf-8", "replace") if isinstance(payload, (bytes, bytearray)) else payload
+
+        if kind == KIND_EVENT:
+            return self._handle_event(node_id, topic, payload, raw_text)
+
         result = validate_payload(payload)
 
         if not result.ok:
@@ -191,6 +242,50 @@ class IngestWorker:
         else:
             LOG.info("skipped repeated sample from %s (%s)", node_id, result.reading.get("observed_utc"))
         return outcome
+
+    def _handle_event(self, publisher: str, topic: str, payload: bytes | str,
+                      raw_text: str) -> str:
+        """Validate and store one Watch/alert event.
+
+        `publisher` is the topic's node id — the base station. The payload's own
+        `node_id` names the *elevated* node (or `network`), so unlike telemetry
+        there is no topic/payload agreement to enforce: the base station is
+        expected to report on nodes other than itself. What is enforced is the
+        broker's own isolation — only the base is granted write access to this
+        topic (backend/mosquitto/acl), which is what makes the publisher field
+        worth storing.
+        """
+        result = validate_event(payload)
+        if not result.ok:
+            self.counters[EVENT_INVALID] += 1
+            LOG.warning("rejected event from %s: %s", publisher, result.summary)
+            return EVENT_INVALID
+
+        if result.ignored_fields:
+            LOG.info("base %s sent unknown event fields %s (ignored)",
+                     publisher, ",".join(result.ignored_fields))
+
+        assert result.event is not None
+        outcome = record_event(
+            self.conn,
+            publisher=publisher,
+            event=result.event,
+            topic=topic,
+            raw_payload=raw_text,
+        )
+        if outcome == "stored":
+            self.counters[EVENT_STORED] += 1
+            LOG.info(
+                "stored %s from base %s: node=%s pm25=%s baseline=%s window=%s",
+                result.event["event"], publisher, result.event["node_id"],
+                result.event.get("pm25"), result.event.get("baseline"),
+                result.event.get("window_min"),
+            )
+            return EVENT_STORED
+
+        self.counters[EVENT_DUPLICATE] += 1
+        LOG.info("skipped repeated event %s (already stored)", result.event["alert_id"])
+        return EVENT_DUPLICATE
 
     # ---------------------------------------------------------------- lifecycle
 

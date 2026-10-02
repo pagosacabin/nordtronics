@@ -23,15 +23,15 @@ android {
         // contract, confirmed against the running service (task 0069):
         //     GET /v1/nodes   -> 200  {"nodes":[...]}
         //     GET /healthz    -> 200  {"status":"ok",...}
-        // The service exposes no alerts feed and no ping endpoint (both 404),
-        // so those two paths are declared null here rather than pointed at a
-        // route that does not exist. The debug build type re-declares them
-        // against the local mock, which serves a different dialect.
+        // Task 0095 added the alerts feed to the same service and un-gated it
+        // here: /v1/alerts now answers contract v1's alert objects, so the
+        // Alerts screen is no longer held behind a null path. The ping endpoint
+        // is still only served by the local mock, so that one stays null.
         // ---------------------------------------------------------------------
         buildConfigField "String", "API_BASE_URL", "\"https://api.nordtronics.io\""
         buildConfigField "String", "PATH_NODES", "\"/v1/nodes\""
         buildConfigField "String", "PATH_HEALTH", "\"/healthz\""
-        buildConfigField "String", "PATH_ALERTS", "null"
+        buildConfigField "String", "PATH_ALERTS", "\"/v1/alerts\""
         buildConfigField "String", "PATH_NODE_PING", "null"
     }
 

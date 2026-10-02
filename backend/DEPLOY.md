@@ -413,6 +413,15 @@ Adding a schema column is safe (`common/schema.sql` is applied with
 a migration — there is none yet, so check `schema_version` before rolling one
 out.
 
+Task 0095 needed neither: `alerts` is a *new* table and the version row is
+rewritten in place (`INSERT ... ON CONFLICT(key) DO UPDATE`), so deploying this
+revision over a `schema_version=1` database adds the table and bumps the row to
+`2` on the next ingest-worker start. Confirm with:
+
+```bash
+curl -s https://api.nordtronics.io/healthz   # "schema_version":2
+```
+
 ## Rollback
 
 ```bash

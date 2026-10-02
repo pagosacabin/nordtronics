@@ -26,6 +26,10 @@ DATA_DIR="/var/lib/mosquitto"
 # obviously fake, CI-only credentials — the real ones are created at deploy time
 INGEST_USER="wildfire-ingest"
 NODE_USERS="node-01 node-02"
+# Task 0095: the base station that publishes Watch/alert events. Production has
+# the same user (created with mosquitto_passwd, never in git); the fixture gives
+# it the shared CI-only password so smoke-test.sh can prove the events ACL.
+BASE_USER="base-01"
 TEST_PASSWORD="ci-fixture-not-a-secret"
 
 [[ "$(id -u)" == "0" ]] || { echo "test-fixture.sh must run as root" >&2; exit 1; }
@@ -63,7 +67,7 @@ setfacl -R -d -m u:mosquitto:rX /etc/letsencrypt/live /etc/letsencrypt/archive
 echo "== password file =="
 mkdir -p "$MOSQUITTO_DIR"
 mosquitto_passwd -c -b "$MOSQUITTO_DIR/passwd" "$INGEST_USER" "$TEST_PASSWORD"
-for user in $NODE_USERS; do
+for user in $NODE_USERS $BASE_USER; do
   mosquitto_passwd -b "$MOSQUITTO_DIR/passwd" "$user" "$TEST_PASSWORD"
 done
 # DEPLOY.md step 5 hands both files to the user the broker runs as, at mode
