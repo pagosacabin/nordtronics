@@ -1,0 +1,626 @@
+// Wildfire Node v1 -- unified firmware, task 0094.
+//
+// ONE binary, TWO roles. The role is decided at boot (src/role_detect.h) before
+// any radio, sensor or power init, is logged to serial on every boot with its
+// source, and every code path below branches on it:
+//
+//   node  -- BME680 + PMS5003 sampling, routine CHECKIN every 12 min, ALARM on
+//            its own hard threshold, deep sleep between check-ins.
+//   base  -- SX1262 receive loop, v0.2 consensus engine (src/consensus_v02.cpp),
+//            MQTT uplink, OLED status, captive portal. NEVER deep-sleeps.
+//
+// The base is another Heltec LoRa 32 V4, USB-powered, no sensors: it bridges
+// LoRa -> WiFi/MQTT -> VPS and Home Assistant.
+//
+// The consensus engine and the wire protocol are portable translation units
+// (consensus_v02.cpp, radio_protocol.cpp, role_detect.cpp) so the host-side test
+// in test/ exercises exactly the code compiled here.
+
+#include <Arduino.h>
+#include <Preferences.h>
+#include <PubSubClient.h>
+#include <RadioLib.h>
+#include <U8g2lib.h>
+#include <WebServer.h>
+#include <WiFi.h>
+#include <Wire.h>
+#include <esp_sleep.h>
+
+#include <cstdarg>
+#include <cstdlib>
+#include <cstring>
+#include <string>
+#include <vector>
+
+#include "consensus_v02.h"
+#include "firmware_config.h"
+#include "radio_protocol.h"
+#include "role_detect.h"
+
+#if __has_include(<Adafruit_BME680.h>)
+#include <Adafruit_BME680.h>
+#define WF_HAS_BME680 1
+#else
+#define WF_HAS_BME680 0
+#endif
+
+// ---------------------------------------------------------------------------
+// hardware objects
+// ---------------------------------------------------------------------------
+static SX1262 g_radio = new Module(wf::kLoraNssPin, wf::kLoraDio1Pin,
+                                   wf::kLoraRstPin, wf::kLoraBusyPin);
+static U8G2_SSD1306_128X64_NONAME_F_HW_I2C g_oled(U8G2_R0, U8X8_PIN_NONE);
+static WebServer g_server(80);
+static WiFiClient g_wifi_client;
+static PubSubClient g_mqtt(g_wifi_client);
+static Preferences g_prefs;
+static HardwareSerial g_pms(1);
+#if WF_HAS_BME680
+static Adafruit_BME680 g_bme;
+#endif
+
+// ---------------------------------------------------------------------------
+// runtime configuration: firmware default (firmware_config.h) + NVS value
+// ---------------------------------------------------------------------------
+struct RuntimeConfig {
+  int role_override = -1;  // -1 = unset (strap decides)
+  uint16_t node_id = 0;
+  String prov_ids;
+  String wifi_ssid, wifi_pass;
+  String mqtt_host, mqtt_user, mqtt_pass, mqtt_root;
+  uint16_t mqtt_port = 1883;
+  String offl_policy = "buffer";
+  int offl_cap = 180;
+  uint32_t checkin_s = 720;  // 12 minutes
+  float lora_mhz = 915.0f;
+  float lora_bw = 125.0f;
+  uint8_t lora_sf = 7;
+  uint8_t lora_cr = 5;
+  uint8_t lora_sync = 0x12;
+  int8_t lora_dbm = 20;
+  uint16_t ack_to_s = 5;
+  uint8_t ack_tries = 3;
+  int corr_min = 20;
+  float abs_floor = 25.0f;
+  float rel_delta = 25.0f;
+  int clear_min = 30;
+  int rearm_min = 30;
+  int baseline_n = 8;
+  int live_min = 30;
+  uint16_t batt_low_mv = 3400;
+  uint32_t pms_baud = 9600;
+};
+
+static RuntimeConfig g_cfg;
+static wf::Role g_role = wf::Role::Node;
+static wf::RoleDecision g_role_decision;
+static wf::ConsensusEngine g_engine;
+static uint16_t g_tx_seq = 0;
+
+// base-side node table, for the OLED and the MQTT "offline" state
+struct NodeRecord {
+  std::string id;
+  float last_seen_min = -1.0f;
+  float pm25 = 0.0f;
+  uint16_t batt_mv = 0;
+  bool online = false;
+};
+static std::vector<NodeRecord> g_nodes;
+static std::string g_last_event = "none";
+static float g_boot_min = 0.0f;
+
+// ---------------------------------------------------------------------------
+// small helpers
+// ---------------------------------------------------------------------------
+static void logf(const char* fmt, ...) {
+  char buf[256];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  Serial.println(buf);
+}
+
+static float now_min() { return (float)(millis() / 60000UL); }
+
+// ---------------------------------------------------------------------------
+// configuration load / save (NVS; one key per portal field)
+// ---------------------------------------------------------------------------
+static int portal_index(const char* key) {
+  for (size_t i = 0; i < wf::kPortalFieldCount; ++i) {
+    if (strcmp(wf::kPortalFields[i].key, key) == 0) return (int)i;
+  }
+  return -1;
+}
+
+static String cfg_get_str(const char* key) {
+  const int i = portal_index(key);
+  const char* def = (i >= 0) ? wf::kPortalFields[i].default_text : "";
+  if (!g_prefs.isKey(key)) return String(def);
+  return g_prefs.getString(key, def);
+}
+
+static int cfg_get_int(const char* key) {
+  const int i = portal_index(key);
+  const char* def = (i >= 0) ? wf::kPortalFields[i].default_text : "0";
+  return (int)g_prefs.getInt(key, atoi(def));
+}
+
+static float cfg_get_float(const char* key) {
+  const int i = portal_index(key);
+  const char* def = (i >= 0) ? wf::kPortalFields[i].default_text : "0";
+  return g_prefs.getFloat(key, (float)atof(def));
+}
+
+// The portal writes every field through here, so a value that arrives over HTTP
+// is persisted to NVS before it is used -- there is no in-RAM-only field.
+static void portal_store(const String& key, const String& value) {
+  const int i = portal_index(key.c_str());
+  if (i < 0) return;
+  switch (wf::kPortalFields[i].kind) {
+    case wf::FieldKind::Int:
+      g_prefs.putInt(key.c_str(), value.toInt());
+      break;
+    case wf::FieldKind::Bool:
+      g_prefs.putBool(key.c_str(), value == "1" || value == "true");
+      break;
+    case wf::FieldKind::Str:
+    default:
+      g_prefs.putString(key.c_str(), value);
+      break;
+  }
+}
+
+static void load_config() {
+  const String role_s = cfg_get_str("role");
+  if (role_s.length() == 1 && (role_s == "0" || role_s == "1")) {
+    g_cfg.role_override = role_s.toInt();
+  } else {
+    g_cfg.role_override = -1;
+  }
+  g_cfg.node_id = (uint16_t)cfg_get_int("node_id");
+  g_cfg.prov_ids = cfg_get_str("prov_ids");
+  g_cfg.wifi_ssid = cfg_get_str("wifi_ssid");
+  g_cfg.wifi_pass = cfg_get_str("wifi_pass");
+  g_cfg.mqtt_host = cfg_get_str("mqtt_host");
+  g_cfg.mqtt_port = (uint16_t)cfg_get_int("mqtt_port");
+  g_cfg.mqtt_user = cfg_get_str("mqtt_user");
+  g_cfg.mqtt_pass = cfg_get_str("mqtt_pass");
+  g_cfg.mqtt_root = cfg_get_str("mqtt_root");
+  g_cfg.offl_policy = cfg_get_str("offl_policy");
+  g_cfg.offl_cap = cfg_get_int("offl_cap");
+  g_cfg.checkin_s = (uint32_t)cfg_get_int("chk_s");
+  g_cfg.lora_mhz = cfg_get_float("lora_mhz");
+  g_cfg.lora_bw = cfg_get_float("lora_bw");
+  g_cfg.lora_sf = (uint8_t)cfg_get_int("lora_sf");
+  g_cfg.lora_cr = (uint8_t)cfg_get_int("lora_cr");
+  g_cfg.lora_sync = (uint8_t)strtol(cfg_get_str("lora_sync").c_str(), nullptr, 0);
+  g_cfg.lora_dbm = (int8_t)cfg_get_int("lora_dbm");
+  g_cfg.ack_to_s = (uint16_t)cfg_get_int("ack_to_s");
+  g_cfg.ack_tries = (uint8_t)cfg_get_int("ack_tries");
+  g_cfg.corr_min = cfg_get_int("corr_min");
+  if (g_cfg.corr_min < 10) g_cfg.corr_min = 10;   // portal range 10..60
+  if (g_cfg.corr_min > 60) g_cfg.corr_min = 60;
+  g_cfg.abs_floor = cfg_get_float("abs_floor");
+  g_cfg.rel_delta = cfg_get_float("rel_delta");
+  g_cfg.clear_min = cfg_get_int("clear_min");
+  g_cfg.rearm_min = cfg_get_int("rearm_min");
+  g_cfg.baseline_n = cfg_get_int("baseline_n");
+  g_cfg.live_min = cfg_get_int("live_min");
+  g_cfg.batt_low_mv = (uint16_t)cfg_get_int("batt_low_mv");
+  g_cfg.pms_baud = (uint32_t)cfg_get_int("pms_baud");
+}
+
+static wf::ConsensusConfig consensus_config_from(const RuntimeConfig& c) {
+  wf::ConsensusConfig cc;
+  cc.abs_floor_ugm3 = c.abs_floor;
+  cc.rel_delta_ugm3 = c.rel_delta;
+  cc.correlation_window_min = (float)c.corr_min;
+  cc.autoclear_below_min = (float)c.clear_min;
+  cc.rearm_cooldown_min = (float)c.rearm_min;
+  cc.baseline_window = (uint8_t)c.baseline_n;
+  cc.live_age_min = (float)c.live_min;
+  return cc;
+}
+
+// ---------------------------------------------------------------------------
+// deep sleep -- the ONLY sleep path, and it refuses to run as base
+// ---------------------------------------------------------------------------
+static void enter_deep_sleep(uint32_t seconds) {
+  if (g_role != wf::Role::Node) {
+    // HARD RULE (task 0094 item 0): a base station that sleeps goes deaf and
+    // takes the whole property's detection with it. Fail loudly and stay awake.
+    logf("FATAL: deep sleep requested while role=%s -- refusing (base must never sleep)",
+         wf::role_name(g_role));
+    return;
+  }
+  logf("sleep: %u s (role=node)", (unsigned)seconds);
+  Serial.flush();
+  esp_sleep_enable_timer_wakeup((uint64_t)seconds * 1000000ULL);
+  esp_deep_sleep_start();
+}
+
+// ---------------------------------------------------------------------------
+// node role
+// ---------------------------------------------------------------------------
+static float read_pms25(uint16_t* pm1, uint16_t* pm10, bool* ok) {
+  *ok = false;
+  *pm1 = 0;
+  *pm10 = 0;
+  uint8_t frame[32];
+  const uint32_t deadline = millis() + 1500;
+  int idx = 0;
+  while (millis() < deadline) {
+    if (!g_pms.available()) continue;
+    const uint8_t b = (uint8_t)g_pms.read();
+    if (idx == 0 && b != 0x42) continue;
+    if (idx == 1 && b != 0x4D) {
+      idx = 0;
+      continue;
+    }
+    frame[idx++] = b;
+    if (idx == 32) break;
+  }
+  if (idx != 32) return -1.0f;
+  uint16_t sum = 0;
+  for (int i = 0; i < 30; ++i) sum += frame[i];
+  const uint16_t wire = ((uint16_t)frame[30] << 8) | frame[31];
+  if (sum != wire) {
+    logf("pms: checksum mismatch (calc=%u wire=%u) -- frame dropped", sum, wire);
+    return -1.0f;
+  }
+  *pm1 = ((uint16_t)frame[10] << 8) | frame[11];
+  const uint16_t pm25 = ((uint16_t)frame[12] << 8) | frame[13];
+  *pm10 = ((uint16_t)frame[14] << 8) | frame[15];
+  *ok = true;
+  return (float)pm25;
+}
+
+static void node_send(wf::Frame& f) {
+  uint8_t buf[64];
+  f.version = wf::kProtoVersion;
+  f.node_id = g_cfg.node_id;
+  f.seq = g_tx_seq++;
+  const size_t n = wf::encode_frame(f, buf, sizeof(buf));
+  if (n == 0) {
+    logf("tx: encode failed (type=%u)", f.type);
+    return;
+  }
+  const int st = g_radio.transmit(buf, n);
+  logf("tx: type=%u node=%u seq=%u len=%u -> %s", f.type, f.node_id, f.seq,
+       (unsigned)n, st == RADIOLIB_ERR_NONE ? "sent" : "FAILED");
+}
+
+static bool wait_for_ack(uint16_t want_seq, wf::Frame* ack_out) {
+  uint8_t buf[64];
+  const uint32_t deadline = millis() + (uint32_t)g_cfg.ack_to_s * 1000UL;
+  while (millis() < deadline) {
+    const int st = g_radio.receive(buf, sizeof(buf));
+    if (st != RADIOLIB_ERR_NONE) continue;
+    wf::Frame f;
+    if (wf::decode_frame(buf, g_radio.getPacketLength(), &f) != wf::DecodeResult::Ok) {
+      continue;  // never act on a bad frame
+    }
+    if (f.type == wf::kMsgAck && f.acked_seq == want_seq) {
+      *ack_out = f;
+      return true;
+    }
+  }
+  return false;
+}
+
+static void node_checkin() {
+  wf::Frame f;
+  bool pms_ok = false;
+  uint16_t pm1 = 0, pm10 = 0;
+  const float pm25 = read_pms25(&pm1, &pm10, &pms_ok);
+  f.pm1_x10 = pm1 * 10;
+  f.pm25_x10 = pms_ok ? (uint16_t)(pm25 * 10.0f) : 0;
+  f.pm10_x10 = pm10 * 10;
+#if WF_HAS_BME680
+  if (g_bme.performReading()) {
+    f.temp_c_x100 = (int16_t)(g_bme.temperature * 100.0f);
+    f.rh_x100 = (uint16_t)(g_bme.humidity * 100.0f);
+    f.press_pa = (uint32_t)g_bme.pressure;
+    f.status |= wf::kStatusBmePresent;
+  } else {
+    f.status |= wf::kStatusSensorFault;
+  }
+#endif
+  f.status |= pms_ok ? (wf::kStatusPmsPresent | wf::kStatusPmsOk) : wf::kStatusPmsPresent;
+  f.batt_mv = 0;  // Rev C has no fuel gauge; TP1 is a bench measurement
+  f.flags = 0;
+
+  // The node's own hard threshold turns a routine check-in into an ALARM, which
+  // is the only packet type that requires an ACK and is therefore retried.
+  const bool alarm = pms_ok && pm25 >= 55.0f;
+  f.type = alarm ? wf::kMsgAlarm : wf::kMsgCheckin;
+  if (alarm) f.flags |= wf::kFlagAlarm | wf::kFlagAckRequired;
+
+  node_send(f);
+  if (alarm) {
+    wf::Frame ack;
+    bool got = false;
+    for (uint8_t attempt = 0; attempt < g_cfg.ack_tries && !got; ++attempt) {
+      got = wait_for_ack(f.seq, &ack);
+      if (!got) {
+        logf("alarm: no ACK within %u s (attempt %u/%u) -- retransmitting",
+             g_cfg.ack_to_s, attempt + 1, g_cfg.ack_tries);
+        node_send(f);
+      }
+    }
+    logf("alarm seq=%u %s", f.seq, got ? "ACKed" : "UNACKED (retries exhausted)");
+  }
+}
+
+// ---------------------------------------------------------------------------
+// base role
+// ---------------------------------------------------------------------------
+static NodeRecord* node_record(const std::string& id) {
+  for (auto& r : g_nodes) {
+    if (r.id == id) return &r;
+  }
+  NodeRecord r;
+  r.id = id;
+  g_nodes.push_back(r);
+  return &g_nodes.back();
+}
+
+static bool is_provisioned(uint16_t id) {
+  if (g_cfg.prov_ids.length() == 0) return true;  // empty allowlist = bench open
+  int start = 0;
+  while (start < (int)g_cfg.prov_ids.length()) {
+    int comma = g_cfg.prov_ids.indexOf(',', start);
+    if (comma < 0) comma = g_cfg.prov_ids.length();
+    const String tok = g_cfg.prov_ids.substring(start, comma);
+    if (tok.length() && (uint16_t)tok.toInt() == id) return true;
+    start = comma + 1;
+  }
+  return false;
+}
+
+static void mqtt_publish(const String& topic, const String& payload) {
+  if (!g_mqtt.connected()) return;
+  g_mqtt.publish((g_cfg.mqtt_root + "/" + topic).c_str(), payload.c_str());
+}
+
+static void base_handle_frame(const wf::Frame& f) {
+  NodeRecord* rec = node_record(std::to_string(f.node_id));
+  rec->last_seen_min = now_min();
+  rec->online = true;
+  rec->batt_mv = f.batt_mv;
+  rec->pm25 = (float)f.pm25_x10 / 10.0f;
+
+  const bool valid = wf::frame_plausible(f);
+  const std::vector<wf::Event> evs =
+      g_engine.feed(now_min(), std::to_string(f.node_id), valid, rec->pm25);
+
+  char buf[256];
+  snprintf(buf, sizeof(buf),
+           "{\"node\":%u,\"seq\":%u,\"pm1\":%.1f,\"pm25\":%.1f,\"pm10\":%.1f,"
+           "\"temp_c\":%.2f,\"rh\":%.2f,\"press_pa\":%lu,\"batt_mv\":%u,"
+           "\"status\":%u,\"level\":\"%s\"}",
+           f.node_id, f.seq, f.pm1_x10 / 10.0f, f.pm25_x10 / 10.0f, f.pm10_x10 / 10.0f,
+           f.temp_c_x100 / 100.0f, f.rh_x100 / 100.0f, (unsigned long)f.press_pa,
+           f.batt_mv, f.status, wf::level_name(g_engine.level()));
+  mqtt_publish(String("node/") + String((unsigned)f.node_id) + "/telemetry", buf);
+
+  for (const auto& e : evs) {
+    g_last_event = std::string(wf::event_kind_name(e.kind)) + " @" +
+                   std::to_string((int)e.t) + "min";
+    logf("EVENT t=%.1f %s %s %s", e.t, wf::event_kind_name(e.kind),
+         e.nodes.empty() ? e.node.c_str() : "", e.detail.c_str());
+    snprintf(buf, sizeof(buf), "{\"event\":\"%s\",\"t\":%.1f,\"nodes\":\"%s\"}",
+             wf::event_kind_name(e.kind), e.t, e.detail.c_str());
+    const char* topic = (e.kind == wf::EventKind::Alert)   ? "event/alert"
+                        : (e.kind == wf::EventKind::Watch) ? "event/watch"
+                                                           : "event/clear";
+    mqtt_publish(topic, buf);
+  }
+}
+
+static void base_radio_poll() {
+  uint8_t buf[128];
+  const int st = g_radio.receive(buf, sizeof(buf));
+  if (st != RADIOLIB_ERR_NONE) return;
+  wf::Frame f;
+  const wf::DecodeResult r = wf::decode_frame(buf, g_radio.getPacketLength(), &f);
+  if (r != wf::DecodeResult::Ok) {
+    logf("rx: dropped frame (%s)", wf::decode_result_name(r));
+    return;
+  }
+  if (!is_provisioned(f.node_id)) {
+    logf("rx: node %u is not provisioned -- ignored", f.node_id);
+    return;
+  }
+  base_handle_frame(f);
+  if (f.type == wf::kMsgAlarm || (f.flags & wf::kFlagAckRequired)) {
+    wf::Frame ack;
+    ack.type = wf::kMsgAck;
+    ack.node_id = f.node_id;
+    ack.seq = g_tx_seq++;
+    ack.acked_seq = f.seq;
+    ack.ack_code = wf::kAckOk;
+    uint8_t out[32];
+    const size_t n = wf::encode_frame(ack, out, sizeof(out));
+    if (n) {
+      g_radio.transmit(out, n);
+      logf("tx: ACK seq=%u for node %u", f.seq, f.node_id);
+    }
+  }
+}
+
+static void oled_render() {
+  g_oled.clearBuffer();
+  g_oled.setFont(u8g2_font_6x10_tf);
+  g_oled.drawStr(0, 10, "WILDFIRE BASE");
+  char line[40];
+  snprintf(line, sizeof(line), "level:%s  nodes:%d", wf::level_name(g_engine.level()),
+           (int)g_nodes.size());
+  g_oled.drawStr(0, 20, line);
+  snprintf(line, sizeof(line), "mqtt:%s", g_mqtt.connected() ? "up" : "down");
+  g_oled.drawStr(0, 30, line);
+  // last-seen for the first two nodes in the table
+  int y = 42;
+  int shown = 0;
+  for (const auto& n : g_nodes) {
+    if (shown >= 2) break;
+    snprintf(line, sizeof(line), "%s last-seen %.0f min", n.id.c_str(), n.last_seen_min);
+    g_oled.drawStr(0, y, line);
+    y += 10;
+    shown++;
+  }
+  // last event, truncated to the 128 px panel
+  std::string ev = g_last_event;
+  if (ev.size() > 20) ev = ev.substr(0, 20);
+  snprintf(line, sizeof(line), "last: %s", ev.c_str());
+  g_oled.drawStr(0, 62, line);
+  g_oled.sendBuffer();
+}
+
+static void portal_setup() {
+  g_server.on("/", HTTP_GET, []() {
+    String html = "<!doctype html><meta name=viewport content='width=device-width,initial-scale=1'>";
+    html += "<h2>Wildfire " + String(wf::role_name(g_role)) + "</h2><form method=POST action=/save>";
+    for (size_t i = 0; i < wf::kPortalFieldCount; ++i) {
+      const wf::PortalField& f = wf::kPortalFields[i];
+      html += "<label>" + String(f.label) + "<br><input name='" + String(f.key) +
+              "' value='" + cfg_get_str(f.key) + "'></label><br>";
+    }
+    html += "<button>Save</button></form>";
+    g_server.send(200, "text/html", html);
+  });
+  g_server.on("/save", HTTP_POST, []() {
+    for (size_t i = 0; i < wf::kPortalFieldCount; ++i) {
+      const wf::PortalField& f = wf::kPortalFields[i];
+      if (g_server.hasArg(f.key)) portal_store(f.key, g_server.arg(f.key));
+    }
+    g_server.send(200, "text/plain", "saved; reboot to apply\n");
+  });
+  g_server.begin();
+}
+
+// ---------------------------------------------------------------------------
+// setup / loop
+// ---------------------------------------------------------------------------
+void setup() {
+  Serial.begin(115200);
+  for (uint32_t t0 = millis(); !Serial && millis() - t0 < 2000;) delay(10);
+
+  // ---- STEP 0: role detection, before ANY radio/sensor/power init ----------
+  pinMode(wf::kRoleStrapPin, INPUT_PULLUP);
+  delay(5);
+  const int strap = digitalRead(wf::kRoleStrapPin) == LOW ? wf::kStrapLevelBase
+                                                          : wf::kStrapLevelNode;
+  g_prefs.begin(wf::kPrefsNamespace, false);
+  const String role_s = g_prefs.getString("role", "");
+  const bool nvs_present = (role_s.length() == 1 && (role_s == "0" || role_s == "1"));
+  const int nvs_role = nvs_present ? role_s.toInt() : -1;
+
+  g_role_decision = wf::resolve_role(strap, nvs_present, nvs_role);
+  g_role = g_role_decision.role;
+  logf("%s", wf::role_log_line(g_role_decision, wf::kRoleStrapPin).c_str());
+  logf("firmware: wildfire-unified-v1 proto=%u build=%s %s", wf::kProtoVersion,
+       __DATE__, __TIME__);
+  if (g_role == wf::Role::Base) {
+    logf("base: deep sleep is disabled for this role (asserted on every sleep path)");
+  }
+
+  load_config();
+  g_boot_min = now_min();
+  if (g_role == wf::Role::Base) {
+    std::vector<std::string> ids;
+    g_engine = wf::ConsensusEngine(consensus_config_from(g_cfg), ids);
+  }
+
+  // ---- radio ---------------------------------------------------------------
+  const int rs = g_radio.begin(g_cfg.lora_mhz, g_cfg.lora_bw, g_cfg.lora_sf,
+                               g_cfg.lora_cr, g_cfg.lora_sync, g_cfg.lora_dbm, 8,
+                               1.8f, false);
+  logf("radio: begin(%0.1fMHz bw%0.0fk sf%u cr%u sync=0x%02X %ddBm) -> %s",
+       g_cfg.lora_mhz, g_cfg.lora_bw, g_cfg.lora_sf, g_cfg.lora_cr,
+       g_cfg.lora_sync, g_cfg.lora_dbm,
+       rs == RADIOLIB_ERR_NONE ? "ok" : "FAILED");
+  if (g_cfg.lora_mhz > 928.0f || g_cfg.lora_mhz < 902.0f) {
+    logf("FATAL: %0.1f MHz is outside the 915 MHz US band (902-928) -- "
+         "this build is US915 only", g_cfg.lora_mhz);
+  }
+
+  Wire.begin(wf::kI2cSdaPin, wf::kI2cSclPin);
+  g_oled.setI2CAddress(wf::kSsd1306Addr << 1);
+  g_oled.begin();
+
+  if (g_role == wf::Role::Node) {
+    g_pms.begin(g_cfg.pms_baud, SERIAL_8N1, wf::kPmsUartTxPin, wf::kPmsUartRxPin);
+#if WF_HAS_BME680
+    if (!g_bme.begin(wf::kBme680Addr)) logf("bme680: not found at 0x%02X", wf::kBme680Addr);
+#endif
+  }
+
+  // ---- network + portal ----------------------------------------------------
+  if (g_cfg.wifi_ssid.length()) {
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(g_cfg.wifi_ssid.c_str(), g_cfg.wifi_pass.c_str());
+    const uint32_t deadline = millis() + 15000;
+    while (WiFi.status() != WL_CONNECTED && millis() < deadline) delay(200);
+    logf("wifi: %s", WiFi.status() == WL_CONNECTED ? "connected" : "not connected");
+  }
+  g_mqtt.setServer(g_cfg.mqtt_host.c_str(), g_cfg.mqtt_port);
+  portal_setup();
+}
+
+void loop() {
+  if (g_role == wf::Role::Base) {
+    if (!g_mqtt.connected()) {
+      const String client_id = String("wf-base-") + String((unsigned)g_cfg.node_id);
+      if (g_mqtt.connect(client_id.c_str(), g_cfg.mqtt_user.c_str(),
+                         g_cfg.mqtt_pass.c_str())) {
+        logf("mqtt: connected to %s:%u", g_cfg.mqtt_host.c_str(), g_cfg.mqtt_port);
+      }
+    }
+    g_mqtt.loop();
+    g_server.handleClient();
+    base_radio_poll();
+
+    // offline rule: a node with no packet for 3 check-in periods is offline.
+    const float offline_after = 3.0f * (float)g_cfg.checkin_s / 60.0f;
+    for (auto& n : g_nodes) {
+      const bool was = n.online;
+      n.online = (now_min() - n.last_seen_min) <= offline_after;
+      if (was && !n.online) {
+        logf("node %s offline (no packet for %.0f min)", n.id.c_str(), offline_after);
+        mqtt_publish(String("node/") + String(n.id.c_str()) + "/state",
+                     "{\"state\":\"offline\"}");
+      }
+    }
+    static uint32_t last_oled = 0;
+    if (millis() - last_oled > 1000) {
+      last_oled = millis();
+      oled_render();
+    }
+    return;  // the base loop never sleeps
+  }
+
+  // ---- node: sample, report, deep sleep ------------------------------------
+  node_checkin();
+  static uint32_t last_oled = 0;
+  if (millis() - last_oled > 1000) {
+    last_oled = millis();
+    g_oled.clearBuffer();
+    g_oled.setFont(u8g2_font_6x10_tf);
+    g_oled.drawStr(0, 10, "WILDFIRE NODE");
+    char line[32];
+    snprintf(line, sizeof(line), "id:%u", g_cfg.node_id);
+    g_oled.drawStr(0, 22, line);
+    snprintf(line, sizeof(line), "chk:%lus", (unsigned long)g_cfg.checkin_s);
+    g_oled.drawStr(0, 34, line);
+    snprintf(line, sizeof(line), "seq:%u", g_tx_seq);
+    g_oled.drawStr(0, 46, line);
+    snprintf(line, sizeof(line), "vbat:%umV", 0);
+    g_oled.drawStr(0, 58, line);
+    g_oled.sendBuffer();
+  }
+  enter_deep_sleep(g_cfg.checkin_s);
+  // Reached only if the sleep was refused (i.e. we are not a node after all).
+  delay(1000);
+}

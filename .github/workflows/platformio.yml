@@ -1,16 +1,21 @@
 name: PlatformIO Build
 
-# Auto-build the Tank-Monitor firmware on every push
+# Auto-build the firmware trees on every push, and run the host-side tests for
+# the wildfire unified firmware.
 on:
   push:
     paths:
       - 'firmware/tank-monitor/**'
       - 'firmware/node-v1/**'
+      - 'firmware/wildfire-node-v1/**'
+      - 'python/detection-sim/**'
       - '.github/workflows/platformio.yml'
   pull_request:
     paths:
       - 'firmware/tank-monitor/**'
       - 'firmware/node-v1/**'
+      - 'firmware/wildfire-node-v1/**'
+      - 'python/detection-sim/**'
   workflow_dispatch:
 
 jobs:
@@ -54,3 +59,49 @@ jobs:
 
       - name: Build firmware (node-v1)
         run: pio run -d firmware/node-v1
+
+      # The unified node/base firmware (task 0094). This is the base target: the
+      # base station runs the same image as the node.
+      - name: Build firmware (wildfire-node-v1, unified node+base)
+        run: pio run -d firmware/wildfire-node-v1 -e heltec_v4
+
+      # The flashable image for the unified firmware (same binary for both roles).
+      - name: Upload wildfire-node-v1 firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: wildfire-node-v1-unified-firmware
+          path: firmware/wildfire-node-v1/.pio/build/heltec_v4/firmware.bin
+          if-no-files-found: error
+
+  host-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install PlatformIO Core
+        run: pip install --upgrade platformio
+
+      - name: Cache PlatformIO
+        uses: actions/cache@v4
+        with:
+          path: ~/.platformio/.cache
+          key: ${{ runner.os }}-platformio-native-${{ hashFiles('firmware/wildfire-node-v1/platformio.ini') }}
+          restore-keys: |
+            ${{ runner.os }}-platformio-
+
+      # Host tests: the consensus engine against the 0091 scenario set, the wire
+      # format against the protocol doc, and the role/portal tables. No hardware.
+      - name: Run host-side firmware tests (native env)
+        run: pio test -d firmware/wildfire-node-v1 -e native
+
+      - name: Verify the generated scenario header is current
+        run: |
+          python3 python/detection-sim/emit_v02_scenarios.py
+          git diff --exit-code -- firmware/wildfire-node-v1/test/test_consensus_native/scenarios_v02.h \
+            || { echo "scenarios_v02.h is stale - regenerate and commit it"; exit 1; }
