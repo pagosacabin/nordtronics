@@ -62,6 +62,13 @@ notes: |
   the task. The traces are synthetic, so the results bound the rules' BEHAVIOUR
   (which is what Section C asks for) and do not validate any absolute field
   value.
+
+  WHERE THE DELIVERABLE LIVES: only on the task branch. `git ls-tree -r
+  --name-only origin/main -- python/detection-sim` returns 0 files, and
+  docs/wildfire/detection-sim-results-v0.1.md is new on the branch as well; main
+  carries the mailbox transition and nothing else. So re-open every artifact
+  with `git show fc30478:<path>`, never from the main worktree, and do not read
+  the paths in `proof.files` as stale against main.
 ---
 
 # 0091 — Detection simulation harness: run the v0.1 rules against synthetic traces before firmware
