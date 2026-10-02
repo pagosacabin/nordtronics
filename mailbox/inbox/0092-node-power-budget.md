@@ -41,14 +41,14 @@ Relevant prior art in the repo:
 2. Daily total at 12-minute cadence (120 wakes/day). Then the sensitivity table: same total
    at 6-min, 12-min, 30-min, and 60-min cadences — this is the input the detection-latency
    tradeoff needs.
-3. Battery sizing: days of autonomy with **zero** solar input for 1× 18650 (~2600 mAh) and
-   whatever cell the Rev C BOM actually specifies. If the BOM cell is unknown, say so and
-   size for the 18650.
+3. Battery sizing: days of autonomy with **zero** solar input for the actual cells —
+   3.7 V 3000 mAh li-ion, single AND 2P (6000 mAh). Stephen confirmed these are the cells
+   and two may be paralleled if needed.
 4. Solar sizing for Pagosa Springs in **December** (worst month): state the peak-sun-hours
    figure you use and its source, apply a snow-cover/dirt derating you defend in one line,
    and compute the panel wattage needed for energy-neutral operation at 12-min cadence.
-   Compare against the panel already on hand for the bench (state its wattage if known,
-   otherwise size the requirement and flag the gap).
+   The bench panel is **13 W / 5 V** — compare the requirement against it directly and
+   state the headroom or the shortfall.
 5. Write `docs/wildfire/node-power-budget-v1.md`: the tables, every source citation, every
    assumption labeled, the cadence sensitivity table, and a verdict section.
 
@@ -85,8 +85,8 @@ branch: "<branch name>"
 sha: "<origin SHA>"
 per_wake_mah: "<12-min cycle total, with the three biggest contributors named>"
 per_day_mah: "<6-min: X | 12-min: X | 30-min: X | 60-min: X>"
-battery_days: "<days of autonomy, zero solar, stated cell>"
-december_solar: "<panel watts needed for energy-neutral December; panel on hand: Y W or unknown>"
+battery_days: "<days of autonomy, zero solar — single 3.7V/3000mAh cell AND 2P 6000mAh>"
+december_solar: "<panel watts needed for energy-neutral December vs the 13 W / 5 V bench panel: headroom or shortfall>"
 verdict: "<does 12-min close? margin or the cost of the cadence that does>"
 sources: "<datasheets cited>"
 notes: "<anything Stephen should know>"
