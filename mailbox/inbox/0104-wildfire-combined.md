@@ -9,11 +9,20 @@ notes: |
   Filed by Juno, 2026-10-03. Supersedes 0100, 0101, 0102 (deleted from the
   inbox unpicked): Stephen hates the hour-per-task cycle, and all three are
   small, independent changes to firmware/wildfire-node-v1 that ride one CI
-  run. One pickup, one branch, one verification. The three checklists below
-  are each falsifiable — verify all three before staging.
+  run. One pickup, one branch, one verification. The checklists below
+  are each falsifiable — verify all before staging.
+
+  2026-10-03 17:45 MDT: fourth item added (MQTT session resilience) from
+  0103's staged findings — still unpicked, still one build. The base holds
+  a TLS session to the broker but mosquitto drops it on keepalive timeout
+  every ~22 s (k15) and it reconnects ~45 s later, forever; mqtt_publish()
+  early-returns when disconnected, silently dropping telemetry even though
+  the portal's offline policy is "buffer" (cap 180). Until the session
+  holds (or the buffer is honored), 0097's fresh-reading criterion cannot
+  pass.
 ---
 
-# 0104 — wildfire-node-v1: topic fix + DHCP hostname + sensor role (one build)
+# 0104 — wildfire-node-v1: topic + hostname + sensor role + MQTT resilience (one build)
 
 ## Context
 
@@ -37,6 +46,17 @@ verified 0099 tip (`881ee68`):
    pattern: probe node sensors at boot (BME680/688 at 0x77/0x76,
    PMS5003 on UART) — found = node, none = base. NVS/portal override
    still wins. Portal label "blank = strap" becomes "blank = auto-detect".
+4. **MQTT resilience (from 0103's bench findings):** the TLS session
+   reaches the broker but mosquitto drops it on keepalive timeout every
+   ~22 s (`k15` in the broker journal) with reconnect ~45 s later, in a
+   loop that pre-dates the 0099 flash — the client is not servicing the
+   connection in time. Worse, `mqtt_publish()` early-returns when
+   disconnected, silently dropping telemetry while the configured offline
+   policy is "buffer" (cap 180 records). Fix the servicing so the session
+   holds; honor the offline policy (buffer-then-flush when set to buffer,
+   not silent drop); and log the WiFi IP on connect plus the disconnect
+   reason code on drop (0098's observability gap — the current build
+   prints neither).
 
 ## Task
 
@@ -66,12 +86,19 @@ behavior you must change, stop and declare it in the reply.
   no new portal field, no new NVS key.
 - Role: `grep -rni "strap" firmware/wildfire-node-v1/src/` returns nothing
   in logic; priority is NVS override > sensor probe > base default.
+- MQTT resilience: the session-hold can't be proven in CI — so the
+  falsifiable part is code + config: the MQTT client is serviced every
+  loop (no path starves PINGREQ), `mqtt_publish()` routes through the
+  offline buffer when disconnected instead of early-returning (quote the
+  lines), and WiFi connect/disconnect log lines exist naming IP and
+  reason code (quote them). The bench hold-test is 0103's successor
+  task's job.
 - `git diff` contains no credential, SSID, or password.
 
 ## Constraints
 
 - Do not touch the LoRa receive path, the 0099 fixes, or the consensus
-  logic. These three changes and nothing else.
+  logic. These four changes and nothing else.
 
 ## Proof
 
@@ -81,5 +108,5 @@ behavior you must change, stop and declare it in the reply.
 
 ## Reply format
 
-Follow the mailbox staged-reply format: status line, the three checklists
+Follow the mailbox staged-reply format: status line, the four checklists
 with quoted evidence, deviations declared, cost line.
