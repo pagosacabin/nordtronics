@@ -69,6 +69,7 @@ constexpr int kStrapLevelNode = 1;  // internal pull-up, open == node
 // ---------------------------------------------------------------------------
 constexpr int kI2cSdaPin = 17;   // BME680 SCK/SDA  (bench-verified)
 constexpr int kI2cSclPin = 18;   // BME680 SDI/SCL  (bench-verified)
+constexpr int kOledRstPin = 21;  // SSD1306 reset -- NOT tied to the ESP32 reset
 constexpr uint8_t kBme680Addr = 0x77;
 constexpr uint8_t kSsd1306Addr = 0x3C;
 constexpr int kPmsUartTxPin = 5; // PMS5003 TX -> 1k -> GPIO5 (bench-verified)
@@ -93,14 +94,26 @@ struct PortalField {
 // in one and not the other.
 constexpr const char* kPrefsNamespace = "wildfire";
 
+// The captive portal's own AP name. This is a fixed firmware constant, not a
+// network credential and not a site value: it is the name the operator joins to
+// reach http://192.168.4.1 before any site configuration exists. The site
+// network name and the MQTT password are NVS fields written at the bench by the
+// portal and live in no repository file (task 0099 constraints).
+constexpr const char* kPortalApName = "wildfire-setup";
+
 inline constexpr PortalField kPortalFields[] = {
     {"role",        "Radio role (0 node / 1 base; blank = strap)", FieldKind::Str,  "", "wildfire"},
     {"node_id",     "Node ID (1..65534; 0 = unprovisioned)",       FieldKind::Int,  "0", "wildfire"},
     {"prov_ids",    "Provisioned node IDs (csv, base allowlist)",   FieldKind::Str,  "", "wildfire"},
     {"wifi_ssid",   "WiFi SSID",                                   FieldKind::Str,  "", "wildfire"},
     {"wifi_pass",   "WiFi password",                               FieldKind::Str,  "", "wildfire"},
-    {"mqtt_host",   "MQTT broker host",                            FieldKind::Str,  "api.nordtronics.io", "wildfire"},
-    {"mqtt_port",   "MQTT broker port",                            FieldKind::Int,  "1883", "wildfire"},
+    // The uplink is TLS-only: the deployed broker listens on 8883 and has no
+    // 1883 listener, and the uplink is a WiFiClientSecure with the ISRG Root X1
+    // trust anchor pinned (src/mqtt_ca.h). The old defaults here
+    // (api.nordtronics.io:1883) were plaintext and pointed at a Cloudflare edge
+    // with nothing listening on either port (task 0099 item 7b).
+    {"mqtt_host",   "MQTT broker host",                            FieldKind::Str,  "mqtt.nordtronics.io", "wildfire"},
+    {"mqtt_port",   "MQTT broker port (TLS)",                      FieldKind::Int,  "8883", "wildfire"},
     {"mqtt_user",   "MQTT username",                               FieldKind::Str,  "", "wildfire"},
     {"mqtt_pass",   "MQTT password",                               FieldKind::Str,  "", "wildfire"},
     {"mqtt_root",   "MQTT topic root",                             FieldKind::Str,  "nordtronics/wildfire", "wildfire"},

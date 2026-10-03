@@ -23,8 +23,10 @@
 #include <U8g2lib.h>
 #include <WebServer.h>
 #include <WiFi.h>
+#include <WiFiClientSecure.h>
 #include <Wire.h>
 #include <esp_sleep.h>
+#include <time.h>
 
 #include <cstdarg>
 #include <cstdlib>
@@ -34,6 +36,7 @@
 
 #include "consensus_v02.h"
 #include "firmware_config.h"
+#include "mqtt_ca.h"
 #include "radio_protocol.h"
 #include "role_detect.h"
 
@@ -51,13 +54,22 @@ static SX1262 g_radio = new Module(wf::kLoraNssPin, wf::kLoraDio1Pin,
                                    wf::kLoraRstPin, wf::kLoraBusyPin);
 static U8G2_SSD1306_128X64_NONAME_F_HW_I2C g_oled(U8G2_R0, U8X8_PIN_NONE);
 static WebServer g_server(80);
-static WiFiClient g_wifi_client;
+// TLS transport (task 0099 item 7b): the deployed broker listens ONLY on
+// 8883/TLS -- there is no 1883 listener -- so a plaintext WiFiClient can never
+// reach it. The trust anchor is pinned (src/mqtt_ca.h), never setInsecure().
+static WiFiClientSecure g_wifi_client;
 static PubSubClient g_mqtt(g_wifi_client);
 static Preferences g_prefs;
 static HardwareSerial g_pms(1);
 #if WF_HAS_BME680
 static Adafruit_BME680 g_bme;
 #endif
+
+// The panel probe result. NOTHING may drive the SSD1306 until the probe has
+// answered: a bulk 1024-byte sendBuffer() to an unproven panel hangs the I2C
+// transaction and starves loop() -- which is exactly what stopped the captive
+// portal from ever replying on the bench (task 0099 item 4).
+static bool g_oled_ready = false;
 
 // ---------------------------------------------------------------------------
 // runtime configuration: firmware default (firmware_config.h) + NVS value
@@ -68,7 +80,7 @@ struct RuntimeConfig {
   String prov_ids;
   String wifi_ssid, wifi_pass;
   String mqtt_host, mqtt_user, mqtt_pass, mqtt_root;
-  uint16_t mqtt_port = 1883;
+  uint16_t mqtt_port = 8883;  // TLS only: the broker has no 1883 listener
   String offl_policy = "buffer";
   int offl_cap = 180;
   uint32_t checkin_s = 720;  // 12 minutes
@@ -122,6 +134,29 @@ static void logf(const char* fmt, ...) {
 }
 
 static float now_min() { return (float)(millis() / 60000UL); }
+
+// The portal renders stored values back into HTML input attributes. Without
+// escaping, any value containing a quote, an angle bracket or an ampersand is
+// truncated or mangled on the round trip -- the bench-observed corruption of a
+// stored network name came from exactly this (task 0099 item 7a), and a password
+// containing a `"` or `'` would be silently corrupted the same way. Escape
+// `& < > " '` by walking the bytes: String::replace has no (char, const char*)
+// overload, so the naive one-by-one replace() chain does not compile.
+static String html_escape(const String& in) {
+  String out;
+  out.reserve(in.length() + 8);
+  for (size_t i = 0; i < in.length(); ++i) {
+    switch (in[i]) {
+      case '&':  out += "&amp;";  break;
+      case '<':  out += "&lt;";   break;
+      case '>':  out += "&gt;";   break;
+      case '"':  out += "&quot;"; break;
+      case '\'': out += "&#39;";  break;
+      default:   out += in[i];    break;
+    }
+  }
+  return out;
+}
 
 // ---------------------------------------------------------------------------
 // configuration load / save (NVS; one key per portal field)
@@ -450,7 +485,43 @@ static void base_radio_poll() {
   }
 }
 
-static void oled_render() {
+// ---------------------------------------------------------------------------
+// OLED (SSD1306 128x64, I2C 0x3C) -- task 0099 items 3 and 4
+// ---------------------------------------------------------------------------
+// The panel's reset line is GPIO21 and it is NOT tied to the ESP32's own reset,
+// so without a real pulse the SSD1306 never answers, U8g2's begin() spins on an
+// absent device, and every later bulk write wedges the I2C bus. Bring the panel
+// up in this order: drive RST, then Wire.begin(), then PROVE it answers on 0x3C.
+static bool oled_probe_and_begin() {
+  pinMode(wf::kOledRstPin, OUTPUT);
+  digitalWrite(wf::kOledRstPin, LOW);
+  delay(20);
+  digitalWrite(wf::kOledRstPin, HIGH);
+  delay(20);
+
+  Wire.begin(wf::kI2cSdaPin, wf::kI2cSclPin);
+  Wire.beginTransmission(wf::kSsd1306Addr);
+  const uint8_t ack = Wire.endTransmission();
+  logf("oled: probe 0x%02X -> %s", wf::kSsd1306Addr, ack == 0 ? "ACK" : "no ACK");
+  if (ack != 0) {
+    logf("oled: panel did not answer -- rendering disabled, bus left idle");
+    return false;
+  }
+  g_oled.setI2CAddress(wf::kSsd1306Addr << 1);
+  g_oled.begin();
+  return true;
+}
+
+// The ONLY path to sendBuffer(): gated on the probe. A 1024-byte page write to
+// an unproven panel hangs loop() and starves g_server.handleClient(), which is
+// what stopped the captive portal from replying on the bench.
+static void oled_flush() {
+  if (!g_oled_ready) return;
+  g_oled.sendBuffer();
+}
+
+static void oled_render_base() {
+  if (!g_oled_ready) return;
   g_oled.clearBuffer();
   g_oled.setFont(u8g2_font_6x10_tf);
   g_oled.drawStr(0, 10, "WILDFIRE BASE");
@@ -475,17 +546,98 @@ static void oled_render() {
   if (ev.size() > 20) ev = ev.substr(0, 20);
   snprintf(line, sizeof(line), "last: %s", ev.c_str());
   g_oled.drawStr(0, 62, line);
-  g_oled.sendBuffer();
+  oled_flush();
+}
+
+static void oled_render_node() {
+  if (!g_oled_ready) return;
+  g_oled.clearBuffer();
+  g_oled.setFont(u8g2_font_6x10_tf);
+  g_oled.drawStr(0, 10, "WILDFIRE NODE");
+  char line[32];
+  snprintf(line, sizeof(line), "id:%u", g_cfg.node_id);
+  g_oled.drawStr(0, 22, line);
+  snprintf(line, sizeof(line), "chk:%lus", (unsigned long)g_cfg.checkin_s);
+  g_oled.drawStr(0, 34, line);
+  snprintf(line, sizeof(line), "seq:%u", g_tx_seq);
+  g_oled.drawStr(0, 46, line);
+  snprintf(line, sizeof(line), "vbat:%umV", 0);
+  g_oled.drawStr(0, 58, line);
+  oled_flush();
+}
+
+// ---------------------------------------------------------------------------
+// network -- task 0099 items 5, 6 and the NTP precondition for TLS
+// ---------------------------------------------------------------------------
+// The portal runs on the setup AP, so the AP must be up BEFORE portal_setup()
+// and must never depend on the STA join: with a stored SSID that fails to join
+// the board used to end up on neither network, and 192.168.4.1 -- the only way
+// back in -- was gone.
+static void wifi_bring_up_ap(const char* why) {
+  WiFi.mode(g_cfg.wifi_ssid.length() ? WIFI_AP_STA : WIFI_AP);
+  const bool ok = WiFi.softAP(wf::kPortalApName);
+  logf("portal AP fallback: %s  http://%s (%s)", wf::kPortalApName,
+       WiFi.softAPIP().toString().c_str(), ok ? why : "softAP FAILED");
+}
+
+// Merge the AP and the STA bring-up into one step, since the AP has to come up
+// first regardless of whether a join is attempted. `waitMs` only bounds the
+// join; the AP is available immediately.
+static void wifi_begin(uint32_t waitMs) {
+  wifi_bring_up_ap("boot");
+  if (!g_cfg.wifi_ssid.length()) return;
+  WiFi.begin(g_cfg.wifi_ssid.c_str(), g_cfg.wifi_pass.c_str());
+  const uint32_t deadline = millis() + waitMs;
+  while (WiFi.status() != WL_CONNECTED && millis() < deadline) delay(200);
+  logf("wifi: status=%d (%s)", (int)WiFi.status(),
+       WiFi.status() == WL_CONNECTED ? "connected" : "not connected");
+}
+
+// The clock precondition for TLS: mbedTLS validates the pinned ISRG Root X1
+// against the system clock (CONFIG_MBEDTLS_HAVE_TIME_DATE), and the ESP32 boots
+// at the 1970 epoch, so the handshake cannot succeed before NTP has set it.
+// Declared as a scope extension in the 0099 reply -- without it the pinned root
+// can never validate and the uplink is dead on arrival.
+static void net_time_sync(uint32_t waitMs) {
+  if (WiFi.status() != WL_CONNECTED) return;
+  configTime(0, 0, "pool.ntp.org", "time.nist.gov");
+  const uint32_t deadline = millis() + waitMs;
+  while (time(nullptr) < 1700000000L && millis() < deadline) delay(200);
+  const time_t t = time(nullptr);
+  if (t < 1700000000L) {
+    logf("ntp: no time yet (t=%ld) -- TLS verification will fail until it syncs", (long)t);
+  } else {
+    logf("ntp: clock set (t=%ld)", (long)t);
+  }
+}
+
+// A failed join must not lock the operator out. Re-arm the setup AP before each
+// rejoin attempt so the portal stays reachable while the STA is down.
+static void base_network_tick() {
+  if (!g_cfg.wifi_ssid.length()) return;  // no stored SSID: AP-only by design
+  if (WiFi.status() == WL_CONNECTED) return;
+  static uint32_t last_try = 0;
+  if (last_try != 0 && millis() - last_try < 30000UL) return;
+  last_try = millis();
+  wifi_bring_up_ap("join failed");
+  logf("wifi: retrying join to [%s] (status=%d)", g_cfg.wifi_ssid.c_str(),
+       (int)WiFi.status());
+  WiFi.begin(g_cfg.wifi_ssid.c_str(), g_cfg.wifi_pass.c_str());
 }
 
 static void portal_setup() {
   g_server.on("/", HTTP_GET, []() {
     String html = "<!doctype html><meta name=viewport content='width=device-width,initial-scale=1'>";
-    html += "<h2>Wildfire " + String(wf::role_name(g_role)) + "</h2><form method=POST action=/save>";
+    html += "<h2>Wildfire " + html_escape(String(wf::role_name(g_role))) + "</h2>";
+    html += "<form method=POST action=/save>";
     for (size_t i = 0; i < wf::kPortalFieldCount; ++i) {
       const wf::PortalField& f = wf::kPortalFields[i];
-      html += "<label>" + String(f.label) + "<br><input name='" + String(f.key) +
-              "' value='" + cfg_get_str(f.key) + "'></label><br>";
+      // Every value goes through html_escape: the attribute is single-quoted,
+      // so an unescaped value containing ', " < or & truncates or corrupts the
+      // round trip (task 0099 item 7a).
+      html += "<label>" + html_escape(String(f.label)) + "<br><input name='" +
+              html_escape(String(f.key)) + "' value='" + html_escape(cfg_get_str(f.key)) +
+              "'></label><br>";
     }
     html += "<button>Save</button></form>";
     g_server.send(200, "text/html", html);
@@ -546,9 +698,9 @@ void setup() {
          "this build is US915 only", g_cfg.lora_mhz);
   }
 
-  Wire.begin(wf::kI2cSdaPin, wf::kI2cSclPin);
-  g_oled.setI2CAddress(wf::kSsd1306Addr << 1);
-  g_oled.begin();
+  // The panel probe drives the GPIO21 reset pulse and calls Wire.begin() itself,
+  // so it must run before anything else touches the I2C bus (task 0099 item 3).
+  g_oled_ready = oled_probe_and_begin();
 
   if (g_role == wf::Role::Node) {
     g_pms.begin(g_cfg.pms_baud, SERIAL_8N1, wf::kPmsUartTxPin, wf::kPmsUartRxPin);
@@ -558,24 +710,38 @@ void setup() {
   }
 
   // ---- network + portal ----------------------------------------------------
-  if (g_cfg.wifi_ssid.length()) {
-    WiFi.mode(WIFI_STA);
-    WiFi.begin(g_cfg.wifi_ssid.c_str(), g_cfg.wifi_pass.c_str());
-    const uint32_t deadline = millis() + 15000;
-    while (WiFi.status() != WL_CONNECTED && millis() < deadline) delay(200);
-    logf("wifi: %s", WiFi.status() == WL_CONNECTED ? "connected" : "not connected");
-  }
+  // The setup AP comes up first and unconditionally, so portal_setup() below is
+  // always reachable: with no stored SSID, and equally after a failed join
+  // (task 0099 items 5 and 6 -- in that order, not the other way round).
+  wifi_begin(15000);
+  // TLS cannot verify the pinned root at the 1970 boot clock, so the clock has
+  // to be right before the first handshake.
+  net_time_sync(15000);
+
+  g_wifi_client.setCACert(wf::kIsrgRootX1Pem);  // pin the root; never setInsecure()
+  logf("mqtt cfg: host=[%s] port=%u (TLS, pinned ISRG Root X1)",
+       g_cfg.mqtt_host.c_str(), g_cfg.mqtt_port);
   g_mqtt.setServer(g_cfg.mqtt_host.c_str(), g_cfg.mqtt_port);
   portal_setup();
 }
 
 void loop() {
   if (g_role == wf::Role::Base) {
+    // Keep trying to reach the AP. A failed join re-arms the setup AP, so the
+    // portal is never lost (task 0099 item 6).
+    base_network_tick();
     if (!g_mqtt.connected()) {
       const String client_id = String("wf-base-") + String((unsigned)g_cfg.node_id);
       if (g_mqtt.connect(client_id.c_str(), g_cfg.mqtt_user.c_str(),
                          g_cfg.mqtt_pass.c_str())) {
         logf("mqtt: connected to %s:%u", g_cfg.mqtt_host.c_str(), g_cfg.mqtt_port);
+      } else {
+        static uint32_t last_mqtt_err = 0;
+        if (millis() - last_mqtt_err > 30000UL) {
+          last_mqtt_err = millis();
+          logf("mqtt: connect to %s:%u failed (state=%d)",
+               g_cfg.mqtt_host.c_str(), g_cfg.mqtt_port, (int)g_mqtt.state());
+        }
       }
     }
     g_mqtt.loop();
@@ -596,7 +762,7 @@ void loop() {
     static uint32_t last_oled = 0;
     if (millis() - last_oled > 1000) {
       last_oled = millis();
-      oled_render();
+      oled_render_base();
     }
     return;  // the base loop never sleeps
   }
@@ -606,19 +772,7 @@ void loop() {
   static uint32_t last_oled = 0;
   if (millis() - last_oled > 1000) {
     last_oled = millis();
-    g_oled.clearBuffer();
-    g_oled.setFont(u8g2_font_6x10_tf);
-    g_oled.drawStr(0, 10, "WILDFIRE NODE");
-    char line[32];
-    snprintf(line, sizeof(line), "id:%u", g_cfg.node_id);
-    g_oled.drawStr(0, 22, line);
-    snprintf(line, sizeof(line), "chk:%lus", (unsigned long)g_cfg.checkin_s);
-    g_oled.drawStr(0, 34, line);
-    snprintf(line, sizeof(line), "seq:%u", g_tx_seq);
-    g_oled.drawStr(0, 46, line);
-    snprintf(line, sizeof(line), "vbat:%umV", 0);
-    g_oled.drawStr(0, 58, line);
-    g_oled.sendBuffer();
+    oled_render_node();
   }
   enter_deep_sleep(g_cfg.checkin_s);
   // Reached only if the sleep was refused (i.e. we are not a node after all).
