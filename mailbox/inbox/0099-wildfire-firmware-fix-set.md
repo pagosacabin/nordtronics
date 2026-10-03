@@ -114,6 +114,27 @@ Apply all seven fixes to `firmware/wildfire-node-v1` on branch
 touched: this is a source change against a fix set whose behaviour on the real
 board is already recorded above.
 
+## Reference implementation (Stephen's direction, 2026-10-03)
+
+Do not reinvent the AP / captive-portal / OLED patterns — they already exist,
+bench-proven, in Stephen's tank monitor on main:
+`firmware/cistern-monitor/cistern_unified.ino`.
+
+- Captive portal: the **WiFiManager library by tzapu** (`#include
+  <WiFiManager.h>`, ~line 377): `setConfigPortalTimeout(300)`, custom
+  `WiFiManagerParameter`s for every setting, values persisted to
+  `Preferences` (NVS). This is the proven portal — reuse its structure for
+  `portal_setup()` rather than debugging a hand-rolled one from scratch.
+- OLED: the `displayInfo(line1, line2, line3)` helper (~line 842) driving
+  `Heltec.display` directly — the pattern for keeping the screen active and
+  readable.
+- NVS: `Preferences` under a named namespace with `getString`/`putString`
+  defaults (~line 283) — the "firmware default + portal field + NVS" pattern
+  the wildfire spec already asks for.
+
+Where the wildfire tree's structure differs, adapt — but the portal flow,
+the parameter persistence, and the display helper should follow this file.
+
 ## Success criteria
 
 - `pio run -d firmware/wildfire-node-v1 -e heltec_v4` builds in CI, and the run
