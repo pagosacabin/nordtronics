@@ -135,6 +135,13 @@ bench-proven, in Stephen's tank monitor on main:
 Where the wildfire tree's structure differs, adapt — but the portal flow,
 the parameter persistence, and the display helper should follow this file.
 
+Key difference from the tank monitor (Stephen, 2026-10-03): the wildfire
+base does NOT configure an exterior MQTT server through the portal. The
+broker endpoint (`mqtt.nordtronics.io` / `8883`) is a firmware default, not
+a portal field — so do not copy the tank monitor's MQTT server/port
+`WiFiManagerParameter`s. The wildfire portal's parameters are WiFi
+credentials plus LoRa/node settings only.
+
 ## Success criteria
 
 - `pio run -d firmware/wildfire-node-v1 -e heltec_v4` builds in CI, and the run
