@@ -1,10 +1,14 @@
 ---
 task_id: "0099"
 protocol_version: 1.0.0
-status: inbox
-iteration: 0
+status: in_progress
+iteration: 1
 expect-reply-within: 72h
 notes: |
+  PICKED UP (iteration 1) by the mailbox worker, 2026-10-03 22:2x UTC. No
+  protocol field was added at pickup: the filed front-matter already carried
+  `task_id`, `protocol_version`, `status` and `iteration`.
+
   Filed by: Hermes, from an interactive bench session, at Stephen's direction,
   2026-10-03 01:28 UTC. Number assigned locally: the highest task present on
   main at filing time is 0097, so this is the next free number — renumber if it
