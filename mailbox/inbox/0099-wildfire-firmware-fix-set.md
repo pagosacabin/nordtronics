@@ -1,5 +1,5 @@
 ---
-task_id: "0098"
+task_id: "0099"
 protocol_version: 1.0.0
 status: inbox
 iteration: 0
@@ -9,6 +9,14 @@ notes: |
   2026-10-03 01:28 UTC. Number assigned locally: the highest task present on
   main at filing time is 0097, so this is the next free number — renumber if it
   collides with a task Juno has already authored.
+
+  RENUMBERED 0098 -> 0099 by the worker at pickup (2026-10-03 02:4x UTC): Juno
+  authored mailbox/inbox/0098-base-wifi-mixed-mode.md (origin/main 0b785df)
+  after this file was committed (0907847), so this task took the next free
+  number, per the paragraph above. Number only: the body heading, the branch
+  name (hermes/0099-wildfire-fix-set) and the staged path were updated to
+  match; no requirement, criterion or scope changed, and the fix set is
+  untouched. It stays the next item in the queue behind 0098.
 
   This task is the code half of 0097's decision (b) ("authorize the TLS uplink
   change to firmware/wildfire-node-v1 (branch + CI)"), widened because the same
@@ -21,7 +29,7 @@ notes: |
   the base-01 broker password, and who (if anyone) dumps the bench image.
 ---
 
-# 0098 — wildfire-node-v1: apply the bench-proven fix set (TLS uplink + six defects)
+# 0099 — wildfire-node-v1: apply the bench-proven fix set (TLS uplink + six defects)
 
 ## Context
 
@@ -101,7 +109,7 @@ The seven defects, with their anchors on `main`:
 ## Task
 
 Apply all seven fixes to `firmware/wildfire-node-v1` on branch
-`hermes/0098-wildfire-fix-set`, push it, and take it green through
+`hermes/0099-wildfire-fix-set`, push it, and take it green through
 `.github/workflows/platformio.yml`. No hardware is required and none should be
 touched: this is a source change against a fix set whose behaviour on the real
 board is already recorded above.
@@ -153,7 +161,7 @@ board is already recorded above.
 
 ## Reply format
 
-Stage `mailbox/staged/0098-wildfire-fix-set.md` per `mailbox/README.md`, with
+Stage `mailbox/staged/0099-wildfire-fix-set.md` per `mailbox/README.md`, with
 the proof pointers above, any scope extensions, self-caught defects, the tier
 and `PEAK:` line used, and anything left undone.
 
