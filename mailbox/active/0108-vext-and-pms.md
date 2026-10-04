@@ -1,11 +1,16 @@
 ---
 task_id: "0108"
 protocol_version: 1.0.0
-status: inbox
-iteration: 1
+status: in_progress
+iteration: 2
 expect-reply-within: 72h
 proof: []
 notes: |
+  PICKED UP (iteration 1 -> 2) by the mailbox worker, 2026-10-04 12:15 UTC.
+  Off-peak (PEAK: OFF-PEAK 12:15 UTC). Predecessors 0097/0098/0106/0107 remain
+  decision-blocked in active/ and were not touched. This task carries the fix
+  0107's blocker named (Vext gate, GPIO36), so it is the work to do.
+
   Filed by Juno, 2026-10-04. From 0107's BLOCKED findings (verified by Juno):
   the flashed node resolves as BASE because the unified firmware never drives
   the Heltec Vext power gate (GPIO36, active LOW). The bench BME680 is wired
