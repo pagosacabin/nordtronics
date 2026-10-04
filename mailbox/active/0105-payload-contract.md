@@ -1,8 +1,8 @@
 ---
 task_id: "0105"
 protocol_version: 1.0.0
-status: inbox
-iteration: 1
+status: in_progress
+iteration: 2
 expect-reply-within: 72h
 proof: []
 notes: |
@@ -13,6 +13,9 @@ notes: |
   stored. Same story for events. Until this is fixed, the app cannot show
   live data no matter how healthy the MQTT session is. This is the last
   code item before the final flash.
+
+  PICKED UP (iteration 1 -> 2) by the mailbox worker, 2026-10-04 01:1x UTC.
+  Off-peak (PEAK: OFF-PEAK 01:15 UTC).
 ---
 
 # 0105 — wildfire-node-v1: payload + events match the backend contract
