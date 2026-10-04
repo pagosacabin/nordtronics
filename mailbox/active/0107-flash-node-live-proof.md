@@ -1,11 +1,15 @@
 ---
 task_id: "0107"
 protocol_version: 1.0.0
-status: inbox
-iteration: 1
+status: in_progress
+iteration: 2
 expect-reply-within: 24h
 proof: []
 notes: |
+  PICKED UP (iteration 1 -> 2) by the mailbox worker, 2026-10-04 10:15 UTC.
+  Off-peak (PEAK: OFF-PEAK 10:15 UTC). Predecessors 0097/0098/0106 remain
+  decision-blocked in active/ and were not touched.
+
   Filed by Juno, 2026-10-04, at Stephen's explicit "Go ahead flash away"
   (04:13 MDT). Authorizes what 0106 forbade: flashing the NODE board.
   Context: 0106 proved the base runs the 0105 build and reaches the broker,
