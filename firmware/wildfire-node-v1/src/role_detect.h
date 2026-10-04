@@ -1,17 +1,18 @@
 // role_detect.h -- boot-time role detection, in portable C++ so the truth table
-// (strap / NVS override / default) and the exact serial line are unit-testable
-// without hardware.
+// (sensor probe / NVS override / default) and the exact serial line are
+// unit-testable without hardware.
 //
-// Order of authority, per task 0094 item 0:
-//   1. NVS "role" value, when set  -> source NVS
-//   2. the strap pin, when it is pulled low -> source STRAP
-//   3. otherwise the compile-time default (node) -> source DEFAULT
+// Order of authority, per task 0104 item 3 (Stephen's call -- no hardware mods,
+// the GPIO7 solder jumper from 0094 is gone):
+//   1. NVS "role" value, when set                      -> source NVS
+//   2. the node sensor probe, when it found sensors    -> source PROBE (node)
+//   3. nothing answered on the buses                   -> source DEFAULT (base)
 //
-// The strap is a solder jumper on Rev C (SHORT to GND = base). An unstrapped
-// board reads HIGH through the internal pull-up, which is indistinguishable from
-// "no jumper" -- that is deliberate: an unstrapped bench board must come up as a
-// NODE, and the NVS/portal value is the only way to force base on a board with no
-// jumper fitted.
+// The role is PROBED, not jumpered: the tank-monitor pattern. A board carrying
+// a BME680/BME688 on the I2C bus (0x77/0x76) or a PMS5003 streaming on the UART
+// is a node; a bare board is the base station. NVS/portal still wins in both
+// directions, which is what a bench board with no sensors fitted needs in order
+// to be forced into either role.
 #pragma once
 
 #include <cstdint>
@@ -22,26 +23,27 @@ namespace wf {
 enum class Role : uint8_t { Node = 0, Base = 1 };
 
 enum class RoleSource : uint8_t {
-  Strap = 0,    // the strap pin decided
-  Nvs = 1,      // an NVS/portal "role" value overrode the strap
-  Default = 2,  // nothing set it; the bench default (node) applied
+  Nvs = 0,      // an NVS/portal "role" value decided
+  Probe = 1,    // the boot probe found node sensors
+  Default = 2,  // nothing answered the probe; the base default applied
 };
 
 struct RoleDecision {
-  Role role = Role::Node;
+  Role role = Role::Base;
   RoleSource source = RoleSource::Default;
-  int strap_level = 1;      // 1 = HIGH (open), 0 = LOW (jumper to GND)
-  bool nvs_present = false; // an NVS/portal role value exists
-  int nvs_role = -1;        // 0 = node, 1 = base, -1 = unset
+  bool sensors_present = false;  // the boot probe found a node sensor
+  bool nvs_present = false;      // an NVS/portal role value exists
+  int nvs_role = -1;             // 0 = node, 1 = base, -1 = unset
 };
 
-// Pure decision. `strap_level`: 0 = LOW/jumper fitted, 1 = HIGH/open.
-// `nvs_present` + `nvs_role`: the persisted override, if any.
-RoleDecision resolve_role(int strap_level, bool nvs_present, int nvs_role);
+// Pure decision. `sensors_present`: the boot probe answered (a BME680/BME688 on
+// I2C or a valid PMS5003 frame on the UART). `nvs_present` + `nvs_role`: the
+// persisted override, if any.
+RoleDecision resolve_role(bool sensors_present, bool nvs_present, int nvs_role);
 
 // The exact line printed to serial on every boot, e.g.
-//   ROLE: base (source=NVS, strap_pin=GPIO7 level=1, nvs_role=1)
-std::string role_log_line(const RoleDecision& d, int strap_pin);
+//   ROLE: base (source=DEFAULT, sensors=absent, nvs_role=unset)
+std::string role_log_line(const RoleDecision& d);
 
 const char* role_name(Role r);
 const char* role_source_name(RoleSource s);

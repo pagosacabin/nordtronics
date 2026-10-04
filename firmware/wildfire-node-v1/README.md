@@ -11,24 +11,29 @@ deep-sleeps in between.
 
 Protocol: `docs/wildfire/radio-protocol-v1.md` (`protocol_version: 1`).
 
-## Role detection (first thing that runs, before any radio/sensor/power init)
+## Role detection (first thing that runs, before any radio/network init)
+
+Probed, not jumpered (task 0104 item 3): the board asks what is actually fitted.
+`resolve_role()` in `src/role_detect.h` applies, in order:
 
 | source | when | serial line |
 |---|---|---|
-| `NVS` | a `role` value is set in NVS / the captive portal | `ROLE: base (source=NVS, strap_pin=GPIO7 level=1, nvs_role=1)` |
-| `STRAP` | GPIO7 pulled LOW (jumper to GND) | `ROLE: base (source=STRAP, strap_pin=GPIO7 level=0, nvs_role=unset)` |
-| `DEFAULT` | nothing set — every unstrapped bench board | `ROLE: node (source=DEFAULT, strap_pin=GPIO7 level=1, nvs_role=unset)` |
+| `NVS` | a `role` value is set in NVS / the captive portal | `ROLE: base (source=NVS, sensors=present, nvs_role=1)` |
+| `PROBE` | a BME680 (0x77) / BME688 (0x76) ACKs on I2C, or a valid PMS5003 frame arrives on the UART | `ROLE: node (source=PROBE, sensors=present, nvs_role=unset)` |
+| `DEFAULT` | nothing answered the probe — a bare board | `ROLE: base (source=DEFAULT, sensors=absent, nvs_role=unset)` |
 
-**Strap pin = GPIO7.** It is not one of the 14 frozen nets of the 0079 Rev C
-capture (`hardware/wildfire-node-v1`, branch
+The 0094 GPIO7 solder jumper is gone, so **no hardware change is needed on a Rev C
+board** and the portal `role` field (`blank = auto-detect`) is the only override.
+
+**Probe pins are frozen nets.** The probe drives GPIO17/18 (BME680/688 I2C) and
+GPIO5/6 (PMS5003 UART), all of which are on the 0079 Rev C frozen net list
+(`hardware/wildfire-node-v1`, branch
 `hermes/0079-wildfire-node-rev-c-interface-fixes` @ `62e64ad`): pins 1–14 are
 `BAT, GND, SOLAR, 3V3, GPIO36, GPIO17, GPIO18, GPIO4, GPIO5, GPIO6, GPIO33,
-GPIO47, GPIO48, GPIO34`, and 15–42 carry no-connects. GPIO7 is also clear of the
-ESP32-S3 functions that make a bad input strap — GPIO0/3/45/46 (boot strapping),
-GPIO19/20 (native USB), GPIO43/44 (UART0 log), GPIO8–14 (SX1262 SPI) and
-GPIO17/18 (I2C). `test_role_and_portal` asserts all of that mechanically, so the
-claim cannot rot. No PCB change is needed for bench work: the NVS/portal override
-covers an unstrapped board, and Rev C gets a solder jumper.
+GPIO47, GPIO48, GPIO34`, and 15–42 carry no-connects. `test_role_and_portal`
+asserts mechanically that every probe pin is on that list and is not one of the
+ESP32-S3 special functions — GPIO0/3/45/46 (boot select), GPIO19/20 (native USB),
+GPIO43/44 (UART0 log), GPIO8–14 (SX1262 SPI) — so the claim cannot rot.
 
 **HARD RULE: the base never sleeps.** `enter_deep_sleep()` is the only sleep path;
 it asserts `role == node`, logs `FATAL: deep sleep requested while role=base …`
@@ -62,7 +67,7 @@ CI runs both (`platformio.yml`, jobs `build` and `host-tests`).
 |---|---|
 | `test_consensus_native` | the v0.2 engine against the 0091 scenario set, plus hand-built cooldown/ack cases |
 | `test_radio_protocol` | the byte layout in the doc: offsets, frame sizes, golden hex, CRC rejection |
-| `test_role_and_portal` | the strap/NVS/default truth table, the exact serial lines, the strap-pin collision check, the portal field table |
+| `test_role_and_portal` | the probe/NVS/default truth table, the exact serial lines, the boot-probe pin check against the 0079 frozen nets, the portal field table |
 
 `scenarios_v02.h` is generated — regenerate with
 `python3 python/detection-sim/emit_v02_scenarios.py` after changing `traces.py`,
@@ -77,6 +82,8 @@ and commit the result. The tests never read files at runtime.
 | `src/radio_protocol.h/.cpp` | wire format (portable) |
 | `src/role_detect.h/.cpp` | role decision + serial line (portable) |
 | `src/firmware_config.h` | portal field table, pin map, the 0079 frozen-net list |
+| `src/mqtt_topic.h` | the telemetry topic builder (the deployed `<root>/<node-id>/telemetry` shape) |
+| `src/device_name.h` | the DHCP hostname builder (`wildfire-<role>-<nn>`) |
 | `test/*` | host-side unity tests |
 
 ## Known state / bench verification left
@@ -87,8 +94,8 @@ and commit the result. The tests never read files at runtime.
   in `radio.begin(...)`; confirm on the bench.
 - `batt_mv` is transmitted as 0: Rev C has no fuel gauge, the battery is a bench
   measurement at TP1. The low-battery flag therefore never sets yet.
-- GPIO7's availability on the V4.2 header is unverified — carry it as a bench item
-  alongside the existing 0079 open items (GPIO47/GPIO48 header reach).
+- The 0094 role jumper on GPIO7 is retired (task 0104 item 3): the role is probed
+  from the sensors, so GPIO7's header availability is no longer a bench item.
 - AS3935 lightning is present as a status bit only; the byte is reserved so the
   driver can be added without a wire-format change.
 - `setDio2AsRfSwitch` is not called; Heltec V4.2 RF switch control needs a bench

@@ -1,10 +1,16 @@
 // test_main.cpp -- host-side proof for the two non-sensor rules:
 //
-//   1. role detection: the strap / NVS-override / default truth table AND the
-//      exact serial line each case prints ("both roles demonstrated from the
-//      SAME binary" is a property of this table, not of a bench photo);
+//   1. role detection (task 0104 item 3): the sensor-probe / NVS-override /
+//      default truth table AND the exact serial line each case prints ("both
+//      roles demonstrated from the SAME binary" is a property of this table,
+//      not of a bench photo);
 //   2. the portal field table: every field has a key, a label and a default, and
-//      the strap pin provably does not collide with any 0079 frozen net.
+//      the pins the boot probe drives provably come from the 0079 frozen nets.
+//
+// Task 0104 item 3 replaced 0094's GPIO7 role jumper with the tank-monitor
+// probe, so the truth table below is the probe's: a board with node sensors on
+// the bus is the node, a board with none is the base station, a valid NVS value
+// overrides both ways, and an unusable NVS value falls through to the probe.
 
 #include <unity.h>
 
@@ -19,7 +25,6 @@
 
 using wf::kFrozenGpioPins;
 using wf::kFrozenGpioCount;
-using wf::kRoleStrapPin;
 using wf::Role;
 using wf::RoleDecision;
 using wf::RoleSource;
@@ -43,78 +48,83 @@ static bool in_set(const int* xs, size_t n, int v) {
 }
 
 // --------------------------------------------------------------------------
-// role detection
+// role detection (task 0104 item 3: probe, not jumper)
 // --------------------------------------------------------------------------
 static void test_role_truth_table() {
-  // strap LOW (jumper to GND) -> base, source STRAP
-  RoleDecision d = wf::resolve_role(wf::kStrapLevelBase, false, -1);
-  CHECK(d.role == Role::Base && d.source == RoleSource::Strap,
-        "strap low must select base from STRAP");
+  // sensors found on the bus -> node, source PROBE
+  RoleDecision d = wf::resolve_role(true, false, -1);
+  CHECK(d.role == Role::Node && d.source == RoleSource::Probe,
+        "sensors present must select node from PROBE");
 
-  // strap HIGH (open, internal pull-up) -> the bench default, node
-  d = wf::resolve_role(wf::kStrapLevelNode, false, -1);
-  CHECK(d.role == Role::Node && d.source == RoleSource::Default,
-        "unstrapped board must default to node");
+  // nothing answered -> the base station
+  d = wf::resolve_role(false, false, -1);
+  CHECK(d.role == Role::Base && d.source == RoleSource::Default,
+        "no sensors must fall through to base");
 
-  // NVS override wins over the strap, both directions
-  d = wf::resolve_role(wf::kStrapLevelNode, true, 1);
-  CHECK(d.role == Role::Base && d.source == RoleSource::Nvs,
-        "NVS role=1 must force base even with no jumper");
-  d = wf::resolve_role(wf::kStrapLevelBase, true, 0);
+  // a valid NVS override wins over the probe, both directions
+  d = wf::resolve_role(false, true, 0);
   CHECK(d.role == Role::Node && d.source == RoleSource::Nvs,
-        "NVS role=0 must force node even with the jumper fitted");
+        "NVS role=0 must force node on a board with no sensors");
+  d = wf::resolve_role(true, true, 1);
+  CHECK(d.role == Role::Base && d.source == RoleSource::Nvs,
+        "NVS role=1 must force base on a board with sensors");
 
-  // an NVS value that is present but out of range falls through to the strap
-  d = wf::resolve_role(wf::kStrapLevelBase, true, -1);
-  CHECK(d.role == Role::Base && d.source == RoleSource::Strap,
-        "an unusable NVS value must not mask the strap");
-  d = wf::resolve_role(wf::kStrapLevelBase, true, 7);
-  CHECK(d.role == Role::Base && d.source == RoleSource::Strap,
-        "an out-of-range NVS value must not mask the strap");
+  // an NVS value that is present but unusable falls through to the probe
+  d = wf::resolve_role(true, true, -1);
+  CHECK(d.role == Role::Node && d.source == RoleSource::Probe,
+        "an unusable NVS value must not mask the probe");
+  d = wf::resolve_role(false, true, 7);
+  CHECK(d.role == Role::Base && d.source == RoleSource::Default,
+        "an out-of-range NVS value must fall through to the probe");
 
-  printf("[role] STRAP=%s / STRAP2 / NVS->base / NVS->node / NVS-invalid-falls-through: all 5 cases hold\n",
-         wf::role_name(wf::resolve_role(0, false, -1).role));
+  printf("[role] probe->node / none->base / NVS->base / NVS->node / "
+         "NVS-invalid-falls-through: all 6 cases hold\n");
 }
 
 static void test_role_serial_lines() {
   // The exact strings the device prints on every boot. These are what a bench
   // capture of "the same binary in both roles" has to show.
-  const std::string base_strap =
-      wf::role_log_line(wf::resolve_role(wf::kStrapLevelBase, false, -1), kRoleStrapPin);
-  const std::string node_default =
-      wf::role_log_line(wf::resolve_role(wf::kStrapLevelNode, false, -1), kRoleStrapPin);
-  const std::string base_nvs =
-      wf::role_log_line(wf::resolve_role(wf::kStrapLevelNode, true, 1), kRoleStrapPin);
+  const std::string probe_node = wf::role_log_line(wf::resolve_role(true, false, -1));
+  const std::string no_sensors = wf::role_log_line(wf::resolve_role(false, false, -1));
+  const std::string base_nvs = wf::role_log_line(wf::resolve_role(true, true, 1));
 
-  printf("[role-log] %s\n", base_strap.c_str());
-  printf("[role-log] %s\n", node_default.c_str());
+  printf("[role-log] %s\n", probe_node.c_str());
+  printf("[role-log] %s\n", no_sensors.c_str());
   printf("[role-log] %s\n", base_nvs.c_str());
 
-  CHECK(base_strap == "ROLE: base (source=STRAP, strap_pin=GPIO7 level=0, nvs_role=unset)",
-        "strap case must print the documented line");
-  CHECK(node_default == "ROLE: node (source=DEFAULT, strap_pin=GPIO7 level=1, nvs_role=unset)",
-        "default case must print the documented line");
-  CHECK(base_nvs == "ROLE: base (source=NVS, strap_pin=GPIO7 level=1, nvs_role=1)",
+  CHECK(probe_node == "ROLE: node (source=PROBE, sensors=present, nvs_role=unset)",
+        "probe case must print the documented line");
+  CHECK(no_sensors == "ROLE: base (source=DEFAULT, sensors=absent, nvs_role=unset)",
+        "base case must print the documented line");
+  CHECK(base_nvs == "ROLE: base (source=NVS, sensors=present, nvs_role=1)",
         "NVS case must print the documented line");
 }
 
 // --------------------------------------------------------------------------
-// strap pin against the 0079 frozen nets
+// the pins the boot probe drives, against the 0079 frozen nets
 // --------------------------------------------------------------------------
-static void test_strap_pin_does_not_collide() {
-  printf("[strap] pin=GPIO%d frozen_nets=%zu\n", kRoleStrapPin, wf::kFrozenNetCount);
+// 0094 asserted that its role pin avoided the frozen nets; that pin is gone
+// (item 3) and the probe drives the sensor buses instead, which are ON the
+// frozen list by design. Assert exactly that, so a later change cannot quietly
+// move a boot probe onto a special-function or unfrozen pin.
+static void test_boot_probe_pins_are_frozen_sensor_nets() {
+  const int probe_pins[] = {wf::kI2cSdaPin, wf::kI2cSclPin,
+                            wf::kPmsUartTxPin, wf::kPmsUartRxPin};
+  printf("[probe] i2c=%d/%d pms=%d/%d frozen_nets=%zu\n", wf::kI2cSdaPin,
+         wf::kI2cSclPin, wf::kPmsUartTxPin, wf::kPmsUartRxPin, wf::kFrozenNetCount);
   CHECK(wf::kFrozenNetCount == 14, "the 0079 capture froze 14 connected U1 pins");
   CHECK(wf::kFrozenGpioCount == 10, "10 of the 14 frozen nets are GPIOs");
-  CHECK(!in_set(kFrozenGpioPins, kFrozenGpioCount, kRoleStrapPin),
-        "the strap pin must not be one of the 14 frozen nets");
-  CHECK(!in_set(wf::kS3BootStrappingPins, 4, kRoleStrapPin),
-        "the strap pin must not be an ESP32-S3 boot strapping pin");
-  CHECK(!in_set(wf::kS3NativeUsbPins, 2, kRoleStrapPin),
-        "the strap pin must not be a native USB pin");
-  CHECK(!in_set(wf::kS3Uart0Pins, 2, kRoleStrapPin),
-        "the strap pin must not be UART0");
-  CHECK(!in_set(wf::kLoraSpiPins, 7, kRoleStrapPin),
-        "the strap pin must not be in the SX1262 SPI block");
+  for (const int p : probe_pins) {
+    CHECK(in_set(kFrozenGpioPins, kFrozenGpioCount, p),
+          "a boot-probe pin must be on the 0079 frozen net list");
+    CHECK(!in_set(wf::kS3BootSelectPins, 4, p),
+          "a boot-probe pin must not be an ESP32-S3 boot-select pin");
+    CHECK(!in_set(wf::kS3NativeUsbPins, 2, p),
+          "a boot-probe pin must not be a native USB pin");
+    CHECK(!in_set(wf::kS3Uart0Pins, 2, p), "a boot-probe pin must not be UART0");
+    CHECK(!in_set(wf::kLoraSpiPins, 7, p),
+          "a boot-probe pin must not be in the SX1262 SPI block");
+  }
 }
 
 // --------------------------------------------------------------------------
@@ -135,7 +145,7 @@ static void test_every_portal_field_has_a_key_default_and_namespace() {
     if (f.default_text[0] != '\0') with_nonempty_default++;
   }
   printf("[portal] fields=%zu unique_keys=%zu non-empty_defaults=%d (blank defaults are "
-         "intentional: role = follow the strap, ssid/credentials = site-specific)\n",
+         "intentional: role = auto-detect, ssid/credentials = site-specific)\n",
          wf::kPortalFieldCount, keys.size(), with_nonempty_default);
   CHECK(wf::kPortalFieldCount >= 25, "the portal exposes every tunable in the protocol doc");
   CHECK(with_nonempty_default >= 20, "all but the site-specific fields carry a firmware default");
@@ -192,7 +202,7 @@ int main(int, char**) {
   UNITY_BEGIN();
   RUN_TEST(test_role_truth_table);
   RUN_TEST(test_role_serial_lines);
-  RUN_TEST(test_strap_pin_does_not_collide);
+  RUN_TEST(test_boot_probe_pins_are_frozen_sensor_nets);
   RUN_TEST(test_every_portal_field_has_a_key_default_and_namespace);
   RUN_TEST(test_defaults_match_the_frozen_rule_constants);
   const int rc = UNITY_END();

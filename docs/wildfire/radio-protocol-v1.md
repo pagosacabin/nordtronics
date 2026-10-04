@@ -218,14 +218,22 @@ Topics (root = `mqtt_root`, default `nordtronics/wildfire`):
 
 | topic | payload | when |
 |---|---|---|
-| `<root>/node/<id>/telemetry` | JSON: node, seq, pm1, pm25, pm10, temp_c, rh, press_pa, batt_mv, status, level | every valid frame from a provisioned node |
+| `<root>/<node-id>/telemetry` | JSON: node, seq, pm1, pm25, pm10, temp_c, rh, press_pa, batt_mv, status, level | every valid frame from a provisioned node |
 | `<root>/event/watch` | `{"event":"WATCH","t":…,"nodes":"…"}` | a single node confirms |
 | `<root>/event/alert` | `{"event":"ALERT",…}` | ≥ 2 nodes confirm inside the window |
 | `<root>/event/clear` | `{"event":"CLEARED",…}` | the event auto-clears |
 | `<root>/node/<id>/state` | `{"state":"offline"}` | 3 missed check-ins |
 
 Broker host/port/user/pass/root are portal fields with defaults
-(`api.nordtronics.io:1883`).
+(`mqtt.nordtronics.io:8883` — TLS only; the deployed broker has no 1883 listener,
+and the uplink pins the ISRG Root X1 anchor in `src/mqtt_ca.h`).
+
+**The telemetry topic carries exactly ONE level between the root and the leaf**
+(`<root>/<node-id>/telemetry`), because the deployed ingest worker and the
+Mosquitto ACL both subscribe `nordtronics/wildfire/+/telemetry` and `+` matches
+exactly one level. It is built by `src/mqtt_topic.h` and nothing else, so no call
+site can drift back to a two-level `<root>/node/<id>/...` shape that the broker
+drops silently (task 0104 item 1).
 
 **Offline policy: buffer with a cap, drop the OLDEST record** (`offl_policy` =
 `buffer`, `offl_cap` = 180 records). Chosen over drop-new because the value of a
@@ -242,7 +250,8 @@ The firmware default lives in the `kPortalFields` table
 (`src/firmware_config.h`); the portal renders that table and writes through to
 NVS, so there is no field that exists in one and not the other. Every field has an
 NVS key ≤ 15 characters inside the single `wildfire` namespace. `role` is the
-override described in `src/role_detect.h`; blank means "follow the strap".
+override described in `src/role_detect.h`; blank means "auto-detect from the
+sensor probe" (sensors found ⇒ node, none ⇒ base).
 
 ## 10. What is deliberately left open
 

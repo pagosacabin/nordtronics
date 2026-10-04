@@ -1,5 +1,5 @@
 // firmware_config.h -- the captive-portal field table (tank-monitor pattern:
-// firmware default + portal field + NVS value) and the strap-pin choice.
+// firmware default + portal field + NVS value) and the boot-time wiring facts.
 //
 // Portable C++17 with no Arduino dependency so test_portal_fields (host test)
 // can assert, mechanically, that every portal field has a key, a default and an
@@ -16,12 +16,16 @@
 namespace wf {
 
 // ---------------------------------------------------------------------------
-// The 0079 frozen net list, encoded so the strap-pin rule is machine-checked
-// (test/test_role_and_portal) rather than asserted in prose.
+// The 0079 frozen net list, encoded so the boot-time wiring rule is
+// machine-checked (test/test_role_and_portal) rather than asserted in prose.
 //
 // Branch hermes/0079-wildfire-node-rev-c-interface-fixes @ 62e64ad: U1 (Heltec
 // HTIT-WB32LAF V4.2) has 42 pins; pins 1..14 are connected and every one of
 // those nets is frozen, pins 15..42 carry a no-connect flag.
+//
+// The boot role probe (task 0104 item 3) touches only pins from that frozen
+// list: GPIO17/18 are the BME680/BME688 I2C bus and GPIO5/6 the PMS5003 UART,
+// so the probe cannot reach a net the interface freeze did not already allow.
 // ---------------------------------------------------------------------------
 inline constexpr const char* kFrozenNets[] = {
     "BAT", "GND", "SOLAR", "3V3",  // U1 pins 1-4 (power / ground / panel)
@@ -30,39 +34,30 @@ inline constexpr const char* kFrozenNets[] = {
 };
 constexpr size_t kFrozenNetCount = sizeof(kFrozenNets) / sizeof(kFrozenNets[0]);
 
-// The GPIO numbers among the frozen nets: the strap pin must not be one of them.
+// The GPIO numbers among the frozen nets.
 inline constexpr int kFrozenGpioPins[] = {36, 17, 18, 4, 5, 6, 33, 47, 48, 34};
 constexpr size_t kFrozenGpioCount = sizeof(kFrozenGpioPins) / sizeof(kFrozenGpioPins[0]);
 
-// ESP32-S3 pins that are unusable as a boot strap for other reasons.
-inline constexpr int kS3BootStrappingPins[] = {0, 3, 45, 46};  // boot / VDD_SPI / JTAG sel
-inline constexpr int kS3NativeUsbPins[] = {19, 20};            // USB D- / D+
-inline constexpr int kS3Uart0Pins[] = {43, 44};                // the serial boot log
+// ESP32-S3 pins that carry a fixed function and must never be driven as a
+// general-purpose input at boot.
+inline constexpr int kS3BootSelectPins[] = {0, 3, 45, 46};  // boot / VDD_SPI / JTAG sel
+inline constexpr int kS3NativeUsbPins[] = {19, 20};         // USB D- / D+
+inline constexpr int kS3Uart0Pins[] = {43, 44};             // the serial boot log
 inline constexpr int kLoraSpiPins[] = {8, 9, 10, 11, 12, 13, 14};
 
 // ---------------------------------------------------------------------------
-// Strap pin.
+// Role selection: probed, not jumpered (task 0104 item 3).
 //
-// Chosen against the 0079 frozen net list (branch
-// hermes/0079-wildfire-node-rev-c-interface-fixes @ 62e64ad): the 14 connected
-// Heltec pins are 1 BAT, 2 GND, 3 SOLAR, 4 3V3, 5 GPIO36, 6 GPIO17, 7 GPIO18,
-// 8 GPIO4, 9 GPIO5, 10 GPIO6, 11 GPIO33, 12 GPIO47, 13 GPIO48, 14 GPIO34.
-//
-// GPIO7 is NOT among them (and is not one of the 28 no-connect pins either), so
-// adding the strap changes no frozen net. It is also free of the ESP32-S3
-// special functions that would make an input strap a bad idea: GPIO0/GPIO3/
-// GPIO45/GPIO46 are boot strapping pins, GPIO19/GPIO20 are native USB D-/D+,
-// GPIO43/GPIO44 are UART0 (the serial log), GPIO8..GPIO14 are the SX1262 SPI
-// block, and GPIO17/GPIO18 are the I2C bus (BME680 @0x77 + SSD1306 @0x3C).
-// GPIO7 needs only an internal pull-up (open = node) and a jumper to GND (base).
-// Rev C carries the jumper as a documented "solder jumper" future change; for
-// bench work the NVS/portal override covers an unstrapped board, as the task
-// allows. GPIO7's availability on the V4.2 header is listed as a bench
-// verification item in firmware/wildfire-node-v1/README.md.
+// 0094 read a GPIO7 solder jumper to pick the role. Stephen's call replaced it
+// with the tank-monitor pattern -- probe the node sensors and see what is
+// actually fitted -- so there is no role pin any more and no hardware change is
+// needed on a Rev C board. The probe (main.cpp, probe_node_sensors) answers
+// from, in order:
+//   * a BME680 (0x77) or BME688 (0x76) ACKing on the I2C bus, or
+//   * a valid 32-byte PMS5003 frame arriving on the sensor UART.
+// Sensors found => node; nothing found => base station. The NVS/portal `role`
+// value still overrides both directions (src/role_detect.h).
 // ---------------------------------------------------------------------------
-constexpr int kRoleStrapPin = 7;
-constexpr int kStrapLevelBase = 0;  // jumper to GND == base
-constexpr int kStrapLevelNode = 1;  // internal pull-up, open == node
 
 // ---------------------------------------------------------------------------
 // Fixed wiring (Rev C, frozen -- do not flip; bench-verified 2026-10-02).
@@ -71,6 +66,9 @@ constexpr int kI2cSdaPin = 17;   // BME680 SCK/SDA  (bench-verified)
 constexpr int kI2cSclPin = 18;   // BME680 SDI/SCL  (bench-verified)
 constexpr int kOledRstPin = 21;  // SSD1306 reset -- NOT tied to the ESP32 reset
 constexpr uint8_t kBme680Addr = 0x77;
+// The BME688 shares the BME680's register map and answers at 0x76 on the same
+// board family, so the boot role probe asks for both addresses.
+constexpr uint8_t kBme688Addr = 0x76;
 constexpr uint8_t kSsd1306Addr = 0x3C;
 constexpr int kPmsUartTxPin = 5; // PMS5003 TX -> 1k -> GPIO5 (bench-verified)
 constexpr int kPmsUartRxPin = 6; // PMS5003 RX <- GPIO6 (U1 pin 10)
@@ -102,7 +100,7 @@ constexpr const char* kPrefsNamespace = "wildfire";
 constexpr const char* kPortalApName = "wildfire-setup";
 
 inline constexpr PortalField kPortalFields[] = {
-    {"role",        "Radio role (0 node / 1 base; blank = strap)", FieldKind::Str,  "", "wildfire"},
+    {"role",        "Radio role (0 node / 1 base; blank = auto-detect)", FieldKind::Str,  "", "wildfire"},
     {"node_id",     "Node ID (1..65534; 0 = unprovisioned)",       FieldKind::Int,  "0", "wildfire"},
     {"prov_ids",    "Provisioned node IDs (csv, base allowlist)",   FieldKind::Str,  "", "wildfire"},
     {"wifi_ssid",   "WiFi SSID",                                   FieldKind::Str,  "", "wildfire"},

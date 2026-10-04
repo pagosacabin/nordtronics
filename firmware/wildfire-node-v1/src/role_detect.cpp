@@ -8,16 +8,16 @@ const char* role_name(Role r) { return r == Role::Base ? "base" : "node"; }
 
 const char* role_source_name(RoleSource s) {
   switch (s) {
-    case RoleSource::Strap: return "STRAP";
     case RoleSource::Nvs: return "NVS";
+    case RoleSource::Probe: return "PROBE";
     case RoleSource::Default: return "DEFAULT";
   }
   return "?";
 }
 
-RoleDecision resolve_role(int strap_level, bool nvs_present, int nvs_role) {
+RoleDecision resolve_role(bool sensors_present, bool nvs_present, int nvs_role) {
   RoleDecision d;
-  d.strap_level = strap_level;
+  d.sensors_present = sensors_present;
   d.nvs_present = nvs_present;
   d.nvs_role = nvs_role;
 
@@ -27,21 +27,21 @@ RoleDecision resolve_role(int strap_level, bool nvs_present, int nvs_role) {
     return d;  // an explicit NVS/portal value always wins
   }
 
-  if (strap_level == 0) {
-    d.role = Role::Base;
-    d.source = RoleSource::Strap;
+  if (sensors_present) {
+    d.role = Role::Node;  // a board with node sensors on it is the node
+    d.source = RoleSource::Probe;
     return d;
   }
 
-  d.role = Role::Node;  // unstrapped bench board
+  d.role = Role::Base;  // nothing answered the probe: this is the base station
   d.source = RoleSource::Default;
   return d;
 }
 
-std::string role_log_line(const RoleDecision& d, int strap_pin) {
+std::string role_log_line(const RoleDecision& d) {
   std::ostringstream os;
   os << "ROLE: " << role_name(d.role) << " (source=" << role_source_name(d.source)
-     << ", strap_pin=GPIO" << strap_pin << " level=" << d.strap_level
+     << ", sensors=" << (d.sensors_present ? "present" : "absent")
      << ", nvs_role=" << (d.nvs_present ? (d.nvs_role == 1 ? "1" : "0") : "unset")
      << ")";
   return os.str();

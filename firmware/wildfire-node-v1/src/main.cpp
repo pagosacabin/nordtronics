@@ -1,8 +1,9 @@
 // Wildfire Node v1 -- unified firmware, task 0094.
 //
-// ONE binary, TWO roles. The role is decided at boot (src/role_detect.h) before
-// any radio, sensor or power init, is logged to serial on every boot with its
-// source, and every code path below branches on it:
+// ONE binary, TWO roles. The role is decided at boot (src/role_detect.h) by
+// probing for the node sensors before any radio or network init, is logged to
+// serial on every boot with its source, and every code path below branches on
+// it (task 0104 item 3 replaced the 0094 GPIO7 jumper with the probe):
 //
 //   node  -- BME680 + PMS5003 sampling, routine CHECKIN every 12 min, ALARM on
 //            its own hard threshold, deep sleep between check-ins.
@@ -35,8 +36,10 @@
 #include <vector>
 
 #include "consensus_v02.h"
+#include "device_name.h"
 #include "firmware_config.h"
 #include "mqtt_ca.h"
+#include "mqtt_topic.h"
 #include "radio_protocol.h"
 #include "role_detect.h"
 
@@ -75,7 +78,7 @@ static bool g_oled_ready = false;
 // runtime configuration: firmware default (firmware_config.h) + NVS value
 // ---------------------------------------------------------------------------
 struct RuntimeConfig {
-  int role_override = -1;  // -1 = unset (strap decides)
+  int role_override = -1;  // -1 = unset (the sensor probe decides)
   uint16_t node_id = 0;
   String prov_ids;
   String wifi_ssid, wifi_pass;
@@ -311,6 +314,34 @@ static float read_pms25(uint16_t* pm1, uint16_t* pm10, bool* ok) {
   return (float)pm25;
 }
 
+// ---------------------------------------------------------------------------
+// role probe -- task 0104 item 3 (the tank-monitor pattern: probe, do not jump)
+// ---------------------------------------------------------------------------
+// Asked before anything else, because it decides which half of this file runs.
+// Two independent answers and either one is enough to call the board a node:
+//   * a BME680 (0x77) or BME688 (0x76) ACKs on the sensor I2C bus, or
+//   * a valid 32-byte PMS5003 frame arrives on the sensor UART.
+// The bus is brought up here on the sensor pins; oled_probe_and_begin() re-runs
+// Wire.begin() with the same pins later. The SSD1306 at 0x3C is deliberately
+// NOT part of the probe: both roles carry the panel.
+static bool probe_node_sensors() {
+  Wire.begin(wf::kI2cSdaPin, wf::kI2cSclPin);
+  const uint8_t addrs[] = {wf::kBme680Addr, wf::kBme688Addr};
+  for (const uint8_t a : addrs) {
+    Wire.beginTransmission(a);
+    const uint8_t ack = Wire.endTransmission();
+    logf("probe: i2c 0x%02X -> %s", a, ack == 0 ? "ACK" : "no ACK");
+    if (ack == 0) return true;
+  }
+
+  g_pms.begin(g_cfg.pms_baud, SERIAL_8N1, wf::kPmsUartTxPin, wf::kPmsUartRxPin);
+  uint16_t pm1 = 0, pm10 = 0;
+  bool pms_ok = false;
+  (void)read_pms25(&pm1, &pm10, &pms_ok);
+  logf("probe: pms5003 -> %s", pms_ok ? "frame valid" : "no frame");
+  return pms_ok;
+}
+
 static void node_send(wf::Frame& f) {
   uint8_t buf[64];
   f.version = wf::kProtoVersion;
@@ -414,9 +445,67 @@ static bool is_provisioned(uint16_t id) {
   return false;
 }
 
-static void mqtt_publish(const String& topic, const String& payload) {
+// ---------------------------------------------------------------------------
+// MQTT publish, with the offline policy honoured (task 0104 item 4)
+// ---------------------------------------------------------------------------
+// 0099's uplink early-returned while the session was down, so a dropped TLS
+// session silently discarded telemetry even though `offl_policy` is `buffer`,
+// and nothing in the log said so. Records now go into a bounded buffer and are
+// replayed in order on reconnect, drop-oldest per wf::kOfflineBufferDropOldest
+// -- the rule docs/wildfire/radio-protocol-v1.md sec. 8 states for the buffer.
+struct OfflineRecord {
+  std::string topic;
+  std::string payload;
+};
+static std::vector<OfflineRecord> g_offline;
+
+static void offline_push(const std::string& topic, const std::string& payload) {
+  const size_t cap = (g_cfg.offl_cap > 0) ? (size_t)g_cfg.offl_cap : 0;
+  if (cap == 0) return;
+  if (g_offline.size() >= cap) {
+    if (!wf::kOfflineBufferDropOldest) return;
+    g_offline.erase(g_offline.begin());  // evict the OLDEST record
+  }
+  g_offline.push_back(OfflineRecord{topic, payload});
+}
+
+// Route a suffix under the configured root (the legacy shapes: `event/alert`,
+// `node/<id>/state`). Telemetry does NOT use this -- it goes through
+// wf::telemetry_topic(), which is the deployed contract's one-level shape.
+static std::string rooted_topic(const std::string& suffix) {
+  return std::string(g_cfg.mqtt_root.c_str()) + "/" + suffix;
+}
+
+// Publish one record. `topic` is the FULL topic, root included.
+static void mqtt_publish(const std::string& topic, const String& payload) {
+  if (!g_mqtt.connected()) {
+    if (g_cfg.offl_policy == "buffer") {
+      offline_push(topic, payload.c_str());
+      logf("mqtt: session down -- buffered %u/%d [%s]", (unsigned)g_offline.size(),
+           g_cfg.offl_cap, topic.c_str());
+    } else {
+      logf("mqtt: session down -- dropped (offl_policy=%s) [%s]",
+           g_cfg.offl_policy.c_str(), topic.c_str());
+    }
+    return;
+  }
+  g_mqtt.publish(topic.c_str(), payload.c_str());
+}
+
+// Replay the buffer in order once the session is up. Stops at the first record
+// the client refuses, so a still-buffered record is never silently lost.
+static void offline_flush() {
   if (!g_mqtt.connected()) return;
-  g_mqtt.publish((g_cfg.mqtt_root + "/" + topic).c_str(), payload.c_str());
+  while (!g_offline.empty()) {
+    const OfflineRecord rec = g_offline.front();
+    if (!g_mqtt.publish(rec.topic.c_str(), rec.payload.c_str())) break;
+    g_offline.erase(g_offline.begin());
+  }
+  static uint32_t last_log = 0;
+  if (!g_offline.empty() && millis() - last_log > 30000UL) {
+    last_log = millis();
+    logf("mqtt: replay pending -- %u records still buffered", (unsigned)g_offline.size());
+  }
 }
 
 static void base_handle_frame(const wf::Frame& f) {
@@ -438,7 +527,14 @@ static void base_handle_frame(const wf::Frame& f) {
            f.node_id, f.seq, f.pm1_x10 / 10.0f, f.pm25_x10 / 10.0f, f.pm10_x10 / 10.0f,
            f.temp_c_x100 / 100.0f, f.rh_x100 / 100.0f, (unsigned long)f.press_pa,
            f.batt_mv, f.status, wf::level_name(g_engine.level()));
-  mqtt_publish(String("node/") + String((unsigned)f.node_id) + "/telemetry", buf);
+  // Telemetry topic: the deployed contract's ONE-level shape
+  // (`nordtronics/wildfire/<node-id>/telemetry`), not `<root>/node/<id>/...`.
+  // The `+` in the ingest subscription and the ACL matches exactly one level,
+  // so the old form was dropped by the broker before it ever reached ingest
+  // (task 0104 item 1). See src/mqtt_topic.h.
+  mqtt_publish(wf::telemetry_topic(g_cfg.mqtt_root.c_str(),
+                                   std::to_string((unsigned)f.node_id)),
+               buf);
 
   for (const auto& e : evs) {
     g_last_event = std::string(wf::event_kind_name(e.kind)) + " @" +
@@ -450,13 +546,22 @@ static void base_handle_frame(const wf::Frame& f) {
     const char* topic = (e.kind == wf::EventKind::Alert)   ? "event/alert"
                         : (e.kind == wf::EventKind::Watch) ? "event/watch"
                                                            : "event/clear";
-    mqtt_publish(topic, buf);
+    mqtt_publish(rooted_topic(topic), buf);
   }
 }
 
+// The receive window, in milliseconds. 0094 called receive() with the library
+// default, which is 5x the time-on-air of the whole 128-byte buffer -- ~1.3 s at
+// SF7/125 kHz and several seconds at SF12, and every one of those seconds is a
+// second PubSubClient is not serviced. mosquitto drops a client that misses
+// 1.5 x its 15 s keepalive (the ~22 s drop in 0103's bench findings). A short
+// bounded window keeps the loop responsive: a frame lasts ~250 ms here and the
+// node repeats its check-in, so polling in slices loses nothing (item 4).
+static constexpr uint32_t kRadioPollMs = 500;
+
 static void base_radio_poll() {
   uint8_t buf[128];
-  const int st = g_radio.receive(buf, sizeof(buf));
+  const int st = g_radio.receive(buf, sizeof(buf), kRadioPollMs);
   if (st != RADIOLIB_ERR_NONE) return;
   wf::Frame f;
   const wf::DecodeResult r = wf::decode_frame(buf, g_radio.getPacketLength(), &f);
@@ -573,6 +678,38 @@ static void oled_render_node() {
 // and must never depend on the STA join: with a stored SSID that fails to join
 // the board used to end up on neither network, and 192.168.4.1 -- the only way
 // back in -- was gone.
+// The DNS name the board asks DHCP for (task 0104 item 2, Stephen's ask):
+// `wildfire-<role>-<nn>`, so a board is identifiable in any router's client
+// list with no OLED and no serial console. Derived from the role decision plus
+// the node id, so it adds no portal field and no NVS key, and it must be set
+// BEFORE the STA starts or the whole session keeps the default `espressif`
+// name. The AP keeps the fixed kPortalApName: that one is what the operator
+// joins to reach the portal, not a site value.
+static void wifi_set_device_name() {
+  const std::string hostname = wf::device_hostname(wf::role_name(g_role), g_cfg.node_id);
+  WiFi.setHostname(hostname.c_str());
+  logf("wifi: dhcp hostname [%s]", hostname.c_str());
+}
+
+// Connect / drop logging with the pair 0098 asked for: the STA IP on connect and
+// the disconnect REASON CODE on drop. The current build printed neither, which
+// is why 0103's bench session loop could not be diagnosed from the log.
+static void wifi_event_log(WiFiEvent_t event, WiFiEventInfo_t info) {
+  switch (event) {
+    case ARDUINO_EVENT_WIFI_STA_GOT_IP:
+      logf("wifi: connected -- ip=%s gw=%s rssi=%d dBm",
+           WiFi.localIP().toString().c_str(), WiFi.gatewayIP().toString().c_str(),
+           WiFi.RSSI());
+      break;
+    case ARDUINO_EVENT_WIFI_STA_DISCONNECTED:
+      logf("wifi: disconnected -- reason=%d (%s)", (int)info.wifi_sta_disconnected.reason,
+           WiFi.status() == WL_CONNECTED ? "still up" : "sta down");
+      break;
+    default:
+      break;
+  }
+}
+
 static void wifi_bring_up_ap(const char* why) {
   WiFi.mode(g_cfg.wifi_ssid.length() ? WIFI_AP_STA : WIFI_AP);
   const bool ok = WiFi.softAP(wf::kPortalApName);
@@ -584,13 +721,15 @@ static void wifi_bring_up_ap(const char* why) {
 // first regardless of whether a join is attempted. `waitMs` only bounds the
 // join; the AP is available immediately.
 static void wifi_begin(uint32_t waitMs) {
+  wifi_set_device_name();
   wifi_bring_up_ap("boot");
   if (!g_cfg.wifi_ssid.length()) return;
   WiFi.begin(g_cfg.wifi_ssid.c_str(), g_cfg.wifi_pass.c_str());
   const uint32_t deadline = millis() + waitMs;
   while (WiFi.status() != WL_CONNECTED && millis() < deadline) delay(200);
-  logf("wifi: status=%d (%s)", (int)WiFi.status(),
-       WiFi.status() == WL_CONNECTED ? "connected" : "not connected");
+  logf("wifi: status=%d (%s) ip=%s", (int)WiFi.status(),
+       WiFi.status() == WL_CONNECTED ? "connected" : "not connected",
+       WiFi.localIP().toString().c_str());
 }
 
 // The clock precondition for TLS: mbedTLS validates the pinned ISRG Root X1
@@ -659,26 +798,27 @@ void setup() {
   Serial.begin(115200);
   for (uint32_t t0 = millis(); !Serial && millis() - t0 < 2000;) delay(10);
 
-  // ---- STEP 0: role detection, before ANY radio/sensor/power init ----------
-  pinMode(wf::kRoleStrapPin, INPUT_PULLUP);
-  delay(5);
-  const int strap = digitalRead(wf::kRoleStrapPin) == LOW ? wf::kStrapLevelBase
-                                                          : wf::kStrapLevelNode;
+  // ---- STEP 0: role detection (task 0104 item 3 -- probe, not jumper) ------
+  // The NVS/portal value is read first and the sensor probe second, so the
+  // probe runs with the configured PMS baud while the persisted role still
+  // outranks it inside resolve_role(). Nothing radio-, network- or power-
+  // related is initialised before the role is known.
   g_prefs.begin(wf::kPrefsNamespace, false);
+  load_config();
   const String role_s = g_prefs.getString("role", "");
   const bool nvs_present = (role_s.length() == 1 && (role_s == "0" || role_s == "1"));
   const int nvs_role = nvs_present ? role_s.toInt() : -1;
+  const bool sensors_present = probe_node_sensors();
 
-  g_role_decision = wf::resolve_role(strap, nvs_present, nvs_role);
+  g_role_decision = wf::resolve_role(sensors_present, nvs_present, nvs_role);
   g_role = g_role_decision.role;
-  logf("%s", wf::role_log_line(g_role_decision, wf::kRoleStrapPin).c_str());
+  logf("%s", wf::role_log_line(g_role_decision).c_str());
   logf("firmware: wildfire-unified-v1 proto=%u build=%s %s", wf::kProtoVersion,
        __DATE__, __TIME__);
   if (g_role == wf::Role::Base) {
     logf("base: deep sleep is disabled for this role (asserted on every sleep path)");
   }
 
-  load_config();
   g_boot_min = now_min();
   if (g_role == wf::Role::Base) {
     std::vector<std::string> ids;
@@ -713,6 +853,9 @@ void setup() {
   // The setup AP comes up first and unconditionally, so portal_setup() below is
   // always reachable: with no stored SSID, and equally after a failed join
   // (task 0099 items 5 and 6 -- in that order, not the other way round).
+  // Connect / disconnect logging (item 4): registered before the STA starts so
+  // the first join is covered, not just later reconnects.
+  WiFi.onEvent(wifi_event_log);
   wifi_begin(15000);
   // TLS cannot verify the pinned root at the 1970 boot clock, so the clock has
   // to be right before the first handshake.
@@ -730,11 +873,16 @@ void loop() {
     // Keep trying to reach the AP. A failed join re-arms the setup AP, so the
     // portal is never lost (task 0099 item 6).
     base_network_tick();
+    // The MQTT session is the one deadline in this firmware: mosquitto drops a
+    // client that misses 1.5 x its 15 s keepalive, and 0103 saw exactly that
+    // every ~22 s. So the client is serviced FIRST and every pass, and every
+    // blocking call after it is bounded (base_radio_poll: kRadioPollMs).
     if (!g_mqtt.connected()) {
       const String client_id = String("wf-base-") + String((unsigned)g_cfg.node_id);
       if (g_mqtt.connect(client_id.c_str(), g_cfg.mqtt_user.c_str(),
                          g_cfg.mqtt_pass.c_str())) {
         logf("mqtt: connected to %s:%u", g_cfg.mqtt_host.c_str(), g_cfg.mqtt_port);
+        offline_flush();
       } else {
         static uint32_t last_mqtt_err = 0;
         if (millis() - last_mqtt_err > 30000UL) {
@@ -745,6 +893,7 @@ void loop() {
       }
     }
     g_mqtt.loop();
+    offline_flush();
     g_server.handleClient();
     base_radio_poll();
 
@@ -755,7 +904,7 @@ void loop() {
       n.online = (now_min() - n.last_seen_min) <= offline_after;
       if (was && !n.online) {
         logf("node %s offline (no packet for %.0f min)", n.id.c_str(), offline_after);
-        mqtt_publish(String("node/") + String(n.id.c_str()) + "/state",
+        mqtt_publish(rooted_topic(std::string("node/") + n.id + "/state"),
                      "{\"state\":\"offline\"}");
       }
     }
