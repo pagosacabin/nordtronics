@@ -1,8 +1,8 @@
 ---
 task_id: "0109"
 protocol_version: 1.0.0
-status: inbox
-iteration: 1
+status: in_progress
+iteration: 2
 expect-reply-within: 24h
 proof: []
 notes: |
@@ -11,6 +11,11 @@ notes: |
   cause): flash the 0108 artifact (Vext gate driven at boot) to the NODE
   board and prove the whole stack live. 0107's diagnostic notes stay in
   active/ as the honest record of the finding.
+  PICKED UP (filed iteration 1 -> 2) by the mailbox worker, 2026-10-04 15:15 UTC.
+  Off-peak (PEAK: OFF-PEAK 15:15 UTC). Predecessors 0097/0098/0106/0107 remain
+  decision-blocked in active/ and were not touched. The filed front-matter
+  carried iteration: 1 (README says iteration starts at 0); the pickup
+  increment is applied literally, so this task now reads iteration: 2.
 ---
 
 # 0109 — Flash the 0108 artifact to the bench NODE and prove live data
