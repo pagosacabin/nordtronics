@@ -65,6 +65,14 @@ inline constexpr int kLoraSpiPins[] = {8, 9, 10, 11, 12, 13, 14};
 constexpr int kI2cSdaPin = 17;   // BME680 SCK/SDA  (bench-verified)
 constexpr int kI2cSclPin = 18;   // BME680 SDI/SCL  (bench-verified)
 constexpr int kOledRstPin = 21;  // SSD1306 reset -- NOT tied to the ESP32 reset
+// Vext is the switched 3.3 V rail the panel and the sensor share on this board
+// family. Heltec LoRa 32 V4 gates it on GPIO36, ACTIVE LOW (U1 pin 5 -- already
+// a 0079 frozen net, so driving it adds no net to the freeze). The bench
+// BME680's VIN sits on Vext; while the rail is off the chip sits at 0 V and
+// clamps SDA, which takes the whole bus down and blinds probe_node_sensors().
+// It is driven LOW at the top of setup(), before any I2C init (task 0108; the
+// legacy bench firmware did the same: node.cpp PIN_VEXT 36, OUTPUT, LOW).
+constexpr int kOledVextPin = 36;
 constexpr uint8_t kBme680Addr = 0x77;
 // The BME688 shares the BME680's register map and answers at 0x76 on the same
 // board family, so the boot role probe asks for both addresses.

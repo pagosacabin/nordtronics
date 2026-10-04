@@ -801,11 +801,25 @@ void setup() {
   Serial.begin(115200);
   for (uint32_t t0 = millis(); !Serial && millis() - t0 < 2000;) delay(10);
 
+  // ---- STEP -1: sensor rail ON, before ANY I2C init (task 0108) ------------
+  // GPIO36 gates Vext, the switched 3.3 V rail the BME680/OLED sit on, active
+  // LOW. With the rail off the sensor sits at 0 V and clamps SDA, so the role
+  // probe below sees nothing on the bus and the board falls through to the
+  // base default. Both roles carry the gate (the panel lives on Vext either
+  // way) and it is harmless on a sensorless board, so it is driven
+  // unconditionally and first -- before probe_node_sensors() and before
+  // oled_probe_and_begin(), i.e. before the first Wire.begin() in the sketch.
+  pinMode(wf::kOledVextPin, OUTPUT);
+  digitalWrite(wf::kOledVextPin, LOW);
+  delay(10);  // let the rail settle before the probe's first I2C transaction
+
   // ---- STEP 0: role detection (task 0104 item 3 -- probe, not jumper) ------
   // The NVS/portal value is read first and the sensor probe second, so the
   // probe runs with the configured PMS baud while the persisted role still
   // outranks it inside resolve_role(). Nothing radio-, network- or power-
-  // related is initialised before the role is known.
+  // related is initialised before the role is known, with the single deliberate
+  // exception of the Vext gate above: the probe cannot read the sensor bus it
+  // powers (task 0108).
   g_prefs.begin(wf::kPrefsNamespace, false);
   load_config();
   const String role_s = g_prefs.getString("role", "");

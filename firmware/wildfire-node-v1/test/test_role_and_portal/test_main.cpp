@@ -128,6 +128,30 @@ static void test_boot_probe_pins_are_frozen_sensor_nets() {
 }
 
 // --------------------------------------------------------------------------
+// the Vext power gate driven at boot (task 0108)
+// --------------------------------------------------------------------------
+// setup() drives the switched sensor rail (GPIO36, active LOW) before any I2C
+// init, because an unpowered chip on the bus clamps SDA. Assert the pin facts
+// the change relies on: it is the documented GPIO36, it is on the 0079 frozen
+// net list (so driving it adds no net to the freeze), and it is none of the
+// ESP32-S3 special-function pins the header enumerates.
+static void test_vext_gate_pin() {
+  printf("[vext] pin=%d (kOledVextPin) frozen_gpios=%zu\n", wf::kOledVextPin,
+         wf::kFrozenGpioCount);
+  CHECK(wf::kOledVextPin == 36, "the Vext gate is GPIO36 on the Heltec V4");
+  CHECK(in_set(kFrozenGpioPins, kFrozenGpioCount, wf::kOledVextPin),
+        "the Vext gate must be a 0079 frozen net (U1 pin 5)");
+  CHECK(!in_set(wf::kS3BootSelectPins, 4, wf::kOledVextPin),
+        "the Vext gate must not be an ESP32-S3 boot-select pin");
+  CHECK(!in_set(wf::kS3NativeUsbPins, 2, wf::kOledVextPin),
+        "the Vext gate must not be a native USB pin");
+  CHECK(!in_set(wf::kS3Uart0Pins, 2, wf::kOledVextPin),
+        "the Vext gate must not be UART0");
+  CHECK(!in_set(wf::kLoraSpiPins, 7, wf::kOledVextPin),
+        "the Vext gate must not be in the SX1262 SPI block");
+}
+
+// --------------------------------------------------------------------------
 // portal table
 // --------------------------------------------------------------------------
 static void test_every_portal_field_has_a_key_default_and_namespace() {
@@ -203,6 +227,7 @@ int main(int, char**) {
   RUN_TEST(test_role_truth_table);
   RUN_TEST(test_role_serial_lines);
   RUN_TEST(test_boot_probe_pins_are_frozen_sensor_nets);
+  RUN_TEST(test_vext_gate_pin);
   RUN_TEST(test_every_portal_field_has_a_key_default_and_namespace);
   RUN_TEST(test_defaults_match_the_frozen_rule_constants);
   const int rc = UNITY_END();
