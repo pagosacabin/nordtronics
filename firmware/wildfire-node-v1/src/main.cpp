@@ -551,12 +551,14 @@ static void base_handle_frame(const wf::Frame& f) {
 }
 
 // The receive window, in milliseconds. 0094 called receive() with the library
-// default, which is 5x the time-on-air of the whole 128-byte buffer -- ~1.3 s at
-// SF7/125 kHz and several seconds at SF12, and every one of those seconds is a
-// second PubSubClient is not serviced. mosquitto drops a client that misses
-// 1.5 x its 15 s keepalive (the ~22 s drop in 0103's bench findings). A short
-// bounded window keeps the loop responsive: a frame lasts ~250 ms here and the
-// node repeats its check-in, so polling in slices loses nothing (item 4).
+// default, and RadioLib's default is 5 x the time-on-air of the WHOLE 128-byte
+// buffer (SX126x.cpp: `timeoutInternal = (getTimeOnAir(maxLen) * 5) / 1000;`).
+// At the configured SF7/125 kHz that is 198 payload symbols = 215 ms of air, so
+// the default window is ~1.1 s; at SF12 it is ~25 s -- longer than the 22 s
+// mosquitto allows a client to miss its keepalive. Every one of those seconds is
+// a second PubSubClient is not serviced. A short bounded window keeps the loop
+// responsive: a node frame lasts ~215 ms here and check-ins repeat, so polling
+// in slices loses nothing (item 4).
 static constexpr uint32_t kRadioPollMs = 500;
 
 static void base_radio_poll() {
