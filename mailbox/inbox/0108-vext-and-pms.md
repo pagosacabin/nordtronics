@@ -17,9 +17,15 @@ notes: |
   legacy source, bench wiring list, this repo's heltec-lora-board-bringup
   skill (GPIO36 = Vext_Ctrl), and the node's own boot log (0x77/0x76/PMS5003
   all silent, 0x3C silent too — same clamp).
+
+  2026-10-04 ~05:29 MDT, Stephen: the PMS5003's external power was OFF
+  during Hermes's testing — that explains `pms5003 -> no frame`. There is
+  no firmware defect to hunt on the PMS5003; the task's PMS5003 item is now
+  verification-only (confirm the probe sees frames with the sensor powered),
+  not diagnosis.
 ---
 
-# 0108 — wildfire-node-v1: drive Vext at boot, diagnose PMS5003 framing
+# 0108 — wildfire-node-v1: drive Vext at boot, verify PMS5003 framing
 
 ## Context
 
@@ -40,11 +46,12 @@ On branch `hermes/0108-vext-and-pms` (from the 0105 tip `951cbd3`), in
    before `probe_node_sensors()`, before `oled_probe_and_begin()`, in
    BOTH roles. On sensorless boards the rail powers nothing — harmless.
    Name it, comment the why (unpowered I2C chip clamps SDA).
-2. Diagnose `pms5003 -> no frame`: verify the probe's UART, pins, baud
-   and listen window against the bench wiring (TX->GPIO5). Fix what is
-   wrong (pins, baud, warm-up wait — the PMS5003 streams continuously
-   once powered; the bench proved the wiring). Do not rewire the bench
-   in the spec — this is a firmware-side diagnosis.
+2. PMS5003: Stephen confirms its external power was OFF during the
+   "no frame" observation, so no firmware defect is suspected. Verify the
+   probe sees valid 32-byte frames with the sensor powered (bench wiring:
+   TX->GPIO5); if it does not, diagnose pins/baud/warm-up then. Do not
+   rewire the bench in the spec — this is verification, then
+   firmware-side diagnosis only if verification fails.
 3. Keep the probe's OR logic (BME680/688 I2C OR PMS5003 frame => node);
    the SSD1306 stays excluded (both roles carry the panel).
 
@@ -58,16 +65,15 @@ Push the branch and take it green through
 - Falsifiable: `grep -n "36" firmware/wildfire-node-v1/src/main.cpp`
   shows the Vext drive placed before the first I2C/Sensor/OLED init
   (quote the lines with their order).
-- Falsifiable: the PMS5003 diagnosis is reported with the root cause and
-  the fix (or "no defect found, frames on the logic analyzer" — with
-  evidence either way, not silence).
+- Falsifiable: the PMS5003 verification is reported (frames seen with
+  sensor powered, or root cause + fix if not).
 - `git diff` contains no credential, SSID, or password.
 
 ## Constraints
 
 - Do not touch the LoRa receive path, the consensus logic, the MQTT
-  code, or the 0104/0105 items. One deliverable: sensor power + PMS5003.
-  Nothing else.
+  code, or the 0104/0105 items. One deliverable: sensor power + PMS5003
+  verification. Nothing else.
 
 ## Proof
 
