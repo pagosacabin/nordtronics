@@ -39,6 +39,7 @@
 #include "device_name.h"
 #include "firmware_config.h"
 #include "mqtt_ca.h"
+#include "mqtt_payload.h"
 #include "mqtt_topic.h"
 #include "radio_protocol.h"
 #include "role_detect.h"
@@ -469,12 +470,10 @@ static void offline_push(const std::string& topic, const std::string& payload) {
   g_offline.push_back(OfflineRecord{topic, payload});
 }
 
-// Route a suffix under the configured root (the legacy shapes: `event/alert`,
-// `node/<id>/state`). Telemetry does NOT use this -- it goes through
-// wf::telemetry_topic(), which is the deployed contract's one-level shape.
-static std::string rooted_topic(const std::string& suffix) {
-  return std::string(g_cfg.mqtt_root.c_str()) + "/" + suffix;
-}
+// The sample instant for both payload shapes. The base's clock is set from NTP
+// before the uplink (task 0099), so this is a real UTC instant; the backend
+// requires it on telemetry and on every event.
+static std::string now_iso_z() { return wf::iso8601_z(std::time(nullptr)); }
 
 // Publish one record. `topic` is the FULL topic, root included.
 static void mqtt_publish(const std::string& topic, const String& payload) {
@@ -516,37 +515,39 @@ static void base_handle_frame(const wf::Frame& f) {
   rec->pm25 = (float)f.pm25_x10 / 10.0f;
 
   const bool valid = wf::frame_plausible(f);
+  // Captured BEFORE feed(): a Cleared event carries no level of its own, and
+  // feed() has already reset the engine's level by the time the event is
+  // returned, so the pre-feed level is the only record of which kind of raise
+  // (watch or alert) is being cleared.
+  const wf::Level level_before = g_engine.level();
   const std::vector<wf::Event> evs =
       g_engine.feed(now_min(), std::to_string(f.node_id), valid, rec->pm25);
 
-  char buf[256];
-  snprintf(buf, sizeof(buf),
-           "{\"node\":%u,\"seq\":%u,\"pm1\":%.1f,\"pm25\":%.1f,\"pm10\":%.1f,"
-           "\"temp_c\":%.2f,\"rh\":%.2f,\"press_pa\":%lu,\"batt_mv\":%u,"
-           "\"status\":%u,\"level\":\"%s\"}",
-           f.node_id, f.seq, f.pm1_x10 / 10.0f, f.pm25_x10 / 10.0f, f.pm10_x10 / 10.0f,
-           f.temp_c_x100 / 100.0f, f.rh_x100 / 100.0f, (unsigned long)f.press_pa,
-           f.batt_mv, f.status, wf::level_name(g_engine.level()));
-  // Telemetry topic: the deployed contract's ONE-level shape
-  // (`nordtronics/wildfire/<node-id>/telemetry`), not `<root>/node/<id>/...`.
-  // The `+` in the ingest subscription and the ACL matches exactly one level,
-  // so the old form was dropped by the broker before it ever reached ingest
-  // (task 0104 item 1). See src/mqtt_topic.h.
-  mqtt_publish(wf::telemetry_topic(g_cfg.mqtt_root.c_str(),
-                                   std::to_string((unsigned)f.node_id)),
-               buf);
+  // Telemetry payload + topic: exactly what the deployed ingest accepts
+  // (src/mqtt_payload.h states the contract). 0104 fixed the topic; the payload
+  // still carried `node`/`temp_c`/`rh`/`batt_mv` and no `observed_utc`, any one
+  // of which makes validation.py reject the reading outright, so nothing was
+  // ever stored (task 0105 item 1).
+  const std::string node_id = std::to_string((unsigned)f.node_id);
+  mqtt_publish(wf::telemetry_topic(g_cfg.mqtt_root.c_str(), node_id),
+               wf::telemetry_json(node_id, f.pm25_x10 / 10.0,
+                                  f.temp_c_x100 / 100.0, f.rh_x100 / 100.0,
+                                  f.batt_mv / 1000.0, now_iso_z()).c_str());
 
   for (const auto& e : evs) {
     g_last_event = std::string(wf::event_kind_name(e.kind)) + " @" +
                    std::to_string((int)e.t) + "min";
     logf("EVENT t=%.1f %s %s %s", e.t, wf::event_kind_name(e.kind),
          e.nodes.empty() ? e.node.c_str() : "", e.detail.c_str());
-    snprintf(buf, sizeof(buf), "{\"event\":\"%s\",\"t\":%.1f,\"nodes\":\"%s\"}",
-             wf::event_kind_name(e.kind), e.t, e.detail.c_str());
-    const char* topic = (e.kind == wf::EventKind::Alert)   ? "event/alert"
-                        : (e.kind == wf::EventKind::Watch) ? "event/watch"
-                                                           : "event/clear";
-    mqtt_publish(rooted_topic(topic), buf);
+    const char* wire = wf::wire_event_kind(e.kind, level_before == wf::Level::Alert);
+    if (wire == nullptr) continue;  // NodeRiseConfirmed: internal, no backend kind
+    // Events go to `<root>/<base-id>/events` -- the shape events.py subscribes.
+    // The old `<root>/event/alert` form put `event` where the base id belongs
+    // and was dropped by the broker before ingest saw it (task 0105 item 2).
+    mqtt_publish(wf::events_topic(g_cfg.mqtt_root.c_str(),
+                                  std::to_string((unsigned)g_cfg.node_id)),
+                 wf::event_json(wire, now_iso_z(), wf::event_subject(e.nodes),
+                                e.nodes).c_str());
   }
 }
 
@@ -906,8 +907,13 @@ void loop() {
       n.online = (now_min() - n.last_seen_min) <= offline_after;
       if (was && !n.online) {
         logf("node %s offline (no packet for %.0f min)", n.id.c_str(), offline_after);
-        mqtt_publish(rooted_topic(std::string("node/") + n.id + "/state"),
-                     "{\"state\":\"offline\"}");
+        // No MQTT publish here (task 0105 item 3): the only topic the ACL
+        // grants this device is `+/telemetry` and `+/events`, so the old
+        // `<root>/node/<id>/state` notice was denied at the broker and never
+        // reached anything. The backend derives staleness itself from the
+        // reading's age (`/v1/nodes` carries last_seen_utc / status "stale"),
+        // and this board still shows it on the OLED, so the notice is removed
+        // rather than re-routed onto a topic whose schema it does not match.
       }
     }
     static uint32_t last_oled = 0;

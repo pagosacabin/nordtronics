@@ -83,6 +83,7 @@ and commit the result. The tests never read files at runtime.
 | `src/role_detect.h/.cpp` | role decision + serial line (portable) |
 | `src/firmware_config.h` | portal field table, pin map, the 0079 frozen-net list |
 | `src/mqtt_topic.h` | the telemetry topic builder (the deployed `<root>/<node-id>/telemetry` shape) |
+| `src/mqtt_payload.h` | the telemetry/event payload builders + the `<root>/<base-id>/events` topic (the deployed backend contract) |
 | `src/device_name.h` | the DHCP hostname builder (`wildfire-<role>-<nn>`) |
 | `test/*` | host-side unity tests |
 
