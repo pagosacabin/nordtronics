@@ -1,11 +1,15 @@
 ---
 task_id: "0106"
 protocol_version: 1.0.0
-status: inbox
-iteration: 1
+status: in_progress
+iteration: 2
 expect-reply-within: 24h
 proof: []
 notes: |
+  PICKED UP (iteration 1 -> 2) by the mailbox worker, 2026-10-04 02:2x UTC.
+  Off-peak (PEAK: OFF-PEAK 02:15 UTC). Predecessor tasks 0097/0098 remain
+  decision-blocked in active/ and were not touched.
+
   Filed by Juno, 2026-10-03. The final flash: 0105 is verified and archived
   (payload + events match the deployed backend contract — actual firmware
   bytes were fed through validation.py/events.py on main, ok=True). This
