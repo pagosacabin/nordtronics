@@ -1,8 +1,8 @@
 ---
 task_id: "0113"
 protocol_version: 1.0.0
-status: inbox
-iteration: 0
+status: in_progress
+iteration: 1
 expect-reply-within: 12h
 proof: []
 notes: |
@@ -11,6 +11,9 @@ notes: |
   still runs 0105 with the MQTT keepalive problem. Same unified image both
   ends eliminates protocol mismatch as a variable. No new build needed — the
   0112 artifact is CI-green and already flashed to the node.
+  PICKED UP (iteration 0 -> 1) by the mailbox worker, 2026-10-05 22:15 UTC
+  (PEAK: OFF-PEAK 22:15 UTC). Predecessors 0097/0098/0106/0107/0109/0110 remain
+  decision-blocked in active/ and were not touched.
 ---
 
 # 0113 — Flash the base to the 0112 unified image
