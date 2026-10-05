@@ -17,7 +17,14 @@ notes: |
   Vext rail coming up against the sensor wiring (power dip or a rail fault),
   killing the chip mid-boot before USB re-enumerates. If the board will not
   stay up: try a different USB cable/port first (power marginality), then
-  unplug the BME680 and re-test to isolate the rail load. Do NOT reflash
+  unplug the BME680 and re-test to isolate the rail load. Second hypothesis
+  (added 18:2x MDT): software crash-loop, not power — with the BME680 now
+  powered, the probe FINDS it (0105 never got that far), role flips to node,
+  and something in the node code path crashes -> reboot -> brief enumerate
+  -> crash again. The BME680-unplug test narrows both hypotheses at once:
+  if the board stays up unplugged, the fault is BME680-presence-dependent
+  (rail short or driver crash); inspect wiring for shorts before any code
+  change. Do NOT reflash
   until the mechanism is understood — this task is diagnosis, not repair.
   18:09 MDT Stephen: leaving the board as-is until Tuesday Oct 6 (his next
   bench day). If the board is absent when this runs, report that and stand
