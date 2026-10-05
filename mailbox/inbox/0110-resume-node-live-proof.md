@@ -10,6 +10,15 @@ notes: |
   active/ because the node board fell off the USB bus during the post-flash
   hard reset (kernel USB disconnect 09:17:15 local, never re-enumerated).
   Stephen has now physically re-plugged the node board (his words 18:04 MDT).
+  18:06 MDT Stephen: on re-plug the board enumerated BRIEFLY (~1 s) then
+  dropped off USB again. Pattern = boot-then-die, not a dead port. Note the
+  0105 image stayed up fine on this board through 0107's whole session, so
+  the 0108 GPIO36/Vext drive at the top of setup() is suspect — likely the
+  Vext rail coming up against the sensor wiring (power dip or a rail fault),
+  killing the chip mid-boot before USB re-enumerates. If the board will not
+  stay up: try a different USB cable/port first (power marginality), then
+  unplug the BME680 and re-test to isolate the rail load. Do NOT reflash
+  until the mechanism is understood — this task is diagnosis, not repair.
   The 0108 artifact is already in the node's app0, read-back-verified — do
   NOT reflash unless the resume below proves it necessary.
 ---
