@@ -147,6 +147,86 @@ notes: |
   assert DTR/RTS and reset the board, which would confound the very window
   being measured. Do it with a human watching, preferably via an external
   3.3 V USB-serial tap on the Heltec's UART pins rather than the USB-JTAG.
+
+  RESUME ATTEMPT (2026-10-05 04:15-04:35 UTC = 22:15-22:35 MDT Oct 4). The
+  PARK note directly above is STALE and was superseded: the previous run
+  committed it at 18:19:44 MDT, BEFORE Stephen's 18:20/18:25/18:26 MDT filing
+  entries ("board is NOW in ROM download mode ... CHECK IMMEDIATELY" at 18:25,
+  "capture the panic" at 18:26), which are direct instructions to the worker.
+  So this run resumed 0110 and did exactly what those entries asked. NO
+  reflash, NO unlock/erase/NVS write, base untouched. No branch, no CI run --
+  this is a bench-diagnosis task; see WHY NOT STAGED.
+
+  1. STEP 1 MET -- the node is PRESENT and STABLE. /dev/serial/by-id/ at
+     check time (22:19 and 22:35 MDT) lists BOTH boards:
+       usb-Espressif_USB_JTAG_serial_debug_unit_B0:A6:04:C5:75:4C-if00 -> ../../ttyACM1
+       usb-Espressif_USB_JTAG_serial_debug_unit_80:F1:B2:A7:47:EC-if00 -> ../../ttyACM0
+     udevadm on ttyACM1: ID_SERIAL=Espressif_USB_JTAG_serial_debug_unit_B0:A6:04:C5:75:4C,
+     DEVPATH .../usb1/1-2/1-2:1.0/tty/ttyACM1. The kernel log for port 1-2 shows
+     the node enumerated at 18:25:14 MDT and NO "USB disconnect" since -- up
+     ~4 h continuously at check time. The ~12-minute metronome 0109/0110
+     recorded STOPPED at 18:25:14. This matches Stephen's "stayed up on my side
+     in download mode": the board is in a STABLE ROM download-mode state, not
+     cycling. Hardware/power exoneration is now confirmed from the host side.
+
+  2. STEP 2 (the ROLE line) IS UNATTAINABLE -- the app is not running, and a
+     host reset will NOT start it. Passive non-perturbing reads of /dev/ttyACM1
+     (raw termios, DTR/RTS released, windows of 6 s / 8 s / 12 s x2, and one
+     60 s) returned ZERO bytes every time: no ROLE line, no app banner, no
+     panic. The only reset that produced any output showed the ROM re-entering
+     download mode, verbatim:
+       ESP-ROM:esp32s3-20210327
+       Build:Mar 27 2021
+       rst:0x15 (USB_UART_CHIP_RESET),boot:0x0 (DOWNLOAD(USB/UART0))
+       Saved PC:0x40041a76
+       waiting for download
+     Boot attempts, each followed by a capture (all 0 bytes): (a) esptool 4.9.1
+     `--after hard_reset` (flash_id), twice; (b) an EN pulse exactly matching
+     esptool's HardReset(uses_usb=True) with the USB-JTAG IO0 line driven HIGH
+     first (DTR deasserted, confirmed by TIOCMGET: on open 0x26 = DTR|RTS, after
+     release 0x20 = CTS only); (c) IO0 held LOW + EN pulse (control); (d) EN held
+     low, IO0 driven HIGH, then EN released. Every reset that emitted anything
+     landed on boot:0x0 (DOWNLOAD). The chip stayed enumerated throughout (no
+     kernel USB event for 1-2 after 18:25:14), i.e. none of these reached a
+     booting app, and no capture ever saw app output.
+
+  3. FINDING (stated as evidence, not a proven mechanism -- the filing forbids a
+     guess-fix and none was applied). On this ESP32-S3 via its USB-Serial/JTAG
+     peripheral, a HOST-initiated reset does not run app0 while GPIO0 reads low
+     at reset: the chip re-enters ROM download mode (rst:0x15 / boot:0x0). Two
+     candidate mechanisms, neither tested: (i) GPIO0 is still held LOW by a
+     physical strap (a PRG/BOOT hold or jumper left in place from the 18:25
+     download-mode entry), or (ii) the USB-Serial/JTAG chip-reset is inherently a
+     download-mode reset and the host cannot force IO0 high through it. Either
+     way the exit needs a PHYSICAL action -- release PRG / power-cycle the node
+     -- which is exactly Stephen's Tuesday Oct 6 bench step. No software step
+     available to this worker boots the app, and therefore the panic text (this
+     task's actual prize) is NOT obtainable from this host while the board sits
+     in download mode.
+
+  4. NOTHING WAS WRITTEN. No flash, no erase, no unlock, no NVS write, no repo
+     file other than this notes update. The BASE was not touched (criterion 3
+     MET): /dev/ttyACM0 was never opened, no esptool was ever pointed at
+     80:F1:B2:A7:47:EC, and bus 3-2 has had no USB event since Oct 03 16:39:43.
+     RESETS WERE ISSUED TO THE NODE (that is the prescribed step) -- declared,
+     not hidden. The node was not written: the 0108 image in app0 is unchanged
+     from 0109's read-back-verified write.
+
+  5. BACKEND, read-only. GET https://api.nordtronics.io/v1/nodes at
+     2026-10-05T04:24:09Z: bench-01 last_seen_utc 2026-10-02T20:37:37Z,
+     age_seconds 200792 (~55.8 h), status "stale"; node-01 last_seen_utc
+     2026-09-25T19:20:01Z, age 810248, "stale". No reading has reached the
+     backend since 2026-10-02 (criterion 2 unattainable for the same reason).
+
+  WHY NOT STAGED. `proof: []` is real, not an omission: criterion 1 (a quoted
+  ROLE line) is unattained, and a bench diagnosis produces no branch, no CI run
+  and no artifact. Blocked is not staged (mailbox README; handoff-mailbox rule
+  6). The one correction to the 18:26 filing's NEXT step, offered so Tuesday is
+  a decision and not a re-investigation: the reset that boots the app must be
+  PHYSICAL (release PRG / power-cycle) -- a host RTS pulse provably returns the
+  chip to download mode here (rst:0x15 / boot:0x0, reproduced), so do not spend
+  the bench session re-trying host resets. Nothing else about this block is
+  discoverable by another automated pass; do not re-run this from the host.
 ---
 
 # 0110 — Node board re-plugged: resume the 0109 live-data proof
