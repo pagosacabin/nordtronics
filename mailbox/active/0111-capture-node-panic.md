@@ -15,6 +15,10 @@ notes: |
   carried iteration: 1 and status: staged (README says iteration starts at 0 and
   an inbox task is status: inbox); the pickup increment is applied literally, so
   this task now reads iteration: 2. See the reply body for the run result.
+  07:41 MDT Stephen: tapped RST once (no PRG hold). The board should be
+  booting the app NOW — watch the bus immediately; if the ~12-min
+  metronome from 0110's kernel log is still the shape, the up-window is
+  only 3-5 s, so poll /dev/serial/by-id/ tight and capture on appearance.
 ---
 
 # 0111 — Capture the node board's crash panic
