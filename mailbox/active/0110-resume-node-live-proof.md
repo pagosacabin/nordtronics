@@ -29,6 +29,15 @@ notes: |
   18:09 MDT Stephen: leaving the board as-is until Tuesday Oct 6 (his next
   bench day). If the board is absent when this runs, report that and stand
   down — do not keep retrying; the next physical step happens Tuesday.
+  18:2x MDT Stephen: the BME680 is HARD-WIRED (soldered; wiring proven good
+  Oct 2) — the unplug test is OFF the table. This also weakens the
+  power-fault hypothesis: the legacy bench firmware drove the same Vext
+  rail with the same sensor and ran fine. Crash-loop is now the leading
+  hypothesis (new code dies once the probe actually finds the sensor).
+  Tuesday's decisive small test, no wiring changes: hold BOOT, tap RESET
+  to park the board in ROM download mode — if USB stays up there, the app
+  is the killer and hardware/power are exonerated. Then capture serial
+  during the flicker and read the panic/backtrace; it names the culprit.
   The 0108 artifact is already in the node's app0, read-back-verified — do
   NOT reflash unless the resume below proves it necessary.
 
