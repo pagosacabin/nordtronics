@@ -39,7 +39,9 @@ unified firmware.
 2. Do NOT delete the sleep code or the base's HARD RULE refusal — this is a
    gate, not a removal. Add a comment at the gate naming it as the final
    pre-deployment gate.
-3. Keep `checkin_s` default at 720 s (no interval change in this task).
+3. Bench-phase checkin interval: default `checkin_s` to 60 s (was 720 s).
+   Both the interval and the sleep gate return to field values (720 s +
+   sleep on) at the final gate. Note the change in the code comment.
 4. Build on a branch through CI per the usual recipe; attach the artifact.
 5. Flash the NODE only (MAC B0:A6:04:C5:75:4C, by-id path, never ttyACM0/1):
    the node is currently in its 720 s sleep cycle, awake ~4 s per cycle.
