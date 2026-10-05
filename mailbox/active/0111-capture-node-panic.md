@@ -19,6 +19,11 @@ notes: |
   booting the app NOW — watch the bus immediately; if the ~12-min
   metronome from 0110's kernel log is still the shape, the up-window is
   only 3-5 s, so poll /dev/serial/by-id/ tight and capture on appearance.
+  ~07:59 MDT Stephen: while swapping USB cables, the node's OLED flashed
+  an ERROR then went blank; the laptop then showed the device offline.
+  First visible app output ever — ask Stephen for the error text if he
+  caught any of it. Cable swaps reset the attach timing; re-establish the
+  current bus state before trusting the metronome shape.
 ---
 
 # 0111 — Capture the node board's crash panic
