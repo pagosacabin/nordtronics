@@ -19,6 +19,9 @@ notes: |
   stay up: try a different USB cable/port first (power marginality), then
   unplug the BME680 and re-test to isolate the rail load. Do NOT reflash
   until the mechanism is understood — this task is diagnosis, not repair.
+  18:09 MDT Stephen: leaving the board as-is until Tuesday Oct 6 (his next
+  bench day). If the board is absent when this runs, report that and stand
+  down — do not keep retrying; the next physical step happens Tuesday.
   The 0108 artifact is already in the node's app0, read-back-verified — do
   NOT reflash unless the resume below proves it necessary.
 ---
