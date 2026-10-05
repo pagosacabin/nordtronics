@@ -44,6 +44,14 @@ notes: |
   mode = app is the killer, hardware/power exonerated — then try a normal
   boot and capture the serial panic. Still dropping even in download mode
   = hardware/power fault, report it and stand down.
+  18:26 MDT Stephen: board "stayed up on my side" in download mode.
+  Hardware/power EXONERATED — the 0108 app is the killer (crash-loop
+  hypothesis confirmed as far as it can be without the panic text).
+  NEXT: serial-reset the board out of download mode into the app (RTS/EN
+  pulse is enough — no physical action needed) and capture the serial
+  output through the boot-then-die cycle. Read the panic/backtrace — it
+  names the crashing code. Report the panic text verbatim. Do NOT attempt
+  a fix in this task; diagnosis only.
   The 0108 artifact is already in the node's app0, read-back-verified — do
   NOT reflash unless the resume below proves it necessary.
 
