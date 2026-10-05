@@ -38,6 +38,12 @@ notes: |
   to park the board in ROM download mode — if USB stays up there, the app
   is the killer and hardware/power are exonerated. Then capture serial
   during the flicker and read the panic/backtrace; it names the culprit.
+  18:25 MDT Stephen: board is NOW in ROM download mode (PRG hold + RST tap,
+  his words "should be done now"). CHECK IMMEDIATELY: does the by-id path
+  for B0:A6:04:C5:75:4C enumerate and STAY for 60+ s? Stable in download
+  mode = app is the killer, hardware/power exonerated — then try a normal
+  boot and capture the serial panic. Still dropping even in download mode
+  = hardware/power fault, report it and stand down.
   The 0108 artifact is already in the node's app0, read-back-verified — do
   NOT reflash unless the resume below proves it necessary.
 
