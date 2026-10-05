@@ -6,7 +6,10 @@
 // it (task 0104 item 3 replaced the 0094 GPIO7 jumper with the probe):
 //
 //   node  -- BME680 + PMS5003 sampling, routine CHECKIN every 12 min, ALARM on
-//            its own hard threshold, deep sleep between check-ins.
+//            its own hard threshold, deep sleep between check-ins (task 0112,
+//            bench phase: the deep sleep and the check-in period are gated --
+//            see kDeepSleepEnabled in src/firmware_config.h; the field values
+//            are 720 s + sleep, restored at the final pre-deployment gate).
 //   base  -- SX1262 receive loop, v0.2 consensus engine (src/consensus_v02.cpp),
 //            MQTT uplink, OLED status, captive portal. NEVER deep-sleeps.
 //
@@ -87,7 +90,7 @@ struct RuntimeConfig {
   uint16_t mqtt_port = 8883;  // TLS only: the broker has no 1883 listener
   String offl_policy = "buffer";
   int offl_cap = 180;
-  uint32_t checkin_s = 720;  // 12 minutes
+  uint32_t checkin_s = (uint32_t)wf::kCheckinSecondsDefault;  // bench phase (field: 720)
   float lora_mhz = 915.0f;
   float lora_bw = 125.0f;
   uint8_t lora_sf = 7;
@@ -834,6 +837,13 @@ void setup() {
        __DATE__, __TIME__);
   if (g_role == wf::Role::Base) {
     logf("base: deep sleep is disabled for this role (asserted on every sleep path)");
+  } else {
+    // The bench-phase gate is logged on every node boot so a serial capture
+    // shows which side of the FINAL PRE-DEPLOYMENT GATE this build is on.
+    logf("node: deep sleep gate=%s (bench phase) -- check-in period %u s "
+         "(field value %d s + sleep restores at the final gate)",
+         wf::kDeepSleepEnabled ? "ENABLED" : "DISABLED",
+         (unsigned)g_cfg.checkin_s, wf::kCheckinSecondsField);
   }
 
   g_boot_min = now_min();
@@ -938,14 +948,39 @@ void loop() {
     return;  // the base loop never sleeps
   }
 
-  // ---- node: sample, report, deep sleep ------------------------------------
-  node_checkin();
-  static uint32_t last_oled = 0;
-  if (millis() - last_oled > 1000) {
-    last_oled = millis();
-    oled_render_node();
+  // ---- node: sample + report, then deep sleep or a bench-phase wait --------
+  //
+  // Field build (kDeepSleepEnabled == true): the original behaviour -- one
+  // sample/report cycle per boot, then sleep for the check-in period.
+  //
+  // Bench phase (gate open): the node must still cycle once per check-in
+  // period rather than once per loop() pass, so the period is enforced here and
+  // the node simply stays awake, with USB-serial live, until the next cycle.
+  static uint32_t last_checkin_ms = 0;
+  static bool checkin_done = false;
+  const uint32_t period_ms = (uint32_t)g_cfg.checkin_s * 1000UL;
+  if (!checkin_done || (uint32_t)(millis() - last_checkin_ms) >= period_ms) {
+    checkin_done = true;
+    last_checkin_ms = millis();
+
+    node_checkin();
+
+    static uint32_t last_oled = 0;
+    if (millis() - last_oled > 1000) {
+      last_oled = millis();
+      oled_render_node();
+    }
+
+    if (wf::kDeepSleepEnabled) {
+      enter_deep_sleep(g_cfg.checkin_s);
+      // Reached only if the sleep was refused (i.e. we are not a node after all).
+    } else {
+      // Bench-phase gate open: no sleep, stay awake with USB-serial live. This
+      // line is the falsifiable evidence that the gate is doing its job -- a
+      // field build prints `sleep: <n> s (role=node)` here instead.
+      logf("bench gate: deep sleep DISABLED -- staying awake, next check-in in %u s",
+           (unsigned)g_cfg.checkin_s);
+    }
   }
-  enter_deep_sleep(g_cfg.checkin_s);
-  // Reached only if the sleep was refused (i.e. we are not a node after all).
-  delay(1000);
+  delay(100);  // stay responsive and keep the USB-CDC link enumerated
 }

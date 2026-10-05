@@ -200,13 +200,21 @@ static void test_defaults_match_the_frozen_rule_constants() {
     if (!strcmp(f.key, "abs_floor")) floor_v = (float)atof(f.default_text);
     if (!strcmp(f.key, "rel_delta")) delta = (float)atof(f.default_text);
   }
-  printf("[defaults] corr_min=%d abs_floor=%.1f rel_delta=%.1f chk_s=%d offl_cap=%d\n",
-         corr, floor_v, delta, chk, cap);
+  printf("[defaults] corr_min=%d abs_floor=%.1f rel_delta=%.1f chk_s=%d offl_cap=%d "
+         "deep_sleep_gate=%s field_chk_s=%d\n",
+         corr, floor_v, delta, chk, cap,
+         wf::kDeepSleepEnabled ? "ENABLED" : "DISABLED", wf::kCheckinSecondsField);
   CHECK(corr == (int)cc.correlation_window_min, "corr_min default must equal the tested window");
   CHECK(corr >= 10 && corr <= 60, "corr_min default must sit inside the portal range 10..60");
   CHECK(floor_v == cc.abs_floor_ugm3, "abs_floor default must equal the tested floor");
   CHECK(delta == cc.rel_delta_ugm3, "rel_delta default must equal the tested delta");
-  CHECK(chk == 720, "the routine check-in default must be 12 minutes (720 s)");
+  CHECK(chk == wf::kCheckinSecondsDefault,
+        "the chk_s default must equal the constant the firmware uses");
+  CHECK(chk == 60, "the bench-phase routine check-in default must be 60 s (task 0112)");
+  CHECK(wf::kCheckinSecondsField == 720,
+        "the field check-in period, restored at the final gate, must stay 720 s");
+  CHECK(wf::kDeepSleepEnabled == false,
+        "the bench-phase deep-sleep gate must default to DISABLED (kDeepSleepEnabled == false)");
   CHECK(cap == 180, "the offline buffer default must be 180 records");
   CHECK(wf::kOfflineBufferDropOldest, "the offline policy must be buffer-with-cap, drop-oldest");
 

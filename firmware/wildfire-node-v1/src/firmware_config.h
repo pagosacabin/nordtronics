@@ -125,7 +125,10 @@ inline constexpr PortalField kPortalFields[] = {
     {"mqtt_root",   "MQTT topic root",                             FieldKind::Str,  "nordtronics/wildfire", "wildfire"},
     {"offl_policy", "Offline policy (buffer|drop)",                FieldKind::Str,  "buffer", "wildfire"},
     {"offl_cap",    "Offline buffer cap (records)",                FieldKind::Int,  "180", "wildfire"},
-    {"chk_s",       "Routine check-in period (s)",                 FieldKind::Int,  "720", "wildfire"},
+    // Bench phase (task 0112): 60 s, so a bench capture sees repeated
+    // sample/report cycles. The FINAL PRE-DEPLOYMENT GATE restores "720" (12
+    // minutes) together with kDeepSleepEnabled = true in this header.
+    {"chk_s",       "Routine check-in period (s)",                 FieldKind::Int,  "60", "wildfire"},
     {"lora_mhz",    "LoRa frequency (MHz, 915 US only)",           FieldKind::Str,  "915.0", "wildfire"},
     {"lora_bw",     "LoRa bandwidth (kHz)",                        FieldKind::Str,  "125.0", "wildfire"},
     {"lora_sf",     "LoRa spreading factor",                       FieldKind::Int,  "7", "wildfire"},
@@ -153,5 +156,27 @@ constexpr size_t kPortalFieldCount = sizeof(kPortalFields) / sizeof(kPortalField
 // node = 36 h for a 4-node property at the 12-minute cadence, and 30 kB of the
 // ESP32-S3's 2 MB PSRAM. See docs/wildfire/radio-protocol-v1.md section 8.
 constexpr bool kOfflineBufferDropOldest = true;
+
+// ---------------------------------------------------------------------------
+// FINAL PRE-DEPLOYMENT GATE -- node deep sleep and the routine check-in period.
+//
+// Bench phase (task 0112): the node stays AWAKE. With kDeepSleepEnabled ==
+// false the node skips enter_deep_sleep() and instead idles for one check-in
+// period with USB-serial live, so a bench capture sees repeated sample/report
+// cycles instead of the node vanishing off the USB bus for 12 minutes at a
+// time. The sleep code itself and the base's HARD-RULE refusal are untouched:
+// this constant only gates whether the NODE CALLS enter_deep_sleep(). It is a
+// gate, not a removal.
+//
+// THE FINAL GATE, immediately before the system is declared field-ready: set
+// kDeepSleepEnabled back to `true` and kCheckinSecondsDefault back to 720 (and
+// the portal default for chk_s back to "720" with it) so the field power budget
+// -- one wake, one LoRa report, then a 12-minute sleep -- is restored. The two
+// values are paired: 60 s is a bench convenience only, never a field value, and
+// a field build must never carry the 60 s interval with the sleep gate open.
+// ---------------------------------------------------------------------------
+constexpr bool kDeepSleepEnabled = false;   // bench phase: node does not sleep
+constexpr int kCheckinSecondsDefault = 60;  // bench phase default (field: 720)
+constexpr int kCheckinSecondsField = 720;   // the field value the gate restores
 
 }  // namespace wf
