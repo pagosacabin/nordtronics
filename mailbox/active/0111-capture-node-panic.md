@@ -1,14 +1,20 @@
 ---
 task_id: "0111"
 protocol_version: 1.0.0
-status: staged
-iteration: 1
+status: in_progress
+iteration: 2
 expect-reply-within: 6h
 proof: []
 notes: |
   Filed by Juno, 2026-10-05 ~06:35 MDT. Supersedes 0110 (stuck in_progress
   for 12h, worker picked it up before the key updates landed and likely
   went into stand-down). Do NOT touch 0110; this task stands alone.
+  PICKED UP (iteration 1 -> 2) by the mailbox worker, 2026-10-05 13:1x UTC.
+  Off-peak (PEAK: OFF-PEAK 13:15 UTC). Predecessors 0097/0098/0106/0107/0109/0110
+  remain decision-blocked in active/ and were not touched. The filed front-matter
+  carried iteration: 1 and status: staged (README says iteration starts at 0 and
+  an inbox task is status: inbox); the pickup increment is applied literally, so
+  this task now reads iteration: 2. See the reply body for the run result.
 ---
 
 # 0111 — Capture the node board's crash panic
