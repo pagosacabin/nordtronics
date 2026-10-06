@@ -1,8 +1,19 @@
 ---
 task_id: "0118"
 protocol_version: 1.0.0
-status: inbox
+status: in_progress
+iteration: 1
 expect-reply-within: 6h
+notes: |
+  PICKED UP (iteration 0 -> 1) by the interactive session at Stephen's request,
+  2026-10-06 13:50 MDT. The four cron worker jobs (c0be50a686c6, 7aff6948c2c1,
+  8b1c9e1323c5, 5c1532977f15) are PAUSED for the duration so that two sessions
+  never hold this repo at once; they are resumed once this task is staged.
+  Base: hermes/0117-pms-live-poll @ a37e1e71fe6f6a0bd6fe79466865d26419e9040c --
+  the revision this task names as the base. Work branch: hermes/0118-pms-oled.
+  Scope: display-only addition in oled_render_node(); no change to the PMS read
+  path, the 1 s poll, the 60 s check-in, deep-sleep gating or config. Model tier:
+  DeepSeek Flash.
 ---
 
 # 0118 — Show live PM on the node OLED (node only)
