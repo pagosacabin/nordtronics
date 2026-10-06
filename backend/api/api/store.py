@@ -25,6 +25,18 @@ def _seconds_since(stamp: str) -> int | None:
     return max(0, int((datetime.now(timezone.utc) - when).total_seconds()))
 
 
+def _battery_pct(battery_v):
+    """Single-cell Li-ion charge percent: 3.00 V = 0 %, 4.20 V = 100 %.
+
+    Matches the thresholds in the Android app's Node.batteryPercent().
+    Returns None when there is no real reading.
+    """
+    if battery_v is None or battery_v <= 0:
+        return None
+    pct = (battery_v - 3.00) / (4.20 - 3.00) * 100.0
+    return int(round(max(0.0, min(100.0, pct))))
+
+
 def _row_to_reading(row: sqlite3.Row) -> dict:
     return {column: row[column] for column in READING_COLUMNS}
 
@@ -62,6 +74,7 @@ def list_nodes(conn: sqlite3.Connection, stale_after_seconds: int) -> list[dict]
                     "temperature_c": row["last_temperature_c"],
                     "humidity_pct": row["last_humidity_pct"],
                     "battery_v": row["last_battery_v"],
+                    "battery_pct": _battery_pct(row["last_battery_v"]),
                 },
             }
         )
