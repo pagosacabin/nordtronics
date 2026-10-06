@@ -1065,5 +1065,18 @@ void loop() {
   // the two cadences are independent -- a check-in cannot suppress the live
   // line, and the 5 ms poll cannot delay the check-in.
   pms_live_poll();
+  // Task 0118: the render has to run here too. The in-gate call above is
+  // throttled by the check-in period (60 s on this bench device, 720 s in the
+  // field), so its own 1 s guard is dead code while the gate is closed -- the
+  // panel would refresh once per check-in and the PM row would look frozen. This
+  // is the call that gives the panel the ~1 Hz cadence the task asks for, drawn
+  // after the poll so the row carries the frame latched in this same pass.
+  // The in-gate render stays: on the field build enter_deep_sleep() is inside
+  // the gate, so this line is never reached between wakes.
+  static uint32_t last_oled_ms = 0;
+  if ((uint32_t)(millis() - last_oled_ms) > 1000UL) {
+    last_oled_ms = millis();
+    oled_render_node();
+  }
   delay(100);  // stay responsive and keep the USB-CDC link enumerated
 }
