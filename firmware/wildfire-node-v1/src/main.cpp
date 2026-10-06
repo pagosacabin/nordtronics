@@ -336,6 +336,16 @@ static float read_pms25(uint16_t* pm1, uint16_t* pm10, bool* ok) {
 // It deliberately emits NO log on a checksum mismatch: a dropped frame is
 // normal on this sensor and must not turn a 1 Hz diagnostic into log spam.
 // The 0115 per-check-in `pms:` line is untouched and still fires.
+//
+// Task 0118: the same frame's three values are latched into file scope so the
+// node OLED can show them. Latched only on a checksum-valid frame, so a poll
+// with no complete frame leaves the OLED on the last good values instead of
+// falling back to 0 -- 0 on this panel reads as clean air, which it is not.
+static uint16_t g_pms_live_pm1 = 0;
+static uint16_t g_pms_live_pm25 = 0;
+static uint16_t g_pms_live_pm10 = 0;
+static bool g_pms_live_valid = false;
+
 static void pms_live_poll() {
   static uint8_t buf[32];
   static int idx = 0;
@@ -361,6 +371,12 @@ static void pms_live_poll() {
     const uint16_t pm1 = ((uint16_t)buf[10] << 8) | buf[11];
     const uint16_t pm25 = ((uint16_t)buf[12] << 8) | buf[13];
     const uint16_t pm10 = ((uint16_t)buf[14] << 8) | buf[15];
+    // Task 0118: latch for the OLED. The values are the ones decoded right here,
+    // so the panel and the `pms-live:` line can never disagree.
+    g_pms_live_pm1 = pm1;
+    g_pms_live_pm25 = pm25;
+    g_pms_live_pm10 = pm10;
+    g_pms_live_valid = true;
     logf("pms-live: pm1=%u pm25=%.1f pm10=%u", pm1, (float)pm25, pm10);
   }
 }
@@ -715,15 +731,28 @@ static void oled_render_node() {
   g_oled.clearBuffer();
   g_oled.setFont(u8g2_font_6x10_tf);
   g_oled.drawStr(0, 10, "WILDFIRE NODE");
+  // Task 0118: six rows no longer fit on the 12 px cadence, so this block uses
+  // the 10 px cadence oled_render_base() already proves on this panel (its
+  // last-seen rows and its `last:` row sit 10-12 px apart on the same 64 px
+  // height). Every pre-existing line is kept; the PM row is added last.
   char line[32];
   snprintf(line, sizeof(line), "id:%u", g_cfg.node_id);
-  g_oled.drawStr(0, 22, line);
+  g_oled.drawStr(0, 20, line);
   snprintf(line, sizeof(line), "chk:%lus", (unsigned long)g_cfg.checkin_s);
-  g_oled.drawStr(0, 34, line);
+  g_oled.drawStr(0, 30, line);
   snprintf(line, sizeof(line), "seq:%u", g_tx_seq);
-  g_oled.drawStr(0, 46, line);
+  g_oled.drawStr(0, 40, line);
   snprintf(line, sizeof(line), "vbat:%umV", 0);
-  g_oled.drawStr(0, 58, line);
+  g_oled.drawStr(0, 50, line);
+  // Live PM from the 1 Hz poll (task 0118) -- the same frame the `pms-live:`
+  // serial line prints, refreshing at the same ~1 Hz. `--` until the first
+  // checksum-valid frame arrives, never a fake 0.
+  if (g_pms_live_valid) {
+    snprintf(line, sizeof(line), "PM %u/%u/%u", g_pms_live_pm1, g_pms_live_pm25, g_pms_live_pm10);
+  } else {
+    snprintf(line, sizeof(line), "PM --/--/--");
+  }
+  g_oled.drawStr(0, 60, line);
   oled_flush();
 }
 
