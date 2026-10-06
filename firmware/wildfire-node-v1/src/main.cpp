@@ -319,6 +319,53 @@ static float read_pms25(uint16_t* pm1, uint16_t* pm10, bool* ok) {
 }
 
 // ---------------------------------------------------------------------------
+// node role -- 0117 live poll (bench diagnostic)
+// ---------------------------------------------------------------------------
+// The 60 s check-in cadence cannot show the sensor reacting to a stimulus (a
+// breath puff at the inlet), so this prints one line per successfully parsed
+// PMS5003 frame on a ~1 Hz schedule, independently of node_checkin().
+//
+// NON-BLOCKING by construction: it only drains bytes that are ALREADY in the
+// UART RX buffer when it runs, and exits immediately when the buffer is empty
+// (no busy-wait on the 1 s period). The 5 ms deadline is a hard ceiling on the
+// time it can steal from loop(); a frame is 32 bytes = ~33 ms on the wire at
+// 9600 baud, so a straddling frame is carried in the static state below and
+// completed by the next poll. That is also why it must not call read_pms25():
+// that function's 1500 ms scan is for the check-in path only.
+//
+// It deliberately emits NO log on a checksum mismatch: a dropped frame is
+// normal on this sensor and must not turn a 1 Hz diagnostic into log spam.
+// The 0115 per-check-in `pms:` line is untouched and still fires.
+static void pms_live_poll() {
+  static uint8_t buf[32];
+  static int idx = 0;
+  static uint32_t last_ms = 0;
+  if ((uint32_t)(millis() - last_ms) < 1000UL) return;
+  last_ms = millis();
+
+  const uint32_t deadline = millis() + 5;  // << the 1 s period
+  while (millis() < deadline && g_pms.available()) {
+    const uint8_t b = (uint8_t)g_pms.read();
+    if (idx == 0 && b != 0x42) continue;
+    if (idx == 1 && b != 0x4D) {
+      idx = 0;
+      continue;
+    }
+    buf[idx++] = b;
+    if (idx < 32) continue;
+    idx = 0;
+    uint16_t sum = 0;
+    for (int i = 0; i < 30; ++i) sum += buf[i];
+    const uint16_t wire = ((uint16_t)buf[30] << 8) | buf[31];
+    if (sum != wire) continue;
+    const uint16_t pm1 = ((uint16_t)buf[10] << 8) | buf[11];
+    const uint16_t pm25 = ((uint16_t)buf[12] << 8) | buf[13];
+    const uint16_t pm10 = ((uint16_t)buf[14] << 8) | buf[15];
+    logf("pms-live: pm1=%u pm25=%.1f pm10=%u", pm1, (float)pm25, pm10);
+  }
+}
+
+// ---------------------------------------------------------------------------
 // role probe -- task 0104 item 3 (the tank-monitor pattern: probe, do not jump)
 // ---------------------------------------------------------------------------
 // Asked before anything else, because it decides which half of this file runs.
@@ -985,5 +1032,9 @@ void loop() {
            (unsigned)g_cfg.checkin_s);
     }
   }
+  // 0117: the 1 Hz live poll runs on every pass, OUTSIDE the check-in gate, so
+  // the two cadences are independent -- a check-in cannot suppress the live
+  // line, and the 5 ms poll cannot delay the check-in.
+  pms_live_poll();
   delay(100);  // stay responsive and keep the USB-CDC link enumerated
 }
