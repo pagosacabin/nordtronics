@@ -382,6 +382,74 @@ static void pms_live_poll() {
 }
 
 // ---------------------------------------------------------------------------
+// node role -- battery voltage (task 0119)
+// ---------------------------------------------------------------------------
+// The Heltec HTIT-WB32LAF V4.2 carries a SWITCHED divider on the battery input
+// (no external hardware): ADC_Ctrl (GPIO37) HIGH connects VBAT through a
+// 390k/100k string to ADC1_CH0, so the tap sees 100/(100+390) = 0.2041 of the
+// pack -- 4.2 V reads ~0.86 V. GPIO37 LOW disconnects the divider, so it MUST
+// be returned LOW on every exit path: a stuck-HIGH GPIO37 drains the pack
+// continuously through the 490k string.
+//
+// read_battery_mv() has NO early return, and the single return is preceded by
+// the GPIO37 LOW, so the guarantee is structural -- there is no branch today
+// that can escape with the divider live.
+static uint16_t g_batt_mv = 0;  // latched at check-in (the 0119 OLED/telemetry value)
+
+static uint16_t read_battery_mv() {
+  pinMode(wf::kBattAdcCtrlPin, OUTPUT);
+  digitalWrite(wf::kBattAdcCtrlPin, HIGH);  // divider connected
+  delay(10);                                // settle before the first sample
+
+  // 0 dB attenuation: ~1.1 V full scale at the pin, which covers the 0.86 V a
+  // 4.2 V pack presents through the divider. An 11 dB range would spend most of
+  // the code space on voltages this tap can never produce.
+  analogSetPinAttenuation(wf::kBattAdcPin, ADC_0db);
+
+  const int kSamples = 16;
+  uint32_t raw_sum = 0;
+  uint32_t mv_sum = 0;
+  for (int i = 0; i < kSamples; ++i) {
+    raw_sum += (uint32_t)analogRead(wf::kBattAdcPin);
+    mv_sum += (uint32_t)analogReadMilliVolts(wf::kBattAdcPin);
+  }
+  const uint32_t raw_avg = raw_sum / (uint32_t)kSamples;
+  const uint32_t adc_mv = mv_sum / (uint32_t)kSamples;
+
+  // analogReadMilliVolts() applies the eFuse calibration, so adc_mv is the
+  // pin voltage and the pack is that divided by the divider ratio.
+  const uint16_t vbatt_mv = (uint16_t)((float)adc_mv / wf::kBattDividerRatio + 0.5f);
+
+  digitalWrite(wf::kBattAdcCtrlPin, LOW);  // divider disconnected -- EVERY exit path
+  logf("batt: pin=%d raw=%u adc_mv=%u vbatt=%u mV", wf::kBattAdcPin,
+       (unsigned)raw_avg, (unsigned)adc_mv, (unsigned)vbatt_mv);
+  return vbatt_mv;
+}
+
+// Bench diagnostic (task 0119): the task text names GPIO2 as the tap while the
+// V4.2 datasheet names ADC1_CH0 = GPIO1, so both candidates are sampled once at
+// node boot with the divider live and the result is in the serial log -- the
+// pin choice is evidence, not an assertion.
+static void batt_adc_pin_probe() {
+  pinMode(wf::kBattAdcCtrlPin, OUTPUT);
+  digitalWrite(wf::kBattAdcCtrlPin, HIGH);
+  delay(10);
+  const int pins[] = {1, 2};  // ADC1_CH0 (datasheet) vs ADC1_CH1 (task text)
+  for (size_t i = 0; i < sizeof(pins) / sizeof(pins[0]); ++i) {
+    const int p = pins[i];
+    analogSetPinAttenuation(p, ADC_0db);
+    uint32_t raw = 0, mv = 0;
+    for (int i2 = 0; i2 < 16; ++i2) {
+      raw += (uint32_t)analogRead(p);
+      mv += (uint32_t)analogReadMilliVolts(p);
+    }
+    logf("batt-probe: gpio%d raw=%u adc_mv=%u", p, (unsigned)(raw / 16),
+         (unsigned)(mv / 16));
+  }
+  digitalWrite(wf::kBattAdcCtrlPin, LOW);
+}
+
+// ---------------------------------------------------------------------------
 // role probe -- task 0104 item 3 (the tank-monitor pattern: probe, do not jump)
 // ---------------------------------------------------------------------------
 // Asked before anything else, because it decides which half of this file runs.
@@ -464,7 +532,11 @@ static void node_checkin() {
   }
 #endif
   f.status |= pms_ok ? (wf::kStatusPmsPresent | wf::kStatusPmsOk) : wf::kStatusPmsPresent;
-  f.batt_mv = 0;  // Rev C has no fuel gauge; TP1 is a bench measurement
+  // Task 0119: the measured pack voltage from the module's switched divider,
+  // latched into g_batt_mv so the OLED row and this payload cannot disagree
+  // (the pack does not move at 1 Hz, so the check-in cadence is the right one).
+  g_batt_mv = read_battery_mv();
+  f.batt_mv = g_batt_mv;
   f.flags = 0;
 
   // The node's own hard threshold turns a routine check-in into an ALARM, which
@@ -742,7 +814,9 @@ static void oled_render_node() {
   g_oled.drawStr(0, 30, line);
   snprintf(line, sizeof(line), "seq:%u", g_tx_seq);
   g_oled.drawStr(0, 40, line);
-  snprintf(line, sizeof(line), "vbat:%umV", 0);
+  // Task 0119: the value latched at the last check-in (see g_batt_mv), never a
+  // hardcoded 0 -- the row and the LoRa payload carry the same number.
+  snprintf(line, sizeof(line), "vbat:%umV", g_batt_mv);
   g_oled.drawStr(0, 50, line);
   // Live PM from the 1 Hz poll (task 0118) -- the same frame the `pms-live:`
   // serial line prints, refreshing at the same ~1 Hz. `--` until the first
@@ -953,6 +1027,8 @@ void setup() {
 #if WF_HAS_BME680
     if (!g_bme.begin(wf::kBme680Addr)) logf("bme680: not found at 0x%02X", wf::kBme680Addr);
 #endif
+    // Task 0119: one-shot, node-only pin evidence (see batt_adc_pin_probe).
+    batt_adc_pin_probe();
   }
 
   // ---- network + portal ----------------------------------------------------

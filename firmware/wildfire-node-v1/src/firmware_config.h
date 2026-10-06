@@ -85,6 +85,22 @@ constexpr int kLoraDio1Pin = 14;
 constexpr int kLoraRstPin = 12;
 constexpr int kLoraBusyPin = 13;
 
+// ---------------------------------------------------------------------------
+// Battery divider (task 0119) -- on the Heltec HTIT-WB32LAF V4.2 MODULE, so no
+// interface-board net is added and the 0079 freeze is untouched.
+//
+// The V4.2 datasheet (WiFi_LoRa_32_V4.2.0.pdf, rev 1.4, sec. "Battery"):
+// "ADC1_CH0 is used to read the lithium battery voltage, the ADC_CTRL(37) pin
+// needs to be pulled high. VBAT = 100/(100+390) * VADC_IN1". ADC1_CH0 on the
+// ESP32-S3 is GPIO1, so the tap is GPIO1 and the switch is GPIO37, HIGH =
+// divider connected. The task spec named GPIO2 for the tap; GPIO2 is
+// ADC1_CH1 and is connected to nothing on the Rev C interface (it is not in
+// the 0079 frozen connected set), so the datasheet pin is the one used here.
+constexpr int kBattAdcCtrlPin = 37;   // ADC_Ctrl: HIGH enables the divider
+constexpr int kBattAdcPin = 1;        // ADC1_CH0: the divider's tap
+// 100k / (100k + 390k): the fraction of VBAT the ADC sees.
+constexpr float kBattDividerRatio = 0.2041f;
+
 enum class FieldKind : uint8_t { Str = 0, Int = 1, Bool = 2 };
 
 struct PortalField {
