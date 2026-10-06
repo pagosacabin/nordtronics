@@ -1,8 +1,17 @@
 ---
 task_id: "0117"
 protocol_version: 1.0.0
-status: inbox
+status: in_progress
+iteration: 1
 expect-reply-within: 6h
+notes: |
+  PICKED UP (iteration 0 -> 1) by the mailbox worker, 2026-10-06 17:15 UTC
+  (11:15 MDT). Off-peak (PEAK: OFF-PEAK 17:15 UTC). The filed front-matter had
+  no `iteration` field (protocol field); it was added at pickup and the pickup
+  increment applied literally, so this task reads iteration: 1.
+  Predecessors 0097/0098/0106/0107/0109/0110 remain decision-blocked/parked in
+  active/ and were NOT touched (handoff-mailbox rule 6; 0111 explicitly says
+  "Do NOT touch 0110").
 ---
 
 # 0117 — PMS 1-second live poll (node only, bench diagnostic)
