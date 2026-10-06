@@ -69,12 +69,12 @@ def list_nodes(conn: sqlite3.Connection, stale_after_seconds: int) -> list[dict]
                 "reading_count": row["reading_count"],
                 "age_seconds": age,
                 "status": status,
+                "battery_pct": _battery_pct(row["last_battery_v"]),
                 "latest": {
                     "pm25": row["last_pm25"],
                     "temperature_c": row["last_temperature_c"],
                     "humidity_pct": row["last_humidity_pct"],
                     "battery_v": row["last_battery_v"],
-                    "battery_pct": _battery_pct(row["last_battery_v"]),
                 },
             }
         )
