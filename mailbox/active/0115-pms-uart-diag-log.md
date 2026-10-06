@@ -1,8 +1,15 @@
 ---
 task_id: "0115"
 protocol_version: 1.0.0
-status: inbox
+status: in_progress
+iteration: 1
 expect-reply-within: 6h
+notes: |
+  PICKED UP (iteration 0 -> 1) by the mailbox worker, 2026-10-06 15:15 UTC.
+  Off-peak (PEAK: OFF-PEAK 15:15 UTC). Model tier: DeepSeek Flash.
+  The filed front-matter carried no `iteration` field; it was added at pickup
+  per the protocol. Predecessors 0097/0098/0106/0107/0109/0110 remain
+  decision-blocked/parked in active/ and were not touched.
 ---
 
 # 0115 — PMS UART diagnostic log build (node only)
