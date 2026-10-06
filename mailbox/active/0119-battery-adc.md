@@ -1,8 +1,14 @@
 ---
 task_id: "0119"
 protocol_version: 1.0.0
-status: inbox
+status: in_progress
+iteration: 1
 expect-reply-within: 6h
+notes: |
+  PICKED UP (iteration 0 -> 1) by the mailbox worker, 2026-10-06 21:15 UTC.
+  Off-peak (PEAK: OFF-PEAK 21:15 UTC). The six tasks in active/
+  (0097/0098/0106/0107/0109/0110) are all decision-blocked and were left
+  completely untouched.
 ---
 
 # 0119 — Node battery voltage telemetry (node only)
