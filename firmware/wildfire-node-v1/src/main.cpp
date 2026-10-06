@@ -383,7 +383,10 @@ static void node_checkin() {
   wf::Frame f;
   bool pms_ok = false;
   uint16_t pm1 = 0, pm10 = 0;
+  const int pms_avail_before = g_pms.available();
   const float pm25 = read_pms25(&pm1, &pm10, &pms_ok);
+  logf("pms: rx_avail_before=%d ok=%d pm1=%u pm25=%.1f pm10=%u",
+       pms_avail_before, pms_ok ? 1 : 0, pm1, pm25, pm10);
   f.pm1_x10 = pm1 * 10;
   f.pm25_x10 = pms_ok ? (uint16_t)(pm25 * 10.0f) : 0;
   f.pm10_x10 = pm10 * 10;
