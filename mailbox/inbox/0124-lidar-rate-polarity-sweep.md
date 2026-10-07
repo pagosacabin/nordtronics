@@ -2,6 +2,11 @@
 
 expect-reply-within: 6h
 
+Provenance: drafted 2026-10-07 by the interactive Hermes session with Stephen at the bench,
+reviewed and cleared by Juno, and filed at her instruction. The filing commit is authored
+`hermes-cronrunner`, not `snordlund` — the usual "Juno files, Hermes works" author signal
+does not apply to this file, and its absence is not a protocol violation.
+
 ## Context
 
 - **0122** (`hermes/0122-lidar-nodemcu` @ `20b9bad`, staged) created
