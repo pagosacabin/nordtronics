@@ -15,7 +15,8 @@ proof:
   sweep: "NOTHING DECODED. 39 probe lines (22 Phase A, 11 Phase B, 6 parity) plus two long windows: 1054929 bytes received in total, and the 0xFA frame header appeared 1419 times -- every probe's own count is at or BELOW the ~1/256 rate pure chance would give in the same byte count (2825 expected across the probe windows alone). No rate, no polarity and no parity variant produced a frame stream. Per-rate table in notes."
   bench_fault: "The 1.6k series resistor in the wire going to P17 (the TX wire) was DISCONNECTED during the original run; Stephen found it and reconnected it, and confirms it was already reconnected before the re-run below. Consequence: every transmission in the original run's Phase B -- the 0123 start sequences on each qualifying combination -- went into an OPEN CIRCUIT and never reached the LiDAR, so 'no response to the commands' was previously untested rather than negative. The receive side is untouched by the fault: Phase A never writes P17 and listens on the other wire, so all 22 Phase A rows and the parity rows stand as measured."
   rerun: "Same binary 9bdd0a6b re-flashed with the wire intact, 195 s: 22 Phase A + 15 Phase B + 6 parity + both long windows. 'sweep done best=460800/1 fa_total=720 parity_pass=1'. Still no framing anywhere -- every probe's 0xFA count is at or BELOW its own 1/256 chance rate (460800/inv 148 vs 242 expected, 230400/normal 21 vs 117, 300000/normal 19 vs 180), and the two long windows gave 307873 B with 773 0xFA (0.25%) and 438710 B with 1042 0xFA (0.24%) against 0.39% chance. With the line genuinely connected, 15 combinations had the sequences delivered and the stream's shape and 0xFA rate are unchanged from the listen-only rows. The best combination moved from 230400/inv to 460800/inv between runs -- the winner is whichever noise sample crosses 0xFA most often."
-  observations: "TURRET: NOT OBSERVED for this run -- Stephen was at the bench when it ran and was asked immediately afterwards, but the question went unanswered (he had stepped away), so criterion 6 is NOT met and no spin claim is made for 0124. BYTES: no decode at any of the 11 rates, both polarities, or the 8E1/8O1 variants; byte rates track the sampling rate rather than any data rate, which is what a continuously toggling line looks like and not what a UART transmitter looks like."
+  run5: "FINAL RUN, 1.6k reconnected, Stephen watching: same binary 9bdd0a6b re-flashed, 195 s, 22 Phase A + 15 Phase B + 6 parity + both long windows, 'sweep done best=460800/1 fa_total=944 parity_pass=1'. The highest-0xFA probe is 460800/inverted at 208 hits in 51128 bytes -- exactly its 200-hit chance expectation -- and the long windows are 309978 B / 1140 0xFA (0.37%) and 424992 B / 1491 (0.35%) against 0.39% chance. TURRET: completely still for the whole window, witnessed at the bench."
+  observations: "TURRET: NO SPIN, WITNESSED. The original run has no observation -- Stephen was asked immediately afterwards but had stepped away, and that is declared as unmet in the addendum. The FINAL run below was watched by him from the bench for its whole 195 s, with the 1.6k resistor reconnected so P17 was genuinely driving the wire, and he reports the turret completely still throughout, including during all 15 Phase B passes that transmitted the start sequences. Criterion 6 is met by that final run; no spin, in any pass, is the answer. BYTES: no decode at any of the 11 rates, both polarities, or the 8E1/8O1 variants; byte rates track the sampling rate rather than any data rate, which is what a continuously toggling line looks like and not what a UART transmitter looks like."
   wiring: "blue -> P16 through the 10k/23k divider (RX), green -> P17 (TX), unchanged by this task; confirmed with Stephen 2026-10-07. P17 was never written during Phase A."
   runs: "run1 150 s = first build, sweep truncated at 20/22 probes (sketch bug, fixed); run2 180 s = window-bounded build, complete, parity_pass=0; run3 190 s = a compile error left the previous image in place, so this capture re-ran run2's binary (used as a reproducibility check, NOT parity evidence); run4 195 s = the binary cited here, full sweep plus parity, 'sweep done best=230400/1 fa_total=411 parity_pass=1'."
   sample_hex: "BF BF BF BF BF BF BF BF BF BF BF BF BF BF BF BF BF BF BF BF BF BF BF BF BF BF BF BF BF BF BF BF BF BF BF BF BF BF BF BF BF BF BF BF BF BF FD BF BF BF "
@@ -187,10 +188,17 @@ notes: |
       specified baud over a connected line, and the byte stream is unchanged from the
       listen-only rows. So the conclusion is now trustworthy rather than suspect, and it
       is the same conclusion.
-    - STILL NOT OBSERVED: the turret, for either 0124 run. Criterion 6 stays unmet and no
-      spin claim is made. A 3 minute re-run of this binary with Stephen watching captures
-      it; the sketch is unchanged and the bench is currently in the state that run
-      would need.
+    - THE TURRET, NOW OBSERVED AND STILL NEGATIVE. A third run was taken with the 1.6k
+      reconnected specifically to capture this, because no observation existed for the
+      first two: same binary 9bdd0a6b re-flashed, 195 s, 22 Phase A + 15 Phase B + 6
+      parity, 'sweep done best=460800/1 fa_total=944 parity_pass=1'. Stephen watched the
+      whole window from the bench and reports the turret completely still, including
+      through all 15 Phase B passes that transmitted the 0123 start sequences over a
+      genuinely connected wire. Criterion 6 is therefore MET -- as a negative, and this
+      time with the transmit path proven intact, so the negative is about the unit rather
+      than about the wiring. The three runs' numbers drift around chance as noise does:
+      the peak probe moved 230400/inv (64) -> 460800/inv (148) -> 460800/inv (208), and
+      the last of those is exactly its 200-hit expectation.
 ---
 # 0124 — LDS-006 decode sweep: baud rate × RX polarity on P16
 
