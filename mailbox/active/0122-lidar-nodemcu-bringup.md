@@ -1,3 +1,19 @@
+---
+task_id: "0122"
+protocol_version: 1.0.0
+status: in_progress
+iteration: 1
+expect-reply-within: 6h
+notes: |
+  PICKED UP (iteration 0 -> 1) by an interactive session at Stephen's request,
+  2026-10-07 11:50 MDT. The four cron worker jobs (c0be50a686c6, 7aff6948c2c1,
+  8b1c9e1323c5, 5c1532977f15) were already PAUSED (since the 0119 bench block on
+  2026-10-06) and stay paused for the duration, so no tick can resume this task
+  against the same worktree; they are resumed once this task is staged.
+  Scope: stand up the NodeMCU-32S in the toolchain, flash the sketch EXACTLY as
+  the task gives it, capture 60 s of serial at 115200. No rewiring (bench wiring
+  is Stephen's). Model tier: DeepSeek Flash (this session).
+---
 # 0122 — LiDAR LDS-006 bring-up on NodeMCU-32S
 
 ## Context
