@@ -16,6 +16,8 @@ proof:
   bench_fault: "The 1.6k series resistor in the wire going to P17 (the TX wire) was DISCONNECTED during the original run; Stephen found it and reconnected it, and confirms it was already reconnected before the re-run below. Consequence: every transmission in the original run's Phase B -- the 0123 start sequences on each qualifying combination -- went into an OPEN CIRCUIT and never reached the LiDAR, so 'no response to the commands' was previously untested rather than negative. The receive side is untouched by the fault: Phase A never writes P17 and listens on the other wire, so all 22 Phase A rows and the parity rows stand as measured."
   rerun: "Same binary 9bdd0a6b re-flashed with the wire intact, 195 s: 22 Phase A + 15 Phase B + 6 parity + both long windows. 'sweep done best=460800/1 fa_total=720 parity_pass=1'. Still no framing anywhere -- every probe's 0xFA count is at or BELOW its own 1/256 chance rate (460800/inv 148 vs 242 expected, 230400/normal 21 vs 117, 300000/normal 19 vs 180), and the two long windows gave 307873 B with 773 0xFA (0.25%) and 438710 B with 1042 0xFA (0.24%) against 0.39% chance. With the line genuinely connected, 15 combinations had the sequences delivered and the stream's shape and 0xFA rate are unchanged from the listen-only rows. The best combination moved from 230400/inv to 460800/inv between runs -- the winner is whichever noise sample crosses 0xFA most often."
   run5: "FINAL RUN, 1.6k reconnected, Stephen watching: same binary 9bdd0a6b re-flashed, 195 s, 22 Phase A + 15 Phase B + 6 parity + both long windows, 'sweep done best=460800/1 fa_total=944 parity_pass=1'. The highest-0xFA probe is 460800/inverted at 208 hits in 51128 bytes -- exactly its 200-hit chance expectation -- and the long windows are 309978 B / 1140 0xFA (0.37%) and 424992 B / 1491 (0.35%) against 0.39% chance. TURRET: completely still for the whole window, witnessed at the bench."
+  spin_listen: "BENCH EPISODE 2 -- MOTOR POWERED. Stephen put the motor on the LiDAR connector's own P3 pin with 5 V, confirms the connector's 5 V is present too, that the data wire is still on GPIO16, and that the turret now spins at normal scan speed. Listen-only capture, 50 s, P17 never written: 21 of 22 Phase A probes (the window ended before the last). The wire reads NEARLY STATIC -- 9% of the baud/10 ceiling at 9600/normal against the 85-95% the same probe read before the motor was powered -- samples like 'FF FF FF B7 9E EF 5F FF FF FF'. Every inverted row opens with 0x00 samples: that static-high line re-triggering an inverted start-bit detector. No 0xFA above chance."
+  spin_full: "BENCH EPISODE 2, FULL RUN: 195 s, 22 Phase A + 6 Phase B + 6 parity + both long windows, 'sweep done best=300000/0 fa_total=213 parity_pass=1'. No frames at any rate, polarity or parity. This is the first time the 0123 start sequences were delivered WHILE the unit was spinning (Phase B on a connected wire, six combinations), and the stream is unchanged -- so 'powered + spinning + commands delivered' is now tested, and the answer is still nothing. The one lead: 300000/normal is the only rate whose 0xFA count exceeds chance consistently (20, 20, 32, 31 across its probes and both parity variants, 2.6-3.4x expectation; 126/9541 = 1.3% and 188/18385 = 1.0% in the windows), but at ~1 kB/s against a 30000 B/s ceiling it is not a stream at that baud."
   observations: "TURRET: NO SPIN, WITNESSED. The original run has no observation -- Stephen was asked immediately afterwards but had stepped away, and that is declared as unmet in the addendum. The FINAL run below was watched by him from the bench for its whole 195 s, with the 1.6k resistor reconnected so P17 was genuinely driving the wire, and he reports the turret completely still throughout, including during all 15 Phase B passes that transmitted the start sequences. Criterion 6 is met by that final run; no spin, in any pass, is the answer. BYTES: no decode at any of the 11 rates, both polarities, or the 8E1/8O1 variants; byte rates track the sampling rate rather than any data rate, which is what a continuously toggling line looks like and not what a UART transmitter looks like."
   wiring: "blue -> P16 through the 10k/23k divider (RX), green -> P17 (TX), unchanged by this task; confirmed with Stephen 2026-10-07. P17 was never written during Phase A."
   runs: "run1 150 s = first build, sweep truncated at 20/22 probes (sketch bug, fixed); run2 180 s = window-bounded build, complete, parity_pass=0; run3 190 s = a compile error left the previous image in place, so this capture re-ran run2's binary (used as a reproducibility check, NOT parity evidence); run4 195 s = the binary cited here, full sweep plus parity, 'sweep done best=230400/1 fa_total=411 parity_pass=1'."
@@ -199,6 +201,34 @@ notes: |
       than about the wiring. The three runs' numbers drift around chance as noise does:
       the peak probe moved 230400/inv (64) -> 460800/inv (148) -> 460800/inv (208), and
       the last of those is exactly its 200-hit expectation.
+
+    - BENCH EPISODE 2: THE MOTOR RUNS, AND THE UNIT STILL SAYS NOTHING. Stephen moved the
+      motor onto the LiDAR connector's own P3 pin with 5 V, confirmed the connector's 5 V
+      is present as well, that the data wire is still on GPIO16, and that the turret spins
+      at normal scan speed. Two captures in that state, same committed binary:
+        (i) LISTEN ONLY, 50 s, P17 never written: the wire reads nearly static -- 9% of
+            the ceiling at 9600/normal against the 85-95% the same probe read before the
+            motor was powered, samples 'FF FF FF B7 9E EF 5F FF FF FF' (idle high, brief
+            dips). No 0xFA above chance.
+        (ii) FULL RUN, 195 s: 'sweep done best=300000/0 fa_total=213 parity_pass=1', no
+            frames anywhere. The 0123 start sequences were delivered WHILE it was spinning
+            (six Phase B combinations on a connected wire) and nothing changed.
+      THE ONE LEAD, recorded because it is the strongest 0xFA excess measured in any run:
+      300000/normal hits 20, 20, 32, 31 across its probes and both parity variants, 2.6-3.4x
+      the random expectation, and 126/9541 (1.3%) and 188/18385 (1.0%) in the long windows.
+      It is not a frame stream on that evidence: the byte rate there is ~1 kB/s against a
+      30000 B/s ceiling, and a real stream at that baud would deliver ~30 kB/s. But if any
+      future probe goes after this unit's output, 300000 is where to look.
+      HYPOTHESIS, LABELLED AS SUCH: the earlier runs' continuously-toggling wire (85-95% of
+      the sampling ceiling, never idle, no frames at any rate) was most likely the MOTOR's
+      drive waveform coupling into the RX wire rather than LiDAR data -- the motor was
+      previously driven, and Stephen scoped ~9 kHz pulses on that wire. Now that the motor
+      runs from a plain 5 V supply the interference is gone and the line is quiet, which is
+      what a unit with no data output looks like. One cause also covers why nothing framed
+      at ANY rate: there was never a UART stream there to frame.
+    - WHAT WOULD STILL CHANGE THE READING: a continuity check on the data wire itself. A
+      wire broken at the far end reads exactly like an idle one, and that is the only
+      remaining fault that would stop this from being a verdict on the unit.
 ---
 # 0124 — LDS-006 decode sweep: baud rate × RX polarity on P16
 
