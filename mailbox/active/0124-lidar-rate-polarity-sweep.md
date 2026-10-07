@@ -1,3 +1,30 @@
+---
+task_id: "0124"
+protocol_version: 1.0.0
+status: in_progress
+iteration: 1
+expect-reply-within: 6h
+notes: |
+  PICKED UP (iteration 0 -> 1) by an interactive session at Stephen's request,
+  2026-10-07 13:25 MDT. The four cron worker jobs (c0be50a686c6, 7aff6948c2c1,
+  8b1c9e1323c5, 5c1532977f15) are PAUSED for the duration so no tick can resume this
+  task against the same worktree; they are resumed once it is staged.
+
+  PROVENANCE AND A GATE FINDING worth recording: this task was drafted by the
+  interactive Hermes session with Stephen at the bench and filed at Juno's instruction.
+  The 13:15 worker tick did NOT pick it up, and the reason is not the task: the wake
+  gate decides "mailbox changed" from git state (local main vs origin/main) and never
+  inspects mailbox/inbox/ contents, so a task filed from this host is invisible to it
+  (that execution completed in 3.3 s with GATE wake=false unchanged). The interactive
+  pickup below is therefore the only path that runs this task; main was briefly left
+  one commit behind to wake the gate before Stephen redirected it here, and is
+  re-armed at origin/main now.
+
+  Branch: hermes/0124-lidar-rate-sweep, cut from hermes/0123-lidar-uart-commands @
+  d4af302048c6c21a4c4223a64ca5cf05fdff3641. Scope: the sweep exactly as specified,
+  then flash and capture on the bench; no wiring change, P17 silent through Phase A.
+  Model tier: DeepSeek Flash (this session).
+---
 # 0124 — LDS-006 decode sweep: baud rate × RX polarity on P16
 
 expect-reply-within: 6h
