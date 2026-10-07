@@ -26,8 +26,10 @@ def _seconds_since(stamp: str) -> int | None:
 
 
 # 1S LiPo resting-voltage SoC table (voltage descending).
+# Top point calibrated 2026-10-07: the node's MakerFocus 3000 mAh cell reads
+# 4.17 V at full charge (settles just under 4.20 V after charge terminates).
 _BATT_SOC_TABLE = (
-    (4.20, 100),
+    (4.17, 100),
     (4.10, 90),
     (4.02, 80),
     (3.95, 70),
