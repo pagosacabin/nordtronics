@@ -1,3 +1,22 @@
+---
+task_id: "0123"
+protocol_version: 1.0.0
+status: in_progress
+iteration: 1
+expect-reply-within: 6h
+notes: |
+  PICKED UP (iteration 0 -> 1) by an interactive session at Stephen's request,
+  2026-10-07 12:25 MDT. The four cron worker jobs (c0be50a686c6, 7aff6948c2c1,
+  8b1c9e1323c5, 5c1532977f15) are PAUSED for the duration so no tick can resume
+  this task against the same worktree; they are resumed once it is staged.
+  Branch: hermes/0123-lidar-uart-commands, cut from hermes/0122-lidar-nodemcu
+  (the branch the task names) @ 20b9bada1e7fe7097521389c264137eb5d0db788.
+  Scope: the sketch changes exactly as specified -- Serial2 with both RX(16) and
+  TX(17), LEDC removed, the three start sequences with their gaps, and a hex dump
+  wrapped every 16 bytes -- then flash and observe 60 s. No rewiring, and no
+  software role swap (the task forbids it: P17 direct to 4 V is unsafe).
+  Model tier: DeepSeek Flash (this session).
+---
 # 0123 — LiDAR LDS-006: try UART start commands
 
 ## Context
