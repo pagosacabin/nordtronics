@@ -196,6 +196,15 @@ notes: |
   experiment and it was NOT performed here: 0123's instruction is to report "no
   response" and stop rather than improvise further commands. Named here so the
   decision can be made with the data in hand.
+    - WIRING FOR RUN 3, as Stephen reports it (asked 2026-10-07 while this reply was still
+      staged, so it is added rather than reconstructed): the blue wire now goes to P16
+      through the 10k/23k divider, and green goes to P17. So the 89319-byte structured
+      stream arrived on the BLUE wire, divided, at GPIO16 -- the reading the inference
+      above rests on, now recorded as fact rather than assumed. He also confirms the
+      divider is in the P16 path, so P16 sees ~2.8 V from the LiDAR's ~4 V idle and stays
+      in spec. NOTE FOR THE NEXT TASK: green now sits on P17 and idles near 4 V on his
+      meter, so whether it is safe to DRIVE is still unknown -- the reason a decode sweep
+      should listen first and leave P17 silent (drafted separately as a proposal).
 ---
 # 0123 — LiDAR LDS-006: try UART start commands
 
