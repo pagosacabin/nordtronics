@@ -12,10 +12,10 @@ proof:
     - firmware/lidar-lds006-bringup/src/main.ino      # only file changed, +45/-11
   changes: "All three specified changes, exactly as asked. (1) Serial2 opened with BOTH roles -- Serial2.begin(115200, SERIAL_8N1, 16, 17) -- where 0122 passed -1 as the TX argument, so the ESP32 never drove the wire before. (2) The LEDC block is gone: no ledcSetup/ledcAttachPin/ledcWrite, so nothing fights the UART TX now sharing P17 (and the 5 kHz PWM that failed in 0122 is not silently still running). (3) setup() waits 2 s, then sends A5 60, +3 s A5 20, +3 s A5 65, +1 s A5 60. Every transmitted byte is echoed to Serial as it is written (the task's own criterion 1 is that the capture PROVES the commands went out, which a silent write cannot do). The receive dump now newline-wraps every 16 bytes as asked."
   diff_note: "Diff of the sketch against the 0122 tip, in proof.diff."
-  flash: "pio run -t upload over the by-id CP2102 port, two cycles (run 1 and the re-run after Stephen returned to the bench), both identical. esptool: 0x1000 17536 B, 0x8000 3072 B, 0xe000 8192 B, 0x10000 268144 B -- every region followed by 'Hash of data verified.' -- then 'Hard resetting via RTS pin...' and SUCCESS (7.90 s / 7.02 s). Chip ESP32-D0WD-V3 rev v3.1, MAC 00:70:07:e6:42:70 (same board as 0122). Built firmware.bin 268144 bytes, sha256 0e1d791c1265375a82ddc7dc6d026477336c8a5109a5bfebc86d6beb4fa2b8de."
+  flash: "pio run -t upload over the by-id CP2102 port, two cycles (run 1 and the re-run after Stephen returned to the bench), both identical. esptool: 0x1000 17536 B, 0x8000 3072 B, 0xe000 8192 B, 0x10000 268144 B -- every region followed by 'Hash of data verified.' -- then 'Hard resetting via RTS pin...' and SUCCESS (7.90 s / 7.02 s). Chip ESP32-D0WD-V3 rev v3.1, MAC 00:70:07:e6:42:70 (same board as 0122). Built firmware.bin 268144 bytes, sha256 0e1d791c1265375a82ddc7dc6d026477336c8a5109a5bfebc86d6beb4fa2b8de. A THIRD upload of the identical binary was done when Stephen asked for the sequence again after swapping green/blue at the bench (same 268144 B, same sha256, same 'Hash of data verified.' on all four regions) -- see the addendum in notes."
   serial: "Captured at 115200 8N1 on the by-id port, one process owning the port and pulsing EN via RTS (DTR False = normal boot), 70 s per run. The four command echoes appear in both runs, in order, with the bytes actually written: 'cmd: 1 YDLidar start (A5 60) -> A5 60', 'cmd: 2 RPLidar start (A5 20) -> A5 20', 'cmd: 3a YDLidar stop (A5 65) -> A5 65', 'cmd: 3b YDLidar start again (A5 60) -> A5 60', followed by 'all three sequences sent -- now dumping anything received'. So criterion 1 is met on the wire side: the ESP32 drove all three sequences out of P17 at 115200."
-  received: "Bytes arriving on P16 after the command block: 85404 (run 1, 18 distinct values) and 87871 (run 2, 21 distinct). FA (frame header) count: 0 and 0. Run 2 in full: 04 x64578 (73.5%), 00 x21752 (24.8%), 40 x1095, 44 x116, 08 x72, 24 x57, 80 x49, 06 x35, 20 x31, 05 x24, 84 x18, 14 x10, 02 x10, 10 x8, 0C x6, 60 x3, 42 x2, 4C x2, 01 x1, 81 x1, 22 x1. Run 1 in full: 04 x66460, 00 x17745, 40 x874, 44 x80, 08 x55, 80 x45, 24 x37, 20 x20, 06 x16, 05 x14, 84 x13, 02 x12, 10 x11, 14 x10, 0C x7, 01 x2, 60 x2, 90 x1. Every value is a one-, two- or three-bit pattern; there is no ASCII text and nothing in the 0x0A-0x3F band. Note both ways: 0xA5 -- half of every command sent -- appears ZERO times, while 0x60 (the other half) appears 2-3 times in ~173 kB, which is far too sparse to call an echo and is not claimed as one."
-  observations: "MOTOR: did NOT spin -- Stephen at the bench, watching the turret for the whole run, reports no movement at any point, including the second after each of the four commands. BYTES: 173 kB received across the two runs and not one of them is a valid frame (zero 0xFA), so no data either. Per the task's own instruction this is the 'no response' branch: report it and stop rather than guessing further commands."
+  received: "Bytes arriving on P16 after the command block: 85404 (run 1, 18 distinct values) and 87871 (run 2, 21 distinct). FA (frame header) count: 0 and 0. Run 2 in full: 04 x64578 (73.5%), 00 x21752 (24.8%), 40 x1095, 44 x116, 08 x72, 24 x57, 80 x49, 06 x35, 20 x31, 05 x24, 84 x18, 14 x10, 02 x10, 10 x8, 0C x6, 60 x3, 42 x2, 4C x2, 01 x1, 81 x1, 22 x1. Run 1 in full: 04 x66460, 00 x17745, 40 x874, 44 x80, 08 x55, 80 x45, 24 x37, 20 x20, 06 x16, 05 x14, 84 x13, 02 x12, 10 x11, 14 x10, 0C x7, 01 x2, 60 x2, 90 x1. Every value is a one-, two- or three-bit pattern; there is no ASCII text and nothing in the 0x0A-0x3F band. Note both ways: 0xA5 -- half of every command sent -- appears ZERO times, while 0x60 (the other half) appears 2-3 times in ~173 kB, which is far too sparse to call an echo and is not claimed as one. RUN 3 (same binary re-flashed, AFTER Stephen swapped green and blue at the bench): 89319 bytes, 188 distinct values -- qualitatively different, see the addendum in notes. Still zero 0xFA and zero 0xA5."
+  observations: "MOTOR: did NOT spin -- Stephen at the bench, watching the turret, reports no movement at any point in ANY of the three runs, including the second after each of the four commands, and including run 3 after he swapped green/blue. BYTES: 173275 B across runs 1-2 plus 89319 B in run 3, and not one byte in any run is a valid frame (zero 0xFA, zero 0xA5), so no data either. WIRING: runs 1-2 ran on the wiring exactly as 0122 left it, untouched; run 3 ran AFTER Stephen swapped green and blue at the bench, so no claim of 'unchanged wiring' applies to run 3 -- read the addendum in notes before drawing conclusions from run 3. Per the task's own instruction this is the 'no response' branch: recorded and stopped rather than guessing further commands."
   sample_hex: "run 2, first 32 bytes after the command block: 00 00 00 00 04 00 00 00 00 04 04 04 04 04 00 04 04 04 00 00 00 00 04 00 04 04 00 00 04 04 04 04"
   diff: |
     diff --git a/firmware/lidar-lds006-bringup/src/main.ino b/firmware/lidar-lds006-bringup/src/main.ino
@@ -163,6 +163,39 @@ notes: |
      (b) The 0123 project is on a branch and still deliberately not wired into CI
      (the workflow builds only the three named firmware dirs), same as 0122.
      (c) 0122 is still staged awaiting verification; this task does not depend on it.
+
+  ADDENDUM -- RUN 3, AFTER A BENCH SWAP. Recorded 2026-10-07 12:33 MDT at Stephen's
+  request, while this reply was still staged and unread; runs 1-2 above are left
+  exactly as written. He swapped green and blue at the bench and asked for the
+  sequence again: same binary re-flashed (third cycle, same sha256), same 70 s
+  window, same three sequences echoed in the same order. The result is
+  qualitatively different and it changes what runs 1-2 can be said to prove:
+    - MOTOR: still no spin. The answer is unchanged, and it now stands with the two
+      wires in the other orientation as well.
+    - BYTES: no longer a flat two-value flood. 89319 bytes, 188 distinct values
+      (was 18 and 21), with 11.7% of the stream outside the old 04/00/40/44 family.
+      Still zero 0xFA and zero 0xA5 -- no valid frame at 115200 8N1.
+    - STRUCTURE: the rich bytes cluster into repeating motifs -- FF F7 B6 BE CE 1E
+      36 38, FF FF BF BE, 9F DE 3E 1E, FF F7 B6 9E DE 7E -- and the rich-byte
+      indicator's strongest non-trivial autocorrelation is at a lag of ~171 bytes,
+      i.e. a repeat roughly every 0.13 s at the observed 1275 B/s. Measured, not
+      inferred.
+    - INFERENCE, labelled as such: the swap appears to have put P16 on the wire the
+      LiDAR transmits on, and P16 is hearing a real signal for the first time in
+      this bring-up. A repeating, structured stream is the signature of a live UART
+      link sampled at the wrong rate (or wrong polarity); an undriven line produces
+      no bytes at all. I cannot separate "green/blue were reversed" from "blue is
+      the LiDAR TX" using this capture alone, and I do not claim to.
+  WHAT THIS IMPLIES. Runs 1-2's silence is better explained as listening on the
+  wrong wire at the wrong rate than as a quiet LiDAR -- which retracts nothing in
+  the body above (those measurements stand) but does mean the bring-up is not at a
+  dead end. The next unknown is DECODING, not wiring, and it is testable from
+  firmware alone at 115200 by changing the rate, by inverting the RX, or both:
+  arduino-esp32 2.0.17 on this machine does expose setRxInvert(bool) in
+  HardwareSerial.h, so no hardware change is needed to test polarity. That is a new
+  experiment and it was NOT performed here: 0123's instruction is to report "no
+  response" and stop rather than improvise further commands. Named here so the
+  decision can be made with the data in hand.
 ---
 # 0123 — LiDAR LDS-006: try UART start commands
 
