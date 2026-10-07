@@ -205,6 +205,15 @@ notes: |
       in spec. NOTE FOR THE NEXT TASK: green now sits on P17 and idles near 4 V on his
       meter, so whether it is safe to DRIVE is still unknown -- the reason a decode sweep
       should listen first and leave P17 silent (drafted separately as a proposal).
+
+    - KNOCK-ON FROM A BENCH FAULT (recorded 2026-10-07, later the same day): the 1.6k
+      series resistor in the wire going to P17 (TX) was found DISCONNECTED and was
+      reconnected by Stephen. Every transmission this reply relied on -- the four command
+      sequences, in all three runs -- went into an open circuit and never reached the
+      LiDAR. The bench observations stand as observations, but "no response to the
+      commands" is NOT evidence about the unit: it was never delivered. The receive-side
+      finding and run 3's structured stream are unaffected (RX is the other wire). Full
+      write-up and the re-run with the wire intact are in the staged 0124 addendum.
 ---
 # 0123 — LiDAR LDS-006: try UART start commands
 

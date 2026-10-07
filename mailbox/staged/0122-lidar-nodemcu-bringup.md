@@ -96,6 +96,14 @@ notes: |
      a branch and deliberately not in CI (stated under proof.flash) -- say the word
      if it should be, and that is a workflow change, not a code change. (c) The
      node's own 0119 bench half is still outstanding and unrelated to this task.
+
+    - KNOCK-ON FROM A BENCH FAULT (recorded 2026-10-07, later the same day): the 1.6k
+      series resistor in the wire going to P17 (TX) was found DISCONNECTED and was
+      reconnected by Stephen, so this task's 5 kHz PWM on blue never reached the LiDAR --
+      "the PWM did not spin the motor" is a true bench observation but not evidence about
+      the unit. (This sketch never drove that wire anyway: it passed -1 as the Serial2 TX
+      argument, which 0122 already reported.) Full write-up and the re-run with the wire
+      intact are in the staged 0124 addendum.
 ---
 # 0122 — LiDAR LDS-006 bring-up on NodeMCU-32S
 
