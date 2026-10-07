@@ -25,17 +25,41 @@ def _seconds_since(stamp: str) -> int | None:
     return max(0, int((datetime.now(timezone.utc) - when).total_seconds()))
 
 
-def _battery_pct(battery_v):
-    """Single-cell Li-ion charge percent: 3.00 V = 0 %, 4.20 V = 100 %.
+# 1S LiPo resting-voltage SoC table (voltage descending).
+_BATT_SOC_TABLE = (
+    (4.20, 100),
+    (4.10, 90),
+    (4.02, 80),
+    (3.95, 70),
+    (3.90, 60),
+    (3.83, 50),
+    (3.80, 40),
+    (3.75, 30),
+    (3.70, 20),
+    (3.60, 10),
+    (3.00, 0),
+)
 
-    Matches the thresholds in the Android app's Node.batteryPercent().
+
+def _battery_pct(battery_v):
+    """Single-cell LiPo charge percent via piecewise-linear SoC table.
+
+    The discharge curve is flat through the middle, so a linear 3.0-4.2 V
+    map reads far too high on the plateau (3.63 V -> 52 % linear vs ~13 %
+    on the curve). Interpolates the resting-voltage table; node readings
+    are taken under load, so this is conservative by design.
     Returns None when there is no real reading.
     """
     if battery_v is None or battery_v <= 0:
         return None
-    pct = (battery_v - 3.00) / (4.20 - 3.00) * 100.0
-    return int(round(max(0.0, min(100.0, pct))))
-
+    table = _BATT_SOC_TABLE
+    if battery_v >= table[0][0]:
+        return 100
+    for (v_hi, p_hi), (v_lo, p_lo) in zip(table, table[1:]):
+        if battery_v >= v_lo:
+            frac = (battery_v - v_lo) / (v_hi - v_lo)
+            return int(round(p_lo + frac * (p_hi - p_lo)))
+    return 0
 
 def _row_to_reading(row: sqlite3.Row) -> dict:
     return {column: row[column] for column in READING_COLUMNS}
