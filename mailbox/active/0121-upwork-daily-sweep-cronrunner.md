@@ -1,3 +1,19 @@
+---
+task_id: "0121"
+protocol_version: 1.0.0
+status: in_progress
+iteration: 1
+expect-reply-within: 6h
+notes: |
+  PICKED UP (iteration 0 -> 1) by the mailbox worker, 2026-10-07 18:15 UTC
+  (12:15 MDT). Off-peak (PEAK: OFF-PEAK 18:15 UTC). The filed front-matter had
+  no protocol fields at all (no task_id/status/iteration); they were added at
+  pickup per protocol (skill rule 16), and the body-level
+  `expect-reply-within: 6h` line was folded into the front-matter. The seven
+  tasks in active/ (0097/0098/0106/0107/0109/0110/0119) are all
+  decision-blocked and were left completely untouched.
+---
+
 # 0121 — Daily 5 AM Upwork lead sweep via cronrunner (feeds 6 AM briefing)
 
 expect-reply-within: 6h
