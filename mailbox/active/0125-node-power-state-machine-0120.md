@@ -1,8 +1,22 @@
 ---
 task_id: "0125"
-status: inbox
-iteration: 0
+protocol_version: 1.0.0
+status: in_progress
+iteration: 1
 expect-reply-within: 6h
+notes: |
+  PICKED UP (iteration 0 -> 1) by the mailbox worker, 2026-10-08 15:15 UTC.
+  Off-peak (PEAK: OFF-PEAK 15:15 UTC). The filed front-matter carried no
+  `protocol_version`; it was added at pickup (protocol field, rule 16). The seven
+  tasks in active/ (0097/0098/0106/0107/0109/0110/0119) are all decision-blocked
+  and were left completely untouched (rule 6).
+
+  Base for the work: the task names `firmware/node-v1/src/main.cpp`, which is the
+  16-line 0004 scaffold and cannot run a node. The wildfire node firmware the task
+  describes (PMS5003 + BME680 + OLED + the 0118 live PM line) lives in
+  `firmware/wildfire-node-v1/`, and the running image is the 0119 tip, so the work
+  was done there, on a branch cut from `hermes/0119-battery-adc` --
+  see the staged reply for the full account.
 ---
 
 # 0125 — Firmware release 0120: first real node power-state-machine
