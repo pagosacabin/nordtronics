@@ -1,8 +1,16 @@
 ---
 task_id: "0126"
-status: inbox
-iteration: 0
+protocol_version: 1.0.0
+status: in_progress
+iteration: 1
 expect-reply-within: 6h
+notes: |
+  PICKED UP (iteration 0 -> 1) by the mailbox worker, 2026-10-08 16:15 UTC.
+  Off-peak (PEAK: OFF-PEAK 16:15 UTC). The filed front-matter carried no
+  `protocol_version`; it was added at pickup (protocol field).
+  The seven tasks in active/ (0097/0098/0106/0107/0109/0110/0119) are all
+  decision-blocked and were left completely untouched; 0119 stays parked
+  pending 0128, the inbox task that carries its unblocking fix.
 ---
 
 # 0126 — Apply the durable wake-gate fix (wake on non-empty inbox)
