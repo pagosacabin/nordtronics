@@ -140,6 +140,13 @@ public final class ApiClient {
             conn.setConnectTimeout(TIMEOUT_MS);
             conn.setReadTimeout(TIMEOUT_MS);
             conn.setRequestProperty("Accept", "application/json");
+            // Auth for the production API: the release build bakes the shared
+            // key in as BuildConfig.API_KEY. Debug builds (local mock) carry
+            // an empty key and skip the header.
+            String apiKey = BuildConfig.API_KEY;
+            if (apiKey != null && !apiKey.isEmpty()) {
+                conn.setRequestProperty("X-API-Key", apiKey);
+            }
             if ("POST".equals(method)) {
                 conn.setDoOutput(true);
                 conn.setRequestProperty("Content-Type", "application/json");

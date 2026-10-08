@@ -33,6 +33,10 @@ android {
         buildConfigField "String", "PATH_HEALTH", "\"/healthz\""
         buildConfigField "String", "PATH_ALERTS", "\"/v1/alerts\""
         buildConfigField "String", "PATH_NODE_PING", "null"
+        // Shared API key for the X-API-Key header, baked in at build time
+        // from the NORTRONICS_API_KEY env var. Empty when unset — the header
+        // is then omitted (see ApiClient.request). Debug overrides this to "".
+        buildConfigField "String", "API_KEY", "\"" + (System.getenv("NORTRONICS_API_KEY") ?: "") + "\""
     }
 
     buildFeatures {
@@ -62,6 +66,8 @@ android {
             // the only reachability probe it answers, so that is what the
             // health probe falls back to here (see ApiClient.healthPath()).
             buildConfigField "String", "PATH_HEALTH", "null"
+            // The local mock has no auth; the header stays off in debug builds.
+            buildConfigField "String", "API_KEY", "\"\""
         }
         release {
             minifyEnabled false
