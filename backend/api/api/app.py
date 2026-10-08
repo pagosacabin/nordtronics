@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import logging
+import secrets
 from contextlib import contextmanager
 from datetime import datetime, timezone
 
-from fastapi import FastAPI, HTTPException, Path, Query, Request
+from fastapi import Depends, FastAPI, HTTPException, Path, Query, Request
 from fastapi.responses import JSONResponse
+from fastapi.security import APIKeyHeader
 
 from common import db as db_module
 
@@ -24,6 +26,22 @@ LOG = logging.getLogger("wildfire.api")
 
 #: node ids are validated with the same rule the ingest worker uses
 NODE_ID_PATTERN = r"^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+
+#: the header carrying the shared API key; auto_error=False so we can
+#: return 401 (not 403) with a consistent body for missing keys too
+API_KEY_HEADER = APIKeyHeader(name="X-API-Key", auto_error=False)
+
+
+def require_api_key(request: Request, key: str | None = Depends(API_KEY_HEADER)) -> str:
+    """Shared-secret gate for the /v1/* routes.
+
+    Fail closed: an unconfigured server key (empty ``api_key``) denies
+    everything rather than silently serving the feed to the world.
+    """
+    expected: str = request.app.state.config.api_key
+    if not expected or not key or not secrets.compare_digest(key, expected):
+        raise HTTPException(status_code=401, detail="invalid or missing API key")
+    return key
 
 
 def normalize_since(value: str) -> str:
@@ -88,7 +106,7 @@ def create_app(config: ApiConfig | None = None) -> FastAPI:
             "generated_utc": store.utc_now_iso(),
         }
 
-    @app.get("/v1/nodes", tags=["telemetry"])
+    @app.get("/v1/nodes", tags=["telemetry"], dependencies=[Depends(require_api_key)])
     def get_nodes():
         """Every node the network has heard from, newest reading included."""
         with read_connection() as conn:
@@ -100,7 +118,7 @@ def create_app(config: ApiConfig | None = None) -> FastAPI:
             "generated_utc": store.utc_now_iso(),
         }
 
-    @app.get("/v1/alerts", tags=["alerts"])
+    @app.get("/v1/alerts", tags=["alerts"], dependencies=[Depends(require_api_key)])
     def get_alerts(
         limit: int = Query(DEFAULT_ALERTS_LIMIT, ge=1, le=MAX_ALERTS_LIMIT),
         node_id: str | None = Query(None, pattern=NODE_ID_PATTERN,
@@ -117,7 +135,7 @@ def create_app(config: ApiConfig | None = None) -> FastAPI:
             "generated_utc": store.utc_now_iso(),
         }
 
-    @app.get("/v1/nodes/{node_id}/alerts", tags=["alerts"])
+    @app.get("/v1/nodes/{node_id}/alerts", tags=["alerts"], dependencies=[Depends(require_api_key)])
     def get_node_alerts(
         node_id: str = Path(..., pattern=NODE_ID_PATTERN),
         limit: int = Query(DEFAULT_ALERTS_LIMIT, ge=1, le=MAX_ALERTS_LIMIT),
@@ -143,7 +161,7 @@ def create_app(config: ApiConfig | None = None) -> FastAPI:
             "generated_utc": store.utc_now_iso(),
         }
 
-    @app.get("/v1/nodes/{node_id}/readings", tags=["telemetry"])
+    @app.get("/v1/nodes/{node_id}/readings", tags=["telemetry"], dependencies=[Depends(require_api_key)])
     def get_readings(
         node_id: str = Path(..., pattern=NODE_ID_PATTERN),
         limit: int = Query(DEFAULT_READINGS_LIMIT, ge=1, le=MAX_READINGS_LIMIT),

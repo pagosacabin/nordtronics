@@ -62,8 +62,9 @@ def writer(db_path):
 @pytest.fixture()
 def client(db_path, writer):
     app = create_app(ApiConfig(db_path=str(db_path), host="127.0.0.1", port=8000,
-                               stale_after_seconds=900, log_level="INFO"))
-    with TestClient(app) as test_client:
+                               stale_after_seconds=900, log_level="INFO",
+                               api_key="test-key"))
+    with TestClient(app, headers={"X-API-Key": "test-key"}) as test_client:
         yield test_client
 
 

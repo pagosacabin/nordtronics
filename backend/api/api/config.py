@@ -31,6 +31,8 @@ class ApiConfig:
     port: int
     stale_after_seconds: int
     log_level: str
+    #: shared secret for the X-API-Key header; empty means "not configured"
+    api_key: str = ""
 
     @classmethod
     def from_env(cls, env: Mapping[str, str] | None = None) -> "ApiConfig":
@@ -60,4 +62,5 @@ class ApiConfig:
             port=port,
             stale_after_seconds=stale_after,
             log_level=_lookup(env, "WILDFIRE_LOG_LEVEL", "INFO").upper(),
+            api_key=_lookup(env, "WILDFIRE_API_KEY", ""),
         )

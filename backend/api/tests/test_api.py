@@ -48,8 +48,9 @@ def writer(db_path):
 @pytest.fixture()
 def client(db_path, writer):
     app = create_app(ApiConfig(db_path=str(db_path), host="127.0.0.1", port=8000,
-                               stale_after_seconds=900, log_level="INFO"))
-    with TestClient(app) as test_client:
+                               stale_after_seconds=900, log_level="INFO",
+                               api_key="test-key"))
+    with TestClient(app, headers={"X-API-Key": "test-key"}) as test_client:
         yield test_client
 
 
@@ -215,3 +216,45 @@ def test_response_is_json_serialisable(client, writer):
     payload = client.get("/v1/nodes").json()
     json.dumps(payload)  # raises if any value is not serialisable
     assert payload["generated_utc"].endswith("Z")
+
+
+# ---------------------------------------------------------------- auth
+
+def _bare_client(db_path, **config_overrides):
+    """A TestClient with NO api key header, for proving the gate works."""
+    kwargs = dict(db_path=str(db_path), host="127.0.0.1", port=8000,
+                  stale_after_seconds=900, log_level="INFO")
+    kwargs.update(config_overrides)
+    app = create_app(ApiConfig(**kwargs))
+    return TestClient(app)
+
+
+def test_v1_rejects_missing_api_key(db_path, writer):
+    with _bare_client(db_path, api_key="test-key") as bare:
+        response = bare.get("/v1/nodes")
+    assert response.status_code == 401
+
+
+def test_v1_rejects_wrong_api_key(db_path, writer):
+    with _bare_client(db_path, api_key="test-key") as bare:
+        response = bare.get("/v1/nodes", headers={"X-API-Key": "wrong"})
+    assert response.status_code == 401
+
+
+def test_v1_accepts_correct_api_key(db_path, writer):
+    with _bare_client(db_path, api_key="test-key") as bare:
+        response = bare.get("/v1/nodes", headers={"X-API-Key": "test-key"})
+    assert response.status_code == 200
+
+
+def test_v1_is_closed_when_the_server_key_is_not_configured(db_path, writer):
+    """Fail closed: no configured key means deny, not serve openly."""
+    with _bare_client(db_path) as bare:
+        assert bare.get("/v1/nodes").status_code == 401
+        assert bare.get("/v1/nodes", headers={"X-API-Key": "anything"}).status_code == 401
+
+
+def test_healthz_needs_no_api_key(db_path, writer):
+    with _bare_client(db_path, api_key="test-key") as bare:
+        response = bare.get("/healthz")
+    assert response.status_code == 200
