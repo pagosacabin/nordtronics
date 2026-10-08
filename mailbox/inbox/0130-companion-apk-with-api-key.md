@@ -12,14 +12,14 @@ expect-reply-within: 6h
 - api.nordtronics.io had zero authentication (anyone could curl the sensor feed). Juno has closed it: the backend now requires an `X-API-Key` header on all `/v1/*` routes (commit 9dfc091, tests pass, fail-closed).
 - The app side is done too (commit 9c3e268): `android/companion-v0/app/build.gradle` reads a `NORTRONICS_API_KEY` env var into `BuildConfig.API_KEY` at build time, and `ApiClient.request()` sends it as the `X-API-Key` header. Empty key = header omitted (debug builds, local mock — unchanged behavior).
 - The backend is NOT deployed yet. It flips the moment this APK is ready, so the old app will break against the new backend — the rollout is: you deliver the APK, Juno deploys the backend, Stephen installs immediately.
-- The API key itself is NOT in this task and NOT in git. Get it from Stephen directly (he has it). Never commit it, never paste it into a staged reply or log.
+- The API key itself is NOT in this task and NOT in git. Read it from `/home/astroboy/.hermes/api.key` on your machine (Stephen placed it there). Never commit it, never paste it into a staged reply or log.
 
 ## Task
 
 Build the release APK for `android/companion-v0` from origin/main with the API key baked in:
 
 1. Pull latest origin/main (must include commits 9dfc091 and 9c3e268).
-2. Ask Stephen for the API key; export it as `NORTRONICS_API_KEY` in your build environment only.
+2. Read the API key from `/home/astroboy/.hermes/api.key`; export it as `NORTRONICS_API_KEY` in your build environment only. Do not copy it anywhere else.
 3. Build the release APK (`./gradlew assembleRelease` in `android/companion-v0`).
 4. Sanity-check the APK: confirm `BuildConfig.API_KEY` is non-empty in the built output (e.g. decompile check or a build-log echo of its length — never the value).
 5. Deliver the APK the usual way you deliver release builds to Stephen.
