@@ -29,6 +29,7 @@
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <Wire.h>
+#include <driver/rtc_io.h>
 #include <esp_sleep.h>
 #include <time.h>
 
@@ -114,7 +115,20 @@ static RuntimeConfig g_cfg;
 static wf::Role g_role = wf::Role::Node;
 static wf::RoleDecision g_role_decision;
 static wf::ConsensusEngine g_engine;
-static uint16_t g_tx_seq = 0;
+
+// ---------------------------------------------------------------------------
+// RTC-persistent node state (firmware release 0120, task 0125 item 4).
+//
+// RTC_DATA_ATTR keeps these through deep sleep, which is what makes the wire
+// sequence counter monotonic across wakes and lets the node-fast-alarm latch
+// survive a sleep. A plain static is re-initialised on every wake, so a node
+// that alarmed and slept would come back on the next boot reporting "no alarm"
+// -- exactly the state the RTC attribute exists to prevent.
+// ---------------------------------------------------------------------------
+RTC_DATA_ATTR uint16_t g_tx_seq = 0;        // monotonic across deep-sleep wakes
+RTC_DATA_ATTR bool g_alarm_active = false;  // LAYER 1 latch, persists across sleep
+RTC_DATA_ATTR uint16_t g_alarm_events = 0;  // LAYER 1 alarm episodes raised
+RTC_DATA_ATTR uint32_t g_cycles = 0;        // node power-state cycles completed
 
 // base-side node table, for the OLED and the MQTT "offline" state
 struct NodeRecord {
@@ -141,6 +155,78 @@ static void logf(const char* fmt, ...) {
 }
 
 static float now_min() { return (float)(millis() / 60000UL); }
+
+// ---------------------------------------------------------------------------
+// Node power-state machine (firmware release 0120, task 0125 item 1)
+// ---------------------------------------------------------------------------
+// One cycle, in this order, every check-in period:
+//
+//   WAKE         a wake from deep sleep or a cold boot. The wake cause and the
+//                RTC cycle counter are logged here.
+//   SENSOR_POWER Vext asserted, PMS boost EN (GPIO16) HIGH, the PMS UART
+//                attached, then the Plantower warm-up is honoured in full.
+//   SAMPLE       one PMS5003 frame, one BME680 reading, one battery-divider
+//                sample -- all taken with the sensors powered.
+//   SENSOR_OFF   the PMS UART detached and its MCU TX pin floated BEFORE the
+//                boost EN goes LOW, so the idle TX line cannot back-power the
+//                unpowered sensor (item 2).
+//   LORA_TX      the frame is encoded and transmitted; a failed transmit
+//                re-initialises the radio once and retries.
+//   ALARM_ACK    node-fast-alarm frames only: the ACK window and its retries.
+//   DEEP_SLEEP   the field build sleeps here. The bench build (the
+//                kDeepSleepEnabled gate) logs the gate and idles instead --
+//                see AWAKE_IDLE.
+//   AWAKE_IDLE   bench phase only: awake with USB-serial live, the 1 Hz live
+//                PMS poll and the 1 Hz OLED render (tasks 0117/0118) running,
+//                until the next cycle begins.
+enum class NodeState : uint8_t {
+  Wake,
+  SensorPower,
+  Sample,
+  SensorOff,
+  LoraTx,
+  AlarmAck,
+  DeepSleep,
+  AwakeIdle,
+};
+
+static NodeState g_node_state = NodeState::Wake;
+
+// Short names: they go on the 128 px OLED (21 columns at the 6x10 font) as well
+// as in the serial log, so they stay compact.
+static const char* node_state_name(NodeState s) {
+  switch (s) {
+    case NodeState::Wake:        return "WAKE";
+    case NodeState::SensorPower: return "SENSOR_PWR";
+    case NodeState::Sample:      return "SAMPLE";
+    case NodeState::SensorOff:   return "SENSOR_OFF";
+    case NodeState::LoraTx:      return "LORA_TX";
+    case NodeState::AlarmAck:    return "ALARM_ACK";
+    case NodeState::DeepSleep:   return "SLEEP";
+    case NodeState::AwakeIdle:   return "IDLE";
+  }
+  return "?";
+}
+
+static void node_enter(NodeState s) {
+  g_node_state = s;
+  logf("power: %s", node_state_name(s));
+}
+
+// Defined with the OLED helpers further down. The sensor warm-up repaints the
+// panel while it waits and the SAMPLE step paints the fresh reading, so the
+// cycle needs the declaration here rather than below the OLED block.
+static void oled_render_node();
+static void pms_live_poll();
+
+// True only while the PMS UART is attached, i.e. inside the sensor window. The
+// 1 Hz live poll (task 0117) reads bytes only when this is set, so it can never
+// drain a detached port.
+static bool g_pms_uart_active = false;
+
+// Set when the operator asked for provisioning mode (3 s BOOT hold at boot, item
+// 6). A NODE in field mode never brings WiFi/AP/portal up; a BASE always does.
+static bool g_provisioning = false;
 
 // The portal renders stored values back into HTML input attributes. Without
 // escaping, any value containing a quote, an angle bracket or an ampersand is
@@ -277,6 +363,15 @@ static void enter_deep_sleep(uint32_t seconds) {
     return;
   }
   logf("sleep: %u s (role=node)", (unsigned)seconds);
+  // Park the sensor rail, then HOLD the boost enable LOW across the sleep: the
+  // MiniBoost carries a 100 kOhm EN->VIN pull-up, so a pin merely released when
+  // the RTC domain stops driving it would ENABLE the 5 V rail for the whole
+  // sleep and drain the pack. rtc_gpio_hold_en latches the LOW level through
+  // deep sleep; setup() releases the hold on the next wake.
+  digitalWrite(wf::kPmsBoostEnablePin, !wf::kPmsBoostOnLevel);
+  rtc_gpio_hold_en((gpio_num_t)wf::kPmsBoostEnablePin);
+  logf("sleep: PMS boost EN gpio%d held LOW across deep sleep (RTC hold)",
+       wf::kPmsBoostEnablePin);
   Serial.flush();
   esp_sleep_enable_timer_wakeup((uint64_t)seconds * 1000000ULL);
   esp_deep_sleep_start();
@@ -350,6 +445,13 @@ static void pms_live_poll() {
   static uint8_t buf[32];
   static int idx = 0;
   static uint32_t last_ms = 0;
+  // The sensor window owns the port (task 0125): outside it the UART is
+  // detached and there is nothing to read. A half-received frame cannot survive
+  // the window boundary, so the parser state is reset when the window closes.
+  if (!g_pms_uart_active) {
+    idx = 0;
+    return;
+  }
   if ((uint32_t)(millis() - last_ms) < 1000UL) return;
   last_ms = millis();
 
@@ -450,6 +552,51 @@ static void batt_adc_pin_probe() {
 }
 
 // ---------------------------------------------------------------------------
+// node role -- sensor rail control (firmware release 0120, task 0125 item 2)
+// ---------------------------------------------------------------------------
+// The PMS5003 hangs off the MiniBoost's switched 5 V rail, gated by
+// kPmsBoostEnablePin. It is the dominant load in the power budget (~97 % of the
+// daily energy, docs/wildfire/node-power-budget-v1.md), so the state machine
+// powers it for the sensor window only.
+//
+// Vext (the switched 3.3 V rail) stays asserted across SENSOR OFF on purpose:
+// on this board family the SSD1306 panel shares that rail (task 0108) and the
+// bench phase requires a live panel, while the load the acceptance gate
+// measures -- and the back-power path -- is the 5 V boost and the UART. A
+// Vext-per-cycle policy is a one-line change here if the panel is ever
+// confirmed to sit on 3V3.
+static void sensor_power_on() {
+  digitalWrite(wf::kOledVextPin, LOW);  // Vext asserted (active LOW); idempotent
+  digitalWrite(wf::kPmsBoostEnablePin, wf::kPmsBoostOnLevel);
+  // The UART is attached only while the sensor is powered: with the port open
+  // but the module unpowered, the MCU's idle-high TX line feeds the sensor's RX
+  // protection diode and back-powers it (task 0125 item 2).
+  g_pms.begin(g_cfg.pms_baud, SERIAL_8N1, wf::kPmsUartTxPin, wf::kPmsUartRxPin);
+  g_pms_uart_active = true;
+  logf("power: sensor rail up -- Vext on, PMS boost EN gpio%d %s, UART %lu baud attached",
+       wf::kPmsBoostEnablePin, wf::kPmsBoostOnLevel == HIGH ? "HIGH" : "LOW",
+       (unsigned long)g_cfg.pms_baud);
+}
+
+static void sensor_power_off() {
+  // ORDER MATTERS (item 2): detach the UART and float the MCU's TX pin BEFORE
+  // the boost goes down, so nothing on the UART lines can source current into
+  // the unpowered sensor. kPmsUartRxPin is the MCU's TX (GPIO6, "PMS5003 RX <-
+  // GPIO6" on the Rev C; HardwareSerial::begin takes rx first, tx second).
+  if (g_pms_uart_active) {
+    g_pms.end();
+    g_pms_uart_active = false;
+  }
+  pinMode(wf::kPmsUartRxPin, INPUT);  // MCU TX -> high-Z, no back-power path
+  digitalWrite(wf::kPmsBoostEnablePin, !wf::kPmsBoostOnLevel);
+  logf("power: sensor rail down -- UART detached, MCU TX gpio%d high-Z, PMS boost EN gpio%d LOW",
+       wf::kPmsUartRxPin, wf::kPmsBoostEnablePin);
+  // The 0118 PM values are deliberately NOT cleared here: they are the last
+  // checksum-valid frame and the panel keeps showing them between windows
+  // rather than falling back to 0, which on this panel reads as clean air.
+}
+
+// ---------------------------------------------------------------------------
 // role probe -- task 0104 item 3 (the tank-monitor pattern: probe, do not jump)
 // ---------------------------------------------------------------------------
 // Asked before anything else, because it decides which half of this file runs.
@@ -469,12 +616,29 @@ static bool probe_node_sensors() {
     if (ack == 0) return true;
   }
 
+  // PMS: the module sits behind the MiniBoost's switched 5 V rail, which the
+  // state machine keeps OFF (0125 item 2), so the rail has to be brought up for
+  // this test to mean anything -- an unpowered PMS can never emit a frame and
+  // the board would fall through to the base default. Both the rail and the
+  // UART are handed back down before returning.
+  digitalWrite(wf::kPmsBoostEnablePin, wf::kPmsBoostOnLevel);
+  delay(700);  // the module's own MCU needs to boot before it streams
   g_pms.begin(g_cfg.pms_baud, SERIAL_8N1, wf::kPmsUartTxPin, wf::kPmsUartRxPin);
   uint16_t pm1 = 0, pm10 = 0;
   bool pms_ok = false;
   (void)read_pms25(&pm1, &pm10, &pms_ok);
   logf("probe: pms5003 -> %s", pms_ok ? "frame valid" : "no frame");
+  g_pms.end();
+  pinMode(wf::kPmsUartRxPin, INPUT);  // no back-power path while the rail is down
+  digitalWrite(wf::kPmsBoostEnablePin, !wf::kPmsBoostOnLevel);
   return pms_ok;
+}
+
+static void radio_reinit() {
+  const int rs = g_radio.begin(g_cfg.lora_mhz, g_cfg.lora_bw, g_cfg.lora_sf,
+                               g_cfg.lora_cr, g_cfg.lora_sync, g_cfg.lora_dbm, 8,
+                               1.8f, false);
+  logf("radio: re-init -> %s", rs == RADIOLIB_ERR_NONE ? "ok" : "FAILED");
 }
 
 static void node_send(wf::Frame& f) {
@@ -487,7 +651,17 @@ static void node_send(wf::Frame& f) {
     logf("tx: encode failed (type=%u)", f.type);
     return;
   }
-  const int st = g_radio.transmit(buf, n);
+  int st = g_radio.transmit(buf, n);
+  if (st != RADIOLIB_ERR_NONE) {
+    // Radio re-init robustness (0125 context: the LoRa TX path wedged ~21 min
+    // after the USB unplug on the discharge run, and only a reboot restored
+    // it). The state machine re-initialises the radio once and retransmits, so
+    // a wedged transmit becomes a logged, recoverable event instead of a
+    // silent loss until the next wake.
+    logf("tx: transmit FAILED (err=%d) -- re-initialising the radio and retrying", st);
+    radio_reinit();
+    st = g_radio.transmit(buf, n);
+  }
   logf("tx: type=%u node=%u seq=%u len=%u -> %s", f.type, f.node_id, f.seq,
        (unsigned)n, st == RADIOLIB_ERR_NONE ? "sent" : "FAILED");
 }
@@ -510,54 +684,162 @@ static bool wait_for_ack(uint16_t want_seq, wf::Frame* ack_out) {
   return false;
 }
 
-static void node_checkin() {
-  wf::Frame f;
+// ---------------------------------------------------------------------------
+// node role -- SAMPLE / TX / ACK steps (firmware release 0120, task 0125)
+// ---------------------------------------------------------------------------
+struct NodeSample {
   bool pms_ok = false;
-  uint16_t pm1 = 0, pm10 = 0;
+  uint16_t pm1 = 0;
+  uint16_t pm10 = 0;
+  float pm25 = 0.0f;
+  bool bme_ok = false;
+  float temp_c = 0.0f;
+  float rh = 0.0f;
+  uint32_t press_pa = 0;
+  uint16_t batt_mv = 0;
+  bool alarm = false;
+};
+
+static NodeSample node_sample() {
+  NodeSample s;
   const int pms_avail_before = g_pms.available();
-  const float pm25 = read_pms25(&pm1, &pm10, &pms_ok);
+  s.pm25 = read_pms25(&s.pm1, &s.pm10, &s.pms_ok);
   logf("pms: rx_avail_before=%d ok=%d pm1=%u pm25=%.1f pm10=%u",
-       pms_avail_before, pms_ok ? 1 : 0, pm1, pm25, pm10);
-  f.pm1_x10 = pm1 * 10;
-  f.pm25_x10 = pms_ok ? (uint16_t)(pm25 * 10.0f) : 0;
-  f.pm10_x10 = pm10 * 10;
+       pms_avail_before, s.pms_ok ? 1 : 0, s.pm1, s.pm25, s.pm10);
 #if WF_HAS_BME680
   if (g_bme.performReading()) {
-    f.temp_c_x100 = (int16_t)(g_bme.temperature * 100.0f);
-    f.rh_x100 = (uint16_t)(g_bme.humidity * 100.0f);
-    f.press_pa = (uint32_t)g_bme.pressure;
+    s.bme_ok = true;
+    s.temp_c = g_bme.temperature;
+    s.rh = g_bme.humidity;
+    s.press_pa = (uint32_t)g_bme.pressure;
+  } else {
+    logf("bme680: performReading failed at 0x%02X", wf::kBme680Addr);
+  }
+#endif
+  // Task 0119: the measured pack voltage from the module's switched divider,
+  // latched into g_batt_mv so the OLED row and this payload cannot disagree.
+  g_batt_mv = read_battery_mv();
+  s.batt_mv = g_batt_mv;
+
+  // LAYER 1 -- node-fast-alarm (task 0125 item 5). NODE firmware only; the
+  // base's LAYER 2 consensus is never evaluated here. The latch is RTC-backed
+  // (item 4), so an alarm still standing when the node sleeps is still standing
+  // when it wakes: only a valid frame BELOW the threshold clears it, and a
+  // failed frame leaves the last known state untouched rather than inventing a
+  // clear.
+  if (s.pms_ok) {
+    if (s.pm25 >= wf::kNodeFastAlarmPm25) {
+      if (!g_alarm_active) {
+        g_alarm_active = true;
+        ++g_alarm_events;
+        logf("alarm: LAYER 1 node-fast-alarm raised (pm25=%.1f >= %.1f)",
+             s.pm25, wf::kNodeFastAlarmPm25);
+      }
+    } else if (g_alarm_active) {
+      g_alarm_active = false;
+      logf("alarm: LAYER 1 node-fast-alarm cleared (pm25=%.1f < %.1f)",
+           s.pm25, wf::kNodeFastAlarmPm25);
+    }
+  }
+  s.alarm = g_alarm_active;
+  return s;
+}
+
+static wf::Frame node_frame_from(const NodeSample& s) {
+  wf::Frame f;
+  f.pm1_x10 = s.pm1 * 10;
+  f.pm25_x10 = s.pms_ok ? (uint16_t)(s.pm25 * 10.0f) : 0;
+  f.pm10_x10 = s.pm10 * 10;
+#if WF_HAS_BME680
+  if (s.bme_ok) {
+    f.temp_c_x100 = (int16_t)(s.temp_c * 100.0f);
+    f.rh_x100 = (uint16_t)(s.rh * 100.0f);
+    f.press_pa = s.press_pa;
     f.status |= wf::kStatusBmePresent;
   } else {
     f.status |= wf::kStatusSensorFault;
   }
 #endif
-  f.status |= pms_ok ? (wf::kStatusPmsPresent | wf::kStatusPmsOk) : wf::kStatusPmsPresent;
-  // Task 0119: the measured pack voltage from the module's switched divider,
-  // latched into g_batt_mv so the OLED row and this payload cannot disagree
-  // (the pack does not move at 1 Hz, so the check-in cadence is the right one).
-  g_batt_mv = read_battery_mv();
-  f.batt_mv = g_batt_mv;
+  f.status |= s.pms_ok ? (wf::kStatusPmsPresent | wf::kStatusPmsOk) : wf::kStatusPmsPresent;
+  f.batt_mv = s.batt_mv;
   f.flags = 0;
+  // The LAYER 1 latch turns a routine check-in into an ALARM, which is the only
+  // packet type that requires an ACK and is therefore retried.
+  f.type = s.alarm ? wf::kMsgAlarm : wf::kMsgCheckin;
+  if (s.alarm) f.flags |= wf::kFlagAlarm | wf::kFlagAckRequired;
+  return f;
+}
 
-  // The node's own hard threshold turns a routine check-in into an ALARM, which
-  // is the only packet type that requires an ACK and is therefore retried.
-  const bool alarm = pms_ok && pm25 >= 55.0f;
-  f.type = alarm ? wf::kMsgAlarm : wf::kMsgCheckin;
-  if (alarm) f.flags |= wf::kFlagAlarm | wf::kFlagAckRequired;
-
-  node_send(f);
-  if (alarm) {
-    wf::Frame ack;
-    bool got = false;
-    for (uint8_t attempt = 0; attempt < g_cfg.ack_tries && !got; ++attempt) {
-      got = wait_for_ack(f.seq, &ack);
-      if (!got) {
-        logf("alarm: no ACK within %u s (attempt %u/%u) -- retransmitting",
-             g_cfg.ack_to_s, attempt + 1, g_cfg.ack_tries);
-        node_send(f);
-      }
+static void node_alarm_ack_window(wf::Frame& f) {
+  wf::Frame ack;
+  bool got = false;
+  for (uint8_t attempt = 0; attempt < g_cfg.ack_tries && !got; ++attempt) {
+    got = wait_for_ack(f.seq, &ack);
+    if (!got) {
+      logf("alarm: no ACK within %u s (attempt %u/%u) -- retransmitting",
+           g_cfg.ack_to_s, attempt + 1, g_cfg.ack_tries);
+      node_send(f);
     }
-    logf("alarm seq=%u %s", f.seq, got ? "ACKed" : "UNACKED (retries exhausted)");
+  }
+  logf("alarm seq=%u %s", f.seq, got ? "ACKed" : "UNACKED (retries exhausted)");
+}
+
+// The Plantower warm-up is served here rather than as one long blocking delay:
+// each second the 0117 live poll runs (the module streams frames within ~1 s of
+// power-on; only the VALUES need the 30 s) and the 0118 OLED render repaints, so
+// a bench operator watches the window open instead of staring at a frozen
+// panel. delay() yields to the idle task, so the task WDT stays fed.
+static void sensor_warmup() {
+  const uint32_t t0 = millis();
+  while ((uint32_t)(millis() - t0) < wf::kPmsWarmupMs) {
+    delay(1000);
+    pms_live_poll();
+    oled_render_node();
+  }
+  logf("power: PMS warm-up complete (%u ms) -- readings are now trustworthy",
+       (unsigned)(millis() - t0));
+}
+
+// The whole node cycle, one check-in period apart. See the NodeState comment
+// block at the top of this file for the sequence and which task each step
+// serves.
+static void node_run_cycle() {
+  ++g_cycles;
+  node_enter(NodeState::Wake);
+  const esp_sleep_wakeup_cause_t cause = esp_sleep_get_wakeup_cause();
+  logf("power: wake cause=%d (%s), RTC cycle=%lu seq=%u alarm=%d events=%u",
+       (int)cause, cause == ESP_SLEEP_WAKEUP_TIMER ? "timer" : "power-on/other",
+       (unsigned long)g_cycles, g_tx_seq, g_alarm_active ? 1 : 0,
+       (unsigned)g_alarm_events);
+
+  node_enter(NodeState::SensorPower);
+  sensor_power_on();
+  sensor_warmup();
+
+  node_enter(NodeState::Sample);
+  const NodeSample s = node_sample();
+  oled_render_node();  // the fresh sample is on the panel before radio/sleep
+
+  node_enter(NodeState::SensorOff);
+  sensor_power_off();
+
+  node_enter(NodeState::LoraTx);
+  wf::Frame f = node_frame_from(s);
+  node_send(f);
+
+  if (s.alarm) {
+    node_enter(NodeState::AlarmAck);
+    node_alarm_ack_window(f);
+  }
+
+  node_enter(NodeState::DeepSleep);
+  if (wf::kDeepSleepEnabled) {
+    enter_deep_sleep(g_cfg.checkin_s);
+    // Reached only if the sleep was refused (i.e. we are not a node after all).
+  } else {
+    node_enter(NodeState::AwakeIdle);
+    logf("bench gate: deep sleep DISABLED -- staying awake, next cycle in %u s",
+         (unsigned)g_cfg.checkin_s);
   }
 }
 
@@ -812,7 +1094,10 @@ static void oled_render_node() {
   g_oled.drawStr(0, 20, line);
   snprintf(line, sizeof(line), "chk:%lus", (unsigned long)g_cfg.checkin_s);
   g_oled.drawStr(0, 30, line);
-  snprintf(line, sizeof(line), "seq:%u", g_tx_seq);
+  // Task 0125: the power-state row. It carries the RTC-persistent sequence
+  // counter (item 4) and the state the machine is in, so a bench operator can
+  // read the cycle off the panel without a serial console.
+  snprintf(line, sizeof(line), "seq:%u %s", g_tx_seq, node_state_name(g_node_state));
   g_oled.drawStr(0, 40, line);
   // Task 0119: the value latched at the last check-in (see g_batt_mv), never a
   // hardcoded 0 -- the row and the LoRa payload carry the same number.
@@ -923,6 +1208,52 @@ static void base_network_tick() {
   WiFi.begin(g_cfg.wifi_ssid.c_str(), g_cfg.wifi_pass.c_str());
 }
 
+// ---------------------------------------------------------------------------
+// provisioning gesture -- firmware release 0120, task 0125 item 6
+// ---------------------------------------------------------------------------
+// Field mode sheds WiFi/AP/portal on a NODE: the node talks LoRa only, so
+// carrying an AP and a portal is pure idle load and an attack surface. Joining
+// the setup AP is therefore a deliberate maintenance act: hold BOOT (GPIO0,
+// active low) through the first kProvisionHoldMs of the boot, with the panel
+// showing the hold, and provisioning mode comes up. Release early and the board
+// boots straight into field mode.
+//
+// Runs after the panel probe (the countdown is drawn on the panel) and before
+// the network bring-up, so the decision is made once, at boot, for both roles.
+// A BASE ignores the gesture -- it always needs the network, it is the uplink.
+static bool provisioning_gesture() {
+  pinMode(wf::kBootButtonPin, INPUT_PULLUP);
+  if (digitalRead(wf::kBootButtonPin) != LOW) return false;
+
+  logf("provision: BOOT held at boot -- hold %u ms to enter provisioning mode",
+       (unsigned)wf::kProvisionHoldMs);
+  const uint32_t t0 = millis();
+  while ((uint32_t)(millis() - t0) < wf::kProvisionHoldMs) {
+    if (g_oled_ready) {
+      const uint32_t left_ms =
+          wf::kProvisionHoldMs - (uint32_t)(millis() - t0);
+      char line[32];
+      g_oled.clearBuffer();
+      g_oled.setFont(u8g2_font_6x10_tf);
+      g_oled.drawStr(0, 10, "PROVISION?");
+      snprintf(line, sizeof(line), "hold %us", (unsigned)((left_ms + 999) / 1000));
+      g_oled.drawStr(0, 24, line);
+      g_oled.drawStr(0, 38, "release = field");
+      g_oled.drawStr(0, 52, "keep held = setup AP");
+      oled_flush();
+    }
+    if (digitalRead(wf::kBootButtonPin) != LOW) {
+      logf("provision: BOOT released after %u ms -- field mode (no WiFi)",
+           (unsigned)(millis() - t0));
+      return false;
+    }
+    delay(100);
+  }
+  logf("provision: BOOT held %u ms -- PROVISIONING MODE (WiFi + captive portal)",
+       (unsigned)(millis() - t0));
+  return true;
+}
+
 static void portal_setup() {
   g_server.on("/", HTTP_GET, []() {
     String html = "<!doctype html><meta name=viewport content='width=device-width,initial-scale=1'>";
@@ -956,6 +1287,17 @@ static void portal_setup() {
 void setup() {
   Serial.begin(115200);
   for (uint32_t t0 = millis(); !Serial && millis() - t0 < 2000;) delay(10);
+
+  // ---- STEP -2: the 5 V sensor rail OFF, before anything else (task 0125) ---
+  // The MiniBoost carries a 100 kOhm EN->VIN pull-up, so a floating enable line
+  // turns the 5 V rail ON by itself: on the previous build the pin was never
+  // driven and the PMS5003 was powered for the whole time the node was awake.
+  // Release any RTC hold left by the last deep sleep, then drive the enable to
+  // its off level immediately -- the state machine is the only thing that may
+  // raise it again.
+  rtc_gpio_hold_dis((gpio_num_t)wf::kPmsBoostEnablePin);
+  pinMode(wf::kPmsBoostEnablePin, OUTPUT);
+  digitalWrite(wf::kPmsBoostEnablePin, !wf::kPmsBoostOnLevel);
 
   // ---- STEP -1: sensor rail ON, before ANY I2C init (task 0108) ------------
   // GPIO36 gates Vext, the switched 3.3 V rail the BME680/OLED sit on, active
@@ -1023,12 +1365,27 @@ void setup() {
   g_oled_ready = oled_probe_and_begin();
 
   if (g_role == wf::Role::Node) {
-    g_pms.begin(g_cfg.pms_baud, SERIAL_8N1, wf::kPmsUartTxPin, wf::kPmsUartRxPin);
+    // The PMS UART is NOT opened here any more. The power-state machine owns the
+    // port and attaches it only while the sensor rail is up (task 0125 item 2);
+    // the boot role probe already handed it back down.
 #if WF_HAS_BME680
     if (!g_bme.begin(wf::kBme680Addr)) logf("bme680: not found at 0x%02X", wf::kBme680Addr);
 #endif
     // Task 0119: one-shot, node-only pin evidence (see batt_adc_pin_probe).
     batt_adc_pin_probe();
+  }
+
+  // ---- provisioning decision ----------------------------------------------
+  // Read once, after the panel is up (the gesture draws its countdown on the
+  // panel) and before any network call. A BASE always brings the network up --
+  // it is the uplink. A NODE brings it up only when the operator held BOOT, so
+  // field mode carries no WiFi/AP/portal at all (task 0125 item 6).
+  g_provisioning = (g_role == wf::Role::Base) ? true : provisioning_gesture();
+  if (!g_provisioning) {
+    logf("field mode: WiFi/AP/portal shed (node, no provisioning gesture); "
+         "hold BOOT %u ms at boot to provision",
+         (unsigned)wf::kProvisionHoldMs);
+    return;  // nothing below this point may touch WiFi, TLS or the portal
   }
 
   // ---- network + portal ----------------------------------------------------
@@ -1103,56 +1460,36 @@ void loop() {
     return;  // the base loop never sleeps
   }
 
-  // ---- node: sample + report, then deep sleep or a bench-phase wait --------
+  // ---- node: one power-state cycle per check-in period ---------------------
   //
-  // Field build (kDeepSleepEnabled == true): the original behaviour -- one
-  // sample/report cycle per boot, then sleep for the check-in period.
+  // Field build (kDeepSleepEnabled == true): node_run_cycle() ends in
+  // enter_deep_sleep(), which never returns -- one full cycle per wake.
   //
-  // Bench phase (gate open): the node must still cycle once per check-in
-  // period rather than once per loop() pass, so the period is enforced here and
-  // the node simply stays awake, with USB-serial live, until the next cycle.
-  static uint32_t last_checkin_ms = 0;
-  static bool checkin_done = false;
+  // Bench phase (gate open): the identical cycle runs, but its DEEP_SLEEP step
+  // only logs the gate. The period is enforced here so the node cycles once per
+  // check-in period rather than once per loop() pass, staying awake with
+  // USB-serial live in between.
+  static uint32_t last_cycle_ms = 0;
+  static bool cycle_started = false;
   const uint32_t period_ms = (uint32_t)g_cfg.checkin_s * 1000UL;
-  if (!checkin_done || (uint32_t)(millis() - last_checkin_ms) >= period_ms) {
-    checkin_done = true;
-    last_checkin_ms = millis();
-
-    node_checkin();
-
-    static uint32_t last_oled = 0;
-    if (millis() - last_oled > 1000) {
-      last_oled = millis();
-      oled_render_node();
-    }
-
-    if (wf::kDeepSleepEnabled) {
-      enter_deep_sleep(g_cfg.checkin_s);
-      // Reached only if the sleep was refused (i.e. we are not a node after all).
-    } else {
-      // Bench-phase gate open: no sleep, stay awake with USB-serial live. This
-      // line is the falsifiable evidence that the gate is doing its job -- a
-      // field build prints `sleep: <n> s (role=node)` here instead.
-      logf("bench gate: deep sleep DISABLED -- staying awake, next check-in in %u s",
-           (unsigned)g_cfg.checkin_s);
-    }
+  if (!cycle_started || (uint32_t)(millis() - last_cycle_ms) >= period_ms) {
+    cycle_started = true;
+    last_cycle_ms = millis();
+    node_run_cycle();
   }
-  // 0117: the 1 Hz live poll runs on every pass, OUTSIDE the check-in gate, so
-  // the two cadences are independent -- a check-in cannot suppress the live
-  // line, and the 5 ms poll cannot delay the check-in.
+
+  // 0117/0118: the 1 Hz live poll and the 1 Hz OLED render run on every pass,
+  // OUTSIDE the cycle, so the two cadences stay independent. The poll reads
+  // bytes only while the sensor window is open (g_pms_uart_active); between
+  // windows the PM row holds the last checksum-valid frame, which is the 0118
+  // latch behaviour, not a regression.
   pms_live_poll();
-  // Task 0118: the render has to run here too. The in-gate call above is
-  // throttled by the check-in period (60 s on this bench device, 720 s in the
-  // field), so its own 1 s guard is dead code while the gate is closed -- the
-  // panel would refresh once per check-in and the PM row would look frozen. This
-  // is the call that gives the panel the ~1 Hz cadence the task asks for, drawn
-  // after the poll so the row carries the frame latched in this same pass.
-  // The in-gate render stays: on the field build enter_deep_sleep() is inside
-  // the gate, so this line is never reached between wakes.
   static uint32_t last_oled_ms = 0;
   if ((uint32_t)(millis() - last_oled_ms) > 1000UL) {
     last_oled_ms = millis();
     oled_render_node();
   }
+  // A node carries the portal only in provisioning mode (task 0125 item 6).
+  if (g_provisioning) g_server.handleClient();
   delay(100);  // stay responsive and keep the USB-CDC link enumerated
 }

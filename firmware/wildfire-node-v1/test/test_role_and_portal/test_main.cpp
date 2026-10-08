@@ -152,6 +152,50 @@ static void test_vext_gate_pin() {
 }
 
 // --------------------------------------------------------------------------
+// the node power-state-machine pins (firmware release 0120, task 0125)
+// --------------------------------------------------------------------------
+// The switched 5 V boost enable and the BOOT provisioning button are the two
+// pins the release drives, so the task's own claim about them -- "RTC-capable,
+// non-strapping, verified free: not LoRa, I2C, PMS UART, OLED, battery ADC,
+// USB, or boot" -- is checked mechanically here instead of asserted in prose.
+// The GPIO16-vs-GPIO4 discrepancy the staged reply declares is pinned as a
+// literal too, so a silent change of the constant fails this test rather than
+// shipping.
+static void test_power_state_pins() {
+  const int p = wf::kPmsBoostEnablePin;
+  printf("[power] boost_en=gpio%d on_level=%d warmup_ms=%u boot_btn=gpio%d hold_ms=%u "
+         "alarm_pm25=%.1f boost_is_frozen_net=%d\n",
+         p, wf::kPmsBoostOnLevel, (unsigned)wf::kPmsWarmupMs, wf::kBootButtonPin,
+         (unsigned)wf::kProvisionHoldMs, wf::kNodeFastAlarmPm25,
+         in_set(kFrozenGpioPins, kFrozenGpioCount, p) ? 1 : 0);
+
+  CHECK(p == 16, "the PMS boost enable is GPIO16 (task 0125); Rev C wires GPIO4");
+  CHECK(wf::kPmsBoostOnLevel == 1, "the TPS61023 EN is active high");
+  CHECK(!in_set(kFrozenGpioPins, kFrozenGpioCount, p),
+        "the boost enable must not collide with a 0079 frozen net");
+  CHECK(!in_set(wf::kS3BootSelectPins, 4, p),
+        "the boost enable must not be an ESP32-S3 boot-select pin");
+  CHECK(!in_set(wf::kS3NativeUsbPins, 2, p),
+        "the boost enable must not be a native USB pin");
+  CHECK(!in_set(wf::kS3Uart0Pins, 2, p), "the boost enable must not be UART0");
+  CHECK(!in_set(wf::kLoraSpiPins, 7, p),
+        "the boost enable must not be in the SX1262 SPI block");
+  CHECK(p != wf::kI2cSdaPin && p != wf::kI2cSclPin, "the boost enable is not on the I2C bus");
+  CHECK(p != wf::kOledRstPin && p != wf::kOledVextPin, "the boost enable is not an OLED pin");
+  CHECK(p != wf::kPmsUartTxPin && p != wf::kPmsUartRxPin, "the boost enable is not the PMS UART");
+  CHECK(p != wf::kBattAdcPin && p != wf::kBattAdcCtrlPin, "the boost enable is not a battery-ADC pin");
+  CHECK(p != wf::kBootButtonPin, "the boost enable is not the BOOT button");
+
+  CHECK(wf::kBootButtonPin == 0, "the provisioning gesture is the GPIO0 BOOT button");
+  CHECK(wf::kProvisionHoldMs == 3000, "the provisioning hold is 3 s (task 0125 item 6)");
+  CHECK(wf::kPmsWarmupMs >= 30000, "the Plantower warm-up must be >= 30 s (task 0076 note)");
+  CHECK(wf::kNodeFastAlarmPm25 == 55.0f,
+        "LAYER 1 node-fast-alarm is PM2.5 >= 55 ug/m3 (task 0125 item 5)");
+  CHECK(wf::kNodeFastAlarmPm25 > 0.0f && wf::kNodeFastAlarmPm25 < 1000.0f,
+        "the LAYER 1 threshold must be a sane PM2.5 value");
+}
+
+// --------------------------------------------------------------------------
 // portal table
 // --------------------------------------------------------------------------
 static void test_every_portal_field_has_a_key_default_and_namespace() {
@@ -236,6 +280,7 @@ int main(int, char**) {
   RUN_TEST(test_role_serial_lines);
   RUN_TEST(test_boot_probe_pins_are_frozen_sensor_nets);
   RUN_TEST(test_vext_gate_pin);
+  RUN_TEST(test_power_state_pins);
   RUN_TEST(test_every_portal_field_has_a_key_default_and_namespace);
   RUN_TEST(test_defaults_match_the_frozen_rule_constants);
   const int rc = UNITY_END();

@@ -101,6 +101,60 @@ constexpr int kBattAdcPin = 1;        // ADC1_CH0: the divider's tap
 // 100k / (100k + 390k): the fraction of VBAT the ADC sees.
 constexpr float kBattDividerRatio = 0.2041f;
 
+// ---------------------------------------------------------------------------
+// Node power-state-machine constants (firmware release 0120, task 0125).
+// ---------------------------------------------------------------------------
+
+// MiniBoost 5 V enable -- the switched 5 V rail the PMS5003 sits on.
+//
+// 0125 names GPIO16 for this line and Stephen wires it at the bench. The Rev C
+// interface board (tasks 0076/0077) instead wires MiniBoost EN to Heltec GPIO4
+// (with a 4.7 kOhm pull-down, against the module's own 100 kOhm EN->VIN
+// pull-up), and task 0079 lists GPIO16 in the Heltec pinout as `XTAL_32K_N`.
+// The discrepancy is declared in the 0125 staged reply for a decision before
+// the bench step; the firmware keeps it a single named constant so either pin
+// is a one-line change.
+//
+// GPIO16 is an RTC-domain pin (RTC GPIO 0..21), which is what lets the state
+// machine hold the enable LOW through deep sleep -- the module's 100 kOhm
+// EN->VIN pull-up ENABLES the boost on a floating pin, so a released pin would
+// drain the pack for the whole sleep. High level = boost on.
+constexpr int kPmsBoostEnablePin = 16;
+// Level as a plain int, not the Arduino HIGH/LOW macros: this header is
+// portable C++17 and is compiled by the host test (native env), where HIGH does
+// not exist. 1 == HIGH.
+constexpr int kPmsBoostOnLevel = 1;
+
+// Plantower's stability requirement: the PMS5003's fan and laser cavity need to
+// settle before the readings mean anything (PMS5003 manual V2.3, and the Rev C
+// schematic note "allow >= 30 s warm-up", task 0076). The state machine holds
+// SENSOR_POWER for this long before it samples, so a power-cycled sensor can
+// never produce a false alarm off a cold frame.
+constexpr uint32_t kPmsWarmupMs = 30000;
+
+// BOOT button (GPIO0, active low, the Heltec's own BOOT switch). Holding it for
+// this long at boot is the deliberate maintenance gesture that brings WiFi + the
+// captive portal up on a NODE (0125 item 6). Without it the node field build
+// sheds WiFi/AP/portal entirely; the BASE always carries them (it is the uplink).
+constexpr int kBootButtonPin = 0;
+constexpr uint32_t kProvisionHoldMs = 3000;
+
+// ---------------------------------------------------------------------------
+// Alarm layers (firmware release 0120, task 0125 item 5). Two layers exist and
+// each code path belongs to exactly one of them:
+//
+//   LAYER 1 -- node-fast-alarm. NODE firmware only (main.cpp, node_sample()).
+//     The node's own hard PM2.5 threshold, evaluated on the reading in hand.
+//     No consensus and no other node is involved: a single node raises it.
+//   LAYER 2 -- base-consensus. BASE firmware only (consensus_v02.cpp).
+//     >= 2 nodes rising inside one correlation window
+//     (ConsensusConfig::correlation_window_min). A node never evaluates it.
+//
+// The threshold matches the value the node firmware already used in band
+// (>= 55 ug/m3, task 0094); naming it is what makes the layer boundary explicit.
+// ---------------------------------------------------------------------------
+constexpr float kNodeFastAlarmPm25 = 55.0f;
+
 enum class FieldKind : uint8_t { Str = 0, Int = 1, Bool = 2 };
 
 struct PortalField {
