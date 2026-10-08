@@ -1,8 +1,9 @@
 ---
 task_id: "0133"
 protocol_version: 1.0.0
-status: filed
+status: in_progress
 expect-reply-within: 2h
+iteration: 1
 ---
 
 # 0133 — Serve the 0130 release APK over the home LAN for Stephen's phone
