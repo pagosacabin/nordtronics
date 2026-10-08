@@ -1,6 +1,8 @@
 ---
+closure_note: |
+  Closed as moot 2026-10-08 per Stephen: the base MQTT uplink is already working (live readings flowing base -> MQTT -> ingest -> API). No task needed.
 task_id: "0131"
-status: inbox
+status: closed-moot
 iteration: 0
 expect-reply-within: 24h
 ---
