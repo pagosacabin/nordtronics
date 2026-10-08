@@ -1,9 +1,15 @@
 ---
 task_id: "0121"
 protocol_version: 1.0.0
-status: in_progress
+status: staged
 iteration: 1
 expect-reply-within: 6h
+proof:
+  branch: main
+  sha: "8c215a2e9e4f4fe5b05693326b497bf9f489f014"
+  run: "https://github.com/pagosacabin/nordtronics/actions/runs/37767425640"
+  files:
+    - handoff/upwork-leads/2026-10-08.md
 notes: |
   PICKED UP (iteration 0 -> 1) by the mailbox worker, 2026-10-07 18:15 UTC
   (12:15 MDT). Off-peak (PEAK: OFF-PEAK 18:15 UTC). The filed front-matter had
@@ -112,6 +118,66 @@ notes: |
      `hardware/solar-gate-v2/`, `take_screenshots.py` — left alone rather than
      swept up into a commit. Cost: one off-peak DeepSeek Flash run plus four
      read-only Upwork API calls.
+
+     RESUMED (iteration stays 1 -- this is a resume of an in_progress task, not a
+     fresh pickup; iteration does not advance on a resume) by the mailbox worker,
+     2026-10-08 14:15 UTC (08:15 MDT). Off-peak (PEAK: OFF-PEAK 14:15 UTC). The
+     seven lower-numbered active/ tasks 0097/0098/0106/0107/0109/0110/0119 remain
+     decision-blocked and were left completely untouched.
+
+     STAGED NOW (2026-10-08 14:15-14:30 UTC). CRITERION 2 IS MET as of this run --
+     the scheduled job's first file now exists, written by the scheduled run, so
+     all three success criteria are satisfied and the task is staged.
+
+     8. CRITERION 2 MET -- the first scheduled run's file is present and is the
+        job's own output, not hand-written.
+        - File: handoff/upwork-leads/2026-10-08.md exists on origin/main
+          (`git ls-tree -r --name-only origin/main | grep upwork-leads` lists
+          2026-10-07.md and 2026-10-08.md).
+        - Commit: 8c215a2e9e4f4fe5b05693326b497bf9f489f014 "Upwork sweep
+          2026-10-08: 14 leads", Author AND Committer
+          `hermes-cronrunner <hermes-cronrunner@nordtronics.local>`, AuthorDate
+          2026-10-08T05:02:14-06:00 (1 file changed, 144 insertions).
+        - The job's own record proves the same instant: `hermes -p cronrunner cron
+          list` for id 892982733bba shows `Last run: 2026-10-08T05:02:38-06:00 ok`,
+          `Dispatch: on time (scheduled 2026-10-08T05:00:00-06:00)`, `Next run:
+          2026-10-09T05:00:00-06:00`. A hand-written file would not come from that
+          author/instant, and the task's "not by hand" clause is therefore upheld.
+        - Content is real lead data: the file's header names the sweep time
+          (2026-10-08T11:00:13Z) and every search term/cursor page used; it carries
+          14 in-window leads, each with posting ID, title, budget/rate, posted-ago,
+          client country + spend/review history, a one-line fit note, caveats and
+          the posting link, plus a 12-row off-profile skip list and the
+          out-of-window IDs dropped. This is the format the task's step 4 asks
+          for, not a stub.
+        - Run for the sweep commit: Website Check 37767425640 @ 8c215a2,
+          conclusion success
+          (https://github.com/pagosacabin/nordtronics/actions/runs/37767425640).
+          headSha == 8c215a2, the commit actually on main.
+
+     9. CRITERION 1 re-confirmed: job id 892982733bba "Upwork lead sweep
+        (read-only) 5AM MDT", schedule `0 5 * * *`, active, next_run_at
+        2026-10-09T05:00:00-06:00. Unchanged from the pickup report.
+
+     10. CRITERION 3 re-confirmed for this resume: ZERO Upwork tool calls were made
+        in this run -- no reads and no writes. The 2026-10-08 file was read from
+        the repo (origin/main), not from the Upwork API. The only Upwork traffic
+        for this task remains the pickup run's four read-only calls; no proposal,
+        message, Connect, or profile/save change was ever performed.
+
+     11. LAPTOP-ASLEEP BEHAVIOR (the task asks it be stated): NOT APPLICABLE THIS
+        RUN -- the laptop was awake and the job dispatched on time at 05:00 MDT
+        (last run 05:02:38 ok), so no catch-up or skip occurred. The stored
+        schedule remains `0 5 * * *` local; a future asleep-host fire would be
+        subject to the cron catch-up policy, which this run did not have to
+        exercise.
+
+     12. NOTHING ELSE TOUCHED. No other mailbox file was edited; the seven
+        decision-blocked active/ tasks are byte-identical to before this run. The
+        three untracked worktree paths predating the work
+        (`firmware/wildfire-node-v1/bench-override.ini`, `hardware/solar-gate-v2/`,
+        `take_screenshots.py`) were left alone. Cost: one off-peak DeepSeek Flash
+        run, zero Upwork API calls.
 ---
 
 # 0121 — Daily 5 AM Upwork lead sweep via cronrunner (feeds 6 AM briefing)
