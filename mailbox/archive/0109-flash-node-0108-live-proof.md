@@ -1,11 +1,13 @@
 ---
 task_id: "0109"
 protocol_version: 1.0.0
-status: in_progress
+status: closed-superseded
 iteration: 2
 expect-reply-within: 24h
 proof: []
 notes: |
+  CLOSURE (closed-superseded), 2026-10-08: Superseded by the 0119 recovery (Stephen's option A); closed 2026-10-08 per Stephen's decision.
+
   Filed by Juno, 2026-10-04, at Stephen's explicit "Send it" (07:21 MDT).
   Supersedes 0107's flash half (0105 artifact, BLOCKED on the Vext root
   cause): flash the 0108 artifact (Vext gate driven at boot) to the NODE

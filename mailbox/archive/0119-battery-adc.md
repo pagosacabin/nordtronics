@@ -1,10 +1,12 @@
 ---
 task_id: "0119"
 protocol_version: 1.0.0
-status: in_progress
+status: closed-superseded
 iteration: 1
 expect-reply-within: 6h
 notes: |
+  CLOSURE (closed-superseded), 2026-10-08: Superseded by the 0119 recovery (Stephen's option A); closed 2026-10-08 per Stephen's decision.
+
   PICKED UP (iteration 0 -> 1) by the mailbox worker, 2026-10-06 21:15 UTC.
   Off-peak (PEAK: OFF-PEAK 21:15 UTC). The six tasks in active/
   (0097/0098/0106/0107/0109/0110) are all decision-blocked and were left

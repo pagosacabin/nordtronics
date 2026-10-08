@@ -1,10 +1,12 @@
 ---
 task_id: "0097"
 protocol_version: 1.0.0
-status: in_progress
+status: closed-superseded
 iteration: 1
 expect-reply-within: 24h
 notes: |
+  CLOSURE (closed-superseded), 2026-10-08: Superseded by 0131 (re-filed against 0120 firmware); closed 2026-10-08 per Stephen's decision.
+
   BLOCKED — the two runtime secrets this task requires are not obtainable by an
   unattended run, and a further defect in the 0094 firmware on main would stop
   the "flash and configure via the portal" path even with them. No board was

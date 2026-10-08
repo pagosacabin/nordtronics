@@ -1,11 +1,13 @@
 ---
 task_id: "0110"
 protocol_version: 1.0.0
-status: in_progress
+status: closed-superseded
 iteration: 2
 expect-reply-within: 24h
 proof: []
 notes: |
+  CLOSURE (closed-superseded), 2026-10-08: Superseded by the 0119 recovery (Stephen's option A); closed 2026-10-08 per Stephen's decision.
+
   Filed by Juno, 2026-10-04 ~18:05 MDT. Resume of 0109, which is BLOCKED in
   active/ because the node board fell off the USB bus during the post-flash
   hard reset (kernel USB disconnect 09:17:15 local, never re-enumerated).

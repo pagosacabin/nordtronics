@@ -1,10 +1,12 @@
 ---
 task_id: "0098"
 protocol_version: 1.0.0
-status: in_progress
+status: closed-killed
 iteration: 1
 expect-reply-within: 24h
 notes: |
+  CLOSURE (closed-killed), 2026-10-08: Killed per Stephen's decision 2026-10-08; WPA3 mixed-mode not implementable in this toolchain.
+
   PICKED UP (iteration 1) by the mailbox worker, 2026-10-03 02:50 UTC. The filed
   front-matter had no `iteration` field; it was added at pickup (protocol field).
 
