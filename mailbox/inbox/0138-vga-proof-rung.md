@@ -34,6 +34,13 @@ pattern (color bars + a text label, 640x480) using bitluni's ESP32Lib
    HSYNC, VSYNC, GND) including resistor values for the DAC ladder, per the
    library's wiring diagram. Stephen will wire this by hand — pin numbers
    must be unambiguous.
+   NOTE 2026-10-15: Stephen has a VGA adapter for this — his
+   PCB_0024_VGA_ADAPTER v1 schematic (270/470 ladders on R/G/B, direct
+   HSYNC/VSYNC to a DB15). He has the physical module or can build from the
+   schematic. Use the adapter's JP1 pin mapping for your wiring spec instead
+   of a hand-wired ladder: the ESP32 plugs into the adapter, the adapter
+   drives the VGA cable. If any JP1 pin assignment is unclear from the
+   schematic, say so in the notes field rather than guessing.
 3. Include flash instructions (one command or the exact IDE steps).
 4. Push the project to `pagosacabin/cabin-play` under
    `living-frame/firmware/vga-proof/` via SSH.
