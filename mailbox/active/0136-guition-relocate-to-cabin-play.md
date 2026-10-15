@@ -1,9 +1,9 @@
 ---
 task_id: "0136"
 protocol_version: 1.0.0
-status: inbox
+status: in_progress
 expect-reply-within: 6h
-iteration: 0
+iteration: 1
 ---
 
 # 0136 — Relocate Guition firmware mirror to cabin-play
