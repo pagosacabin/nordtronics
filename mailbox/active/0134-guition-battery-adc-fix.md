@@ -1,7 +1,9 @@
 # 0134 — Guition JC4827W543 battery voltage reads 3.29V with the battery at 4.1V
 
-task_id: 0134
-status: inbox
+task_id: "0134"
+protocol_version: 1.0.0
+status: in_progress
+iteration: 1
 expect-reply-within: 6h
 
 ## context
