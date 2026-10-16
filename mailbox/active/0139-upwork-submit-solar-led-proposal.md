@@ -1,6 +1,18 @@
-# 0139 — Submit Upwork proposal: Solar LED Prototype
-
+---
+task_id: "0139"
+protocol_version: 1.0.0
+status: in_progress
+iteration: 1
 expect-reply-within: 6h
+proof: []
+notes: |
+  PICKED UP by the mailbox worker, 2026-10-16 15:15 UTC (off-peak; PEAK: OFF-PEAK
+  15:15 UTC). Protocol MATCH (1.0.0). The filed file carried no front-matter at
+  all; the protocol fields were added at pickup and `expect-reply-within: 6h`
+  was folded into them.
+---
+
+# 0139 — Submit Upwork proposal: Solar LED Prototype
 
 ## Context
 
