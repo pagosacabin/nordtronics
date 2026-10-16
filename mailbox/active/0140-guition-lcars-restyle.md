@@ -1,9 +1,12 @@
 ---
 task_id: "0140"
 protocol_version: 1.0.0
-status: filed
-iteration: 1
+status: in_progress
+iteration: 2
 expect-reply-within: 6h
+notes: "Pickup 2026-10-16T19:17Z (cronrunner, off-peak tick). Filed as `status: filed`
+  (not one of the protocol's states) -- normalised to `in_progress` at pickup per
+  mailbox/README.md, and `iteration` incremented 1 -> 2 as the transition requires."
 ---
 
 # 0140 — Guition panel LCARS restyle (Star Trek TNG feel)
