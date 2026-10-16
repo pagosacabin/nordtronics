@@ -361,6 +361,16 @@ ESPHome compile), the OTA image's sha256, `Status: success`.
 
 ## Corrections and declared deviations
 
+0. **The reference composition was not inspected.** `https://i.pinimg.com/originals/6a/1f/d7/6a1fd710ea257bebbb95a410806cb242.png`
+   could not be read: this session has no vision tool, so the composition was derived from the
+   four defects the spec enumerates plus the LCARS conventions this project already encodes
+   (elbow frame that structures the page, pills carrying black text, readings large on black,
+   one margin for content). What that means for verification: "does it look like the
+   reference?" is not something this reply can claim, and it is the second thing worth Stephen's
+   eye after the layout rhythm. The default composition I chose leaves the area to the right of
+   the SOC number (x 210..471, y 42..145) as open black — the "let the content breathe" option,
+   not an omission, but it is the most visible judgement call in the page and it is worth a
+   direct look if the reference wants that space filled.
 1. **Preview text anchor** (above) — fixed, in scope via "layout tooling only", declared.
 2. **One-line change to the repo-root `.gitignore`** — added the audit's scratch output; a pure
    addition.
