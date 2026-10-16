@@ -210,7 +210,7 @@ config_hash `0xc50f5cb9`, build_time_str `2026-10-16 13:20:44 -0600`.
 
 `tools/preview.py` was updated to mirror the new geometry and re-rendered, and a separate
 audit script re-derives every box from the lambda's own numbers and checks the pixels in
-that render. 40 checks, all PASS:
+that render. 43 checks, all PASS:
 
 ```
 palette   all six hexes present as exact fills -- orange 17173 px, periwinkle 9949,
