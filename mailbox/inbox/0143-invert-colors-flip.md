@@ -18,13 +18,15 @@ the panel with INVOFF (no 0x20/0x21 record in the init table). Stephen has
 approved the flip experiment.
 
 Stephen's photo of the current screen is committed alongside this task at
-`mailbox/files/0143-panel-photo.jpg` — it shows the 0140 build on the glass:
-blue where the render has orange, lime where the render has purple. His verdict:
-"things are wonky." The photo also shows layout crowding (SOC pill cramped
-against the frame, label pills dwarfed by the values, a wide bottom bar not
-earning its space) — BUT the photo is the 0140 build and 0141's lambda revision
-may already have changed the layout. Judge layout against the NEW build, not
-this photo; this photo's job is color comparison.
+`mailbox/files/0143-panel-photo.jpg` — CORRECTION (Stephen, 15:23 MDT): the photo
+(sent 14:47 MDT) shows the CURRENT 0141 build on the glass (flashed 14:28 MDT,
+"compiled on 2026-10-16 14:28:11 -0600"), not the 0140 build. So the inversion is
+eating 0141's canonical palette too: blue where the render has orange, lime where
+the render has purple. His verdict: "things are wonky." The layout crowding is
+therefore LIVE in the current build: SOC pill cramped against the frame, label
+pills dwarfed by the values, a wide bottom bar not earning its space. Sequence:
+flip the colors first (this photo's primary job is color comparison), then the
+layout gets its own pass against the corrected-color build.
 
 ## Task
 1. Compare `mailbox/files/0143-panel-photo.jpg` against your
