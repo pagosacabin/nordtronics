@@ -18,7 +18,8 @@ parked — this task is layout only. Two references:
   https://i.pinimg.com/originals/6a/1f/d7/6a1fd710ea257bebbb95a410806cb242.png
 
 Known geometry issues, from the photo:
-1. The "PACK SOC %" pill is cramped against the frame's top-left elbow.
+1. The left-side pill ("PACK SOC %") is jammed against the frame's top-left
+   elbow — it needs clear space on all sides, not just a nudge.
 2. The stat label pills (PACK V / CHARGE / TEMP) are dwarfed by their values
    and misaligned with them — label and value don't read as a unit.
 3. A wide bar across the bottom isn't earning its space; the segmented bars
