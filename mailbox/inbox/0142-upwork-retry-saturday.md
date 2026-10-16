@@ -20,14 +20,29 @@ Stephen wants a retry Saturday morning — the gate may be transient, or he may
 have corrected account-side location/identity settings overnight. The 0139
 proposal text is intact (see mailbox/archive/0139-upwork-submit-solar-led-proposal.md).
 
+UPDATE 2026-10-16 ~14:44 MDT (Stephen's report): Upwork keeps prompting him for
+ID verification on every login and every job application, even though he has
+completed it twice — the site does not recognize it. This matches the 0139
+staged reply's account read: identity_verification {identity_verified: false,
+can_submit_proposals: true}. The "location isn't eligible" refusal is therefore
+most likely a downstream symptom of the unverified-identity state, not his
+actual location. The retry is only meaningful if the verification registers.
+
 ## Timing
 Do NOT execute before Saturday 2026-10-17, 08:00 MDT. Picking this up Friday
 defeats the purpose — the retry is predicated on overnight change.
 
 ## Task
-Saturday morning after 08:00 MDT, retry the proposal submit for job
-~022110739515688940235 using the same flow as 0139 and the archived 0139
-proposal text (do not rewrite the proposal).
+Saturday morning after 08:00 MDT:
+
+1. FIRST, query the account's identity verification status via the Upwork API
+   (the same read that returned identity_verified: false under 0139).
+   - If it still reads unverified/false: do NOT attempt the submit. Report
+     the status and stop — the location wall will reproduce deterministically.
+   - If it reads verified/true, or the status check is inconclusive: proceed
+     to step 2.
+2. Retry the proposal submit for job ~022110739515688940235 using the same flow
+   as 0139 and the archived 0139 proposal text (do not rewrite the proposal).
 
 - If the submit SUCCEEDS: report the proposal ID and Connects spent.
 - If it hits the SAME location wall: make exactly ONE attempt. Do NOT retry,
@@ -46,8 +61,9 @@ proposal text (do not rewrite the proposal).
 - One submit attempt on refusal, then report. No loops.
 
 ## Success criteria
-1. Either: proposal submitted (report proposal ID + Connects spent), or: the
-   location refusal reproduced once with exact error text/code/trace ID.
+1. Either: identity still unverified → no submit attempted, status reported; or:
+   proposal submitted (report proposal ID + Connects spent); or: the location
+   refusal reproduced once with exact error text/code/trace ID.
 2. No more than one submit attempt if refused.
 3. No token values in the staged reply or logs.
 
