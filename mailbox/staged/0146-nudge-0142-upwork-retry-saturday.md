@@ -1,9 +1,40 @@
 ---
 task_id: "0146"
 protocol_version: 1.0.0
-status: in_progress
+status: staged
 iteration: 1
 expect-reply-within: 6h
+proof:
+  - branch: main
+    repo: pagosacabin/nordtronics
+    sha: fe2ebce1bbe8641abe4adbb124207dd1933d6f29
+  - run: https://github.com/pagosacabin/nordtronics/actions/runs/39044298882
+  - evidence: mailbox/active/0142-upwork-retry-saturday.md at commit cc3c79b91f03bc6321fb18f04f2e1b2b798eb984
+  - files:
+      - mailbox/inbox/0146-nudge-0142-upwork-retry-saturday.md -> mailbox/staged/0146-nudge-0142-upwork-retry-saturday.md
+  - ntfy: none — no compiled artifact, so the build topic does not apply
+proof_note: |
+  The deliverable is a status report about an account-side action, not a repository change:
+  the only file touched is this mailbox task. `branch`/`sha` therefore point at this
+  repository's `main` at the tip the reply was written against — pickup commit
+  fe2ebce1bbe8641abe4adbb124207dd1933d6f29, confirmed on origin
+  (`git ls-remote --heads origin main` = fe2ebce1bbe8641abe4adbb124207dd1933d6f29) — and
+  `run` is that commit's green Website Check (run 39044298882, headSha fe2ebce, conclusion
+  success, created 2026-10-17T15:16:14Z).
+
+  Honest limit, stated so it is not read as stronger than it is: the staging commit itself
+  becomes the new tip and cannot cite its own run, so the cited sha is the tip *at staging*,
+  one mailbox-only commit behind. The website workflow triggers on `on.push.branches: [main]`
+  with no `paths` filter, so every mailbox push to main does start a run — that run compiles
+  and checks the `website/` tree and says nothing about the contents of this file. The other
+  five workflows cannot fire here at all (android-build `branches: [android-toolchain-setup]`,
+  android-companion-v0 an explicit branch allow-list + `android/companion-v0/**` paths,
+  backend `backend/**`, platformio `firmware/**` + `python/detection-sim/**`,
+  detection-sim `python/detection-sim/**`).
+
+  `evidence` is the pointer that actually matters: the blocked report this nudge asked for,
+  committed to main 155 seconds after the nudge was generated. Verified read-only with
+  `git show cc3c79b --stat` and `git ls-tree origin/main mailbox/active/`.
 notes: |
   Pickup 2026-10-17 15:15 UTC (09:15 MDT), off-peak (PEAK: OFF-PEAK 15:15 UTC),
   protocol MATCH 1.0.0. The file arrived with NO front-matter (two body lines only),
@@ -75,19 +106,19 @@ numbers above are quoted from the committed report, and are labelled as such.
 
 ## Proof
 
-There is no branch, no SHA of my own and no build artifact for this task: the deliverable
-is a status report about an account-side action, and the only repository change is this
-mailbox file. The pointers below are the durable evidence a verifier can check.
+There is no branch of my own and no build artifact for this task: the deliverable is a status
+report about an account-side action, and the only repository change is this mailbox file.
+The pointers in the front-matter are the durable evidence a verifier can check.
 
-- `evidence`: `mailbox/active/0142-upwork-retry-saturday.md` @ commit `cc3c79b` on `main`
-  (the status update this nudge requested)
-- `files`: `mailbox/inbox/0146-nudge-0142-upwork-retry-saturday.md` →
-  `mailbox/staged/0146-nudge-0142-upwork-retry-saturday.md` only (no code, no artifact)
-- `run`: the push of this staging commit to `main` does start `website-check.yml`
-  (`on.push.branches: [main]`, no `paths` filter — the other five workflows are
-  branch- or path-filtered and cannot fire on a `mailbox/` change). That run validates
-  the website tree, **not** the mailbox, so it is cited as the branch's CI state and
-  explicitly not as evidence about this reply.
+- `sha` / `run`: `main` @ `fe2ebce1bbe8641abe4adbb124207dd1933d6f29` and its green Website
+  Check, run [39044298882](https://github.com/pagosacabin/nordtronics/actions/runs/39044298882)
+  (`headSha` = `fe2ebce`, conclusion `success`). Stated plainly: that workflow checks the
+  `website/` tree, not this file — it is the branch's CI state, not evidence about the reply.
+  The five other workflows cannot fire on a `mailbox/` push (branch allow-lists or path
+  filters under `android/`, `backend/`, `firmware/`, `python/detection-sim/`).
+- `evidence`: `mailbox/active/0142-upwork-retry-saturday.md` @ `cc3c79b` on `main` — the
+  status update this nudge requested, checked with `git show cc3c79b --stat`.
+- `files`: this task file only, `mailbox/inbox/0146-...md` → `mailbox/staged/0146-...md`.
 - No ntfy receipt: no compiled artifact, so the build topic does not apply.
 
 ## Deviations
