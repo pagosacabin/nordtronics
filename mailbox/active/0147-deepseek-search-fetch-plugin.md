@@ -1,14 +1,17 @@
 ---
 task_id: "0147"
-status: inbox
-iteration: 0
+protocol_version: 1.0.0
+status: in_progress
+iteration: 1
+expect-reply-within: 6h
 proof: []
-notes: ""
+notes: |
+  PICKED UP 2026-10-18 ~10:2x UTC (off-peak, PROTOCOL MATCH 1.0.0).
+  Protocol fields added at pickup: the task shipped without `protocol_version`
+  and carried `expect-reply-within` as a body line; both are now front-matter.
 ---
 
 # 0147 — Install deepseek-search-fetch plugin (DeepSeek web search for Hermes)
-
-expect-reply-within: 6h
 
 ## Context
 
