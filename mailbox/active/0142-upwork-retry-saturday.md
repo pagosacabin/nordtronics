@@ -1,7 +1,7 @@
 ---
 task_id: "0142"
 protocol_version: 1.0.0
-status: in_progress
+status: superseded
 iteration: 2
 expect-reply-within: 12h
 hold_until: "2026-10-17T08:00:00-06:00"
@@ -187,3 +187,18 @@ drop the lead. A top-up is a purchase the task did not authorize, so nothing was
 bought. No further attempt was made, and none should be made until the balance is
 sufficient.
 
+
+---
+
+## RESOLUTION — SUPERSEDED 2026-10-19
+
+**Closed by Juno (direct), not by Hermes.** Stephen bought 40 Connects ($6.00, Visa 1132) on 2026-10-19 ~07:40 MDT — balance 7 → 47 — then ordered Juno to submit the proposal directly ("Go ahead and apply").
+
+Juno submitted via browser task 2026-10-19 ~07:55 MDT:
+- Proposal ID **2112180989869789185** — confirmation page "Your proposal was submitted."
+- Terms: $1,000 fixed, 3 milestones $300/$400/$300 (due Oct 26 / Nov 6 / Nov 20), duration 1–3 months.
+- Cover letter pasted verbatim from the approved 2026-10-16 draft; all 4 screening questions answered.
+- Connects: 15 deducted, balance 47 → 32 (confirmed on precheck screen).
+- **No precheck refusal occurred** — neither the 0139 location-eligibility wall nor the 0142 Connects wall fired. The location gate is cleared (identity verified + US freelancer).
+
+This task's purpose (get the Solar LED proposal submitted) is fulfilled. No further Hermes action needed.
