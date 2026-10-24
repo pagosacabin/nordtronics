@@ -1,3 +1,13 @@
+---
+task_id: "0151"
+protocol_version: 1.0.0
+status: in_progress
+iteration: 1
+expect-reply-within: 6h
+notes: |
+  PICKED UP 2026-10-24 17:15 UTC (PEAK: OFF-PEAK, PROTOCOL MATCH 1.0.0).
+  No front-matter was present on arrival; protocol fields added at pickup.
+---
 # 0151 — ai-job-search pilot run (0149 follow-up, seed now in place)
 
 expect-reply-within: 6h
