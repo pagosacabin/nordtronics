@@ -1,0 +1,42 @@
+plugins {
+    id 'com.android.application' version '8.3.0'
+}
+
+// Build stamp: generated at configure time so the installed APK visibly carries
+// the identity of the build that produced it (task 0153 success criterion).
+def buildStamp = new Date().format("yyyy-MM-dd HH:mm 'UTC'", TimeZone.getTimeZone("UTC"))
+def buildSha = (System.getenv("GITHUB_SHA") ?: "local").take(7)
+
+android {
+    namespace 'com.nordtronics.factorydemo'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId = "com.nordtronics.factorydemo"
+        minSdk = 24
+        targetSdk = 35
+        versionCode = 1
+        versionName = "1.0"
+
+        buildConfigField "String", "BUILD_STAMP", "\"${buildStamp}\""
+        buildConfigField "String", "BUILD_SHA", "\"${buildSha}\""
+    }
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+// No dependencies: the demo screen is built from platform widgets only, which
+// keeps the build to a single module with nothing to resolve beyond the SDK.

@@ -1,0 +1,43 @@
+name: Factory demo app (0153)
+
+# Task 0153: the demo must actually trigger CI, so this workflow carries its own
+# branch allow-list and path filter. Pushing the workflow file itself is one of
+# the watched paths, so the first push of this branch starts the run.
+on:
+  push:
+    branches: [hermes/0153-factory-demo]
+    paths:
+      - 'android/factory-demo/**'
+      - '.github/workflows/factory-demo.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: android/factory-demo
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: 'platforms;android-35 build-tools;35.0.0 platform-tools'
+
+      - name: Assemble debug APK
+        run: chmod +x gradlew && ./gradlew --no-daemon assembleDebug
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: factory-demo-debug-apk
+          path: android/factory-demo/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
