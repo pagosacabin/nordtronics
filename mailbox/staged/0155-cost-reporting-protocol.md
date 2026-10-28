@@ -53,9 +53,16 @@ notes: |
   in it (1-2 calls, well under $0.001). No number below is estimated; every
   token count is a stored counter.
 
-  (b) DIFF SUMMARY — `git diff --name-only main` on the branch returns
-  exactly one path: mailbox/README.md. `git diff --stat main` = 1 file
-  changed, 42 insertions(+), 1 deletion(-). The four hunks are the four the
+  (b) DIFF SUMMARY — the branch's base is 7859c2e (the 0155 pickup commit,
+  which was main when the branch was cut from it). `git diff --name-only
+  7859c2e origin/hermes/0155-cost-reporting` returns exactly one path:
+  mailbox/README.md; `git diff --stat 7859c2e <branch>` = 1 file changed,
+  42 insertions(+), 1 deletion(-). Diff against CURRENT main instead shows
+  three paths, and that is expected rather than a scope violation: main has
+  since advanced by this task's own transitions (7859c2e pickup,
+  a0d2644 active->staged), so the task file's move appears in the
+  comparison. The branch itself edits no task file — verify with
+  `git diff --name-only 7859c2e <branch>`. The four hunks are the four the
   spec names, byte-compared against this task's patch text rather than
   eyeballed: the changelog entry (201 chars) and the front-matter bullet
   (212 chars) each occur in the README exactly once and match the spec block
