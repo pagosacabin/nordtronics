@@ -1,6 +1,6 @@
 # Mailbox protocol — global rules
 
-protocol_version: 1.0.0
+protocol_version: 1.1.0
 
 ## Protocol versioning
 
@@ -11,6 +11,9 @@ in the previous format, carrying the exact skill-patch text to apply verbatim.
 ## Changelog
 
 - 1.0.0 — 2026-09-23: baseline. Existing rules versioned; no behavior change.
+- 1.1.0 — 2026-10-28: cost reporting. Staged replies carry a `cost`
+  field (see "Cost format" below), reporting DeepSeek API usage summed
+  across the task's API calls and the calculated cost in USD.
 
 The mailbox is a state machine. Task files move through directories; every
 transition is a `git mv` + commit + push. Never copy a task file — move it.
@@ -38,6 +41,10 @@ Every task file starts with YAML front-matter. Only these fields:
 - `iteration`: integer, starts at 0
 - `proof`: pointers to durable evidence (branch tip SHA, Actions run URL). Required on `staged`.
 - `notes`: freeform. Juno's verification feedback goes here on rejection.
+- `cost`: DeepSeek API usage and calculated cost for the task. See
+  "Cost format" below. Required on `staged` from 1.1.0 onward, or
+  `unknown` with a plain reason if the harness cannot report per-call
+  usage.
 
 The body stays freeform markdown — specs, context, reply format.
 
@@ -69,6 +76,40 @@ full proof, but no ntfy notification went out because the spec never asked for o
 The verifier is `~/workspace/hermes-tools/verify-staged.py` on Juno's side —
 it checks every pointer against the live GitHub API. Pasted terminal output
 is not proof and is ignored.
+
+## Cost format
+
+Write `cost` in the staged front-matter, summed from the DeepSeek API
+usage objects of every API call the task made — not from cumulative
+dashboard totals:
+
+```yaml
+cost:
+  model: deepseek-flash
+  api_calls: 12
+  input_tokens: 85000
+  input_cache_hit_tokens: 40000
+  input_cache_miss_tokens: 45000
+  output_tokens: 12000
+  total_tokens: 97000
+  search_requests: 0
+  rate_window: off-peak
+  rates_used: "$0.15/M input miss, $0.003/M input hit, $0.60/M output"
+  cost_usd: 0.014
+```
+
+- `model`: the model actually used (deepseek-flash by default,
+  deepseek-v4-pro only when the task named it).
+- `rate_window`: off-peak | peak | mixed, decided per call timestamp
+  (peak = 01:00-04:00 and 06:00-10:00 UTC weekdays).
+- `cost_usd`: input_miss x miss rate + input_hit x hit rate +
+  output x output rate + search_requests x $0.00075. State the rates
+  used; do not copy a rate card blindly, rates change.
+- If the harness cannot see per-call usage, set the token and cost
+  fields to `unknown` and state why in `notes`. Never estimate a
+  cost and present it as API usage.
+- Juno verifies the arithmetic (tokens x rates = cost_usd) before
+  archive, the same as branch SHA / run URL verification.
 
 ## Rules
 
