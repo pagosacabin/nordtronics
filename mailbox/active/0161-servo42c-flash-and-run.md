@@ -1,3 +1,21 @@
+---
+task_id: "0161"
+protocol_version: 1.0.0
+status: in_progress
+iteration: 1
+expect-reply-within: 6h
+notes: |
+  Picked up 2026-10-30 23:15 UTC (17:15 MDT), off-peak (PEAK: OFF-PEAK 23:15 UTC),
+  PROTOCOL MATCH 1.0.0. This file shipped without front-matter except a body-level
+  `expect-reply-within` line; the protocol fields were added at pickup and that line
+  was folded into the front-matter (declared here as required by the worker rules).
+
+  Hardware identified before any write: one serial device on the host,
+  /dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0
+  -> /dev/ttyUSB0, and a read-only esptool probe answered ESP32-D0WD-V3 (rev v3.1),
+  MAC 84:1f:e8:30:a8:50. 0142 is skipped (status: superseded, closed by Juno's
+  2026-10-19 resolution); 0159 is skipped (decision-blocked, not resumable).
+---
 # 0161 — Flash the SERVO42C test sketch and run the bench self-test
 
 ## Context
@@ -27,4 +45,3 @@ Task 0160 staged the MKS SERVO42C UART research + ESP32 bench self-test sketch o
 ## Reply format
 Staged reply per the mailbox README on main (protocol 1.0.0): summary, proof pointers, notes field.
 
-expect-reply-within: 6h
