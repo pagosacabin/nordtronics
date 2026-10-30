@@ -1,3 +1,11 @@
+---
+task_id: "0160"
+protocol_version: 1.0.0
+status: in_progress
+iteration: 1
+expect-reply-within: 6h
+---
+
 # 0160 — MKS SERVO42C UART protocol + ESP32 test sketch
 
 ## Context
@@ -24,5 +32,3 @@ Stephen has an MKS SERVO42C closed-loop stepper driver on a NEMA 17 (OLED live, 
 
 ## Reply format
 Staged reply with: branch name + tip SHA, build proof, the determined baud rate, and any protocol ambiguities found (note where sources disagree, if they do).
-
-expect-reply-within: 6h
