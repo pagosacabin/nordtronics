@@ -1,0 +1,38 @@
+=== 0161 UART diagnostic sweep (read-only 0x36/0x30) ===
+  baud 38400 : idle bytes in 300ms = 0
+    addr 0xE0 chk  -> 0 bytes
+    addr 0x00 chk  -> 0 bytes
+    addr 0x01 chk  -> 0 bytes
+    addr 0x02 chk  -> 0 bytes
+    addr 0xE0 plain -> 0 bytes
+  baud 9600 : idle bytes in 300ms = 0
+    addr 0xE0 chk  -> 0 bytes
+    addr 0x00 chk  -> 0 bytes
+    addr 0x01 chk  -> 0 bytes
+    addr 0x02 chk  -> 0 bytes
+    addr 0xE0 plain -> 0 bytes
+  baud 19200 : idle bytes in 300ms = 0
+    addr 0xE0 chk  -> 0 bytes
+    addr 0x00 chk  -> 0 bytes
+    addr 0x01 chk  -> 0 bytes
+    addr 0x02 chk  -> 0 bytes
+    addr 0xE0 plain -> 0 bytes
+  baud 57600 : idle bytes in 300ms = 0
+    addr 0xE0 chk  -> 0 bytes
+    addr 0x00 chk  -> 0 bytes
+    addr 0x01 chk  -> 0 bytes
+    addr 0x02 chk  -> 0 bytes
+    addr 0xE0 plain -> 0 bytes
+  baud 115200 : idle bytes in 300ms = 0
+    addr 0xE0 chk  -> 0 bytes
+    addr 0x00 chk  -> 0 bytes
+    addr 0x01 chk  -> 0 bytes
+    addr 0x02 chk  -> 0 bytes
+    addr 0xE0 plain -> 0 bytes
+  baud 4800 : idle bytes in 300ms = 0
+    addr 0xE0 chk  -> 0 bytes
+    addr 0x00 chk  -> 0 bytes
+    addr 0x01 chk  -> 0 bytes
+    addr 0x02 chk  -> 0 bytes
+    addr 0xE0 plain -> 0 bytes
+=== sweep complete ===
