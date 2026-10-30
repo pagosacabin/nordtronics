@@ -16,7 +16,7 @@ Task 0160 staged the MKS SERVO42C UART research + ESP32 bench self-test sketch o
 
 ## Constraints
 - Default model tier (keep the spend ordinary).
-- If no ESP32 appears on USB (by-id), STOP and report that — do not guess at ports or flash anything else.
+- Stephen confirms this is the ONLY ESP32 currently plugged into the host — everything else is unplugged. If no ESP32 appears on USB (by-id), STOP and report that — do not guess at ports or flash anything else.
 - Read-only toward everything that isn't the target ESP32. Do not touch the driver's wiring or power.
 - If the self-test hangs (no output for 60s after reset), report the hang point and stop.
 
