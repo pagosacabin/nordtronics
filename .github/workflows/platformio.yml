@@ -8,6 +8,7 @@ on:
       - 'firmware/tank-monitor/**'
       - 'firmware/node-v1/**'
       - 'firmware/wildfire-node-v1/**'
+      - 'firmware/servo42c-uart-test/**'
       - 'python/detection-sim/**'
       - '.github/workflows/platformio.yml'
   pull_request:
@@ -15,6 +16,7 @@ on:
       - 'firmware/tank-monitor/**'
       - 'firmware/node-v1/**'
       - 'firmware/wildfire-node-v1/**'
+      - 'firmware/servo42c-uart-test/**'
       - 'python/detection-sim/**'
   workflow_dispatch:
 
@@ -64,6 +66,10 @@ jobs:
       # base station runs the same image as the node.
       - name: Build firmware (wildfire-node-v1, unified node+base)
         run: pio run -d firmware/wildfire-node-v1 -e heltec_v4
+
+      # MKS SERVO42C UART bench self-test sketch (task 0160).
+      - name: Build firmware (servo42c-uart-test)
+        run: pio run -d firmware/servo42c-uart-test
 
       # The flashable image for the unified firmware (same binary for both roles).
       - name: Upload wildfire-node-v1 firmware
