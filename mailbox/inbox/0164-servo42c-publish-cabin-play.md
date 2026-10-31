@@ -6,7 +6,7 @@ The SERVO42C UART thread (0160 research, 0162 bench retest at 9600, 0163 move re
 ## Task
 1. Take the final working version of the sketch + PROTOCOL.md (the 0163-corrected state once that task stages; if 0163 hasn't staged yet, wait for it — publish the corrected version, not an intermediate).
 2. Push them to **pagosacabin/cabin-play** under `servo42c-uart-test/` (sketch, PROTOCOL.md, plus a short README.md: what it is, the wiring — ESP32 TX2/RX2 to driver RX/TX, common GND, 12–24V VIN — the OLED settings it needs — UART mode enabled, 9600 baud, addr 0xE0, MStep as configured — and how to run the self-test).
-3. Push via **SSH from your laptop**. Do NOT use the gh.py API credential for this — it is nordtronics-scoped and API writes to cabin-play return 403 (known since task 0136, which was pushed via SSH).
+3. Push from your laptop using a GitHub write path you can prove reaches cabin-play. SSH is proven (task 0136 went that way). Do NOT use the gh.py API credential — it is nordtronics-scoped and its API writes to cabin-play return 403. If you have your own API token, verify it with a read against cabin-play before writing.
 
 ## Success criteria
 - `servo42c-uart-test/` live on cabin-play main with the sketch, PROTOCOL.md, and README.md.
@@ -14,7 +14,7 @@ The SERVO42C UART thread (0160 research, 0162 bench retest at 9600, 0163 move re
 
 ## Constraints
 - Default model tier.
-- SSH push only for the cabin-play write. Don't restructure anything else in the repo.
+- Use your own proven write path for the cabin-play push (not the gh.py credential). Don't restructure anything else in the repo.
 
 ## Proof
 - Commit SHA on cabin-play main + file listing of the new directory.
