@@ -1,0 +1,102 @@
+ets Jul 29 2019 12:21:46
+
+rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+configsip: 0, SPIWP:0xee
+clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+mode:DIO, clock div:2
+load:0x3fff0030,len:6380
+ho 0 tail 12 room 4
+load:0x40078000,len:15916
+load:0x40080400,len:3860
+entry 0x40080630
+I (29) boot: ESP-IDF 5.5.1 2nd stage bootloader
+I (29) boot: compile time Jan 12 2026 10:16:19
+I (29) boot: Multicore bootloader
+I (31) boot: chip revision: v3.1
+I (33) boot.esp32: SPI Speed      : 40MHz
+I (37) boot.esp32: SPI Mode       : DIO
+I (41) boot.esp32: SPI Flash Size : 4MB
+I (44) boot: Enabling RNG early entropy source...
+I (49) boot: Partition Table:
+I (51) boot: ## Label            Usage          Type ST Offset   Length
+I (58) boot:  0 otadata          OTA data         01 00 00009000 00002000
+I (64) boot:  1 phy_init         RF data          01 01 0000b000 00001000
+I (71) boot:  2 app0             OTA app          00 10 00010000 001c0000
+I (77) boot:  3 app1             OTA app          00 11 001d0000 001c0000
+I (84) boot:  4 nvs              WiFi data        01 02 00390000 0006d000
+I (90) boot: End of partition table
+I (94) esp_image: segment 0: paddr=00010020 vaddr=3f400020 size=0d850h ( 55376) map
+I (120) esp_image: segment 1: paddr=0001d878 vaddr=3ffbdb60 size=027a0h ( 10144) load
+I (124) esp_image: segment 2: paddr=00020020 vaddr=400d0020 size=2295ch (141660) map
+I (173) esp_image: segment 3: paddr=00042984 vaddr=3ffc0300 size=01900h (  6400) load
+I (175) esp_image: segment 4: paddr=0004428c vaddr=40080000 size=0e1fch ( 57852) load
+I (206) boot: Loaded app from partition at offset 0x10000
+I (206) boot: Disabling RNG early entropy source...
+E (229) esp_core_dump_flash: No core `fW partition found!
+E (229) esp_core_dump_flash: No core dump partition found!
+
+=== MKS SERVO42C UART bench self-test (build 0162) ===
+UART2 9600 8N1  addr 0xE0  RX=GPIO16 TX=GPIO17
+Assume MStep=16, motor 200 full steps -> 3200 pulses/rev, 90 deg = 800 pulses
+-- probing driver framing (0x36 both generations) --
+    TX: E0 36 16
+    RX: E0 FF FF FE B5 91
+STEP 1: uart framing / protocol                PASS  (V1.1 firmware, checksummed frames)
+    TX: E0 36 16
+    RX: B2 E0 FF FF FE B5 91
+STEP 2: read shaft angle (0x36)                PASS  (raw 65205 = 358.18 deg)
+    TX: E0 39 19
+    RX: E0 00 00 E0
+STEP 3: read following error (0x39)            PASS  (raw 0 = 0.00 deg)
+    TX: E0 F3 01 D4
+    RX: 5F D4 E0 01 E1
+    TX: E0 3A 1A
+    RX: E0 01 E1
+STEP 4: motor enable (0xF3=01, 0x3A)           PASS  (ack=1 status=0x01)
+    TX: E0 FD 10 00 00 03 20 10
+    RX: E0 FD 10 00 E0 01 E1
+STEP 5: command +90 deg move (0xFD)            PASS  (800 pulses fwd @ gear 16)
+    TX: E0 36 16
+    RX: E0 FF FF F1 B0 7F
+    TX: E0 36 16
+    RX: E0 36 16 E0 FF FF ED F8 C3
+    TX: E0 36 16
+    RX: E0 36 16 E0 FF FF ED F8 C3
+    TX: E0 36 16
+    RX: E0 36 16 E0 FF FF ED FC C7
+    TX: E0 36 16
+    RX: E0 36 16 E0 FF FF EE 00 CC
+    TX: E0 36 16
+    RX: E0 36 16 E0 FF FF EE 04 D0
+    TX: E0 36 16
+    RX: E0 36 16 E0 FF FF EE 04 D0
+STEP 6: measured move is +90 deg               FAIL  (moved -23.47 deg in time)
+HINT: -23.47 deg measured for 800 pulses -> set STEP_SUBDIVISION to the MStep shown on the OLED (expected 16).
+    TX: E0 FD 90 00 00 03 20 90
+    RX: E0 FD 90 00 00 CF FE E0 01 E1
+STEP 7: command return move (0xFD rev)         PASS  (800 pulses rev @ gear 16)
+    TX: E0 36 16
+    RX: E0 F6 E0 FF FF FB B5 8E
+    TX: E0 36 16
+    RX: E0 36 16 E0 00 00 00 0C EC
+    TX: E0 36 16
+    RX: E0 36 16 E0 00 00 00 0C EC
+    TX: E0 36 16
+    RX: E0 36 16 E0 00 00 00 08 E8
+    TX: E0 36 16
+    RX: E0 36 16 E0 00 00 00 08 E8
+    TX: E0 36 16
+    RX: E0 36 16 E0 00 00 00 08 E8
+    TX: E0 36 16
+    RX: E0 36 16 E0 00 00 00 04 E4
+STEP 8: returned to start angle                PASS  (residual 1.84 deg from start)
+    TX: E0 F7 D7
+    RX: E0 01 E1
+    TX: E0 3E 1E
+    RX: E0 02 E2
+INFO: shaft status 0x02 (unblocked)
+    TX: E0 33 13
+    RX: F3 A6 62 00 00 00 00 E0
+
+SELF-TEST: FAIL (1 of 8 steps failed)
+=== self-test complete ===
