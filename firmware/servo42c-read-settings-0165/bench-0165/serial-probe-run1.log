@@ -1,0 +1,71 @@
+===
+SERVO42C settings-read probe — 0165-A (read-only settings probe)
+link: UART2 9600 8N1, addr 0xE0
+READ-ONLY: queries only, no set/restore/enable/move frames
+==========================================================
+framing: V1.1 (checksum, 6-byte 0x36 reply)
+
+PROBE func=0x30  documented: encoder u16
+  TX: E0 30 10
+  RX: E0 FF FF FF FF FE CD A7  (raw_len=8)
+  reply_frame_start=0  payload_len=6
+
+PROBE func=0x33  documented: received pulses i32 | CLAIMED: work mode
+  TX: E0 33 13
+  RX: E0 00 00 00 00 E0  (raw_len=6)
+  reply_frame_start=0  payload_len=4
+  decode: pulses=0
+
+PROBE func=0x36  documented: shaft angle i32
+  TX: E0 36 16
+  RX: E0 00 00 00 00 E0  (raw_len=6)
+  reply_frame_start=0  payload_len=4
+  decode: angle_raw=0  deg=0.00
+
+PROBE func=0x39  documented: following error i16
+  TX: E0 39 19
+  RX: E0 00 00 E0  (raw_len=4)
+  reply_frame_start=0  payload_len=2
+  decode: error=0
+
+PROBE func=0x3A  documented: En pin status u8 | CLAIMED: motor current mA
+  TX: E0 3A 1A
+  RX: E0 3A BA E0 01 E1  (raw_len=6)
+  reply_frame_start=3  payload_len=1
+  decode: en_status=0x1
+
+PROBE func=0x3E  documented: shaft status u8
+  TX: E0 3E 1E
+  RX: E0 E0 02 E2  (raw_len=4)
+  reply_frame_start=1  payload_len=1
+  decode: shaft_status=0x2
+
+PROBE func=0x31  CLAIMED: multi-turn position (not in MKS table)
+  TX: E0 31 11
+  RX: E0 00 E0  (raw_len=3)
+  reply_frame_start=0  payload_len=1
+  decode: raw_payload= 00
+
+PROBE func=0x32  CLAIMED: microstep read-back (not in MKS table)
+  TX: E0 32 12
+  RX: E0 00 E0  (raw_len=3)
+  reply_frame_start=0  payload_len=1
+  decode: raw_payload= 00
+
+PROBE func=0x32  CLAIMED 0x32, second attempt (repeatability)
+  TX: E0 32 12
+  RX: E0 00 E0  (raw_len=3)
+  reply_frame_start=0  payload_len=1
+
+----------------------------------------------------------
+SUMMARY
+  0x30 payload_len=6
+  0x31 payload_len=1
+  0x32 payload_len=1
+  0x33 payload_len=4
+  0x36 payload_len=4
+  0x39 payload_len=2
+  0x3A payload_len=1
+  0x3E payload_len=1
+  0x3F NOT SENT: MKS documents it as RESTORE DEFAULTS (write).
+PROBE-COMPLETE

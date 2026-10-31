@@ -76,7 +76,11 @@ print which generation answered — do not assume.
 | Zero-mode: set reference zero | `e0 91 00 tCHK` | `01` ok (requires `0_Mode`, cmd `0x90`, set first) | https://github.com/makerbase-mks/MKS-SERVO42C/wiki/Serial-communication-description |
 | Zero-mode: go home | `e0 94 00 tCHK` | `01` ok | https://github.com/makerbase-mks/MKS-SERVO42C/wiki/Serial-communication-description |
 | Save / clear power-on run | `e0 ff c8 TCHK` / `e0 ff ca` | `01` ok (driver disables itself after save) | https://github.com/makerbase-mks/MKS-SERVO42C/wiki/Serial-communication-description |
-| Restore defaults | `e0 3f tCHK` | `01` ok (serial settings then need re-set) | https://github.com/makerbase-mks/MKS-SERVO42C/wiki/Serial-communication-description |
+| Restore defaults | `e0 3f tCHK` | `01` ok (serial settings then need re-set) — **a write: never send it to "query" anything** | https://github.com/makerbase-mks/MKS-SERVO42C/wiki/Serial-communication-description |
+
+**Reads vs writes, in one line (verified on hardware, 0165):** the six codes
+`0x30 0x33 0x36 0x39 0x3A 0x3E` are the *only* read commands, and all six return
+live physical values. Every setting is write-only — see §6.
 
 No command carries a version/identity string: `0x3F` is *restore defaults*, not a
 firmware query, so this sketch reports the framing generation as its identity
@@ -129,7 +133,9 @@ honest absolute check available on this firmware.
    the pulse count for a given angle depends on it. The sketch takes it as a
    compile-time constant (`STEP_SUBDIVISION`) and prints an explicit corrective
    hint when the measured move disagrees with the commanded one, instead of
-   silently writing the driver's settings.
+   silently writing the driver's settings. Verified on hardware in 0165 — no
+   settings readout exists at all (§6); MStep can only be *measured* from the
+   `0x33`/`0x36` pair after a known move.
 5. **The `0xFD` direction bit is not the drive's `Dir` setting.** Measured on this
    unit (2026-10-31): with the OLED `Dir` on **CW**, `0xFD` with bit7=0 still moves
    the shaft in the **negative** `0x36` direction, and setting `Dir` does not change
@@ -147,3 +153,33 @@ honest absolute check available on this firmware.
    `e0 FF FF FF FF FE DD B7`, which only validates as addr + **6** payload bytes
    (sum `B7`), not the documented `u16` (addr + 2 + chk). The sketch does not use
    `0x30` as evidence; `0x33` and `0x36` carry the proof. Unexplained.
+
+## 6. Settings are not readable over UART (0165, verified on hardware 2026-10-31)
+
+**There is no settings readout on the SERVO42C.** The six read commands in §3
+return live physical values only; every menu parameter is write-only. The probe
+that establishes this is `firmware/servo42c-read-settings-0165/` (read-only; it
+sends no set, restore, enable or move frame), with the run record and quoted
+output in `bench-0165/README.md`.
+
+| Code | Live reply | Payload | Verdict |
+|---|---|---|---|
+| `0x33` | `E0 00 00 00 00 E0` | 4 B `i32` = 0 | pulse counter (0163: tracks ±800 exactly) — **not** a 1-byte work mode |
+| `0x3A` | `E0 01 E1` | 1 B = `01` | En status (enabled) — **not** a current in mA |
+| `0x32` | `E0 00 E0` | 1 B = `00` | generic failure — **not** an MStep read-back |
+| `0x31` | `E0 00 E0` | 1 B = `00` | generic failure — **not** multi-turn position |
+| `0x37` (control, undocumented) | `E0 00 E0` | 1 B = `00` | the same frame as `0x31`/`0x32` ⇒ those are result codes, not data |
+| `0x3F` | **not sent** | — | documented *restore defaults*: a settings wipe, not a version query |
+
+Because `0x37` — a code the manufacturer never defines — answers byte-identically
+to `0x31`/`0x32`, a one-byte `00` on a 42C means "unsupported/failed". Any
+third-party table that reads parameters through `0x31`/`0x32`/`0x3A`/`0x3F` is
+describing a different firmware family (SERVO42D/57D, ZDT/Emm42 style).
+
+What the bench *can* establish, and must therefore take as constants or measure:
+
+| Setting | Established by |
+|---|---|
+| `UartBaud` = 9600, `UartAddr` = `0xE0`, `CtrMode` = `CR_UART` | the link answering at all (proven by use) |
+| `MStep` = 16 | measured: 0163's 3200 pulses spanned 20 480 angle counts = 65 536/rev |
+| `Ma`, `Dir`, `Protect`, `MPlyer`, `AutoSDD`, `MotType`, `Kp/Ki/Kd/ACC/MaxT` | nothing on the wire — OLED only; infer behaviourally at most |
