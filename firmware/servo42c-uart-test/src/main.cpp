@@ -4,7 +4,8 @@
 // Driver: MKS SERVO42C closed-loop stepper (Makerbase), firmware V1.1.x.
 // Protocol reference: firmware/servo42c-uart-test/PROTOCOL.md (cited sources).
 //
-//   UART2 @ 38400 8N1, address 0xE0 (driver default "UartAddr")
+//   UART2 @ 9600 8N1, address 0xE0 (UartAddr default; baud set to 9600 to
+//           match the driver's OLED UartBaud — see 0162)
 //   frame  : <addr> <func> [data...] <chk>      chk = low byte of the byte sum
 //            (firmware V1.0 has NO checksum byte — this sketch probes both)
 //   reply  : <addr> [data...] <chk>             high byte first, 0x01 = ok
@@ -32,7 +33,7 @@
 #include <Arduino.h>
 
 // ----------------------------- configuration -------------------------------
-static const uint32_t DRIVER_BAUD = 38400;   // UartBaud default (MKS manual)
+static const uint32_t DRIVER_BAUD = 9600;    // OLED UartBaud (0162: driver set to 9600)
 static const uint8_t  ADDR        = 0xE0;    // UartAddr default (MKS manual)
 static const int      PIN_RX2     = 16;      // ESP32 UART2 RX  <- driver TX
 static const int      PIN_TX2     = 17;      // ESP32 UART2 TX  -> driver RX
@@ -257,8 +258,8 @@ void setup() {
   Serial.begin(115200);
   delay(500);
   Serial.println();
-  Serial.println("=== MKS SERVO42C UART bench self-test (build 0160) ===");
-  Serial.printf("UART2 38400 8N1  addr 0x%02X  RX=GPIO%d TX=GPIO%d\n",
+  Serial.println("=== MKS SERVO42C UART bench self-test (build 0162) ===");
+  Serial.printf("UART2 9600 8N1  addr 0x%02X  RX=GPIO%d TX=GPIO%d\n",
                 ADDR, PIN_RX2, PIN_TX2);
   Serial.printf("Assume MStep=%u, motor %u full steps -> %lu pulses/rev, "
                 "90 deg = %lu pulses\n",
@@ -279,7 +280,7 @@ void setup() {
                                : "no valid reply on either framing");
   if (proto == PROTO_UNKNOWN) {
     Serial.println("HINTS: check TX/RX swap, common GND, UartAddr=0xE0, "
-                   "UartBaud=38400, CtrMode=CR_UART on the OLED.");
+                   "UartBaud=9600, CtrMode=CR_UART on the OLED.");
     return;   // nothing else is meaningful without a link
   }
 
