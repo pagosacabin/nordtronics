@@ -1,5 +1,5 @@
 ===
-SERVO42C settings-read probe — 0165-A (read-only settings probe)
+SERVO42C settings-read probe — 0165-C (read-only settings probe, 3 attempts/code, controls)
 link: UART2 9600 8N1, addr 0xE0
 READ-ONLY: queries only, no set/restore/enable/move frames
 ==========================================================
@@ -7,12 +7,14 @@ framing: V1.1 (checksum, 6-byte 0x36 reply)
 
 PROBE func=0x30  documented: encoder u16
   TX: E0 30 10
-  RX[1]: E0 FF FF FF FF FE CD A7  (raw_len=8)
+  RX[1]: 11 FF FF FF FF FE CD A7  (raw_len=8)
+    -> no valid checked frame (damaged reply)
+  RX[2]: E0 FF FF FF FF FE CD A7  (raw_len=8)
     -> reply_frame_start=0  payload_len=6
 
 PROBE func=0x33  documented: received pulses i32 | CLAIMED: work mode
   TX: E0 33 13
-  RX[1]: 06 00 00 00 00 E0  (raw_len=6)
+  RX[1]: 0C 00 00 00 00 E0  (raw_len=6)
     -> no valid checked frame (damaged reply)
   RX[2]: E0 00 00 00 00 E0  (raw_len=6)
     -> reply_frame_start=0  payload_len=4
@@ -26,7 +28,7 @@ PROBE func=0x36  documented: shaft angle i32
 
 PROBE func=0x39  documented: following error i16
   TX: E0 39 19
-  RX[1]: 0C 00 00 E0  (raw_len=4)
+  RX[1]: 67 00 00 E0  (raw_len=4)
     -> no valid checked frame (damaged reply)
   RX[2]: E0 00 00 E0  (raw_len=4)
     -> reply_frame_start=0  payload_len=2
@@ -68,7 +70,7 @@ PROBE func=0x37  CONTROL: undocumented code 0x37
 
 PROBE func=0x77  CONTROL: undocumented code 0x77
   TX: E0 77 57
-  RX[1]: 00 00 00 E8 00 00 C0 00 00 FF 04 00 00 10 00 00 00 FA 09 00 00 00 00 00  (raw_len=24)
+  RX[1]: 0B 00 00 FF 00 00 00 FE 00 C0 01 00 F8 00 00 C0 FF 01 00 00 00 00 00  (raw_len=23)
     -> no valid checked frame (damaged reply)
   RX[2]: (no reply, 400 ms)
   RX[3]: (no reply, 400 ms)

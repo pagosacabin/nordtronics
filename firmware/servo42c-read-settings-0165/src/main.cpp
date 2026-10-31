@@ -32,7 +32,7 @@
 
 #include <Arduino.h>
 
-static const char    *BUILD_TAG   = "0165-A (read-only settings probe)";
+static const char    *BUILD_TAG   = "0165-C (read-only settings probe, 3 attempts/code, controls)";
 static const uint32_t DRIVER_BAUD = 9600;    // OLED UartBaud (0162)
 static const uint8_t  ADDR        = 0xE0;    // UartAddr default
 static const int      PIN_RX2     = 16;

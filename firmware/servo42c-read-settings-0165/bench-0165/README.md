@@ -64,6 +64,10 @@ so it is settled from the manufacturer's page alone.
 
 ESP32 devkit (ESP32-D0WD-V3, MAC 84:1f:e8:30:a8:50) → driver, UART2 GPIO16/17,
 **9600 8N1**, addr `0xE0`. Three attempts per code; every raw reply is in the log.
+In this shipping run three codes (`0x30`, `0x33`, `0x39`) needed a second attempt
+because the first reply came back with a corrupted first byte — so the retry
+logic is load-bearing, not decorative, and the log shows both the damage and the
+recovery.
 
 | Code | Reply (valid frame) | Payload | Meaning |
 |---|---|---|---|
