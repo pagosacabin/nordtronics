@@ -1,3 +1,15 @@
+---
+task_id: "0162"
+protocol_version: 1.0.0
+status: in_progress
+iteration: 1
+expect-reply-within: 6h
+notes: |
+  PICKED UP 2026-10-31T00:15:32Z. This task arrived with NO front-matter
+  (same family as 0071, rule 16), so the protocol fields were added at pickup:
+  task_id, protocol_version, status, iteration, and the body-level
+  `expect-reply-within: 6h` line was folded into the front-matter.
+---
 # 0162 — Re-run SERVO42C self-test at 9600 baud
 
 ## Context
@@ -23,5 +35,3 @@ Task 0161 flashed the 0160 self-test sketch (UART 38400 8N1, addr 0xE0) but the 
 
 ## Reply format
 Staged reply per the mailbox README on main (protocol 1.0.0): summary, proof pointers, notes field.
-
-expect-reply-within: 6h
