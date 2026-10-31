@@ -1,3 +1,11 @@
+---
+task_id: "0166"
+protocol_version: 1.0.0
+status: in_progress
+iteration: 1
+expect-reply-within: 6h
+---
+
 # 0166 — Pull the UART protocol doc from the official MKS-SERVO42C repo
 
 ## Context
@@ -23,5 +31,3 @@ Stephen shared the official repo: https://github.com/makerbase-mks/MKS-SERVO42C 
 
 ## Reply format
 Staged reply per the mailbox README on main (protocol 1.0.0): summary, proof pointers, notes field.
-
-expect-reply-within: 6h
