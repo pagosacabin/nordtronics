@@ -1,3 +1,11 @@
+---
+task_id: "0165"
+protocol_version: 1.0.0
+status: in_progress
+iteration: 1
+expect-reply-within: 6h
+---
+
 # 0165 — Can the driver settings be read over UART?
 
 ## Context
@@ -22,7 +30,6 @@ Stephen asks: instead of reading the SERVO42C's setup off the OLED menu by hand 
 ## Reply format
 Staged reply per the mailbox README on main (protocol 1.0.0): summary, proof pointers, notes field.
 
-expect-reply-within: 6h
 
 ## Lead from Stephen (unverified, from a website — verify against the hardware)
 A menu-equivalence table claiming these read commands (3-byte query + checksum per the site's description):
