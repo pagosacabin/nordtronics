@@ -41,6 +41,13 @@ proof:
       "SUCCESS Took 9.54 seconds"). The workflow was path-filtered and did not
       watch this new directory, so its path list plus a build step were added in
       the same commit - declared in notes as a scope extension.
+      SCOPE NOTE for the verifier: the servo42c firmware tree is not on main at
+      all - `git ls-tree -r --name-only main firmware/servo42c-uart-test` returns
+      0 files and so does the same for servo42c-read-settings-0165 (this work
+      sits on the 0163 branch lineage). `files:` is therefore this task's own
+      diff against the branch base (0163 tip 1eec491), verified with
+      `git diff --name-only 1eec491 2cdbfa7` = exactly these 11 paths. Diffing
+      against main instead shows the whole 0163 tree as new.
     applied_to_hardware:
       - "ESP32 devkit 84:1f:e8:30:a8:50 flashed 3x (0165-A, -B, -C) via /dev/ttyUSB0"
       - "driver written to: nothing (read-only - no set/restore/enable/move frame sent)"
