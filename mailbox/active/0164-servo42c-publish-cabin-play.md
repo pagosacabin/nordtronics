@@ -1,3 +1,16 @@
+---
+task_id: "0164"
+protocol_version: 1.0.0
+status: in_progress
+iteration: 1
+notes: |
+  Picked up 2026-10-31T03:16Z (off-peak, PROTOCOL MATCH 1.0.0). Gate: active/0142 is
+  superseded (Juno's 2026-10-19 resolution) and active/0159 is decision-blocked (no
+  controller address) — neither is resumable, so this is the lowest actionable task.
+  0163 is staged, so its corrected 0163-C sketch is the version being published, not an
+  intermediate.
+---
+
 # 0164 — Publish the SERVO42C code to cabin-play
 
 ## Context
@@ -22,4 +35,3 @@ The SERVO42C UART thread (0160 research, 0162 bench retest at 9600, 0163 move re
 ## Reply format
 Staged reply per the mailbox README on main (protocol 1.0.0): summary, proof pointers, notes field.
 
-expect-reply-within: 6h
