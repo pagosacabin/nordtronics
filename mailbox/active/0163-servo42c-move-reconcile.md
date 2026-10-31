@@ -1,3 +1,17 @@
+---
+task_id: "0163"
+protocol_version: 1.0.0
+status: in_progress
+iteration: 1
+expect-reply-within: 6h
+notes: |
+  PICKED UP 2026-10-31 02:15 UTC (off-peak, PROTOCOL MATCH 1.0.0).
+  This file arrived with no front-matter (and a stray body-level
+  `expect-reply-within` line, which is folded here) — the protocol fields are
+  added at pickup per the handoff-mailbox rule, not treated as malformed.
+  Work in progress on branch hermes/0163-servo42c-move-reconcile.
+---
+
 # 0163 — SERVO42C: reconcile the short/backwards move (MStep=16 confirmed)
 
 ## Context
