@@ -1,9 +1,10 @@
 ---
 task_id: "0167"
-status: inbox
-iteration: 0
+protocol_version: 1.0.0
+status: in_progress
+iteration: 1
 proof: []
-notes: ""
+notes: "pickup 2026-10-31T14:15:27Z"
 expect-reply-within: 2h
 ---
 
