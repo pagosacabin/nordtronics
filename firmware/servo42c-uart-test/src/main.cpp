@@ -70,6 +70,13 @@ static void uartFlush() {
 }
 
 // Read whatever the driver sends, stopping after a 15 ms idle gap.
+//
+// 0162: at 9600 the driver answers only after echoing the command frame back,
+// and a reply sometimes carries 1-2 bytes of line-turnaround noise in front of
+// it (e.g. "E0 36 16 E0 FF FF EB 89 52" = echo + reply, or "93 31 E0 FF FF F9
+// 96 6D" = noise + reply). Fixed-length matching therefore reports "no valid
+// reply" on frames that are in fact complete and correct. Collect the raw bytes
+// here and let extractFrame() find the reply inside them.
 static int readReply(uint8_t *buf, size_t cap, uint32_t timeoutMs) {
   size_t n = 0;
   uint32_t t0 = millis();
@@ -104,9 +111,10 @@ static void printFrame(const char *tag, const uint8_t *buf, size_t n) {
   Serial.println();
 }
 
-// Send one frame and collect the reply. withChk selects the framing generation.
+// Send one frame and collect the raw reply bytes. withChk selects the framing
+// generation. Returns the number of raw bytes captured (echo included).
 static int xfer(uint8_t func, const uint8_t *data, uint8_t nData,
-                uint8_t *reply, size_t cap, bool withChk) {
+                uint8_t *raw, size_t cap, bool withChk) {
   uint8_t frame[12];
   size_t k = 0;
   frame[k++] = ADDR;
@@ -122,37 +130,45 @@ static int xfer(uint8_t func, const uint8_t *data, uint8_t nData,
   Serial2.flush();
   printFrame("TX:", frame, k);
 
-  int n = readReply(reply, cap, 300);
-  if (n > 0) printFrame("RX:", reply, (size_t)n);
+  int n = readReply(raw, cap, 300);
+  if (n > 0) printFrame("RX:", raw, (size_t)n);
   else       Serial.println("    RX: (no reply)");
   return n;
 }
 
-// Expected reply length: addr + nData + (1 if this generation uses a checksum).
-static bool replyOk(const uint8_t *reply, int n, uint8_t nData, bool withChk) {
-  int want = 1 + nData + (withChk ? 1 : 0);
-  if (n != want) return false;
-  if (reply[0] != ADDR) return false;
-  if (withChk && checksum(reply, (size_t)want - 1) != reply[want - 1]) return false;
-  return true;
+// Extract the driver's reply from the raw capture. The reply is the LAST valid
+// frame in the buffer (anything before it is the command echo and/or noise), so
+// scan backwards: addr + nData payload + (optional) checksum.
+static bool extractFrame(const uint8_t *raw, int n, uint8_t nData, bool withChk,
+                         uint8_t *out, int *prefixLen) {
+  const int want = 1 + nData + (withChk ? 1 : 0);
+  for (int i = n - want; i >= 0; i--) {
+    if (raw[i] != ADDR) continue;
+    const uint8_t *f = raw + i;
+    if (withChk && checksum(f, (size_t)want - 1) != f[want - 1]) continue;
+    memcpy(out, f, (size_t)want);
+    if (prefixLen) *prefixLen = i;
+    return true;
+  }
+  return false;
 }
 
 // Query that returns nData payload bytes in out[].
 static bool query(uint8_t func, uint8_t nData, uint8_t *out) {
-  uint8_t reply[10];
+  uint8_t raw[48], frame[16];
   bool withChk = (proto == PROTO_CHECKSUM);
-  int n = xfer(func, nullptr, 0, reply, sizeof(reply), withChk);
-  if (!replyOk(reply, n, nData, withChk)) return false;
-  memcpy(out, reply + 1, nData);
+  int n = xfer(func, nullptr, 0, raw, sizeof(raw), withChk);
+  if (!extractFrame(raw, n, nData, withChk, frame, nullptr)) return false;
+  memcpy(out, frame + 1, nData);
   return true;
 }
 
 // Command taking one payload byte; verifies result==0x01.
 static bool command1(uint8_t func, uint8_t arg) {
-  uint8_t reply[10];
+  uint8_t raw[48], frame[16];
   bool withChk = (proto == PROTO_CHECKSUM);
-  int n = xfer(func, &arg, 1, reply, sizeof(reply), withChk);
-  return replyOk(reply, n, 1, withChk) && reply[1] == 0x01;
+  int n = xfer(func, &arg, 1, raw, sizeof(raw), withChk);
+  return extractFrame(raw, n, 1, withChk, frame, nullptr) && frame[1] == 0x01;
 }
 
 static int32_t be32(const uint8_t *p) {
@@ -179,15 +195,15 @@ static int32_t angleDelta(int32_t from, int32_t to) {
 // ------------------------ protocol detection -------------------------------
 // V1.1 firmware answers with a trailing 8-bit sum; V1.0 has no check byte.
 static Protocol detectProtocol() {
-  uint8_t reply[10];
+  uint8_t raw[48], frame[16];
 
   // Try the checksummed frame first: a V1.1 driver answers 6 bytes for 0x36.
-  int n = xfer(CMD_READ_ANGLE, nullptr, 0, reply, sizeof(reply), true);
-  if (replyOk(reply, n, 4, true)) return PROTO_CHECKSUM;
+  int n = xfer(CMD_READ_ANGLE, nullptr, 0, raw, sizeof(raw), true);
+  if (extractFrame(raw, n, 4, true, frame, nullptr)) return PROTO_CHECKSUM;
 
   // Plain frame: a V1.0 driver answers 5 bytes for 0x36.
-  n = xfer(CMD_READ_ANGLE, nullptr, 0, reply, sizeof(reply), false);
-  if (replyOk(reply, n, 4, false)) return PROTO_PLAIN;
+  n = xfer(CMD_READ_ANGLE, nullptr, 0, raw, sizeof(raw), false);
+  if (extractFrame(raw, n, 4, false, frame, nullptr)) return PROTO_PLAIN;
 
   return PROTO_UNKNOWN;
 }
@@ -214,10 +230,10 @@ static bool movePulses(bool forward, uint32_t pulses) {
     data[2] = (uint8_t)(pulses);
     nData = 3;
   }
-  uint8_t reply[10];
+  uint8_t raw[48], frame[16];
   bool withChk = (proto == PROTO_CHECKSUM);
-  int n = xfer(CMD_MOVE_PULSES, data, nData, reply, sizeof(reply), withChk);
-  return replyOk(reply, n, 1, withChk) && reply[1] == 0x01;
+  int n = xfer(CMD_MOVE_PULSES, data, nData, raw, sizeof(raw), withChk);
+  return extractFrame(raw, n, 1, withChk, frame, nullptr) && frame[1] == 0x01;
 }
 
 // Poll the shaft angle until it stops changing (or the timeout expires).
