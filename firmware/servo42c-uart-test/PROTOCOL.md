@@ -130,3 +130,20 @@ honest absolute check available on this firmware.
    compile-time constant (`STEP_SUBDIVISION`) and prints an explicit corrective
    hint when the measured move disagrees with the commanded one, instead of
    silently writing the driver's settings.
+5. **The `0xFD` direction bit is not the drive's `Dir` setting.** Measured on this
+   unit (2026-10-31): with the OLED `Dir` on **CW**, `0xFD` with bit7=0 still moves
+   the shaft in the **negative** `0x36` direction, and setting `Dir` does not change
+   the reported sign — the driver remaps motor phases and encoder together, so the
+   encoder sign is invariant. Bit7=1 is "forward = increasing angle" here. Do not
+   infer the command direction from the `Dir` menu item.
+6. **A long `0xFD` move can stop short while acknowledging the frame.** One
+   3200-pulse command (nominal 1 rev at MStep 16) returned result `01` but the
+   `0x33` counter advanced only **2224**, and the shaft moved exactly 2224 x 20.48
+   counts — repeatably, in both directions. 800-pulse moves execute exactly. So
+   `0x33` around every move is the check that separates "short move" from "wrong
+   scale": a short move and a 4x scale error look identical in `0x36` alone (this is
+   what made 0162's -25 deg look like MStep 64 / a 16384-count scale).
+7. **`0x30` did not answer as documented.** The reply captured was
+   `e0 FF FF FF FF FE DD B7`, which only validates as addr + **6** payload bytes
+   (sum `B7`), not the documented `u16` (addr + 2 + chk). The sketch does not use
+   `0x30` as evidence; `0x33` and `0x36` carry the proof. Unexplained.

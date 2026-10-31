@@ -1,0 +1,199 @@
+ets Jul 29 2019 12:21:46
+
+rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+configsip: 0, SPIWP:0xee
+clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+mode:DIO, clock div:2
+load:0x3fff0030,len:6380
+ho 0 tail 12 room 4
+load:0x40078000,len:15916
+load:0x40080400,len:3860
+entry 0x40080630
+I (29) boot: ESP-IDF 5.5.1 2nd stage bootloader
+I (29) boot: compile time Jan 12 2026 10:16:19
+I (29) boot: Multicore bootloader
+I (31) boot: chip revision: v3.1
+I (33) boot.esp32: SPI Speed      : 40MHz
+I (37) boot.esp32: SPI Mode       : DIO
+I (41) boot.esp32: SPI Flash Size : 4MB
+I (44) boot: Enabling RNG early entropy source...
+I (49) boot: Partition Table:
+I (51) boot: ## Label            Usage          Type ST Offset   Length
+I (58) boot:  0 otadata          OTA data         01 00 00009000 00002000
+I (64) boot:  1 phy_init         RF data          01 01 0000b000 00001000
+I (71) boot:  2 app0             OTA app          00 10 00010000 001c0000
+I (77) boot:  3 app1             OTA app          00 11 001d0000 001c0000
+I (84) boot:  4 nvs              WiFi data        01 02 00390000 0006d000
+I (90) boot: End of partition table
+I (94) esp_image: segment 0: paddr=00010020 vaddr=3f400020 size=0db60h ( 56160) map
+I (120) esp_image: segment 1: paddr=0001db88 vaddr=3ffbdb60 size=02490h (  9360) load
+I (124) esp_image: segment 2: paddr=00020020 vaddr=400d0020 size=22c44h (142404) map
+I (173) esp_image: segment 3: paddr=00042c6c vaddr=3ffbfff0 size=01c10h (  7184) load
+I (176) esp_image: segment 4: paddr=00044884 vaddr=40080000 size=0e1fch ( 57852) load
+I (207) boot: Loaded app from partition at offset 0x10000
+I (207) boot: Disabling RNG early entropy source...
+E (229) esp_core_dump_flash: No core f~mp partition found!
+E (229) esp_core_dump_flash: No core dump partition found!
+
+=== MKS SERVO42C UART bench self-test (build 0163-A (instrumented)) ===
+UART2 9600 8N1  addr 0xE0  RX=GPIO16 TX=GPIO17
+Assume MStep=16, motor 200 full steps -> 3200 pulses/rev, 90 deg = 800 pulses; angle scale 65536 counts/rev
+-- probing driver framing (0x36 both generations) --
+    TX: E0 36 16
+    RX: E0 00 00 00 04 E4
+STEP 1: uart framing / protocol                PASS  (V1.1 firmware, checksummed frames)
+    TX: E0 36 16
+    RX: E0 00 00 00 04 E4
+STEP 2: read shaft angle (0x36)                PASS  (raw 4 = 0.02 deg)
+    TX: E0 39 19
+    RX: E0 00 00 E0
+STEP 3: read following error (0x39)            PASS  (raw 0 = 0.00 deg)
+    TX: E0 F3 01 D4
+    RX: E0 01 E1
+    TX: E0 3A 1A
+    RX: E0 01 E1
+STEP 4: motor enable (0xF3=01, 0x3A)           PASS  (ack=1 status=0x01)
+-- +90 deg move: 800 pulses fwd @ gear 16 --
+    TX: E0 33 13
+    RX: E0 33 13 E0 00 00 00 00 E0
+    TX: E0 30 10
+    RX: FD E0 FF FF FF FF FE CD A7
+    TX: E0 30 10
+    RX: E0 30 10 E0 FF FF FF FF FE CD A7
+    TX: E0 30 10
+    RX: E0 30 10 E0 FF FF FF FF FE CD A7
+    TX: E0 36 16
+    RX: E0 36 16 E0 00 00 00 00 E0
+    TX: E0 FD 10 00 00 03 20 10
+    RX: F1 7F 04 00 03 20 F0 E0 01 E1
+    TX: E0 36 16
+    RX: E0 36 16 E0 FF FF BF CB 68
+    TX: E0 36 16
+    RX: E0 36 16 E0 FF FF BF D3 70
+    TX: E0 36 16
+    RX: E0 36 16 E0 FF FF BF D7 74
+    TX: E0 36 16
+    RX: E0 36 16 E0 FF FF BF DF 7C
+    TX: E0 36 16
+    RX: E0 36 16 E0 FF FF BF E7 84
+    TX: E0 36 16
+    RX: E0 36 16 E0 FF FF BF EB 88
+    TX: E0 33 13
+    RX: E0 FF FF FC E0 BA
+    angle  0 -> 49131  (delta -16405 cnt = -90.12 deg @ 65536/rev)
+    0x33   0 -> -800  (delta -800 pulses)
+    0x30   encoder read failed on one side
+STEP 5: command +90 deg move (0xFD)            PASS  (800 pulses fwd @ gear 16)
+STEP 6: measured move is +90 deg               FAIL  (moved -90.12 deg in time)
+HINT: -90.12 deg measured for 800 pulses at 65536 counts/rev -> -20.51 counts/pulse (documented MStep 16 = 20.48)
+    TX: E0 33 13
+    RX: BC A6 22 FF FF FC E0 BA
+    TX: E0 33 13
+    RX: 02 FF FF FC E0 BA
+    TX: E0 33 13
+    RX: E0 FF FF FC E0 BA
+    TX: E0 30 10
+    RX: E0 FF FF FF FF BE C0 5A
+    TX: E0 30 10
+    RX: E0 30 10 E0 FF FF FF FF BE C0 5A
+    TX: E0 30 10
+    RX: E0 30 10 E0 FF FF FF FF BE C4 5E
+    TX: E0 36 16
+    RX: E0 36 16 E0 FF FF BF F7 94
+    TX: E0 FD 90 00 00 03 20 90
+    RX: 32 00 03 20 90 E0 01 E1
+    TX: E0 36 16
+    RX: E0 36 16 E0 00 00 00 39 19
+    TX: E0 36 16
+    RX: E0 36 16 E0 00 00 00 31 11
+    TX: E0 36 16
+    RX: E0 36 16 E0 00 00 00 2D 0D
+    TX: E0 36 16
+    RX: E0 36 16 E0 00 00 00 20 00
+    TX: E0 36 16
+    RX: E0 36 16 E0 00 00 00 18 F8
+    TX: E0 36 16
+    RX: E0 36 16 E0 00 00 00 14 F4
+    TX: E0 33 13
+    RX: F9 E0 00 00 00 00 E0
+    angle  49143 -> 20  (delta +16413 cnt = +90.16 deg @ 65536/rev)
+    0x33   -800 -> 0  (delta +800 pulses)
+    0x30   encoder read failed on one side
+STEP 7: command return move (0xFD rev)         PASS  (800 pulses rev @ gear 16)
+STEP 8: returned to start angle                PASS  (residual +0.09 deg from start)
+
+-- INFO: scale probe, 3200 pulses (nominal 1 revolution) --
+    TX: E0 33 13
+    RX: E0 33 13 E0 00 00 00 00 E0
+    TX: E0 30 10
+    RX: E0 FF FF FF FF FE DD B7
+    TX: E0 30 10
+    RX: E0 30 10 E0 FF FF FF FF FE DD B7
+    TX: E0 30 10
+    RX: E0 30 10 E0 FF FF FF FF FE DD B7
+    TX: E0 36 16
+    RX: E0 76 E0 00 00 00 0C EC
+    TX: E0 FD 10 00 00 0C 80 79
+    RX: 7F 11 00 0C E0 E0 01 E1
+    TX: E0 36 16
+    RX: 02 00 E0 FF FF 51 EF 1E
+    TX: E0 36 16
+    RX: E0 36 16 E0 FF FF 4D E8 13
+    TX: E0 36 16
+    RX: E0 36 16 E0 FF FF 4D EC 17
+    TX: E0 36 16
+    RX: E0 36 16 E0 FF FF 4D F0 1B
+    TX: E0 36 16
+    RX: E0 36 16 E0 FF FF 4D F8 23
+    TX: E0 36 16
+    RX: E0 36 16 E0 FF FF 4E 00 2C
+    TX: E0 36 16
+    RX: E0 36 16 E0 FF FF 4E 04 30
+    TX: E0 33 13
+    RX: E0 33 13 E0 FF FF F7 50 25
+    angle  12 -> 19972  (delta +19960 cnt = +109.64 deg @ 65536/rev)
+    0x33   0 -> -2224  (delta -2224 pulses)
+    0x30   encoder read failed on one side
+INFO: probe moved +109.64 deg (+19960 cnt) for 3200 pulses
+INFO: probe stopped 19960 cnt from start -> 3200 pulses is 0.305 of a revolution -> pulses/rev = 10506 (MStep 52.5)
+    TX: E0 33 13
+    RX: E0 33 13 E0 FF FF F7 50 25
+    TX: E0 30 10
+    RX: E0 FF FF FF FF 4C D1 F9
+    TX: E0 30 10
+    RX: E0 FF FF FF FF 4C D1 F9
+    TX: E0 30 10
+    RX: E0 FF FF FF FF 4C D1 F9
+    TX: E0 36 16
+    RX: E0 FF FF 4E 04 30
+    TX: E0 FD 90 00 00 0C 80 F9
+    RX: FD 90 00 00 0C E0 01 E1
+    TX: E0 36 16
+    RX: 00 E0 FF FF FC 3C 16
+    TX: E0 36 16
+    RX: E0 36 16 E0 00 00 00 3D 1D
+    TX: E0 36 16
+    RX: E0 36 16 E0 00 00 00 31 11
+    TX: E0 36 16
+    RX: E0 36 16 E0 00 00 00 2D 0D
+    TX: E0 36 16
+    RX: E0 36 16 E0 00 00 00 24 04
+    TX: E0 36 16
+    RX: E0 36 16 E0 00 00 00 1C FC
+    TX: E0 36 16
+    RX: E0 36 16 E0 00 00 00 14 F4
+    TX: E0 33 13
+    RX: 78 A6 22 00 00 00 00 E0
+    TX: E0 33 13
+    RX: E0 33 13 E0 00 00 00 00 E0
+INFO: probe undone: -109.60 deg (settled)
+    TX: E0 F7 D7
+    RX: E0 01 E1
+    TX: E0 3E 1E
+    RX: 0C 02 E2
+    TX: E0 3E 1E
+    RX: E0 02 E2
+INFO: shaft status 0x02 (unblocked)
+
+SELF-TEST: FAIL (1 of 8 steps failed)
+=== self-test complete ===
