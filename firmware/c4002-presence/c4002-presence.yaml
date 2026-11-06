@@ -1,5 +1,13 @@
-# Exact config flashed to the ESP32-C3 Super Mini on 2026-11-06 (task 0169).
-# Deviations from the task spec, and why, are documented in README.md.
+# C4002 presence sensor — ESP32-C3 Super Mini (bench task 0169, 2026-11-06)
+#
+# Deliberately small surface. This part is a presence detector with a single-target range
+# estimate bolted on: with one body in the beam the range/speed/energy numbers mean something,
+# with two or more they collapse to "one of them" and the number is not attributable. So the
+# device exposes presence (the reliable thing) plus a range labelled for what it is, and a
+# single status number. The earlier speed/energy/gate-mask/OUT-pin entities were removed: they
+# implied a tracker this sensor is not. Measurements behind that are in the nordtronics repo,
+# firmware/c4002-presence/README.md.
+#
 # Requires secrets.yaml with wifi_ssid / wifi_password.
 esphome:
   name: c4002-presence
@@ -41,73 +49,50 @@ dfrobot_c4002:
   uart_id: c4002_uart
 
 binary_sensor:
+  # The one thing this part is actually good at. delayed_off holds presence 30 s after the
+  # target goes, which is what makes it usable for "is the room occupied" automations.
   - platform: dfrobot_c4002
     c4002_id: my_c4002
     presence:
-      name: "Room Presence"
+      name: "Presence"
       device_class: presence
       filters:
         - delayed_off: 30s
-  - platform: gpio
-    pin:
-      number: GPIO4
-      mode: INPUT
-    name: "Room Presence OUT pin"
-    device_class: presence
 
 sensor:
+  # Single-target range. Honest name: with more than one body in the 120 deg beam this is the
+  # range of whichever target the firmware latched, not "the" target.
   - platform: dfrobot_c4002
     c4002_id: my_c4002
     existing_distance:
-      name: "Target Distance"
-    movement_speed:
-      name: "Target Speed"
-    existing_energy:
-      name: "Target Energy"
-  # Raw gate bitmask straight from the component's public getter, bypassing the
-  # show_gates_energy switch (which does not restore and publishes only once). Split into
-  # low/high 16 bits because an ESPHome template sensor is a float32 and a 25-gate mask
-  # (2^25-1) exceeds float's exact-integer range.
-  - platform: template
-    name: "Gate mask lo"
-    id: gate_mask_lo
-    accuracy_decimals: 0
-    update_interval: 1s
-    lambda: |-
-      return (float) (id(my_c4002).get_exist_dist_index() & 0xFFFF);
-  - platform: template
-    name: "Gate mask hi"
-    id: gate_mask_hi
-    accuracy_decimals: 0
-    update_interval: 1s
-    lambda: |-
-      return (float) ((id(my_c4002).get_exist_dist_index() >> 16) & 0xFFFF);
+      name: "Range"
+      unit_of_measurement: "m"
+      accuracy_decimals: 2
+      icon: mdi:radar
+  # 0 = no body, 1 = stationary body, 2 = moving body: one number instead of three channels.
+  - platform: dfrobot_c4002
+    c4002_id: my_c4002
+    target_status:
+      name: "Detected"
+      accuracy_decimals: 0
+      entity_category: diagnostic
+      icon: mdi:motion-sensor
 
-# ---- added: the component's .cpp uses these members unguarded, so a config with no
-# number/switch/select entity fails to compile (members live behind #ifdef USE_*)
+# ---- knobs: every one is entity_category config, so they stay out of the way --------------
 number:
   - platform: dfrobot_c4002
     c4002_id: my_c4002
     target_disappeard_delay_time:
-      name: "Target Disappear Delay"
+      name: "Disappear delay"
 
 switch:
   - platform: dfrobot_c4002
     c4002_id: my_c4002
     switch_run_led:
       name: "Run LED"
-    switch_show_gates_energy:
-      name: "Gates energy"
-      restore_mode: ALWAYS_ON
 
 select:
   - platform: dfrobot_c4002
     c4002_id: my_c4002
     operating_mode:
-      name: "OUT Mode"
-
-text_sensor:
-  - platform: dfrobot_c4002
-    c4002_id: my_c4002
-    active_gates_summary:
-      name: "Active gates"
+      name: "OUT mode"

@@ -175,4 +175,22 @@ than a detection result. The parser does rewrite `existDistIndex` from every not
 up to 3 targets with X/Y and speed) would be the upgrade, keeping this board as the
 presence/occupancy trigger.
 
+## The device, as of the 2026-11-06 clean-up
 
+Six entities, three of them knobs. Flashed as `config_hash=0x84ce06ca`; HA re-read the device and
+pruned the old set on its own.
+
+| entity | kind | why |
+|---|---|---|
+| `binary_sensor.c4002_presence_presence` | signal, `device_class: presence` | the one reliable output; `delayed_off: 30s` is the hold automations should use |
+| `sensor.c4002_presence_range` | signal, m | single-target range, named for what it is |
+| `sensor.c4002_presence_detected` | diagnostic, 0/1/2 | no body / stationary / moving, as one number instead of three columns |
+| `number.c4002_presence_disappear_delay` | config | sensor-side hold |
+| `select.c4002_presence_out_mode` | config | OUT-pin behaviour |
+| `switch.c4002_presence_run_led` | config | LED |
+
+Dropped on purpose: `movement_speed`, `existing_energy`, the GPIO OUT-pin binary sensor (stuck
+high, cause still open), and every gate-mask entity. Each of those either implied multi-target
+tracking the part cannot do or pointed at a pin that never changed state. The page this feeds on
+the bench panel now says `SINGLE TARGET RANGE / 2+ BODIES = PRESENCE ONLY` rather than dressing a
+presence detector up as a tracker.
