@@ -1,3 +1,14 @@
+---
+task_id: "0169"
+protocol_version: 1.0.0
+status: in_progress
+iteration: 1
+expect-reply-within: 6h
+notes: |
+  Picked up 2026-11-06 19:15 UTC (12:15 MST), PEAK: OFF-PEAK, PROTOCOL MATCH 1.0.0.
+  Front-matter was absent on arrival (protocol rule 16); added here.
+---
+
 # 0169 — Bench-test the ESP32-C3 Super Mini + DFRobot C4002 presence detector
 
 ## Context
@@ -89,4 +100,3 @@ sensor:
 ## Reply format
 Staged reply per the mailbox README on main (protocol 1.0.0): summary, proof pointers, notes field.
 
-expect-reply-within: 6h
