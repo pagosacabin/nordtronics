@@ -1,0 +1,86 @@
+# Exact config flashed to the ESP32-C3 Super Mini on 2026-11-06 (task 0169).
+# Deviations from the task spec, and why, are documented in README.md.
+# Requires secrets.yaml with wifi_ssid / wifi_password.
+esphome:
+  name: c4002-presence
+  friendly_name: C4002 Presence
+
+esp32:
+  board: esp32-c3-devkitm-1
+  framework:
+    type: arduino
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+api:
+ota:
+  - platform: esphome
+logger:
+
+external_components:
+  - source:
+      type: git
+      url: https://github.com/OwlBawl/DFRobot_C4002_SEN0691.git
+      ref: main
+      path: .
+    components: [dfrobot_c4002]
+    refresh: 0s
+
+uart:
+  id: c4002_uart
+  tx_pin: GPIO7
+  rx_pin: GPIO6
+  baud_rate: 115200
+  parity: NONE
+  stop_bits: 1
+
+dfrobot_c4002:
+  id: my_c4002
+  uart_id: c4002_uart
+
+binary_sensor:
+  - platform: dfrobot_c4002
+    c4002_id: my_c4002
+    presence:
+      name: "Room Presence"
+      device_class: presence
+      filters:
+        - delayed_off: 30s
+  - platform: gpio
+    pin:
+      number: GPIO4
+      mode: INPUT
+    name: "Room Presence OUT pin"
+    device_class: presence
+
+sensor:
+  - platform: dfrobot_c4002
+    c4002_id: my_c4002
+    existing_distance:
+      name: "Target Distance"
+    movement_speed:
+      name: "Target Speed"
+    existing_energy:
+      name: "Target Energy"
+
+# ---- added: the component's .cpp uses these members unguarded, so a config with no
+# number/switch/select entity fails to compile (members live behind #ifdef USE_*)
+number:
+  - platform: dfrobot_c4002
+    c4002_id: my_c4002
+    target_disappeard_delay_time:
+      name: "Target Disappear Delay"
+
+switch:
+  - platform: dfrobot_c4002
+    c4002_id: my_c4002
+    switch_run_led:
+      name: "Run LED"
+
+select:
+  - platform: dfrobot_c4002
+    c4002_id: my_c4002
+    operating_mode:
+      name: "OUT Mode"
