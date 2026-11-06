@@ -64,6 +64,24 @@ sensor:
       name: "Target Speed"
     existing_energy:
       name: "Target Energy"
+  # Raw gate bitmask straight from the component's public getter, bypassing the
+  # show_gates_energy switch (which does not restore and publishes only once). Split into
+  # low/high 16 bits because an ESPHome template sensor is a float32 and a 25-gate mask
+  # (2^25-1) exceeds float's exact-integer range.
+  - platform: template
+    name: "Gate mask lo"
+    id: gate_mask_lo
+    accuracy_decimals: 0
+    update_interval: 1s
+    lambda: |-
+      return (float) (id(my_c4002).get_exist_dist_index() & 0xFFFF);
+  - platform: template
+    name: "Gate mask hi"
+    id: gate_mask_hi
+    accuracy_decimals: 0
+    update_interval: 1s
+    lambda: |-
+      return (float) ((id(my_c4002).get_exist_dist_index() >> 16) & 0xFFFF);
 
 # ---- added: the component's .cpp uses these members unguarded, so a config with no
 # number/switch/select entity fails to compile (members live behind #ifdef USE_*)

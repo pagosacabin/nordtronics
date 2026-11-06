@@ -162,7 +162,13 @@ reported distance swung 0.68 → 2.93 m and presence dropped and returned:
 -1 2 3 4 5 6--------(1.0m - 5.0m)    30 / 30 samples identical
 ```
 
-It does not track occupancy — it behaves like a configuration bitmask of enabled gates rather
+A second probe bypassed that switch entirely: two template sensors (`Gate mask lo/hi`) read the
+component's public `get_exist_dist_index()` straight and split it into 16-bit halves (a template
+sensor is a float32, and a 25-gate mask exceeds float's exact-integer range). Flashed as
+`config_hash=0x00458931`, sampled every 2 s for 40 s: the mask held at `0x00000e` (gates 1-3, one
+contiguous run) through 20 samples while the reported distance swung 0.68 -> 2.14 m. Between runs
+it settles on a different constant (`0x7e` earlier), so it is slowly-varying, but it never
+follows the targets. It does not track occupancy — it behaves like a configuration bitmask of enabled gates rather
 than a detection result. The parser does rewrite `existDistIndex` from every notification frame
 (`data[3..6]`), so the field refreshes; what it carries is just not a per-body map. Conclusion:
 **this part cannot feed a three-contact display.** A tracking radar that can (HLK-LD2450 reports
