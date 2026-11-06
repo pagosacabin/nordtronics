@@ -144,3 +144,29 @@ re-flashing; the API path above needs no secrets.
 The board is on the network, so nothing here needs the serial console. Owed before mounting:
 resolve Finding 1 (OUT pin) and decide whether Finding 2 needs fixing in the component fork.
 
+## Multi-target: the part has two channels, not N (probed 2026-11-06)
+
+The component's structured output is one **moving** target and one **stationary** target
+(`moveTargetDist/Speed/Energy/Direction`, `existTargetDist/Energy`) plus a `targetStatus` of
+NO_BODY / EXIST / MOVE. There is no list of bodies, so two people and a dog cannot be resolved
+into three contacts by this sensor: at best it is one moving + one still, and a dog is usually
+below the energy threshold.
+
+The gate occupancy mask was the obvious candidate for real multi-target data, so it was enabled
+and measured rather than assumed. `switch_show_gates_energy` on and an `active_gates_summary`
+text sensor added — both now in the config in this directory, flashed as
+`config_hash=0xd8e93f96`. Sampled straight from the board's API every 2 s for 60 s while the
+reported distance swung 0.68 → 2.93 m and presence dropped and returned:
+
+```
+-1 2 3 4 5 6--------(1.0m - 5.0m)    30 / 30 samples identical
+```
+
+It does not track occupancy — it behaves like a configuration bitmask of enabled gates rather
+than a detection result. The parser does rewrite `existDistIndex` from every notification frame
+(`data[3..6]`), so the field refreshes; what it carries is just not a per-body map. Conclusion:
+**this part cannot feed a three-contact display.** A tracking radar that can (HLK-LD2450 reports
+up to 3 targets with X/Y and speed) would be the upgrade, keeping this board as the
+presence/occupancy trigger.
+
+

@@ -78,9 +78,18 @@ switch:
     c4002_id: my_c4002
     switch_run_led:
       name: "Run LED"
+    switch_show_gates_energy:
+      name: "Gates energy"
+      restore_mode: ALWAYS_ON
 
 select:
   - platform: dfrobot_c4002
     c4002_id: my_c4002
     operating_mode:
       name: "OUT Mode"
+
+text_sensor:
+  - platform: dfrobot_c4002
+    c4002_id: my_c4002
+    active_gates_summary:
+      name: "Active gates"
