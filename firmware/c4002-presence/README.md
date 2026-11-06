@@ -9,13 +9,14 @@ Bench verification of Stephen's presence detector (mailbox task 0169, 2026-11-06
 | C3 identified on USB | **yes** — `/dev/serial/by-id/usb-Espressif_USB_JTAG_serial_debug_unit_9C:CC:01:D0:64:6C-if00` (`ttyACM1`, MAC `9c:cc:01:d0:64:6c`, ESP32-C3, 4 MB flash, flash was blank `0xffffffff`) |
 | Firmware compiled + flashed | **yes** — `esphome 2026.9.1`, hash of written data verified, `config_hash=0x7cdd1f8b` |
 | C4002 UART up, no UART errors | **yes** — ~1.00 Hz notification frames over two windows (77 frames / 75 s, 36 / 35 s), 0 error/auth/timeout lines |
-| Walk test (presence ON / 30 s hold / OFF) | **NOT RUN** — no person at the bench during the run |
-| OUT-pin vs UART agreement | **NOT RUN** — depends on the walk test |
-| Distance / speed / energy values with a target | **NOT RUN** — depends on the walk test |
+| Walk test (presence ON / 30 s hold / OFF) | **yes** — 2026-11-06 14:36–14:38 MST, driven by spoken cues: OFF 33.3 s after "step out", ON 6.0 s after "walk in", OFF 31.1 s after "step away", then held OFF for a further 60 s |
+| OUT-pin vs UART agreement | **NO — disagreement, quoted exactly.** `Room Presence OUT pin` (GPIO4) read `True` in all 106 samples taken across four captures spanning 14:32–14:45 MST and never transitioned once, including while `Room Presence` was `False` (14:42:40.784 and 14:44:07.928–14:45:31, 83 s) |
+| Distance / speed / energy values with a target | **yes** — live values over a 20 s sample with a person at ~1.4 m: distance 1.37–1.54 m (mean 1.435), speed −0.02…+0.08 m/s, energy 99.0; over the whole session distance spanned 0.68–8.73 m and energy 0–99 |
 
-So the wiring and the firmware path are proven as far as they can be without a human: the
-sensor is powered, and it is talking back on the pins the spec names. Everything downstream of
-"a person walks in front of it" is still owed.
+So the wiring and the firmware path are proven electrically, and the walk test now exists. Two
+behaviours are recorded exactly as measured because they contradict the spec's intent: the GPIO4
+OUT-pin entity never changes state, and the presence entity emits sub-second `False` blips while a
+target is present.
 
 ## The spec's YAML does not compile — four separate defects
 
@@ -64,15 +65,82 @@ Deviations from the task's YAML, each forced:
 
 Pins, board and framework are the spec's, verbatim.
 
-## Networking note
+## Walk test — 2026-11-06, method and evidence
 
-The device associates and advertises as `c4002-presence.local`
-(`mac=9ccc01d0646c`, `config_hash=7cdd1f8b`) but the advertised address `192.168.1.155` did not
-answer ARP or port 6053 during the run, so no values could be pulled over the API. Worth checking
-before mounting: it may be the 2.4 GHz side of a mesh/AP that does not forward, or client isolation.
-`192.168.1.72:6053` on this LAN is the bench panel (`jc4827w543`), not this board — do not confuse them.
+The board came up on the LAN after the first run, so the walk test was driven over the ESPHome
+native API (`:6053`) rather than the serial console: `api-walk-test-controller.py` subscribes to
+state and speaks each step as audio on the host's speakers, so the person at the bench needs no
+screen. Raw timelines are the four `walk-test-2026-11-06-*.log` files; the summarised result is
+`walk-test-2026-11-06-result.json`.
+
+| Step | Cue | Entity event | Latency from cue |
+|---|---|---|---|
+| A | "step out of the sensor's view" | `Room Presence` True → False at 14:37:27.442 | 33.3 s |
+| B | "walk into view, move 20 s" | False → True at 14:37:38.808 | 6.0 s |
+| B | 20 s sample with a target at ~1.4 m | distance 1.37–1.54 m (mean 1.435), speed −0.02…+0.08 m/s, energy 99.0 | — |
+| C | "step out and stay out" | True → False at 14:38:34.206 | 31.1 s |
+| C | stayed out | still False after a further 60 s | — |
+
+The ~30 s hold the spec asks for is therefore real and reproducible (33.3 s and 31.1 s measured
+from the spoken cue, which itself includes human reaction time).
+
+### Finding 1 — the GPIO4 OUT-pin entity never changes state
+
+`Room Presence OUT pin` read `True` on every one of 106 samples across four captures
+(14:32:33 → 14:45:31 MST) and produced **zero** transitions, while `Room Presence` toggled
+True/False repeatedly. Two clean disagreement windows:
+
+- `14:42:40.784` — initial publish: `Room Presence` = `False`, `Room Presence OUT pin` = `True`,
+  with distance `0.0`, energy `0.0` (no target).
+- `14:44:07.928` → `14:45:31.181` (83 s) — `Room Presence` = `False` the whole time;
+  `out_pin` = `True` the whole time.
+
+Not diagnosed. Two candidates, in order of likely cheapness to check: the pin is configured
+`mode: INPUT` with **no pull** (`c4002-presence.yaml`), so a non-driving OUT floats and reads
+high; or the sensor's OUT genuinely does not switch in `OUT Mode = Motion OR Presence`. A meter
+on OUT-to-GND during presence ON/OFF settles it in one minute, and `mode: INPUT_PULLDOWN` (or
+`INPUT_PULLUP`, depending on the module's polarity) is the config-side test. **Until this is
+resolved the OUT pin is not usable as a second presence signal**, which is the whole point of
+wiring it.
+
+### Finding 2 — sub-second `False` blips on `Room Presence`
+
+Three momentary drops while a target was demonstrably present (distance and energy non-zero):
+
+| When | Duration |
+|---|---|
+| 14:36:54.232 → .243 | 11 ms |
+| 14:40:57.054 → .668 | 614 ms |
+| 14:43:30.135 → .584 | 449 ms |
+
+The entity is configured `filters: - delayed_off: 30s`, which should make any OFF shorter than
+30 s impossible to observe. Either the filter is not being applied to this external component's
+`binary_sensor`, or something republishes state around it. Not resolved here; it is worth a task
+of its own because an 0.5 s presence dropout will trigger automations that a 30 s hold was
+supposed to prevent.
+
+### Also observed
+
+- Presence clear latency after the target is lost was not uniformly 30 s: one episode cleared
+  18 s after the last target frame (last seen 14:43:49, `False` at 14:44:07), another was still
+  `True` 30 s after distance had gone to 8.73 m with energy 0 and cleared somewhere in the
+  following minute. Quoted rather than averaged.
+- Energy sat at 99.0 almost always, dipping to 74.0 and 73.0 twice; distance read `0.6800000071525574`
+  repeatedly, which looks like the component's minimum-report clamp rather than a real target at 68 cm.
+
+## Networking note (superseded)
+
+The first run recorded that `192.168.1.155` answered neither ARP nor `:6053`. That was transient:
+from 14:28 MST the address answered both (`ip neigh` → `9c:cc:01:d0:64:6c` REACHABLE; API
+connected in 0.38–0.65 s), and every run above is API-based. `192.168.1.72:6053` is still the
+bench panel (`jc4827w543`) — do not confuse the two.
+
+`secrets.yaml` is **not** in this directory, so `esphome logs <this yaml>` fails with
+`Error reading file .../secrets.yaml`. Recreate it with `wifi_ssid` / `wifi_password` before
+re-flashing; the API path above needs no secrets.
 
 ## Next step
 
-Power it up with someone at the bench and run the walk test. The serial console is enough:
-`/dev/ttyACM1` at 115200, read non-blocking (a `pyserial` open resets the board via DTR/RTS).
+The board is on the network, so nothing here needs the serial console. Owed before mounting:
+resolve Finding 1 (OUT pin) and decide whether Finding 2 needs fixing in the component fork.
+

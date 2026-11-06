@@ -1,0 +1,33 @@
+14:39:30.043 START window=120s
+14:39:30.424 CONNECT 192.168.1.155:6053 c4002-presence mac=9C:CC:01:D0:64:6C esphome=2026.9.1 in 0.38s
+14:39:30.834 TRANSITION room_presence: <none> -> True
+14:39:30.834 hb presence=True  out_pin=None  dist=None speed=None energy=None
+14:39:30.834 TRANSITION room_presence_out_pin: <none> -> True
+14:39:34.622 hb presence=True  out_pin=True  dist=0.6800000071525574 speed=0.2199999988079071 energy=99.0
+14:39:38.616 hb presence=True  out_pin=True  dist=1.2799999713897705 speed=0.009999999776482582 energy=99.0
+14:39:42.609 hb presence=True  out_pin=True  dist=1.3200000524520874 speed=0.009999999776482582 energy=99.0
+14:39:46.602 hb presence=True  out_pin=True  dist=1.2999999523162842 speed=0.0 energy=99.0
+14:39:50.597 hb presence=True  out_pin=True  dist=1.4700000286102295 speed=-0.029999999329447746 energy=99.0
+14:39:54.590 hb presence=True  out_pin=True  dist=1.2899999618530273 speed=-0.019999999552965164 energy=99.0
+14:39:57.662 hb presence=True  out_pin=True  dist=0.6800000071525574 speed=0.009999999776482582 energy=99.0
+14:40:02.578 hb presence=True  out_pin=True  dist=0.6800000071525574 speed=-0.009999999776482582 energy=99.0
+14:40:05.650 hb presence=True  out_pin=True  dist=0.6800000071525574 speed=0.019999999552965164 energy=99.0
+14:40:09.642 hb presence=True  out_pin=True  dist=0.6800000071525574 speed=0.0 energy=99.0
+14:40:13.637 hb presence=True  out_pin=True  dist=1.5299999713897705 speed=0.0 energy=99.0
+14:40:17.630 hb presence=True  out_pin=True  dist=1.5499999523162842 speed=0.019999999552965164 energy=99.0
+14:40:21.624 hb presence=True  out_pin=True  dist=1.350000023841858 speed=0.0 energy=99.0
+14:40:25.617 hb presence=True  out_pin=True  dist=0.6800000071525574 speed=-0.03999999910593033 energy=99.0
+14:40:30.736 hb presence=True  out_pin=True  dist=0.6800000071525574 speed=0.009999999776482582 energy=74.0
+14:40:34.629 hb presence=True  out_pin=True  dist=1.399999976158142 speed=0.009999999776482582 energy=99.0
+14:40:38.623 hb presence=True  out_pin=True  dist=1.4700000286102295 speed=2.4100000858306885 energy=99.0
+14:40:42.616 hb presence=True  out_pin=True  dist=1.2000000476837158 speed=-0.009999999776482582 energy=99.0
+14:40:46.609 hb presence=True  out_pin=True  dist=1.350000023841858 speed=0.0 energy=99.0
+14:40:50.603 hb presence=True  out_pin=True  dist=1.4299999475479126 speed=0.09000000357627869 energy=99.0
+14:40:54.597 hb presence=True  out_pin=True  dist=2.2699999809265137 speed=0.800000011920929 energy=99.0
+14:40:57.054 TRANSITION room_presence: True -> False
+14:40:57.668 TRANSITION room_presence: False -> True
+14:40:57.668 hb presence=True  out_pin=True  dist=2.7200000286102295 speed=0.0 energy=99.0
+14:41:01.662 hb presence=True  out_pin=True  dist=8.729999542236328 speed=0.0 energy=0.0
+14:41:12.328 hb presence=True  out_pin=True  dist=7.449999809265137 speed=0.0 energy=0.0
+14:41:31.052 DISCONNECT (window end)
+14:41:31.052 END

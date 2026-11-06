@@ -1,0 +1,18 @@
+{"t": 0.2, "clock": "14:36:46.639", "kind": "connect", "host": "192.168.1.155", "name": "c4002-presence", "mac": "9C:CC:01:D0:64:6C", "esphome": "2026.9.1"}
+{"t": 0.25, "clock": "14:36:46.685", "kind": "transition", "entity": "room_presence", "was": null, "now": true}
+{"t": 0.25, "clock": "14:36:46.686", "kind": "transition", "entity": "room_presence_out_pin", "was": null, "now": true}
+{"t": 1.7, "clock": "14:36:48.140", "kind": "phase", "phase": "A", "note": "person should be in view now", "presence": true}
+{"t": 1.7, "clock": "14:36:48.140", "kind": "cue", "cue": "out"}
+{"t": 7.8, "clock": "14:36:54.232", "kind": "transition", "entity": "room_presence", "was": true, "now": false}
+{"t": 7.81, "clock": "14:36:54.243", "kind": "transition", "entity": "room_presence", "was": false, "now": true}
+{"t": 41.01, "clock": "14:37:27.442", "kind": "transition", "entity": "room_presence", "was": true, "now": false}
+{"t": 41.07, "clock": "14:37:27.502", "kind": "phase_result", "phase": "A", "cleared": true, "seconds_from_cue": 33.27}
+{"t": 41.07, "clock": "14:37:27.503", "kind": "cue", "cue": "in"}
+{"t": 52.37, "clock": "14:37:38.808", "kind": "transition", "entity": "room_presence", "was": false, "now": true}
+{"t": 52.57, "clock": "14:37:39.004", "kind": "phase_result", "phase": "B", "present": true, "seconds_from_cue": 6.02}
+{"t": 72.59, "clock": "14:37:59.027", "kind": "cue", "cue": "away"}
+{"t": 107.77, "clock": "14:38:34.206", "kind": "transition", "entity": "room_presence", "was": true, "now": false}
+{"t": 107.84, "clock": "14:38:34.280", "kind": "phase_result", "phase": "C", "cleared": true, "seconds_from_cue": 31.07}
+{"t": 107.84, "clock": "14:38:34.281", "kind": "phase_result", "phase": "C", "stayed_clear_60s": true}
+{"t": 107.84, "clock": "14:38:34.281", "kind": "cue", "cue": "done"}
+{"t": 111.82, "clock": "14:38:38.261", "kind": "summary", "A_clear": 33.27305889129639, "B_present": 6.02, "C_clear": 31.07, "C_stable_60s": true, "samples": 20, "distance_m": {"min": 1.3700000047683716, "max": 1.5399999618530273, "mean": 1.435}, "speed_ms": {"min": -0.019999999552965164, "max": 0.07999999821186066}, "energy": {"min": 99.0, "max": 99.0}, "out_pin_agrees_while_present": true, "transitions": [[0.25, "room_presence", null, true], [0.25, "room_presence_out_pin", null, true], [7.8, "room_presence", true, false], [7.81, "room_presence", false, true], [41.01, "room_presence", true, false], [52.37, "room_presence", false, true], [107.77, "room_presence", true, false]]}
