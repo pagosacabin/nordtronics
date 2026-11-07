@@ -1,5 +1,10 @@
 # 0171 — Newton headless token measurement + paging fix
 
+## Assignment
+- **Newton runs the sweep** (steps 3–6): the headless `agy -p` sweep with paging, his own token count from the JSON output, the quota reads before and after, and the MCP reconnect/retry. Hermes hands him these steps via Herdr.
+- **Hermes runs the frame**: the clean-window check (step 1), his own sweep plus `session_model_usage` (step 7), the comparison table and verdict (step 8), writing and committing the artifact, and staging the reply.
+- **Hermes is the mailbox reader**: he picks this task up and routes the Newton steps to Newton. Newton does not poll the mailbox — if a step says Newton, Hermes drives it through him.
+
 ## Context
 Task 0170 proved the Antigravity free tier covers a daily sweep, but its quota number is contaminated: Gemini weekly remaining went 94% → 63%, and Hermes declared himself that the 31-point drop is an upper bound, not the sweep's alone — Stephen's live interactive Newton session shared the same window and account, and the CLI exposes no per-conversation token counter in interactive mode, so the shares cannot be separated. Stephen asked (2026-11-07, ~10:26 MST) whether Newton has an API to determine tokens remaining or used. Juno's answer: tokens *used* are measurable — headless `agy -p` with `--output-format json` returns per-task input/output/thinking/cache/total counts, and the CLI keeps per-generation tokens and cost in `~/.gemini/antigravity-cli/conversations/*.db` (a `generations` table; the tokstat tool reads it, but it is reverse-engineered and experimental). Tokens *remaining* have no official API and no token count anywhere — remaining is always a fraction, via an undocumented local endpoint (community tool `agy-cli-usage` wraps it, with a `GET /quota` HTTP endpoint) or Google's Cloud Code `retrieveUserQuotaSummary` endpoint. Stephen agreed ("Exactly") to the plan: run the sweep headless with JSON output for Newton's own token count, and read the quota fraction before and after with nothing else live.
 
