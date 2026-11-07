@@ -1,3 +1,33 @@
+---
+task_id: "0170"
+protocol_version: 1.0.0
+status: in_progress
+iteration: 1
+expect-reply-within: 6h
+cost:
+  model: deepseek-flash
+  api_calls: unknown
+  input_tokens: unknown
+  input_cache_hit_tokens: unknown
+  input_cache_miss_tokens: unknown
+  output_tokens: unknown
+  total_tokens: unknown
+  search_requests: unknown
+  rate_window: off-peak
+  rates_used: "DeepSeek off-peak: $0.15/M input miss, $0.003/M input hit, $0.60/M output"
+  cost_usd: unknown
+notes: |
+  PICKED UP 2026-11-07 07:15 MST (14:15 UTC), off-peak (PEAK: OFF-PEAK 14:15 UTC),
+  PROTOCOL MATCH 1.0.0. 0142 was skipped, not resumed: its front-matter carries
+  status: superseded and a decision-blocked notes block (Connects balance). 0159 was
+  skipped, not resumed: decision-blocked (UniFi controller address unknown), left
+  untouched per worker rule 6.
+
+  The filing carried NO front-matter (no task_id/status/iteration); the protocol
+  fields above were added at pickup per handoff-mailbox rule 16. The body-level
+  `expect-reply-within: 6h` line was folded into the front-matter above.
+---
+
 # 0170 — Install Antigravity CLI on the bench + side-by-side daily sweep
 
 ## Context
