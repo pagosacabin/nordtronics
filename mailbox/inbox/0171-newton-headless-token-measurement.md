@@ -42,6 +42,7 @@ The question to answer: what does one daily sweep cost Newton in tokens (his own
 - Read-only toward Upwork / Freelancer / AuraOne — no bids, applications, or messages.
 - Do not touch Hermes's own config, cron, or sweep schedule. Do not replace the 5 AM sweep.
 - Token hygiene, same as 0170: if the CLI needs Upwork MCP access, use the 0170 pattern (temporary `agy mcp add` with a refreshed bearer, remove the MCP entry after the run, no bearer left in Newton's config, no secrets in task files or git). Do not store tokens in task files or git.
+- If Newton hits quota (429 / `RESOURCE_EXHAUSTED` / "Individual quota reached"), do NOT retry in a loop — report the pool, the "Resets in" time, and stop. Note whether the other pool (Claude/GPT) still has room. An exhausted pool does not fail fast: `agy` retries with backoff until the print timeout, so looping burns minutes, not quota — stop at the first quota error.
 - If any step is blocked (headless JSON has no token counts, quota endpoint unreachable, window not clean), report exactly where it stopped — do not invent readings. A failed measurement reported honestly beats a guessed number.
 
 ## Proof
