@@ -1,3 +1,16 @@
+---
+task_id: "0172"
+protocol_version: 1.1.0
+status: in_progress
+iteration: 1
+expect-reply-within: 6h
+notes: |
+  Pickup 2026-11-07 17:15 MST (2026-11-08 00:15 UTC), off-peak per the pre-run PEAK line,
+  PROTOCOL MISMATCH local=1.0.0 remote=1.1.0 -> this is the protocol-update task in inbox.
+  Task arrived with no front-matter; added the protocol fields at pickup (handoff-mailbox
+  rule 16) and folded the body-level `expect-reply-within: 6h` line into the front-matter.
+---
+
 # 0172 — Pool routing protocol section (1.2.0)
 
 ## Assignment
@@ -42,4 +55,3 @@ Routing rules to write into the README (verbatim substance, tidy the wording onl
 ## Reply format
 Staged reply per the mailbox README on main (protocol 1.1.0): summary, proof pointers, notes field.
 
-expect-reply-within: 6h
