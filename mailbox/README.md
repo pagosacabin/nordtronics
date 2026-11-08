@@ -1,6 +1,6 @@
 # Mailbox protocol — global rules
 
-protocol_version: 1.1.0
+protocol_version: 1.2.0
 
 ## Protocol versioning
 
@@ -14,6 +14,10 @@ in the previous format, carrying the exact skill-patch text to apply verbatim.
 - 1.1.0 — 2026-10-28: cost reporting. Staged replies carry a `cost`
   field (see "Cost format" below), reporting DeepSeek API usage summed
   across the task's API calls and the calculated cost in USD.
+- 1.2.0 — 2026-11-07: model pool routing. Newton's two Antigravity weekly
+  pools are used in order — Gemini Flash first, Claude/GPT second once the
+  Gemini pool drops under 20% — with Hermes on DeepSeek as the floor (see
+  "Model pool routing" below).
 
 The mailbox is a state machine. Task files move through directories; every
 transition is a `git mv` + commit + push. Never copy a task file — move it.
@@ -110,6 +114,55 @@ cost:
   cost and present it as API usage.
 - Juno verifies the arithmetic (tokens x rates = cost_usd) before
   archive, the same as branch SHA / run URL verification.
+
+## Model pool routing
+
+Newton's Antigravity CLI has two independent weekly quota pools — Gemini
+models and Claude/GPT models. Use them in order, not all at once, with
+DeepSeek as the floor.
+
+- **Order of pools.** Newton runs on Gemini Flash first: the daily sweep,
+  light research, and light code. When the Gemini pool drops under 20%
+  remaining, switch Newton to the second pool for the same jobs. Hermes on
+  DeepSeek is the floor: paid, pennies per task, never runs out in practice,
+  and the only one that can touch the bench.
+- **Model roles.** Gemini Flash is the volume model. Claude Sonnet 4.6 is the
+  preferred model on pool two and the pick for harder coding jobs. Claude
+  Opus 4.6 thinking is for the hardest jobs only — the task names it, or
+  Sonnet has already failed on the same job. GPT-OSS 120B is the light option
+  on pool two. Lightest model that does the job. Per-model burn is unmeasured
+  — 0171 measures the Flash sweep; revisit the roles if a later measurement
+  shows otherwise.
+- **Coding reserve.** Newton is the coding reserve for pure software —
+  scripts, tools, code review, research, drafting. Bench firmware
+  (ESP32/ESPHome/PlatformIO that must be flashed and measured) is Hermes's by
+  default: he is the only hands, and Newton drafting firmware that Hermes then
+  has to flash and prove is two steps where Hermes writing it himself is one.
+  Newton may draft firmware only when the task explicitly says so, and Hermes
+  proves it on the bench before it counts.
+- **Read both gauges before every Newton run.** `agy -p "/usage"` costs no
+  agent turn and no quota. Read both gauges and pick the pool with room; never
+  guess which pool has room.
+- **Quota stop.** On 429 / `RESOURCE_EXHAUSTED` / "Individual quota reached",
+  do NOT retry in a loop — report the pool, the "Resets in" time, and stop.
+  Note whether the other pool still has room. An exhausted pool does not fail
+  fast: `agy` retries with backoff until the print timeout, so looping burns
+  minutes, not quota. Read the timer: under 5h means the five-hour window
+  (wait it out); over 5h means the weekly cap (switch pools). If neither pool
+  has room, report both reset times and run on DeepSeek until the next reset.
+- **Availability.** Never assume a model is there or gone from memory or web
+  reports — verify live with a probe call (`agy -p` with `--model`, one-word
+  reply). The Nov 2 removal reports said Claude 4.6 and GPT-OSS were off the
+  free tier; live calls on 2026-11-07 proved both work. A model list is not
+  proof; a live reply is. If a model is gone, report it and fall through to
+  the next pool — do not silently substitute a different model.
+- **Headless, not interactive.** Jobs run headless via Hermes, not
+  interactively. Interactive Newton turns are for questions and checks — they
+  burn the pool unmeasured (4 points in 15 minutes of Q&A on 2026-11-07).
+- **Record switches.** Record any pool or model switch in the staged reply
+  notes, so the choice is visible.
+- The 20% switch point is a first guess, revisited once 0171 measures the real
+  per-sweep cost.
 
 ## Rules
 
