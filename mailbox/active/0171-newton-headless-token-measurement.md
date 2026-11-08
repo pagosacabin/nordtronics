@@ -1,3 +1,20 @@
+---
+task_id: "0171"
+protocol_version: 1.2.0
+status: in_progress
+iteration: 1
+expect-reply-within: 6h
+notes: |
+  PICKED UP 2026-11-07 18:15 MST (2026-11-08T01:15Z), off-peak (PEAK: OFF-PEAK
+  01:15 UTC), protocol 1.2.0 current (0172 already archived; the local
+  last_seen_protocol_version was recorded as 1.2.0 this run).
+
+  The filing carried no front-matter; the protocol fields were added at pickup
+  and the body-level `expect-reply-within` line was folded in (handoff-mailbox
+  rule 16). 0142 (status: superseded, Juno's 2026-10-19 resolution) and 0159
+  (decision-blocked, controller address owed) were both left untouched.
+---
+
 # 0171 — Newton headless token measurement + paging fix
 
 ## Assignment
@@ -54,5 +71,3 @@ The question to answer: what does one daily sweep cost Newton in tokens (his own
 
 ## Reply format
 Staged reply per the mailbox README on main (protocol 1.0.0): summary, proof pointers, notes field.
-
-expect-reply-within: 6h
