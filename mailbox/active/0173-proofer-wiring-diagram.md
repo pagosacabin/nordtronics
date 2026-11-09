@@ -1,8 +1,8 @@
 ---
 task_id: "0173"
 protocol_version: 1.2.0
-status: inbox
-iteration: 0
+status: in_progress
+iteration: 1
 expect-reply-within: 6h
 proof: []
 ---
