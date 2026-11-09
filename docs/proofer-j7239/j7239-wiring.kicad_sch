@@ -1,0 +1,1913 @@
+(kicad_sch
+	(version 20260101)
+	(generator "eeschema")
+	(generator_version "10.0")
+	(uuid 27127932-a694-4509-84d7-899969ff20c2)
+	(paper "A4")
+	(title_block
+		(title "Proofer Wiring Diagram - Alliance J7239")
+		(date "2026-11-09")
+		(rev "A")
+		(company "Nordtronics")
+		(comment 1 "120 VAC - 1500 W - 13.5 A - Black Bart's, Pagosa Springs")
+	)
+	(lib_symbols
+		(symbol "Switch:SW_SPST"
+			(pin_names
+				(offset 0)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "SW"
+				(at 0 3.175 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "SW_SPST"
+				(at 0 -2.54 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Single Pole Single Throw (SPST) switch"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "switch lever"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "SW_SPST_0_0"
+				(circle
+					(center -2.032 0)
+					(radius 0.508)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.524 0.254) (xy 1.524 1.778)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(circle
+					(center 2.032 0)
+					(radius 0.508)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "SW_SPST_1_1"
+				(pin passive line
+					(at -5.08 0 0)
+					(length 2.54)
+					(name "A"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 5.08 0 180)
+					(length 2.54)
+					(name "B"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "Motor:Fan"
+			(pin_names
+				(offset 0)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "M"
+				(at 2.54 5.08 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Value" "Fan"
+				(at 2.54 -2.54 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left top)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0.254 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0.254 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Fan"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "Fan Motor"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "PinHeader*P2.54mm* TerminalBlock*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "Fan_0_1"
+				(arc
+					(start 0 3.81)
+					(mid -0.0015 0.9048)
+					(end -2.54 -0.508)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 4.572) (xy 0 5.08)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 4.2672) (xy 0 4.6228)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(circle
+					(center 0 1.016)
+					(radius 3.2512)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start -2.54 -0.508)
+					(mid 0 1.0618)
+					(end 2.54 -0.508)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 -2.2352) (xy 0 -2.6416)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 -5.08) (xy 0 -4.572)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start 2.54 -0.508)
+					(mid 0.047 0.9315)
+					(end 0 3.81)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "Fan_1_1"
+				(pin passive line
+					(at 0 7.62 270)
+					(length 2.54)
+					(name "+"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 0 -5.08 90)
+					(length 2.54)
+					(name "-"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "Device:Heater"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "R"
+				(at 2.032 0 90)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "Heater"
+				(at -2.032 0 90)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at -1.778 0 90)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Resistive heater"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "heater R resistor"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "Heater_0_1"
+				(polyline
+					(pts
+						(xy -1.016 1.524) (xy 1.016 1.524)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start -1.016 -2.54)
+					(end 1.016 2.54)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 1.016 0.508) (xy -1.016 0.508)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 1.016 -0.508) (xy -1.016 -0.508)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 1.016 -1.524) (xy -1.016 -1.524)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "Heater_1_1"
+				(pin passive line
+					(at 0 3.81 270)
+					(length 1.27)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 0 -3.81 90)
+					(length 1.27)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "Connector:Screw_Terminal_01x04"
+			(pin_names
+				(offset 1.016)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "J"
+				(at 0 5.08 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "Screw_Terminal_01x04"
+				(at 0 -7.62 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Generic screw terminal, single row, 01x04, script generated (kicad-library-utils/schlib/autogen/connector/)"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "screw terminal"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "TerminalBlock*:*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "Screw_Terminal_01x04_1_1"
+				(rectangle
+					(start -1.27 3.81)
+					(end 1.27 -6.35)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(polyline
+					(pts
+						(xy -0.5334 2.8702) (xy 0.3302 2.032)
+					)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -0.5334 0.3302) (xy 0.3302 -0.508)
+					)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -0.5334 -2.2098) (xy 0.3302 -3.048)
+					)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -0.5334 -4.7498) (xy 0.3302 -5.588)
+					)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -0.3556 3.048) (xy 0.508 2.2098)
+					)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -0.3556 0.508) (xy 0.508 -0.3302)
+					)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -0.3556 -2.032) (xy 0.508 -2.8702)
+					)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -0.3556 -4.572) (xy 0.508 -5.4102)
+					)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(circle
+					(center 0 2.54)
+					(radius 0.635)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(circle
+					(center 0 0)
+					(radius 0.635)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(circle
+					(center 0 -2.54)
+					(radius 0.635)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(circle
+					(center 0 -5.08)
+					(radius 0.635)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(pin passive line
+					(at -5.08 2.54 0)
+					(length 3.81)
+					(name "Pin_1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 0 0)
+					(length 3.81)
+					(name "Pin_2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 -2.54 0)
+					(length 3.81)
+					(name "Pin_3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 -5.08 0)
+					(length 3.81)
+					(name "Pin_4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+	)
+	(symbol
+		(lib_id "Switch:SW_SPST")
+		(at 66.04 50.8 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "da00ef31-ab3c-480b-804b-596c41e4229b")
+		(property "Reference" "SW1"
+			(at 66.04 46.99 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.6 1.6)
+				)
+			)
+		)
+		(property "Value" "16 A MIN"
+			(at 66.04 53.34 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.6 1.6)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 66.04 50.8 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 66.04 50.8 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Single Pole Single Throw (SPST) switch"
+			(at 66.04 50.8 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "73085ec4-efa7-43e3-9421-b4fe09ee69d6")
+		)
+		(pin "2"
+			(uuid "2bc09c6d-29c9-4d25-8e91-05abe2cf937b")
+		)
+		(instances
+			(project "j7239-wiring"
+				(path "/27127932-a694-4509-84d7-899969ff20c2"
+					(reference "SW1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Motor:Fan")
+		(at 109.22 82.55 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "e39da175-1cf0-427a-8e16-10c18a5a4285")
+		(property "Reference" "M1"
+			(at 116.84 87.63 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.6 1.6)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "FAN MOTOR"
+			(at 109.22 85.09 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.6 1.6)
+				)
+				(justify left top)
+			)
+		)
+		(property "Footprint" ""
+			(at 109.22 82.804 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 109.22 82.804 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Fan"
+			(at 109.22 82.55 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "a5e0d8f2-d502-4a26-bce8-658fa0dffee1")
+		)
+		(pin "2"
+			(uuid "422e7c2e-ab4e-48f6-ace0-e7e00872dec0")
+		)
+		(instances
+			(project "j7239-wiring"
+				(path "/27127932-a694-4509-84d7-899969ff20c2"
+					(reference "M1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Switch:SW_SPST")
+		(at 152.4 50.8 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "3a7bd08f-dc88-4e84-a16a-1ad049a45f00")
+		(property "Reference" "TH1"
+			(at 152.4 46.99 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.6 1.6)
+				)
+			)
+		)
+		(property "Value" "THERMOSTAT"
+			(at 152.4 53.34 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.6 1.6)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 152.4 50.8 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 152.4 50.8 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Single Pole Single Throw (SPST) switch"
+			(at 152.4 50.8 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "32f297c7-5951-4e30-a254-2cce46f09342")
+		)
+		(pin "2"
+			(uuid "fab46653-d382-4bdd-b5c4-1eb24ce31a9e")
+		)
+		(instances
+			(project "j7239-wiring"
+				(path "/27127932-a694-4509-84d7-899969ff20c2"
+					(reference "TH1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:Heater")
+		(at 177.8 101.6 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "385368c2-dd58-49c3-947d-f7f0dd21ea41")
+		(property "Reference" "R1"
+			(at 170.18 93.2 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.6 1.6)
+				)
+			)
+		)
+		(property "Value" "~10 OHM 1500 W"
+			(at 177.8 104.14 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.6 1.6)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 176.022 101.6 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 177.8 101.6 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistive heater"
+			(at 177.8 101.6 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "0c39a740-039d-4f99-a828-c42392ff2938")
+		)
+		(pin "2"
+			(uuid "0d4f307d-b631-4387-8700-1ba12d93c4a5")
+		)
+		(instances
+			(project "j7239-wiring"
+				(path "/27127932-a694-4509-84d7-899969ff20c2"
+					(reference "R1")
+					(unit 1)
+				)
+			)
+		)
+	)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	(symbol
+		(lib_id "Connector:Screw_Terminal_01x04")
+		(at 247.65 119.38 90)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "5687d632-b55c-4e54-9b5d-38a331dfcd85")
+		(property "Reference" "J1"
+			(at 247.65 102 270)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.6 1.6)
+				)
+			)
+		)
+		(property "Value" "NEUTRAL BUS"
+			(at 247.65 127.0 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.6 1.6)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 247.65 119.38 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 247.65 119.38 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Generic screw terminal, single row, 01x04, script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(at 247.65 119.38 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "69b84d2a-f95e-4cba-bc06-92d811b1df6b")
+		)
+		(pin "2"
+			(uuid "798bcf92-0737-4fab-a099-fff733d69187")
+		)
+		(pin "3"
+			(uuid "730b9fae-b594-4e70-8512-71cd28aac37c")
+		)
+		(pin "4"
+			(uuid "e3a4bb6e-6c9d-4848-bd26-816e52ee9a41")
+		)
+		(instances
+			(project "j7239-wiring"
+				(path "/27127932-a694-4509-84d7-899969ff20c2"
+					(reference "J1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "120 V HOT (L)"
+		(at 25.4 50.8 0)
+		(effects
+			(font
+				(size 2 2)
+			)
+			(justify left bottom)
+		)
+		(uuid "06751167-84ca-45ff-82b4-850ad375f09f")
+	)
+	(label "SWITCHED HOT"
+		(at 73.66 50.8 0)
+		(effects
+			(font
+				(size 2 2)
+			)
+			(justify left bottom)
+		)
+		(uuid "16afd86a-1ee1-47c0-9eb1-caaa5f0dc07b")
+	)
+	(label "NEUTRAL (N)"
+		(at 25.4 152.4 0)
+		(effects
+			(font
+				(size 2 2)
+			)
+			(justify left bottom)
+		)
+		(uuid "1d1ab1e2-bb99-492a-8652-2b394e7a2bb1")
+	)
+	(label "SWITCHED HOT (THERMOSTAT)"
+		(at 177.8 55.88 270)
+		(effects
+			(font
+				(size 1.6 1.6)
+			)
+			(justify right bottom)
+		)
+		(uuid "831f5676-b50f-411d-a93e-d032e41fad7d")
+	)
+	(text "PROOFER WIRING DIAGRAM - ALLIANCE J7239"
+		(exclude_from_sim no)
+		(at 20 20 0)
+		(effects
+			(font
+				(size 3 3)
+				(bold yes)
+			)
+			(justify left bottom)
+		)
+		(uuid "b2bdaa2f-a88a-4c00-9530-04bdc5f01f89")
+	)
+	(text "Serial 50539A9603 - 120 VAC - 1500 W - 13.5 A - Black Bart's, Pagosa Springs"
+		(exclude_from_sim no)
+		(at 20 26 0)
+		(effects
+			(font
+				(size 2 2)
+			)
+			(justify left bottom)
+		)
+		(uuid "3cf6da60-ac93-45b5-b5c2-5620559c3063")
+	)
+	(text "Bench-proved 2026-11-09. This sheet stays with the proofer."
+		(exclude_from_sim no)
+		(at 20 31 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left bottom)
+		)
+		(uuid "4f06479b-c9ac-4ce5-b870-b3433d0b2154")
+	)
+	(text "MAIN SWITCH"
+		(exclude_from_sim no)
+		(at 66.04 43.18 0)
+		(effects
+			(font
+				(size 2.4 2.4)
+				(bold yes)
+			)
+			(justify bottom)
+		)
+		(uuid "a6d51e31-6ba7-4a72-a42d-0a396a0e513d")
+	)
+	(text "16 A or higher - on/off for the whole unit"
+		(exclude_from_sim no)
+		(at 66.04 57.15 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify bottom)
+		)
+		(uuid "e0b50c7a-78fd-4375-a0f8-c8c9697417ea")
+	)
+	(text "FAN"
+		(exclude_from_sim no)
+		(at 113.03 79.375 0)
+		(effects
+			(font
+				(size 2.4 2.4)
+				(bold yes)
+			)
+			(justify left bottom)
+		)
+		(uuid "2dfc0f8d-884e-4549-b763-b1893a00ddf4")
+	)
+	(text "runs whenever the switch is on"
+		(exclude_from_sim no)
+		(at 113.03 83.82 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left bottom)
+		)
+		(uuid "b2be953f-36ba-465c-8117-23e755bba677")
+	)
+	(text "THERMOSTAT"
+		(exclude_from_sim no)
+		(at 152.4 43.18 0)
+		(effects
+			(font
+				(size 2.4 2.4)
+				(bold yes)
+			)
+			(justify bottom)
+		)
+		(uuid "7e9231b9-cec8-4926-bbc2-f51fbc22452d")
+	)
+	(text "heating element on/off only"
+		(exclude_from_sim no)
+		(at 152.4 57.15 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify bottom)
+		)
+		(uuid "204b9854-b061-40b2-8243-9bbad8aa7078")
+	)
+	(text "HEATING ELEMENT"
+		(exclude_from_sim no)
+		(at 174 98.5 0)
+		(effects
+			(font
+				(size 2.4 2.4)
+				(bold yes)
+			)
+			(justify right bottom)
+		)
+		(uuid "29522ffd-856a-4597-8082-9062f120bcb0")
+	)
+	(text "~10 ohms - 1500 W at 120 V"
+		(exclude_from_sim no)
+		(at 174 103 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify right bottom)
+		)
+		(uuid "b13131a4-6f1c-4707-9904-2af0463dd4d2")
+	)
+	(text "TERMINAL BLOCK - NEUTRAL BUS"
+		(exclude_from_sim no)
+		(at 247.65 106.7 0)
+		(effects
+			(font
+				(size 2.4 2.4)
+				(bold yes)
+			)
+			(justify bottom)
+		)
+		(uuid "47bef275-2e1f-4c13-b2aa-42b4a101d89a")
+	)
+	(text "all 4 terminals commoned = one neutral bus"
+		(exclude_from_sim no)
+		(at 247.65 111 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify bottom)
+		)
+		(uuid "a10186c6-46b7-4f88-a112-36e8662a4077")
+	)
+	(text "SPARE (not used)"
+		(exclude_from_sim no)
+		(at 255.5 128 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+			(justify left bottom)
+		)
+		(uuid "73dc17cf-de8f-4f96-bce2-cc22fdb71005")
+	)
+	(text "HOW IT WORKS"
+		(exclude_from_sim no)
+		(at 20 66 0)
+		(effects
+			(font
+				(size 2.6 2.6)
+				(bold yes)
+			)
+			(justify left bottom)
+		)
+		(uuid "aa6fe00b-4c93-42e6-a640-03f90c315482")
+	)
+		(text "1. Wall power comes in on two wires:"
+		(exclude_from_sim no)
+		(at 20 69.5 0)
+		(effects
+			(font
+				(size 2.0 2.0)
+			)
+			(justify left bottom)
+		)
+		(uuid "63f9712c-3a88-44e2-b8ff-1e9a9b7f443e")
+	)
+	(text "   HOT (L) and NEUTRAL (N)."
+		(exclude_from_sim no)
+		(at 20 72.7 0)
+		(effects
+			(font
+				(size 2.0 2.0)
+			)
+			(justify left bottom)
+		)
+		(uuid "ea6ddc5e-c094-4cdb-886d-d3da676f5ab1")
+	)
+	(text "2. HOT goes through the MAIN SWITCH."
+		(exclude_from_sim no)
+		(at 20 75.9 0)
+		(effects
+			(font
+				(size 2.0 2.0)
+			)
+			(justify left bottom)
+		)
+		(uuid "2203fc87-7ebb-4744-92ce-baac73685317")
+	)
+	(text "3. Switch ON: power reaches the FAN"
+		(exclude_from_sim no)
+		(at 20 79.1 0)
+		(effects
+			(font
+				(size 2.0 2.0)
+			)
+			(justify left bottom)
+		)
+		(uuid "00933662-fc25-4907-9240-4abbeec50ed3")
+	)
+	(text "   and the THERMOSTAT."
+		(exclude_from_sim no)
+		(at 20 82.3 0)
+		(effects
+			(font
+				(size 2.0 2.0)
+			)
+			(justify left bottom)
+		)
+		(uuid "cee935d5-08e8-4244-8d2d-6179750da358")
+	)
+	(text "4. The FAN runs whenever the switch"
+		(exclude_from_sim no)
+		(at 20 85.5 0)
+		(effects
+			(font
+				(size 2.0 2.0)
+			)
+			(justify left bottom)
+		)
+		(uuid "a6604cc7-6710-4394-a840-76bcdfca8461")
+	)
+	(text "   is ON. The thermostat never turns"
+		(exclude_from_sim no)
+		(at 20 88.7 0)
+		(effects
+			(font
+				(size 2.0 2.0)
+			)
+			(justify left bottom)
+		)
+		(uuid "74e9bf16-4f4a-4a0a-a85d-0fb08ddd05dc")
+	)
+	(text "   the fan off."
+		(exclude_from_sim no)
+		(at 20 91.9 0)
+		(effects
+			(font
+				(size 2.0 2.0)
+			)
+			(justify left bottom)
+		)
+		(uuid "f2149b14-8196-46ee-8be1-579d3f57e7f7")
+	)
+	(text "5. The THERMOSTAT turns only the"
+		(exclude_from_sim no)
+		(at 20 95.1 0)
+		(effects
+			(font
+				(size 2.0 2.0)
+			)
+			(justify left bottom)
+		)
+		(uuid "24b7642e-0829-48e0-8925-f7f1b0c1f795")
+	)
+	(text "   HEATING ELEMENT on and off. At 200 F"
+		(exclude_from_sim no)
+		(at 20 98.3 0)
+		(effects
+			(font
+				(size 2.0 2.0)
+			)
+			(justify left bottom)
+		)
+		(uuid "3a336575-d19c-452a-8258-292d6f77b099")
+	)
+	(text "   it closes and the element heats;"
+		(exclude_from_sim no)
+		(at 20 101.5 0)
+		(effects
+			(font
+				(size 2.0 2.0)
+			)
+			(justify left bottom)
+		)
+		(uuid "f1e11949-89c9-47c6-90b0-2f241e6f1712")
+	)
+	(text "   below 60 F it opens and cuts off."
+		(exclude_from_sim no)
+		(at 20 104.7 0)
+		(effects
+			(font
+				(size 2.0 2.0)
+			)
+			(justify left bottom)
+		)
+		(uuid "a7358cf2-6032-40e2-83e8-90b1f6fe30e7")
+	)
+	(text "6. All three neutrals land on the"
+		(exclude_from_sim no)
+		(at 20 107.9 0)
+		(effects
+			(font
+				(size 2.0 2.0)
+			)
+			(justify left bottom)
+		)
+		(uuid "72584240-ee2a-4093-81bc-4329554f4f56")
+	)
+	(text "   TERMINAL BLOCK = NEUTRAL BUS."
+		(exclude_from_sim no)
+		(at 20 111.1 0)
+		(effects
+			(font
+				(size 2.0 2.0)
+			)
+			(justify left bottom)
+		)
+		(uuid "a422269e-da34-42d8-a3e6-0278bb7cbe88")
+	)
+	(text "   All 4 terminals are commoned."
+		(exclude_from_sim no)
+		(at 20 114.3 0)
+		(effects
+			(font
+				(size 2.0 2.0)
+			)
+			(justify left bottom)
+		)
+		(uuid "2273c903-1e82-4dad-9465-ae2c6107a336")
+	)
+	(text "REPLACING PARTS"
+		(exclude_from_sim no)
+		(at 20 122 0)
+		(effects
+			(font
+				(size 2.6 2.6)
+				(bold yes)
+			)
+			(justify left bottom)
+		)
+		(uuid "8d58046b-c415-400e-a823-e2aa285ac099")
+	)
+		(text "MAIN SWITCH: 16 A or higher."
+		(exclude_from_sim no)
+		(at 20 125.5 0)
+		(effects
+			(font
+				(size 2.0 2.0)
+			)
+			(justify left bottom)
+		)
+		(uuid "e131e616-3c4e-4b7f-a919-4ef68b4aa83c")
+	)
+	(text "A 10 A switch is underrated for"
+		(exclude_from_sim no)
+		(at 20 128.7 0)
+		(effects
+			(font
+				(size 2.0 2.0)
+			)
+			(justify left bottom)
+		)
+		(uuid "447172be-8990-47aa-9872-fafa5a675524")
+	)
+	(text "13.5 A - never fit a 10 A switch."
+		(exclude_from_sim no)
+		(at 20 131.9 0)
+		(effects
+			(font
+				(size 2.0 2.0)
+			)
+			(justify left bottom)
+		)
+		(uuid "cac5d438-fca2-4781-8bb9-02ac70f420c8")
+	)
+	(text "HEATING ELEMENT: about 10 ohms"
+		(exclude_from_sim no)
+		(at 20 135.1 0)
+		(effects
+			(font
+				(size 2.0 2.0)
+			)
+			(justify left bottom)
+		)
+		(uuid "e960994e-1ee4-4680-afb6-d5e616f50e77")
+	)
+	(text "(1500 W at 120 V)."
+		(exclude_from_sim no)
+		(at 20 138.3 0)
+		(effects
+			(font
+				(size 2.0 2.0)
+			)
+			(justify left bottom)
+		)
+		(uuid "427427c3-59a6-49ad-8348-2e3caa660292")
+	)
+	(text "TERMINAL BLOCK: 4 screw terminals,"
+		(exclude_from_sim no)
+		(at 20 141.5 0)
+		(effects
+			(font
+				(size 2.0 2.0)
+			)
+			(justify left bottom)
+		)
+		(uuid "739d8b5e-3b52-44a1-8b87-ac390c2a6647")
+	)
+	(text "all commoned into one neutral bus."
+		(exclude_from_sim no)
+		(at 20 144.7 0)
+		(effects
+			(font
+				(size 2.0 2.0)
+			)
+			(justify left bottom)
+		)
+		(uuid "a2701fc4-368c-4d72-9b7d-9380f9d420c6")
+	)
+	(sheet_instances
+		(path "/"
+			(page "1")
+		)
+	)
+
+	(wire
+		(pts
+			(xy 25.4 50.8) (xy 60.96 50.8)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "aa92c03b-118d-4ab5-90ae-0a735a71e93a")
+	)
+	(wire
+		(pts
+			(xy 71.12 50.8) (xy 109.22 50.8)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "030dba00-ab80-4c0a-b0a8-a432eb344802")
+	)
+	(wire
+		(pts
+			(xy 109.22 50.8) (xy 147.32 50.8)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "90d8ddfc-4dab-4364-9efc-dce0dcba3c35")
+	)
+	(wire
+		(pts
+			(xy 109.22 50.8) (xy 109.22 74.93)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1b171f67-414d-4441-ab98-34bfa05b215e")
+	)
+	(wire
+		(pts
+			(xy 109.22 87.63) (xy 109.22 152.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ba2ae0b5-28a2-4ea2-93ec-1ac9b38d91ce")
+	)
+	(wire
+		(pts
+			(xy 157.48 50.8) (xy 177.8 50.8)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a6402ea7-e915-4c4e-89a2-430c43dca147")
+	)
+	(wire
+		(pts
+			(xy 177.8 50.8) (xy 177.8 97.79)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "169d50dc-3aa3-4800-a17b-27b061b2a5b2")
+	)
+	(wire
+		(pts
+			(xy 177.8 105.41) (xy 177.8 152.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2b0c6ede-4197-4cbf-b7ef-47bfb2f1eb0d")
+	)
+	(wire
+		(pts
+			(xy 25.4 152.4) (xy 109.22 152.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1c04baaa-7b55-4608-bf47-f976aa42eb4b")
+	)
+	(wire
+		(pts
+			(xy 109.22 152.4) (xy 177.8 152.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "858bdbac-b0eb-4344-9618-161d8e5c48b6")
+	)
+	(wire
+		(pts
+			(xy 177.8 152.4) (xy 245.11 152.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "04b17b35-18c7-432d-abd7-18d73322c93e")
+	)
+	(wire
+		(pts
+			(xy 245.11 152.4) (xy 247.65 152.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9bd1da5c-de4c-466d-905e-c7877faf9541")
+	)
+	(wire
+		(pts
+			(xy 247.65 152.4) (xy 250.19 152.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4b05137c-7d8a-42d2-853e-83d3db3f5bca")
+	)
+	(wire
+		(pts
+			(xy 245.11 152.4) (xy 245.11 124.46)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "83698283-c908-406f-b3b9-2b365642b01d")
+	)
+	(wire
+		(pts
+			(xy 247.65 152.4) (xy 247.65 124.46)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bf24c6f3-1da0-416f-8ab6-0b0621da96a4")
+	)
+	(wire
+		(pts
+			(xy 250.19 152.4) (xy 250.19 124.46)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5ca2bc4e-95ba-473d-99a2-b08d327cef98")
+	)
+	(junction
+		(at 109.22 50.8)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "b0966391-2a2b-4404-bd63-a2778b8a15d0")
+	)
+	(junction
+		(at 109.22 152.4)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "f80ae915-144c-4095-a4c6-8dc156e338b3")
+	)
+	(junction
+		(at 177.8 152.4)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "e90d3dfe-61da-44aa-a541-219109e63025")
+	)
+	(junction
+		(at 245.11 152.4)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "b952e666-3d88-4673-bd2d-6d8cf0946a4d")
+	)
+	(junction
+		(at 247.65 152.4)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "9ff1f636-52ad-4f47-ab82-ac8bd185381a")
+	)
+)
