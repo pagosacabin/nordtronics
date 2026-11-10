@@ -6,6 +6,10 @@ on:
     paths:
       - 'android/companion-v0/**'
       - '.github/workflows/android-companion-v0.yml'
+  pull_request:
+    paths:
+      - 'android/companion-v0/**'
+      - '.github/workflows/android-companion-v0.yml'
   workflow_dispatch:
 
 jobs:
