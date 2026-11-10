@@ -53,7 +53,21 @@ jobs:
 
   mosquitto-config:
     name: Mosquitto config check
-    runs-on: ubuntu-latest
+    # Pinned, not `ubuntu-latest`. The deploy target is Ubuntu 24.04
+    # (docs/vps-hardening-runbook.md), so this job should exercise that
+    # release's packaged broker — 2.0.18 with no AppArmor profile for it.
+    # `ubuntu-latest` moved to 26.04, whose mosquitto package is confined by
+    # an AppArmor profile that allows /etc/mosquitto/{certs,ca_certificates,
+    # conf.d} and /var/lib/mosquitto but NOT /etc/letsencrypt, so the broker
+    # dies at startup with
+    #   Unable to load CA certificates. Check cafile
+    #   "/etc/letsencrypt/live/nordtronics.io/chain.pem".
+    #   OpenSSL Error[0]: ... Permission denied
+    # even though the fixture creates that file 0644 and grants setfacl to the
+    # mosquitto user — a DAC explanation is exhausted, which is why the runner
+    # image is the variable. Pinning restores the environment the config is
+    # written for; the TLS file layout itself is proven by the same probes.
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
