@@ -7,6 +7,13 @@ Home Assistant).
 
 ## Layout
 
+- `backend/` — wildfire pipeline: Mosquitto broker, ingest worker, read-only
+  FastAPI service, and the deployment guide (`DEPLOY.md`).
+- `firmware/wildfire-node-v1/` — unified LoRa wildfire node/base-station
+  firmware (Heltec LoRa 32 V4).
+- `android/companion-v0/` — Android companion app for the wildfire network.
+- `website/` — nordtronics.io site.
+- `docs/` — runbooks and design docs (`docs/wildfire/` for the wildfire net).
 - `firmware/cistern-monitor/` — Tank-Monitor remote cistern level monitor:
   ESP32-S3 + SX1262 LoRa TX/RX pair, ultrasonic level sensing, MQTT/Home
   Assistant integration (`cistern_unified.ino`).
@@ -23,9 +30,3 @@ Home Assistant).
 Archived `.zip` files are kept as-is, preserving the original design history.
 - `installs/solar/` — Off-grid solar + storage install notes.
 
-
----
-test: simple git push troubleshooting
-
----
-*CI/CD validation #2*
