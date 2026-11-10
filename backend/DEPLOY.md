@@ -422,6 +422,131 @@ revision over a `schema_version=1` database adds the table and bumps the row to
 curl -s https://api.nordtronics.io/healthz   # "schema_version":2
 ```
 
+## 13. Restore (disaster recovery)
+
+A rebuild restores two independent things: the **host** (replayed from this
+repository) and the **data** (the dumps committed under `backups/`). Replay the
+host first, then land the data — step 6 creates an *empty* database and step 8
+starts the services against it, so the data has to be restored in between, or
+the first worker start will already have created schema against an empty file.
+
+### 13.1 Replay the host
+
+1. `docs/vps-hardening-runbook.md` — provisioning through TLS (users, firewall,
+   certbot, the `deploy` account).
+2. This file, steps 1–12 in order, **with the step-6/step-8 interleave in
+   13.2/13.3 below**: do step 6, restore the data, then continue at step 8.
+3. Re-install the backup job itself. The copy in this repo is the source of
+   truth; step 12's `rsync` of `backend/` puts it at
+   `/opt/nordtronics/backend/scripts/`, and the cron entry runs it from
+   `/home/deploy/bin/`, so the deployment is a copy:
+
+   ```bash
+   sudo install -o deploy -g deploy -m 0755 \
+     /opt/nordtronics/backend/scripts/db-backup.sh /home/deploy/bin/db-backup.sh
+   sudo install -o deploy -g deploy -m 0644 \
+     /opt/nordtronics/backend/scripts/db-backup.py /home/deploy/bin/db-backup.py
+   ```
+
+   The script still runs under `sudo -n` as `deploy`, so the passwordless sudo
+   rule from the hardening runbook must be in place.
+
+### 13.2 Restore the sensor database (after step 6, before step 8)
+
+The dumps live under `backups/` in this repo (`wildfire-<UTC timestamp>.db.gz`,
+one per day). The VPS also keeps the last 7 locally in
+`/home/deploy/backups/`, but the committed copies are the durable ones — a lost
+host loses the local ones too.
+
+```bash
+# newest committed dump
+ls -t ~/nordtronics-src/backups/wildfire-*.db.gz | head -1
+
+# nothing may hold the database open while it is replaced
+sudo systemctl stop wildfire-ingest wildfire-api 2>/dev/null || true
+
+# unpack to a temporary path first: a dump that fails its gzip CRC would
+# otherwise leave a truncated database in place of the empty one
+sudo gunzip -c ~/nordtronics-src/backups/wildfire-<DATE>.db.gz \
+  > /tmp/wildfire-restore.db
+sudo mv /tmp/wildfire-restore.db /var/lib/nordtronics/wildfire.db
+
+# a dump is one checkpointed file, so any -wal/-shm left behind by the empty
+# step-6 database would be replayed on top of it
+sudo rm -f /var/lib/nordtronics/wildfire.db-wal \
+           /var/lib/nordtronics/wildfire.db-shm
+
+# the ownership and mode step 6 sets; the group-write bit is what lets the API
+# and the ingest worker share the file and its sidecars
+sudo chown wildfire-ingest:wildfire-data /var/lib/nordtronics/wildfire.db
+sudo chmod 0660 /var/lib/nordtronics/wildfire.db
+```
+
+Then continue at step 8 (units and first start). The worker applies the schema
+at startup and rewrites `schema_version` in place, so a dump from an older
+revision is upgraded on first start — see step 12.
+
+### 13.3 Restore the broker state
+
+`backend/mosquitto/mosquitto.conf` sets `persistence true` with
+`persistence_location /var/lib/mosquitto/`, so the broker's state is the single
+file `/var/lib/mosquitto/mosquitto.db` (`mosquitto:mosquitto 0600`). The daily
+job backs it up with a plain `cp` of the live file, so a dump **may be
+mid-write** and its tail may be torn. That is accepted: the SQLite database is
+the system of record and nodes republish retained messages on their next
+check-in, so a restored broker is repopulated by the nodes rather than relied on
+as history.
+
+```bash
+sudo systemctl stop mosquitto
+
+sudo gunzip -c ~/nordtronics-src/backups/mosquitto-<DATE>.db.gz \
+  > /tmp/mosquitto-restore.db
+sudo cp /tmp/mosquitto-restore.db /var/lib/mosquitto/mosquitto.db
+sudo rm -f /tmp/mosquitto-restore.db
+sudo chown mosquitto:mosquitto /var/lib/mosquitto/mosquitto.db
+sudo chmod 0600 /var/lib/mosquitto/mosquitto.db
+
+sudo systemctl start mosquitto
+```
+
+If no `mosquitto-*.db.gz` exists (the MQTT backup postdates the host you are
+restoring from), start with an empty persistence file — step 8's first start
+creates one — and let the nodes republish.
+
+### 13.4 Regenerate the secrets
+
+No secret is in the repository, so a replay generates new ones:
+
+- **MQTT passwords** — step 5 again (`mosquitto_passwd` plus the
+  `mosquitto:mosquitto` `0600`/`0640` ownership fix). Any node or worker
+  password from before the rebuild no longer works.
+- **`/etc/nordtronics/ingest.env`** — step 7 again, with the new password from
+  step 5 and the pinned CA bundle.
+- **Base station** — re-enter the node's new password at the device; it has no
+  other way to learn it.
+
+### 13.5 Verify
+
+Run step 10 end to end: `systemctl is-active mosquitto wildfire-ingest
+wildfire-api`, `/healthz` on loopback and through nginx (expect
+`"schema_version":2` and `status:"ok"`, not the 503/500 of an empty database),
+and a test publish through the real TLS path. Then confirm the restored history
+is actually there rather than merely a working API:
+
+```bash
+sudo -u wildfire-ingest python3 -c \
+  "import sqlite3; c=sqlite3.connect('file:/var/lib/nordtronics/wildfire.db?mode=ro', uri=True); \
+   print('readings', c.execute('select count(*) from readings').fetchone()[0], \
+         'nodes', c.execute('select count(*) from nodes').fetchone()[0])"
+# expect counts from before the rebuild, not zero
+```
+
+Deliberately a direct read of the restored file rather than an API call: the
+`/v1/*` routes are behind `X-API-Key` (`WILDFIRE_API_KEY`), so a keyless curl
+proves only that the gate works, not that the data came back. `readings` and
+`nodes` are the tables `backend/common/schema.sql` creates.
+
 ## Rollback
 
 ```bash
