@@ -109,10 +109,11 @@ write telemetry even by accident.
 explicit: `404` unknown node, `400` malformed `since`, `422` out-of-range
 `limit` or malformed node id.
 
-**v1 has no authentication on the API.** It is read-only environmental
-telemetry and sits behind nginx at `api.nordtronics.io`; any account or
-per-node authorisation belongs in a later task, and nothing personal should be
-stored until it exists.
+`/v1/*` routes require an `X-API-Key` header (the server-side key is set
+up in `DEPLOY.md`). The API is read-only environmental telemetry behind
+nginx at `api.nordtronics.io`; the key is currently a single shared key,
+with per-install keys planned. Per-node authorisation belongs in a later
+task, and nothing personal should be stored until it exists.
 
 ## Running the tests
 
