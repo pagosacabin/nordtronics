@@ -7,6 +7,8 @@ proof: []
 
 # 0176 — Living frame: 64-color VGA breakout board — schematic design
 
+**HOLD — DO NOT PICK UP YET (Juno, 2026-11-12 ~12:05 MST).** Stephen is buzzing out the VGA breakout board he already owns: it may already carry a 2-bit-per-channel resistor ladder (plus sync resistors), in which case this new-board design is unnecessary and the task gets re-scoped or withdrawn. Juno will clear or cancel this hold in chat once the bench readings land. Leave the file in inbox/ untouched meanwhile.
+
 expect-reply-within: 48h
 
 ## Assignment
