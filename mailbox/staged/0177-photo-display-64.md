@@ -1,62 +1,65 @@
 ---
 task_id: "0177"
 protocol_version: 1.2.0
-status: in_progress
+status: staged
 iteration: 1
 expect-reply-within: 48h
 cost:
   model: deepseek-flash
-  api_calls: 93
-  input_tokens: 89182
-  input_cache_hit_tokens: 9143936
-  input_cache_miss_tokens: 89182
-  output_tokens: 52587
-  total_tokens: 9285705
+  api_calls: 76
+  input_tokens: 102966
+  input_cache_hit_tokens: 9089920
+  input_cache_miss_tokens: 102966
+  output_tokens: 70897
+  total_tokens: 9263783
   search_requests: 0
   rate_window: off-peak
   rates_used: "$0.15/M input miss, $0.003/M input hit, $0.60/M output"
-  cost_usd: 0.072361
+  cost_usd: 0.085253
   cost_note: "Read from this profile's state.db session_model_usage, session
-    local-4993a61e..., first_seen 2026-11-12T20:15:08Z / last_seen 2026-11-12T20:24:41Z:
-    93 calls, input_tokens 89,182 (cache miss), cache_read 9,143,936, output 52,587,
-    reasoning 24,909. Arithmetic: 89182x0.15e-6 + 9143936x0.003e-6 + 52587x0.60e-6
-    = 0.07236131. Staging and reply composition are further API calls; the figure is
-    not re-read afterwards. Whole run 20:15-20:25Z Thursday = off-peak
-    (PEAK: OFF-PEAK 20:15 UTC)."
+    local-590c55843ed203303ccd109ec25c0f6fec8e660ac2e3bb7cec8477471afdcec1,
+    first_seen 2026-11-12T21:15:08Z / last_seen 2026-11-12T21:26:07Z: 76 calls, input_tokens 102966 (cache
+    miss), cache_read 9089920, output 70897, reasoning 26884. Arithmetic:
+    102966x0.15e-6 + 9089920x0.003e-6 + 70897x0.60e-6 = 0.08525286. Staging and
+    reply composition are further API calls; the figure is not re-read afterwards.
+    Whole run 21:15-21:45Z Thursday = off-peak (PEAK: OFF-PEAK 21:15 UTC)."
 proof:
   - branch: main
-    sha: "92ea471fc3a7cdc01edff97ce47023d9961d1edb"
+    sha: "c03901e63bc9e9ba505b8e71a237ffb8b3492564"
     repo: "pagosacabin/cabin-play"
-    note: "Tip of cabin-play main after two commits by this run (5c3b027 adds the
-      project, 92ea471 adds the compile-time pin-map guard and the refreshed build
-      log). Verified equal by `git ls-remote --heads origin main` at 20:23Z, and
-      checked again from a fresh `git clone --depth 1`, whose HEAD is the same sha
-      and whose `pio run` is [SUCCESS]."
+    note: "Tip of cabin-play main after this run's single commit (round 2). Verified
+      equal by `git ls-remote --heads origin main` at 21:32Z, and independently by a
+      fresh `git clone --depth 1`, whose HEAD is the same sha and whose `pio run` is
+      [SUCCESS] (RAM 26,948 B / 8.2 %, flash 551,325 B / 42.1 %). Round 1's commits
+      (5c3b027, 92ea471) remain in the history underneath it."
   - run: none
-    run_note: "Earned by enumeration, not asserted: cabin-play has no `.github`
-      directory at all -- `ls -a .github` returns 'No such file or directory' and
+    run_note: "Earned by enumeration: cabin-play has no `.github` directory at any
+      revision -- `ls -a .github` returns 'No such file or directory' and
       `git ls-tree -r --name-only HEAD | grep -c '^.github/workflows/'` returns 0 --
-      so no workflow can start on main or on any branch (0138/0175 precedent, same
-      repo). Build-green evidence is the committed build-esp32dev.log.txt (`[SUCCESS]`,
-      RAM 26,432 B / 8.1 %, flash 448,025 B / 34.2 %), a rebuild from a clean clone of
-      this sha that is also `[SUCCESS]` (10.11 s), and the on-device console quoted in
-      the reply body."
+      so no workflow can start on main or on any branch. Build-green evidence is the
+      regenerated build-esp32dev.log.txt ([SUCCESS], RAM 26,948 B / 8.2 %, flash
+      551,325 B / 42.1 %, 'Hash of data verified' on upload), the clean-clone rebuild
+      above, and the on-device console quoted in notes."
   - ntfy: "not applicable, and deliberately not published. The spec names no topic, and
-      the established bench topic nordtronics-build-ed05a663 is for companion APK
-      builds. A receipt in the established format requires Workflow and Artifacts URLs,
-      which a repo with no CI cannot have; publishing one would be a false handoff
-      signal about a different artefact."
+      nordtronics-build-ed05a663 is the companion APK topic. A receipt in the established
+      format needs Workflow and Artifacts URLs, which a repo with no CI cannot have;
+      publishing one would be a false handoff signal about a different artefact."
   - files:
-      - living-frame/firmware/photo-display-64/platformio.ini
       - living-frame/firmware/photo-display-64/src/main.cpp
       - living-frame/firmware/photo-display-64/src/photo_render64.h
-      - living-frame/firmware/photo-display-64/data/photo.jpg
+      - living-frame/firmware/photo-display-64/src/ramp_screen.h
+      - living-frame/firmware/photo-display-64/platformio.ini
+      - living-frame/firmware/photo-display-64/data/parrot.jpg
       - living-frame/firmware/photo-display-64/data/PHOTO-SOURCE.md
       - living-frame/firmware/photo-display-64/tools/render_check.cpp
       - living-frame/firmware/photo-display-64/tools/render-check.png
-      - living-frame/firmware/photo-display-64/build-esp32dev.log.txt
+      - living-frame/firmware/photo-display-64/tools/render-check-lorikeet.png
+      - living-frame/firmware/photo-display-64/tools/render-check-legacy.png
+      - living-frame/firmware/photo-display-64/tools/render-check-lorikeet-legacy.png
+      - living-frame/firmware/photo-display-64/tools/ramp_preview.cpp
+      - living-frame/firmware/photo-display-64/tools/ramp-preview.png
       - living-frame/firmware/photo-display-64/README.md
-      - living-frame/firmware/photo-display-64/.gitignore
+      - living-frame/firmware/photo-display-64/build-esp32dev.log.txt
 notes: |
   STAGED. Run 2026-11-12 20:15-20:30 UTC (13:15-13:30 MST), off-peak (PEAK: OFF-PEAK
   20:15 UTC), PROTOCOL MATCH 1.2.0. Queue: 0142 in active/ carries `status: superseded`
@@ -257,6 +260,122 @@ notes: |
   order, and (b) the colorful photo — his verdict on (b) closes the task.
   Reply in the usual staged form; carry the round-1 proof forward and add
   what round 2 changed.
+
+  ROUND 2 FILED — STAGED. Run 2026-11-12 21:15-21:45 UTC (14:15-14:45 MST), off-peak
+  (PEAK: OFF-PEAK 21:15 UTC), PROTOCOL MATCH 1.2.0. Queue at pickup: 0142 in active/
+  carries `status: superseded` (Juno's 2026-10-19 resolution), 0159 is decision-blocked on
+  the UniFi controller address, 0176 in inbox/ carries `status: superseded` and "Do not
+  pick up". All three left untouched. 0177 was in active/ with Juno's rejection note and
+  her round-2 spec, so it is the lowest actionable task and this run implements that spec.
+
+  STEP 1 — THE DIAGNOSTIC RAMP IS BUILT AND IS THE FIRST THING THE BOARD SHOWS. Boot
+  order is ramp (held 30 s, so it can be photographed) -> lorikeet photo. Per channel the
+  row is four patches left to right in the order 0, LSB only, MSB only, both; then the
+  same four levels on all three channels at once (W row); then a dithered black->white
+  gradient. Layout, font and gradient live in `src/ramp_screen.h`, which the firmware and
+  a host preview (`tools/ramp_preview.cpp` -> `tools/ramp-preview.png`) BOTH compile, so
+  the committed preview is the board's own drawing code, not a mock-up. Sampling each
+  patch's centre in the preview returns:
+      row R: 00 01 02 03      row G: 00 04 08 0C
+      row B: 00 10 20 30      row W: 00 15 2A 3F
+  i.e. bit 0 (LSB) then bit 1 (MSB) rise in that order on every channel, and the W row
+  raises all three together. What the steps should measure, from the ladder:
+      level 0 = 0.000 full scale, code 0      level 1 (LSB) = 0.452, code 115
+      level 2 (MSB) = 0.714, code 182          level 3 (both) = 1.000, code 255
+  and, with the panel's gamma, those codes show as 0 / 45 / 122 / 255 of perceived light —
+  which is the second half of the diagnosis (see step 3).
+
+  STEP 2 — SECOND PHOTO, CHOSEN BY MEASUREMENT, NOT BY EYE. The spec allowed a macaw or
+  autumn foliage; five candidates were run through this project's own pipeline and scored
+  on palette entries actually used and mean saturation of the 320x240 frame:
+      Blue Marble (round 1)          24/64   12% saturated   mean sat 0.16
+      scarlet macaw, zoo close-up    36/64   12%            0.16
+      scarlet macaw, CC0             31/64   34%            0.28
+      autumn foliage, CC0            42/64   97%            0.80
+      rainbow lorikeet, CC BY 4.0    45/64   68%            0.42   <- shipped
+  The lorikeet wins the metric the task named ("a subject that uses the palette") and is a
+  parrot, as suggested. `data/parrot.jpg` is 640x480, sha256
+  4eeed2ba3e7126963d93ce00f34586499488fdd872853c44fc86abbfcafc5415; provenance, licence
+  (CC BY 4.0, attribution required, no ShareAlike) and the exact transform are in
+  `data/PHOTO-SOURCE.md`. Blue Marble stays byte-identical (sha256 dc6de882...) and stays
+  on screen: key 3 (new pipeline) and key 5 (round-1 pipeline).
+
+  STEP 3 — THE SPECKLE HAS A NAMED CAUSE AND A FIX, AND IT IS THE THING THAT WAS WRONG.
+  Round 1 dithered so the average *voltage* matched the source. A panel fed analogue VGA
+  maps voltage to luminance as V^2.2, so matching average voltage displays average light
+  of s^0.454 — everything too bright — and shadows are the worst case: the ladder's first
+  step (0.452 of full scale) is sRGB 115, i.e. 18% of full light, a MID-GREY dot. Any
+  shadow detail had to be drawn as a sprinkle of mid-grey dots on black. That is Stephen's
+  "black background is still speckled", and round 1's byte-domain RMS metric could not see
+  it because averaging sRGB codes is not averaging light.
+  The quantiser now gamma-decodes the source and dithers in the LIGHT domain
+  (`PHOTO64_MODE_PERCEPTUAL`, gamma 2.2 as the display model, one constant). Measured on
+  the host check, same code the firmware runs:
+      Blue Marble  light-domain 8x8 RMS 6.05/5.87/5.02 -> 2.36/2.46/2.75
+                   near-black source pixels lit        532 of 17,291 (3.1%) -> 1 (0.0%)
+      lorikeet     light-domain 8x8 RMS 6.87/6.96/6.51 -> 1.67/1.53/1.29
+                   near-black source pixels lit       2,240 of 14,277 (15.7%) -> 30 (0.2%)
+  The round-1 pipeline is retained and selectable (keys 4 and 5) so the two can be compared
+  on the same monitor. This is a scope extension beyond the literal round-2 list and is
+  declared as such: the rejection said "the black is still speckled", and this is the
+  mechanism plus a measurement, not a guess.
+
+  FLASHED AND EXERCISED, NOT LEFT AS A FILE. Board identified before writing: /dev/ttyUSB1,
+  CP2102, MAC 4c:c3:82:da:d5:68 — the same ESP32-WROOM-32 devkit rung 1 and round 1 used.
+  /dev/ttyUSB0 (a different chip) was not touched. Upload 551,696 bytes at 0x10000, "Hash of
+  data verified". Console (clean capture, 755 bytes):
+      living-frame rung 2b -- 64-color diagnostic + two photos
+      pins: R=22/21 G=19/18 B=27/4 HSYNC=23 VSYNC=33 (msb/lsb)
+      dac levels (fraction of full scale): 0.000 0.452 0.714 1.000
+      level sRGB code sent to DAC: 0 115 182 255
+      level luminance as sRGB code: 0 45 122 255  <- step 1 is mid-grey
+      ramp order per channel, left to right: 0, LSB only, MSB only, both
+      screen: diagnostic ramp, held 30 s (power-cycle to see it again)
+      photo lorikeet: 99010 bytes embedded, 640x480 -> 320x240 (1/2 descale)
+        drawn in 467 ms (76800 pixels), mode=perceptual, free heap: 171704 bytes
+        palette: 45 of 64 colors used (counts 0..36423)
+      holding lorikeet image; keys 1-5 switch screens, q cuts a wait short
+  All five screens were then driven over the serial port one by one and each answered with
+  its own log line: key 3 blue-marble perceptual (24/64), key 5 blue-marble legacy (24/64),
+  key 4 lorikeet legacy (40/64), key 1 ramp, key 2 lorikeet perceptual (45/64). The board
+  is left holding the lorikeet.
+
+  REPRODUCIBILITY. Fresh `git clone --depth 1` of c03901e: `pio run` [SUCCESS] (RAM 26,948 B
+  / 8.2%, flash 551,325 B / 42.1%), and the host checks rebuilt from that clone print the
+  same numbers quoted above (45/64 and 1.67/1.53/1.29 for the lorikeet; 24/64 and
+  6.05/5.87/5.02 for Blue Marble in legacy mode). `build-esp32dev.log.txt` is regenerated
+  from a clean build and re-flash by this run.
+
+  WHAT IS STILL NOT PROVEN, stated plainly: nobody on this machine has seen the screen. No
+  VGA display and no capture device are attached (`/dev/video*` is the laptop webcam), so
+  the ramp's *appearance*, and Stephen's verdict on the lorikeet, remain exactly the
+  acceptance criteria the job now asks for. What this run can and does prove is that the
+  board emits the intended bit order and level order, that both JPEGs decode to the full
+  76,800-pixel frame, and that the new dither is measurably closer in light and 25x cleaner
+  in the near-black than the pipeline he rejected.
+
+  DEVIATIONS AND SCOPE ADDITIONS, all inside living-frame/firmware/photo-display-64:
+   - `src/ramp_screen.h` + `tools/ramp_preview.cpp` + `tools/ramp-preview.png` are additions;
+     they exist so the ramp layout is reviewable and cannot drift from what the board runs.
+   - `tools/render-check-lorikeet.png`, `-legacy.png`, `-lorikeet-legacy.png` are additions:
+     the A/B images for the two pipelines, so the claim about the dither is inspectable.
+   - `data/parrot.jpg` is CC BY 4.0 rather than CC0; attribution is recorded in
+     `data/PHOTO-SOURCE.md` as the licence requires (no ShareAlike obligation).
+   - The commit lands on `main` of pagosacabin/cabin-play, matching round 1 and the previous
+     accepted proof; that repo has no CI and no PR flow (`ls .github` → absent, 0 workflow
+     files at any revision), which is why `run: none` is earned rather than asserted.
+   - BENCH NOTE, declared because it is my own tooling and not the firmware: the DTR/RTS
+     ladder I used to reset the board into a capture produced a ~30 s run of ROM "try
+     0x400805e4" lines and repeated truncated banners before the app came up normally. The
+     same firmware had already booted cleanly from esptool's reset seconds earlier (the 755
+     -byte capture above), every key press afterwards answered immediately, and no reset
+     artefact appears when the port is opened without touching the lines. Recorded as a
+     capture artefact, not a boot defect — `stty`-free pyserial with the lines left alone is
+     the method that produced the clean log.
+   - The build log records PlatformIO's own warning that an obsolete PIO Core (6.1.19) is in
+     use while 6.2.0 exists on the machine. It built and flashed correctly; recorded, not
+     fixed, because changing the toolchain is outside this task.
+
 ---
 
 
@@ -411,3 +530,46 @@ pio run -t upload       # flash (ESP32-WROOM-32 devkit, CP2102, 460800)
 Expect half of rung 1's resolution (320×240) and eight times the colour depth;
 if the picture is rolled or colour-inverted, check the MSB/LSB order in the README
 table against the wiring first.
+
+---
+
+## Round 2 reply
+
+**Status: implemented, flashed, measured — waiting on Stephen's two photographs.**
+
+Juno's round 2 asked for three things; all three ship in one firmware and one commit
+(`c03901e` on `pagosacabin/cabin-play`):
+
+1. **Diagnostic ramp** — first thing on screen at boot, held 30 s. Four patches per channel
+   in the order 0 / LSB only / MSB only / both, then a grey row, then a dithered gradient.
+   The layout is in `src/ramp_screen.h`, shared with `tools/ramp_preview.cpp`, so
+   `tools/ramp-preview.png` is the board's own drawing code rather than a mock-up.
+2. **A colourful subject** — rainbow lorikeet, CC BY 4.0, chosen by measurement: it is the
+   only candidate that addresses **45 of the 64** palette entries (Blue Marble: 24). Blue
+   Marble is unchanged and still selectable.
+3. **The speckle, diagnosed** — the ladder's first step is sRGB 115, i.e. **18 % of full
+   light**: a mid-grey dot. Round 1 dithered to match average *voltage*, so shadows became a
+   sprinkle of mid-grey dots. The quantiser now dithers in the **light** domain: near-black
+   pixels lit fall 3.1 % → 0.0 % (Blue Marble) and 15.7 % → 0.2 % (lorikeet), and
+   light-domain 8×8 block RMS falls 6.05 → 2.36 and 6.87 → 1.67. Keys 4 and 5 still show the
+   round-1 pipeline for A/B on the same monitor.
+
+Five screens on the serial port (115200): `1` ramp, `2` lorikeet (default), `3` Blue Marble,
+`4` lorikeet round-1 pipeline, `5` Blue Marble round-1 pipeline. Boot needs no terminal.
+
+## For Stephen
+
+The board is flashed and holding the lorikeet. Power-cycle it and it shows the **ramp for
+30 seconds**, then the lorikeet. Two photographs close this task:
+
+1. **the ramp** — the four steps on each of the R, G, B rows should get brighter in order,
+   left to right, and the W row should look neutral grey. If one row's steps are out of
+   order, that channel's two bits are swapped; if a row is markedly brighter or dimmer than
+   its siblings, the resistor paths for that channel are suspect; if all rows step evenly,
+   the digital side and the wiring are both good.
+2. **the lorikeet** — the colourful subject, judged for whether it reads as the photo rather
+   than a dot puzzle.
+
+If the ramp looks right and the photo still disappoints, that narrows it to the panel at
+320×240 with four levels per channel, and the next lever is a different mode (more pixels,
+fewer colours) rather than more colour depth.
