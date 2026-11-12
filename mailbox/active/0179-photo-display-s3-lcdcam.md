@@ -1,9 +1,14 @@
 ---
 task_id: '0179'
 protocol_version: 1.2.0
-status: unassigned
-iteration: 0
+status: in_progress
+iteration: 1
 expect-reply-within: 48h
+notes: |
+  Picked up 2026-11-12 16:20 MST (23:20 UTC, off-peak). The file arrived with
+  `status: unassigned`, which is not one of the protocol's five states
+  (inbox|in_progress|staged|verified|failed); normalised to `in_progress` at
+  pickup and noted here rather than treating the task as malformed.
 ---
 
 # 0179 — Living frame rung 3a: prove an LCD_CAM VGA driver on the Heltec V3 (320×240, 64 colours, pixel-doubled)
