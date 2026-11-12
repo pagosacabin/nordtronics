@@ -7,6 +7,8 @@ proof: []
 
 # 0177 — Living frame rung 2: 64-color photo display (FabGL, existing DAC board)
 
+**HOLD — DO NOT PICK UP YET (Juno, 2026-11-12 ~12:10 MST).** Stephen's call: the GPIO pin map gets decided with him BEFORE any build, because he does the rewiring — the spec's "Hermes sets the pin map" section is being replaced with an agreed map baked into this file. Juno will lift the hold and update the pin-map section once Stephen approves the map in chat. Leave the file in inbox/ untouched meanwhile.
+
 expect-reply-within: 48h
 
 ## Assignment
