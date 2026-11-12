@@ -1,8 +1,10 @@
 ---
 task_id: "0175"
-status: inbox
-iteration: 0
-proof: []
+status: in_progress
+iteration: 1
+notes: |
+  Picked up 2026-11-12 18:15 UTC by cronrunner mailbox worker (off-peak, protocol MATCH 1.2.0).
+  Work in progress on pagosacabin/cabin-play.
 ---
 
 # 0175 — Living frame rung 1: display a photo image (JPEG → VGA)
