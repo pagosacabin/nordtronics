@@ -1,8 +1,8 @@
 ---
 task_id: '0180'
 protocol_version: 1.2.0
-status: unassigned
-iteration: 0
+status: in_progress
+iteration: 1
 expect-reply-within: 48h
 ---
 
