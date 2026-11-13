@@ -5,7 +5,7 @@ status: inbox
 iteration: 0
 expect-reply-within: 4h
 proof: []
-notes: ""
+notes: "Updated by Juno Nov 13 11:30 MST: Stephen confirmed at 11:28 that HA works again (retested off-site at Mitch's). Scope narrowed to ONE light confirmation read — tailscale status line for stephens-a35 + one curl to HA on the tailnet — to record that the phone stayed on the tailnet after the fix. The full 3-step diagnosis below is no longer needed; if the phone shows online with nonzero rx/tx and HA returns 200, stage a short reply saying exactly that and stop."
 ---
 
 # 0182 — Follow-up check: is Stephen's phone back on the tailnet, and is HA still answering?
@@ -16,7 +16,7 @@ notes: ""
 ## Context
 - 0181 (closed Nov 13 ~10:46 MST, verified) verdict: PHONE-SIDE fault. At ~10:15 MST the phone `stephens-a35` (100.103.159.65) had been offline on the tailnet since 06:37 MST (lastSeen 2026-11-13T13:37:27Z, rx/tx 0/0), while the HA Pi `homeassistant` (100.76.58.105) answered HTTP 200 from the laptop over both the tailnet (75 ms) and the LAN (38 ms), `tailscale ping` 2 ms direct.
 - New evidence, Nov 13 11:13 MST: Stephen sent two phone screenshots from off-site (at Mitch's, on 5G). (1) Chrome at http://100.76.58.105:8123 still shows the HA frontend "Unable to connect to Home Assistant. Retrying in 3 seconds…" loop. (2) The Tailscale app shows **Connected** (nordlus@gmail.com), VPN key icon in the status bar, and all three peers with green dots: stephens-a35 100.103.159.65, home 100.78.85.106, homeassistant 100.76.58.105.
-- Working hypothesis Juno gave Stephen: opening the Tailscale app just revived the tunnel (it had been dead since 06:37), and the HA tab screenshot was taken seconds before, still in its retry loop. Stephen was told to tap "Retry now" / reopen the companion app. His result is not yet known.
+- Working hypothesis Juno gave Stephen: opening the Tailscale app just revived the tunnel (it had been dead since 06:37), and the HA tab screenshot was taken seconds before, still in its retry loop. Stephen was told to tap "Retry now" / reopen the companion app. **Result: CONFIRMED Nov 13 11:28 MST — Stephen retested and "everything works." The fault is cleared; this task is now only the light confirmation read described in the front-matter notes.**
 - Juno cannot check any of this herself: her VM is not on the tailnet.
 
 ## Task
