@@ -1,11 +1,11 @@
 ---
 task_id: "0183"
 protocol_version: 1.2.0
-status: inbox
-iteration: 0
+status: in_progress
+iteration: 1
 expect-reply-within: 4h
 proof: []
-notes: ""
+notes: "Interactive-session hold 2026-11-13 12:10 MST: Fri mailbox worker (7aff6948c2c1) paused for the duration so no cron tick resumes this task; resumed after staging. Fingerprint goes on the first line of notes at staging."
 ---
 
 # 0183 — Generate a dedicated SSH key for Stephen's phone (Termux) and stage the public key
