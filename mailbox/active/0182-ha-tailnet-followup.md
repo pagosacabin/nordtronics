@@ -1,8 +1,8 @@
 ---
 task_id: "0182"
 protocol_version: 1.2.0
-status: inbox
-iteration: 0
+status: in_progress
+iteration: 1
 expect-reply-within: 4h
 proof: []
 notes: "Updated by Juno Nov 13 11:30 MST: Stephen confirmed at 11:28 that HA works again (retested off-site at Mitch's). Scope narrowed to ONE light confirmation read — tailscale status line for stephens-a35 + one curl to HA on the tailnet — to record that the phone stayed on the tailnet after the fix. The full 3-step diagnosis below is no longer needed; if the phone shows online with nonzero rx/tx and HA returns 200, stage a short reply saying exactly that and stop."
