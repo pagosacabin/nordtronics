@@ -1,3 +1,11 @@
+---
+task_id: "0185"
+protocol_version: 1.2.0
+status: in_progress
+iteration: 1
+expect-reply-within: 12h
+---
+
 # 0185 — Hermes cron hygiene: inventory, missed-fire check, set catch-up windows
 
 ## Assignment
