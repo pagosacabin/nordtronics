@@ -4,13 +4,127 @@ protocol_version: 1.2.0
 status: in_progress
 iteration: 1
 expect-reply-within: 24h
+cost:
+  model: deepseek-flash (worker) + gemini-3.8-flash-high (Newton build)
+  api_calls: unknown
+  input_tokens: unknown
+  input_cache_hit_tokens: unknown
+  input_cache_miss_tokens: unknown
+  output_tokens: unknown
+  total_tokens: unknown
+  search_requests: 0
+  rate_window: off-peak
+  rates_used: "DeepSeek off-peak: $0.15/M input miss, $0.003/M input hit, $0.60/M output"
+  cost_usd: unknown
+  notes: "Harness exposes no per-call DeepSeek usage to this cron session, so the token/cost fields are unknown (not estimated). Newton's own usage IS measured: see newton_usage below."
+  newton_usage:
+    model: gemini-3.8-flash-high
+    duration_seconds: 1079.7
+    input_tokens: 143216
+    output_tokens: 72153
+    thinking_tokens: 34249
+    cache_read_tokens: 2137385
+    weekly_pool_delta_points: 21.53
+    weekly_pool_after: "78.47% remaining (Gemini), 100% (Claude/GPT)"
+    quota_calls: "1 build session, ended status=interrupted (see notes)"
 notes: |
-  Picked up 2026-11-15 08:20 MST (2026-11-15T15:20Z), off-peak (PEAK: OFF-PEAK 15:15 UTC),
-  PROTOCOL MATCH 1.2.0. Queue at pickup: active/0142 status=superseded (closed by Juno
-  2026-10-19) and active/0159 decision-blocked (controller address missing) -> both left
-  untouched; inbox/0176 superseded ("do not pick up"); 0186 is the first actionable task.
-  The file arrived with NO front-matter at all (no task_id/status/iteration), so the protocol
-  fields were added at pickup per handoff-mailbox rule 16.
+  BLOCKED — DECISION OWED, no proof block. Run 2026-11-15 08:15-08:5x MST
+  (15:15-15:5x UTC), off-peak (PEAK: OFF-PEAK 15:15 UTC), PROTOCOL MATCH 1.2.0.
+  Queue at pickup: active/0142 superseded, active/0159 decision-blocked (both left
+  untouched), inbox/0176 superseded ("do not pick up"). 0186 arrived with NO
+  front-matter, so task_id/protocol_version/status/iteration were added at pickup
+  (handoff-mailbox rule 16).
+
+  THE WORK IS DONE AND VERIFIED; TWO STEPS ARE NOT REACHABLE FROM THIS HOST.
+
+  Built `writing-peer-review/` in pagosacabin/cabin-play, branch
+  `hermes/0186-writing-peer-review`, tip 8da5897
+  (pushed over SSH; `git ls-remote --heads origin` confirms the same SHA).
+  Newton (agy, gemini-3.8-flash-high, headless) wrote the first full tree in one
+  session; I verified it against the task's criteria myself, fixed one real defect,
+  and wrote the independent live smoke test.
+
+  VERIFIED THIS RUN (commands and numbers are the real output):
+   1. `pytest tests -q` -> 7 passed.
+   2. `tests/live_smoke.py` (live uvicorn subprocess, throwaway SQLite, real
+      network calls) -> 31/31 checks passed, covering criteria 1-6 and 8:
+        C1 GET / 200 + manifest + /sw.js served with Service-Worker-Allowed: /
+        C2 15 exercises, 5 types (scene/dialogue/character/description/flash
+           fiction), deal random across 8 distinct ids in 12 draws
+        C3 piece survives a full server restart, review retained
+        C4 review with 4 sections in order, 4 verified quoted lines, provider
+           = `deepseek` (LIVE, not stub, 4.8 s)
+        C5 md + pdf exports contain the full text; pdf read back with `pdftotext`
+           (not a raw-bytes substring); piece-only toggle drops reviews
+        C6 portfolio of 3 chosen pieces in chosen order in both md and pdf, title
+           page carries display name, unselected piece absent
+        C8 five fixed UTC cases exactly as specified, incl. Fri 11:00Z ->
+           next flip Mon 01:00Z, and /api/status agreeing with the UTC clock
+   3. Browser check via agent-browser + chromium (real UI, not just API):
+      peak strip read "Off-peak · Flips 6:00 PM"; "Deal me one" dealt an exercise;
+      typing autosaved ("Saved at 08:37 AM", 116 words); history listed the piece;
+      "Submit for review" produced a live DeepSeek review quoting her own lines;
+      portfolio list rendered with reorder arrows; settings view present. The piece
+      created in the UI was still listed after stopping and restarting the server.
+      Screenshots: ~/.hermes/profiles/cronrunner/cache/scratch/0186-shots/*.png
+   4. Fresh-clone check: `git clone` the branch, `./run.sh` with no venv present
+      -> created .venv, installed requirements, GET / 200, /sw.js 200.
+
+  DEFECT FOUND AND FIXED (declared, not silent): the service worker was served
+  only at /static/sw.js, so its scope was /static/ and the app shell at "/" was
+  never cached — the PWA was not installable/offline-capable even though the
+  manifest and sw.js were both present. Now served at /sw.js with
+  `Service-Worker-Allowed: /` and registered with `{ scope: '/' }`; verified in
+  the browser (`getRegistration()` -> scope http://127.0.0.1:8799/, active).
+  Newton's own test asserted the old path; I updated the assertion rather than
+  leaving a test that certifies the defect.
+
+  SCOPE EXTENSIONS, with reasons:
+   - tests/live_smoke.py: criterion 9 asks for a smoke script exercising 1-6 and
+     8 end-to-end; Newton's pytest is in-process and mocked for the provider, so
+     the live script is what actually proves the real loop.
+   - run.sh bootstraps .venv when absent: criterion 1 promises one documented
+     command, and a fresh clone (what Juno reads) had no venv.
+   - app/main.py root /sw.js route (defect fix above).
+
+  DEVIATIONS:
+   - Task says "route the build to Newton via Herdr". Herdr's server is not
+     running on this host (`herdr status` -> server: not running), so Newton was
+     driven headless directly (`agy -p ... --dangerously-skip-permissions`).
+   - The Newton session ended with `status: ERROR, error: interrupted` after
+     1079 s (usage recorded, 1 turn). It had already written the complete tree,
+     so no rebuild was attempted; everything above was re-verified from source.
+
+  THE BLOCKER (criterion 7 and the merge):
+   - `gh` in this profile authenticates as pagosacabin, but the token is
+     contents-scoped only. Creating the PR fails on BOTH paths:
+         gh pr create -R pagosacabin/cabin-play ... ->
+           GraphQL: Resource not accessible by personal access token (createPullRequest)
+         gh api repos/pagosacabin/cabin-play/pulls -X POST ... ->
+           403 "Resource not accessible by personal access token"
+       and `curl -I` shows `x-accepted-github-permissions: metadata=read`.
+       Repo permissions report admin, so this is the PAT's grant, not the repo.
+   - No PR means GitHub Copilot code review cannot be requested.
+   - The Copilot CLI fallback is not authenticated either:
+         `copilot -p "Reply with exactly: READY"` -> re-authenticate / the PAT
+         needs the 'Copilot Requests' permission.
+   - So criterion 7 ("Copilot peer review ran on the branch diff") is NOT met,
+     and I did not merge to cabin-play main: the task says merge AFTER review,
+     and merging anyway would be improvising around a required gate.
+
+  DECISION OWED (any one unblocks it, then the remaining work is minutes):
+   (a) grant the fine-grained PAT `Contents: write` + `Pull requests: write`
+       (+ `Copilot Requests` if the CLI route is wanted) for pagosacabin/cabin-play;
+   (b) run `gh auth login` as Stephen on the laptop so the interactive OAuth token
+       is stored; or
+   (c) authorize merging `hermes/0186-writing-peer-review` (8da5897) to main
+       without a Copilot review, with my review findings substituted.
+
+  NOT DONE, ON PURPOSE: no VPS deploy, no auth, no marketing, nothing outside
+  writing-peer-review/. The DeepSeek key never left the laptop: it lives only in
+  the gitignored `.env` (mode 600), is not in the repo (`git grep 'sk-'` clean)
+  or in this reply, and the repo's .gitignore covers `.env`, `.venv/`, `*.db`,
+  `data/`.
 ---
 
 # 0186 — Bethany's writing peer-review app, rung 1
