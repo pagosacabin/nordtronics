@@ -33,6 +33,8 @@ Build `writing-peer-review/` in cabin-play:
    - **Portfolio:** select multiple pieces, set their order, generate one portfolio as a single `.pdf` plus a single `.md`. Title page carries a display name from a settings field (default: "Bethany"). Reviews excluded by default; a toggle includes them.
 6. **LLM provider behind an interface.** `provider.py` with one function that takes (piece text, exercise prompt if any) and returns review text. DeepSeek chat API is the first implementation. **Key source (Stephen's explicit call, 2026-11-15): use the DeepSeek API key from Hermes's own harness configuration on the laptop** — the key Hermes himself runs on, wherever his config keeps it (e.g. `~/.hermes/.env`). For this rung-1 test the app may read that same key via its own gitignored `.env` on the laptop. This authorization is for this local test only. The key is **never committed, never printed in logs or the reply, and never leaves the laptop**. Fallback only if the key genuinely cannot be located in Hermes's config: ship a stub provider returning a canned review clearly marked `STUB` at the top, and say so plainly in the staged reply — a stubbed rung is an honest rung, a silent stub is not.
 
+7. **Peak / off-peak indicator (Stephen's addition, 2026-11-15).** The app will eventually be up 24/7, and DeepSeek review calls cost double during peak — so every screen carries a slim status strip in the header: a colored dot plus a text label (never color alone). **Green = "Off-peak"**, **red = "Peak"**, and the strip also names when the status next flips (e.g. "Off-peak until 6:00 PM"). Rules: peak is **01:00–04:00 and 06:00–10:00 UTC, Monday–Friday**; everything else, including all weekend hours, is off-peak. Compute from the **UTC clock**, not local time — the windows are fixed in UTC. The Chinese-holiday exception is **not** in rung 1; note that simplification in the README. The indicator is informational only — it never blocks or delays a review; Bethany writes when she writes.
+
 **No auth in rung 1** (local-only on the laptop). Note in the project README that auth arrives with the VPS rung.
 
 ## Success criteria (falsifiable)
@@ -43,7 +45,8 @@ Build `writing-peer-review/` in cabin-play:
 5. Single-piece export produces a `.md` and a `.pdf` that contain the piece's full text.
 6. Portfolio export: given 3 selected pieces in a chosen order, the `.pdf` and `.md` each contain exactly those 3 pieces, in that order, with a title page showing the settings display name.
 7. Copilot peer review ran on the branch diff; its findings are addressed in code or answered in the staged reply.
-8. A smoke script (pytest or curl-based, Newton's pick) exercises criteria 1–6 end-to-end; its output is in the staged reply or committed under `writing-peer-review/tests/`.
+8. The peak/off-peak indicator is correct against fixed UTC test cases (compute from a clock the test can set): Sunday 15:00 UTC → off-peak; Tuesday 02:00 UTC → peak; Tuesday 05:00 UTC → off-peak (the gap between windows); Friday 09:00 UTC → peak; Friday 11:00 UTC → off-peak. The next-flip time shown matches the window boundary in each case.
+9. A smoke script (pytest or curl-based, Newton's pick) exercises criteria 1–6 and 8 end-to-end; its output is in the staged reply or committed under `writing-peer-review/tests/`.
 
 ## Constraints
 - **Repo: pagosacabin/cabin-play only.** The gh.py credential is nordtronics-scoped — cabin-play writes over the API return 403. Push via SSH from the laptop, as with 0136.
@@ -54,7 +57,7 @@ Build `writing-peer-review/` in cabin-play:
 
 ## Proof
 - cabin-play `main` SHA on origin after merge, branch name, and the Copilot review summary.
-- Smoke-test output covering criteria 1–6 (pasted or committed under `writing-peer-review/tests/`).
+- Smoke-test output covering criteria 1–6 and 8 (pasted or committed under `writing-peer-review/tests/`).
 - Plain statement of which provider ran the review in the smoke test: live DeepSeek or `STUB`.
 - Juno verifies by reading the repo on origin herself; pasted output alone is a claim, not proof.
 
