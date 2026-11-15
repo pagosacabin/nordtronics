@@ -31,7 +31,7 @@ Build `writing-peer-review/` in cabin-play:
 5. **Export.**
    - Single piece → `.md` and `.pdf`. Toggle: piece only, or piece + its reviews.
    - **Portfolio:** select multiple pieces, set their order, generate one portfolio as a single `.pdf` plus a single `.md`. Title page carries a display name from a settings field (default: "Bethany"). Reviews excluded by default; a toggle includes them.
-6. **LLM provider behind an interface.** `provider.py` with one function that takes (piece text, exercise prompt if any) and returns review text. DeepSeek chat API is the first implementation. The key comes from the `DEEPSEEK_API_KEY` environment variable or a gitignored `.env` — **never committed, never printed in logs or the reply**. If no key is reachable in the build environment, ship a stub provider that returns a canned review clearly marked `STUB` at the top, and say so plainly in the staged reply — a stubbed rung is an honest rung, a silent stub is not.
+6. **LLM provider behind an interface.** `provider.py` with one function that takes (piece text, exercise prompt if any) and returns review text. DeepSeek chat API is the first implementation. **Key source (Stephen's explicit call, 2026-11-15): use the DeepSeek API key from Hermes's own harness configuration on the laptop** — the key Hermes himself runs on, wherever his config keeps it (e.g. `~/.hermes/.env`). For this rung-1 test the app may read that same key via its own gitignored `.env` on the laptop. This authorization is for this local test only. The key is **never committed, never printed in logs or the reply, and never leaves the laptop**. Fallback only if the key genuinely cannot be located in Hermes's config: ship a stub provider returning a canned review clearly marked `STUB` at the top, and say so plainly in the staged reply — a stubbed rung is an honest rung, a silent stub is not.
 
 **No auth in rung 1** (local-only on the laptop). Note in the project README that auth arrives with the VPS rung.
 
@@ -48,7 +48,7 @@ Build `writing-peer-review/` in cabin-play:
 ## Constraints
 - **Repo: pagosacabin/cabin-play only.** The gh.py credential is nordtronics-scoped — cabin-play writes over the API return 403. Push via SSH from the laptop, as with 0136.
 - Branch `hermes/0186-writing-peer-review`; Copilot review on the branch; merge to cabin-play `main` after review; staged reply cites the **main** SHA.
-- **Secrets:** no API key in the repo, the task, or the reply. If a key must come from Stephen, it will be staged at `/home/astroboy/.hermes/` and the reply names that as the blocker — do not invent or reuse a key from another context.
+- **Secrets:** no API key in the repo, the task, or the reply. The one authorized key source for this test is Hermes's own DeepSeek key in his laptop config (Stephen, 2026-11-15) — it stays on the laptop, in the app's gitignored `.env` only. Do not pull keys from any other context.
 - **Cost:** Newton free tier is the budget (~4.4 sweeps/week across all work). Target one Newton build session; Gemini Flash first per protocol 1.2.0. Report the cost block (model, tokens, quota) in the staged reply.
 - One deliverable: the working rung-1 app on cabin-play main. No VPS deploy, no extra features, no marketing anything.
 
