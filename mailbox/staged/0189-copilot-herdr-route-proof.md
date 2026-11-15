@@ -172,7 +172,7 @@ including pull requests — not the metadata-only fine-grained PAT behind 0186's
 
 This cron profile's `gh` is **also** keyring-authenticated as pagosacabin with `repo` scope now:
 
-    $ cd ~/nortronics && gh auth status
+    $ cd ~/nordtronics && gh auth status
       ✓ Logged in to github.com account pagosacabin (keyring) ... 'gist', 'read:org', 'repo'
     $ gh api repos/pagosacabin/cabin-play --jq .permissions
       {"admin":true,"maintain":true,"pull":true,"push":true,"triage":true}
