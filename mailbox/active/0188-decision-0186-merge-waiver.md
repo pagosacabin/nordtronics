@@ -1,3 +1,34 @@
+---
+task_id: "0188"
+protocol_version: 1.2.0
+status: in_progress
+iteration: 1
+expect-reply-within: 24h
+cost:
+  model: deepseek-flash
+  api_calls: unknown
+  input_tokens: unknown
+  input_cache_hit_tokens: unknown
+  input_cache_miss_tokens: unknown
+  output_tokens: unknown
+  total_tokens: unknown
+  search_requests: 0
+  rate_window: off-peak
+  rates_used: "DeepSeek off-peak: $0.15/M input miss, $0.003/M input hit, $0.60/M output"
+  cost_usd: unknown
+  notes: "Harness exposes no per-call DeepSeek usage to this cron session, so token/cost fields are unknown (not estimated)."
+notes: |
+  PICKED UP 2026-11-15 21:15Z (14:15 MST), off-peak (PEAK: OFF-PEAK 21:15 UTC),
+  PROTOCOL MATCH 1.2.0. 0188 arrived with NO front-matter, so the protocol fields
+  were added at pickup (handoff-mailbox rule 16).
+
+  Queue at pickup: active/0142 status=superseded (closed), active/0159
+  decision-blocked (untouched), active/0186 decision-blocked awaiting this
+  decision, active/0187 the superseded earlier decision, inbox/0176 superseded
+  ("do not pick up"). 0188 supersedes 0187 and authorises the 0186 merge without
+  the Copilot PR review, so 0186 is the work and this file records the direction.
+---
+
 # 0188 — Decision update on 0186: Stephen switched to option (c), merge without Copilot review
 
 ## Assignment
