@@ -1,3 +1,15 @@
+---
+task_id: "0189"
+protocol_version: 1.2.0
+status: in_progress
+iteration: 1
+expect-reply-within: 24h
+notes: |
+  Picked up 2026-11-15 15:20 MST (22:20 UTC), off-peak (PEAK: OFF-PEAK 22:15 UTC),
+  PROTOCOL MATCH 1.2.0. Front-matter added at pickup (the file arrived without any,
+  per handoff-mailbox rule 16). Read-only probe: no repo writes, no PR, no merge,
+  no config changes. Addendum 0190 folded into the same run.
+---
 # 0189 — Prove the Copilot-via-Herdr route (read-only)
 
 ## Assignment

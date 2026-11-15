@@ -1,3 +1,14 @@
+---
+task_id: "0190"
+protocol_version: 1.2.0
+status: in_progress
+iteration: 1
+expect-reply-within: 24h
+notes: |
+  Addendum to 0189, picked up 2026-11-15 15:20 MST in the same run as 0189 (the
+  addendum's own instruction: "fold this into 0189 before you run it. Same task").
+  Front-matter added at pickup. Read-only.
+---
 # 0190 — Addendum to 0189: the probe must include a GitHub read
 
 ## Assignment
