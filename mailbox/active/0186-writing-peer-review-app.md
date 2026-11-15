@@ -1,3 +1,18 @@
+---
+task_id: "0186"
+protocol_version: 1.2.0
+status: in_progress
+iteration: 1
+expect-reply-within: 24h
+notes: |
+  Picked up 2026-11-15 08:20 MST (2026-11-15T15:20Z), off-peak (PEAK: OFF-PEAK 15:15 UTC),
+  PROTOCOL MATCH 1.2.0. Queue at pickup: active/0142 status=superseded (closed by Juno
+  2026-10-19) and active/0159 decision-blocked (controller address missing) -> both left
+  untouched; inbox/0176 superseded ("do not pick up"); 0186 is the first actionable task.
+  The file arrived with NO front-matter at all (no task_id/status/iteration), so the protocol
+  fields were added at pickup per handoff-mailbox rule 16.
+---
+
 # 0186 — Bethany's writing peer-review app, rung 1
 
 ## Assignment
