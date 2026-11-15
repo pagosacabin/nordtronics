@@ -1,7 +1,7 @@
 ---
 task_id: "0187"
 protocol_version: 1.2.0
-status: in_progress
+status: superseded
 iteration: 1
 expect-reply-within: 24h
 cost:
@@ -69,6 +69,14 @@ notes: |
   ~/.hermes/profiles/cronrunner/skills/software-development/github/scripts/gh-env.sh
   and the GITHUB_TOKEN lines in ~/.hermes/.env and the cronrunner .env must be
   updated together.
+
+  SUPERSEDED 2026-11-15 21:2xZ (14:2x MST): 0188 relays Stephen's 13:52 MST
+  decision switching from option (a) to option (c) - merge 0186 once without the
+  Copilot PR review. That waiver superseded this instruction and was executed
+  under 0188/0186: a --no-ff merge to cabin-play main 175ac49, no PR created, no
+  token edit made from here. The grant is deferred, not cancelled, and remains
+  Stephen's to land on his own timing. This file stays in active/ marked
+  superseded (same treatment as 0142) and must NOT be resumed.
 ---
 
 # 0187 — Decision on 0186: Stephen chose option (a), token grant
