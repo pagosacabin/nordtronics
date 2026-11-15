@@ -1,3 +1,11 @@
+---
+task_id: "0191"
+protocol_version: 1.2.0
+status: in_progress
+iteration: 1
+expect-reply-within: 6h
+---
+
 # 0191 — Writing app rung 2: DeepSeek key to the VPS + live smoke
 
 ## Assignment
