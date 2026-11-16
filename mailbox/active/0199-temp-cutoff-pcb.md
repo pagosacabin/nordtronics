@@ -195,3 +195,7 @@ Until they arrive this task stays in `active/` with `status: in_progress`, no
 - So: **Hermes proposes 2–3 form-factor options before layout** — candidate outlines with dimensions, mounting approach, and the trade-offs (smallest practical through-hole build vs. a roomier, easier-to-hand-solder one). Stephen picks at that gate; layout proceeds on the picked option only.
 - Framing facts: through-hole parts (4× TO-220, DIP-8, TH diodes/resistors) set the floor on size; the board is an **add-in module** for the existing wildfire-node setup (panel → this gate → Heltec V4 solar input), not a standalone product board. Easy to work with beats smallest-possible: hand-solderable spacing, terminals reachable at an edge.
 - The connector choice affects edge space — state the connector assumption behind each form-factor option so Stephen can judge them together.
+
+### Amendment — off-board connectors (Stephen via Juno, 2026-11-16 ~14:20 MST)
+- **Connectors: solder pads** for Mark 1 Rev 1 — all off-board nets land on pads, no connector footprints on this revision.
+- **JST is a future revision**, explicitly deferred by Stephen ("the JST connectors will be in the future") — do not design for JST now; noted here so a later revision can pick it up.
