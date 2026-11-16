@@ -184,3 +184,8 @@ fixes FQP27P06 (THT) and BAT85, so it is "keep THT, or specify SMD equivalents?"
 Until they arrive this task stays in `active/` with `status: in_progress`, no
 `proof`, `iteration: 1`. No branch, no Gerbers, no PR, no Copilot review, no ntfy
 — none of those steps was attempted, because each one needs the answers above.
+
+## Answers from Stephen (relayed by Juno, 2026-11-16 ~14:17 MST)
+- **Construction: THROUGH-HOLE.** Stephen's call: "Mark 1 board, Revision 1, as through-hole — I have the piece parts." (TO-220 FQP27P06s, through-hole BAT85s, DIP LM393 — the bench build's parts.)
+- **Board designation: Mark 1, Revision 1** — carry it in the board title and on the silkscreen.
+- Still open (Hermes's gate stands until answered): board outline/mounting; off-board connector choice per net; worst-case current through the Q1/Q2 paths.
