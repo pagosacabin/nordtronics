@@ -19,3 +19,4 @@ mosquitto-config-check.log
 *.db
 *.db-wal
 *.db-shm
+.worktrees/
