@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="144mm" height="114mm" viewBox="0 0 144 114">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<g transform="translate(22,22)">
+<rect x="0.00" y="0.00" width="100.00" height="70.00" rx="0" fill="#fcfcf7" stroke="#111" stroke-width="0.5"/>
+<line x1="5.00" y1="0.00" x2="5.00" y2="70.00" stroke="#ecece4" stroke-width="0.15"/>
+<line x1="10.00" y1="0.00" x2="10.00" y2="70.00" stroke="#ecece4" stroke-width="0.15"/>
+<line x1="15.00" y1="0.00" x2="15.00" y2="70.00" stroke="#ecece4" stroke-width="0.15"/>
+<line x1="20.00" y1="0.00" x2="20.00" y2="70.00" stroke="#ecece4" stroke-width="0.15"/>
+<line x1="25.00" y1="0.00" x2="25.00" y2="70.00" stroke="#ecece4" stroke-width="0.15"/>
+<line x1="30.00" y1="0.00" x2="30.00" y2="70.00" stroke="#ecece4" stroke-width="0.15"/>
+<line x1="35.00" y1="0.00" x2="35.00" y2="70.00" stroke="#ecece4" stroke-width="0.15"/>
+<line x1="40.00" y1="0.00" x2="40.00" y2="70.00" stroke="#ecece4" stroke-width="0.15"/>
+<line x1="45.00" y1="0.00" x2="45.00" y2="70.00" stroke="#ecece4" stroke-width="0.15"/>
+<line x1="50.00" y1="0.00" x2="50.00" y2="70.00" stroke="#ecece4" stroke-width="0.15"/>
+<line x1="55.00" y1="0.00" x2="55.00" y2="70.00" stroke="#ecece4" stroke-width="0.15"/>
+<line x1="60.00" y1="0.00" x2="60.00" y2="70.00" stroke="#ecece4" stroke-width="0.15"/>
+<line x1="65.00" y1="0.00" x2="65.00" y2="70.00" stroke="#ecece4" stroke-width="0.15"/>
+<line x1="70.00" y1="0.00" x2="70.00" y2="70.00" stroke="#ecece4" stroke-width="0.15"/>
+<line x1="75.00" y1="0.00" x2="75.00" y2="70.00" stroke="#ecece4" stroke-width="0.15"/>
+<line x1="80.00" y1="0.00" x2="80.00" y2="70.00" stroke="#ecece4" stroke-width="0.15"/>
+<line x1="85.00" y1="0.00" x2="85.00" y2="70.00" stroke="#ecece4" stroke-width="0.15"/>
+<line x1="90.00" y1="0.00" x2="90.00" y2="70.00" stroke="#ecece4" stroke-width="0.15"/>
+<line x1="95.00" y1="0.00" x2="95.00" y2="70.00" stroke="#ecece4" stroke-width="0.15"/>
+<line x1="0.00" y1="5.00" x2="100.00" y2="5.00" stroke="#ecece4" stroke-width="0.15"/>
+<line x1="0.00" y1="10.00" x2="100.00" y2="10.00" stroke="#ecece4" stroke-width="0.15"/>
+<line x1="0.00" y1="15.00" x2="100.00" y2="15.00" stroke="#ecece4" stroke-width="0.15"/>
+<line x1="0.00" y1="20.00" x2="100.00" y2="20.00" stroke="#ecece4" stroke-width="0.15"/>
+<line x1="0.00" y1="25.00" x2="100.00" y2="25.00" stroke="#ecece4" stroke-width="0.15"/>
+<line x1="0.00" y1="30.00" x2="100.00" y2="30.00" stroke="#ecece4" stroke-width="0.15"/>
+<line x1="0.00" y1="35.00" x2="100.00" y2="35.00" stroke="#ecece4" stroke-width="0.15"/>
+<line x1="0.00" y1="40.00" x2="100.00" y2="40.00" stroke="#ecece4" stroke-width="0.15"/>
+<line x1="0.00" y1="45.00" x2="100.00" y2="45.00" stroke="#ecece4" stroke-width="0.15"/>
+<line x1="0.00" y1="50.00" x2="100.00" y2="50.00" stroke="#ecece4" stroke-width="0.15"/>
+<line x1="0.00" y1="55.00" x2="100.00" y2="55.00" stroke="#ecece4" stroke-width="0.15"/>
+<line x1="0.00" y1="60.00" x2="100.00" y2="60.00" stroke="#ecece4" stroke-width="0.15"/>
+<line x1="0.00" y1="65.00" x2="100.00" y2="65.00" stroke="#ecece4" stroke-width="0.15"/>
+<rect x="14.00" y="51.00" width="10.20" height="15.50" rx="0" fill="#ffd9b3" stroke="#333" stroke-width="0.35"/>
+<text x="19.10" y="59.20" font-family="DejaVu Sans, Helvetica, sans-serif" font-size="2.0" fill="#111" text-anchor="middle" font-weight="normal" transform="rotate(90 19.10 59.20)">Q1a</text>
+<rect x="27.00" y="51.00" width="10.20" height="15.50" rx="0" fill="#ffd9b3" stroke="#333" stroke-width="0.35"/>
+<text x="32.10" y="59.20" font-family="DejaVu Sans, Helvetica, sans-serif" font-size="2.0" fill="#111" text-anchor="middle" font-weight="normal" transform="rotate(90 32.10 59.20)">Q1b</text>
+<rect x="59.00" y="51.00" width="10.20" height="15.50" rx="0" fill="#ffd9b3" stroke="#333" stroke-width="0.35"/>
+<text x="64.10" y="59.20" font-family="DejaVu Sans, Helvetica, sans-serif" font-size="2.0" fill="#111" text-anchor="middle" font-weight="normal" transform="rotate(90 64.10 59.20)">Q2a</text>
+<rect x="72.00" y="51.00" width="10.20" height="15.50" rx="0" fill="#ffd9b3" stroke="#333" stroke-width="0.35"/>
+<text x="77.10" y="59.20" font-family="DejaVu Sans, Helvetica, sans-serif" font-size="2.0" fill="#111" text-anchor="middle" font-weight="normal" transform="rotate(90 77.10 59.20)">Q2b</text>
+<text x="50.00" y="68.00" font-family="DejaVu Sans, Helvetica, sans-serif" font-size="2.4" fill="#a00" text-anchor="middle" font-weight="normal">M node — Q1 drains to Q2 drains</text>
+<circle cx="5.50" cy="33.00" r="1.40" fill="#ffe680" stroke="#333" stroke-width="0.35"/>
+<circle cx="5.50" cy="41.00" r="1.40" fill="#ffe680" stroke="#333" stroke-width="0.35"/>
+<text x="8.50" y="34.00" font-family="DejaVu Sans, Helvetica, sans-serif" font-size="2.2" fill="#111" text-anchor="start" font-weight="normal">P</text>
+<circle cx="94.50" cy="33.00" r="1.40" fill="#ffe680" stroke="#333" stroke-width="0.35"/>
+<circle cx="94.50" cy="41.00" r="1.40" fill="#ffe680" stroke="#333" stroke-width="0.35"/>
+<text x="97.50" y="34.00" font-family="DejaVu Sans, Helvetica, sans-serif" font-size="2.2" fill="#111" text-anchor="start" font-weight="normal">SO</text>
+<text x="94.50" y="29.60" font-family="DejaVu Sans, Helvetica, sans-serif" font-size="2.2" fill="#111" text-anchor="middle" font-weight="normal">SOLAR_OUT</text>
+<rect x="39.00" y="42.00" width="10.20" height="7.60" rx="0" fill="#d9ecff" stroke="#333" stroke-width="0.35"/>
+<text x="44.10" y="46.40" font-family="DejaVu Sans, Helvetica, sans-serif" font-size="2.0" fill="#111" text-anchor="middle" font-weight="normal">U1</text>
+<rect x="55.00" y="44.00" width="5.00" height="4.20" rx="0" fill="#e6e6e6" stroke="#333" stroke-width="0.35"/>
+<text x="57.50" y="46.90" font-family="DejaVu Sans, Helvetica, sans-serif" font-size="1.7" fill="#111" text-anchor="middle" font-weight="normal">Q3</text>
+<rect x="63.00" y="44.00" width="5.00" height="4.20" rx="0" fill="#e6e6e6" stroke="#333" stroke-width="0.35"/>
+<text x="65.50" y="46.90" font-family="DejaVu Sans, Helvetica, sans-serif" font-size="1.7" fill="#111" text-anchor="middle" font-weight="normal">U2</text>
+<rect x="10.00" y="40.00" width="10.20" height="3.00" rx="0" fill="#f2f2f2" stroke="#333" stroke-width="0.35"/>
+<text x="15.10" y="42.30" font-family="DejaVu Sans, Helvetica, sans-serif" font-size="1.7" fill="#111" text-anchor="middle" font-weight="normal">DA</text>
+<rect x="22.00" y="40.00" width="10.20" height="3.00" rx="0" fill="#f2f2f2" stroke="#333" stroke-width="0.35"/>
+<text x="27.10" y="42.30" font-family="DejaVu Sans, Helvetica, sans-serif" font-size="1.7" fill="#111" text-anchor="middle" font-weight="normal">DB</text>
+<rect x="10.00" y="35.00" width="10.20" height="3.00" rx="0" fill="#f2f2f2" stroke="#333" stroke-width="0.35"/>
+<text x="15.10" y="37.30" font-family="DejaVu Sans, Helvetica, sans-serif" font-size="1.7" fill="#111" text-anchor="middle" font-weight="normal">D1</text>
+<rect x="22.00" y="35.00" width="10.20" height="3.00" rx="0" fill="#f2f2f2" stroke="#333" stroke-width="0.35"/>
+<text x="27.10" y="37.30" font-family="DejaVu Sans, Helvetica, sans-serif" font-size="1.7" fill="#111" text-anchor="middle" font-weight="normal">D2</text>
+<rect x="12.00" y="28.00" width="10.20" height="3.00" rx="0" fill="#f2f2f2" stroke="#333" stroke-width="0.35"/>
+<text x="17.10" y="30.30" font-family="DejaVu Sans, Helvetica, sans-serif" font-size="1.7" fill="#111" text-anchor="middle" font-weight="normal">Rt</text>
+<rect x="26.00" y="28.00" width="10.20" height="3.00" rx="0" fill="#f2f2f2" stroke="#333" stroke-width="0.35"/>
+<text x="31.10" y="30.30" font-family="DejaVu Sans, Helvetica, sans-serif" font-size="1.7" fill="#111" text-anchor="middle" font-weight="normal">R1</text>
+<rect x="40.00" y="28.00" width="10.20" height="3.00" rx="0" fill="#f2f2f2" stroke="#333" stroke-width="0.35"/>
+<text x="45.10" y="30.30" font-family="DejaVu Sans, Helvetica, sans-serif" font-size="1.7" fill="#111" text-anchor="middle" font-weight="normal">R2</text>
+<rect x="54.00" y="28.00" width="10.20" height="3.00" rx="0" fill="#f2f2f2" stroke="#333" stroke-width="0.35"/>
+<text x="59.10" y="30.30" font-family="DejaVu Sans, Helvetica, sans-serif" font-size="1.7" fill="#111" text-anchor="middle" font-weight="normal">Rb1</text>
+<rect x="68.00" y="28.00" width="10.20" height="3.00" rx="0" fill="#f2f2f2" stroke="#333" stroke-width="0.35"/>
+<text x="73.10" y="30.30" font-family="DejaVu Sans, Helvetica, sans-serif" font-size="1.7" fill="#111" text-anchor="middle" font-weight="normal">Rb2</text>
+<rect x="82.00" y="28.00" width="10.20" height="3.00" rx="0" fill="#f2f2f2" stroke="#333" stroke-width="0.35"/>
+<text x="87.10" y="30.30" font-family="DejaVu Sans, Helvetica, sans-serif" font-size="1.7" fill="#111" text-anchor="middle" font-weight="normal">Rpuc</text>
+<rect x="12.00" y="22.50" width="10.20" height="3.00" rx="0" fill="#f2f2f2" stroke="#333" stroke-width="0.35"/>
+<text x="17.10" y="24.80" font-family="DejaVu Sans, Helvetica, sans-serif" font-size="1.7" fill="#111" text-anchor="middle" font-weight="normal">Rb</text>
+<rect x="26.00" y="22.50" width="10.20" height="3.00" rx="0" fill="#f2f2f2" stroke="#333" stroke-width="0.35"/>
+<text x="31.10" y="24.80" font-family="DejaVu Sans, Helvetica, sans-serif" font-size="1.7" fill="#111" text-anchor="middle" font-weight="normal">Rg</text>
+<rect x="40.00" y="22.50" width="10.20" height="3.00" rx="0" fill="#f2f2f2" stroke="#333" stroke-width="0.35"/>
+<text x="45.10" y="24.80" font-family="DejaVu Sans, Helvetica, sans-serif" font-size="1.7" fill="#111" text-anchor="middle" font-weight="normal">Rfa</text>
+<rect x="54.00" y="22.50" width="10.20" height="3.00" rx="0" fill="#f2f2f2" stroke="#333" stroke-width="0.35"/>
+<text x="59.10" y="24.80" font-family="DejaVu Sans, Helvetica, sans-serif" font-size="1.7" fill="#111" text-anchor="middle" font-weight="normal">Rfb</text>
+<rect x="68.00" y="22.50" width="10.20" height="3.00" rx="0" fill="#f2f2f2" stroke="#333" stroke-width="0.35"/>
+<text x="73.10" y="24.80" font-family="DejaVu Sans, Helvetica, sans-serif" font-size="1.7" fill="#111" text-anchor="middle" font-weight="normal">Rbias</text>
+<rect x="82.00" y="22.50" width="10.20" height="3.00" rx="0" fill="#f2f2f2" stroke="#333" stroke-width="0.35"/>
+<text x="87.10" y="24.80" font-family="DejaVu Sans, Helvetica, sans-serif" font-size="1.7" fill="#111" text-anchor="middle" font-weight="normal">Rpua</text>
+<rect x="12.00" y="17.00" width="10.20" height="3.00" rx="0" fill="#f2f2f2" stroke="#333" stroke-width="0.35"/>
+<text x="17.10" y="19.30" font-family="DejaVu Sans, Helvetica, sans-serif" font-size="1.7" fill="#111" text-anchor="middle" font-weight="normal">Rpub</text>
+<rect x="78.00" y="41.00" width="5.00" height="4.00" rx="0" fill="#f2f2f2" stroke="#333" stroke-width="0.35"/>
+<text x="80.50" y="43.80" font-family="DejaVu Sans, Helvetica, sans-serif" font-size="1.8" fill="#111" text-anchor="middle" font-weight="normal">C</text>
+<rect x="86.00" y="41.00" width="5.00" height="4.00" rx="0" fill="#f2f2f2" stroke="#333" stroke-width="0.35"/>
+<text x="88.50" y="43.80" font-family="DejaVu Sans, Helvetica, sans-serif" font-size="1.8" fill="#111" text-anchor="middle" font-weight="normal">C</text>
+<circle cx="44.00" cy="4.50" r="1.40" fill="#ffe680" stroke="#333" stroke-width="0.35"/>
+<circle cx="44.00" cy="10.50" r="1.40" fill="#ffe680" stroke="#333" stroke-width="0.35"/>
+<text x="47.00" y="5.50" font-family="DejaVu Sans, Helvetica, sans-serif" font-size="2.2" fill="#111" text-anchor="start" font-weight="normal">NTC</text>
+<rect x="58.00" y="4.50" width="30.00" height="7.00" rx="0" fill="none" stroke="#bbb" stroke-width="0.25" stroke-dasharray="1.2,1.2"/>
+<text x="60.00" y="9.20" font-family="DejaVu Sans, Helvetica, sans-serif" font-size="2.0" fill="#999" text-anchor="start" font-weight="normal">reserved: JST GH (Rev 2 only — not placed)</text>
+<circle cx="6.00" cy="6.00" r="1.60" fill="#ffffff" stroke="#333" stroke-width="0.35"/>
+<circle cx="6.00" cy="6.00" r="3.20" fill="none" stroke="#999" stroke-width="0.2"/>
+<circle cx="94.00" cy="6.00" r="1.60" fill="#ffffff" stroke="#333" stroke-width="0.35"/>
+<circle cx="94.00" cy="6.00" r="3.20" fill="none" stroke="#999" stroke-width="0.2"/>
+<circle cx="6.00" cy="64.00" r="1.60" fill="#ffffff" stroke="#333" stroke-width="0.35"/>
+<circle cx="6.00" cy="64.00" r="3.20" fill="none" stroke="#999" stroke-width="0.2"/>
+<circle cx="94.00" cy="64.00" r="1.60" fill="#ffffff" stroke="#333" stroke-width="0.35"/>
+<circle cx="94.00" cy="64.00" r="3.20" fill="none" stroke="#999" stroke-width="0.2"/>
+<line x1="0.00" y1="78.00" x2="100.00" y2="78.00" stroke="#666" stroke-width="0.25"/>
+<line x1="0.00" y1="74.00" x2="0.00" y2="80.50" stroke="#666" stroke-width="0.25"/>
+<line x1="100.00" y1="74.00" x2="100.00" y2="80.50" stroke="#666" stroke-width="0.25"/>
+<text x="50.00" y="76.80" font-family="DejaVu Sans, Helvetica, sans-serif" font-size="3" fill="#444" text-anchor="middle" font-weight="normal">100 mm</text>
+<line x1="108.00" y1="0.00" x2="108.00" y2="70.00" stroke="#666" stroke-width="0.25"/>
+<line x1="104.00" y1="0.00" x2="110.50" y2="0.00" stroke="#666" stroke-width="0.25"/>
+<line x1="104.00" y1="70.00" x2="110.50" y2="70.00" stroke="#666" stroke-width="0.25"/>
+<text x="109.50" y="35.00" font-family="DejaVu Sans, Helvetica, sans-serif" font-size="3" fill="#444" text-anchor="middle" font-weight="normal" transform="rotate(90 109.50 35.00)">70 mm</text>
+<text x="0.00" y="-12.00" font-family="DejaVu Sans, Helvetica, sans-serif" font-size="4.2" fill="#111" text-anchor="start" font-weight="bold">Option C — Low-profile — 100 x 70 mm, MOSFETs laid flat</text>
+<text x="0.00" y="-7.20" font-family="DejaVu Sans, Helvetica, sans-serif" font-size="2.5" fill="#555" text-anchor="start" font-weight="normal">100 x 70 mm · Mark 1 Rev 1 temperature-cutoff, through-hole · placement envelope, not a routed layout</text>
+<text x="0.00" y="83.00" font-family="DejaVu Sans, Helvetica, sans-serif" font-size="2.3" fill="#555" text-anchor="start" font-weight="normal">Yellow = solder pads (Mark 1 Rev 1 has no connectors). Open circles = M3 mounting holes. Faint grid = 5 mm.</text>
+</g></svg>
