@@ -1,3 +1,19 @@
+---
+task_id: "0192"
+protocol_version: 1.2.0
+status: in_progress
+iteration: 1
+expect-reply-within: 24h
+notes: |
+  PICKED UP 2026-11-15 17:2x MST (2026-11-16T00:2xZ), off-peak, PROTOCOL MATCH
+  1.2.0. 0192 arrived with NO front-matter, so the protocol fields were added at
+  pickup (rule 16: a front-matter-less task is not malformed). Queue check:
+  active/ 0142 and 0187 both carry status: superseded (must not be resumed);
+  active/ 0159 is decision-blocked (untouched per the blocked-task rule); inbox
+  0176 is superseded ("Withdrawn by Juno ... Do not pick up"). 0192 is the
+  lowest actionable task.
+---
+
 # 0192 — Writing app: close the loop — discussion thread on every review
 
 ## Assignment
