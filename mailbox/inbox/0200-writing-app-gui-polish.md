@@ -12,7 +12,7 @@ Stephen's call, 2026-11-16: rather than patch the one layout bug 0194 introduced
 Current state: the app (cabin-play `writing-peer-review/`, live at writing.nordtronics.io, main @ 2b40e34) is functional and plain — serviceable CSS, no coherent visual system. Views: Deal Exercise, Write (editor), History (piece cards), Portfolio (export), Settings, plus the review display (five sections incl. Voice check) and the per-review discussion panel. All behavior is correct and must stay byte-for-byte equivalent in function; only presentation changes.
 
 **Design direction:** set by Stephen at filing — see the line Juno fills in below before this task is picked up. If the line says "propose," Newton chooses a coherent direction fitting a writing app and the screenshots are where it is judged.
-DIRECTION: **Propose** (Stephen's call, 2026-11-16) — Newton chooses a coherent direction fitting a writing app; it is judged at the screenshot gate, not pre-specified.
+DIRECTION: **Propose, leaning warm / editorial — a writer's feel** (Stephen's steer, 2026-11-16 12:19: "you had it kind of right doing a kind of a warm or writer's feel to it"). Newton proposes within that lean; the look is judged at the screenshot gate, not pre-specified pixel by pixel.
 
 ## Task
 A visual polish of the whole app — CSS and template structure only:
