@@ -5,6 +5,12 @@ status: in_progress
 iteration: 1
 expect-reply-within: 24h
 notes: |
+  RESUME 2026-11-16 22:15Z: the four gate questions this file declared unanswered are
+  ANSWERED (amendments below): through-hole, Mark 1 Rev 1, solder pads, 3 A ceiling — and the
+  outline gate is answered as "Hermes proposes 2-3 form factors, Stephen picks". That proposal
+  is now delivered on branch `hermes/0199-temp-cutoff-pcb` @ 1baf35f (no proof block, not
+  staged): three dimensioned outlines to choose from. Task stays `in_progress`; the earlier
+  "BLOCKED AT PICKUP" text below is the superseded declaration and is kept for the record.
   BLOCKED AT PICKUP — DECISION OWED, no proof block. Run 2026-11-16
   14:16-14:2x MST (21:16 UTC), off-peak (PEAK: OFF-PEAK 21:15 UTC), PROTOCOL
   MATCH 1.2.0. Nothing was built: no branch, no KiCad edit, no PCB, no Gerbers,
@@ -203,3 +209,73 @@ Until they arrive this task stays in `active/` with `status: in_progress`, no
 ### Amendment — worst-case current (Stephen via Juno, 2026-11-16 15:02 MST)
 - **Worst-case current through the Q1/Q2 paths: 3 A.** Stephen's confirmed figure (his word, on Juno's derivation from his own node wiring spec: the existing 13 W / 5 V panel = 2.6 A nominal; 3 A covers the short-circuit ceiling for trace sizing. Normal running current is the Heltec charger's ~540 mA — 3 A is the design/fault ceiling, not the operating point.)
 - **Gate status: ALL open questions now answered** — through-hole ✓; Mark 1 Rev 1 ✓; connectors = solder pads (JST future rev) ✓; worst-case current 3 A ✓; outline = Hermes proposes 2–3 form-factor options for Stephen's pick (per the earlier amendment). Layout work is unblocked once Stephen picks a form factor from Hermes's proposals.
+
+
+---
+
+# 0199 — RESUME: outline gate answered with a proposal (no proof block, task NOT staged)
+
+Run 2026-11-16 22:15Z (15:15 MST), off-peak (`PEAK: OFF-PEAK 22:15 UTC`), PROTOCOL MATCH 1.2.0.
+Picked up from `active/` as the lowest-numbered actionable task: 0142 and 0187 are
+`superseded`, 0159 is decision-blocked and untouched. This task was unblocked by Juno's
+2026-11-16 amendments, so the earlier "not resumable" instruction no longer applies.
+
+## What the gate now asks, and what was delivered
+
+All four original questions are answered. The remaining gate is the one Stephen created by
+answering:
+
+> **Outline is NOT a fixed size from Stephen — he wants options first.** "...see how we could
+> make this actually fit in an easy-to-work-with form factor first, but still keeping it
+> small..." So: **Hermes proposes 2-3 form-factor options before layout** — candidate outlines
+> with dimensions, mounting approach, and the trade-offs. Stephen picks at that gate; layout
+> proceeds on the picked option only.
+
+Delivered on `hermes/0199-temp-cutoff-pcb` @ **1baf35f** (pushed; no PR — see "not started"):
+
+- `hardware/solar-gate-v2/FORM-FACTOR-OPTIONS.md` — the proposal: design basis, through-hole
+  footprint dimension table, IPC-2221 copper sizing for 3 A, three options with trade-offs, a
+  comparison table, five declared assumptions, and the next step.
+- `hardware/solar-gate-v2/form-factor-options/option-{a,b,c}-*.svg` + `.png` — dimensioned
+  placement envelopes (part boxes at real footprint size, pads, keep-outs, M3 holes).
+
+| | A — 70 x 50 mm | B — 85 x 60 mm (recommended) | C — 100 x 70 mm |
+|---|---|---|---|
+| Envelope fill | 40 % | 27 % | 26 % |
+| Height | ~16.5 mm (FETs upright) | ~16.5 mm | ~8 mm (FETs flat) |
+| 3 A copper room | adequate | comfortable | most |
+| Rev 2 JST room | none | free area | reserved 30 x 7 mm |
+| Trade-off | smallest, fussy build | easiest practical build | largest, lowest profile |
+
+Copper sizing is computed, not guessed: IPC-2221 at 10 degC rise gives 1.37 mm of 1 oz external
+copper for 3 A (1.12 mm for the 2.6 A panel nominal); the proposal draws `P`/`M`/`SOLAR_OUT` at
+2.0 mm minimum.
+
+## How the drawings were verified
+
+Geometry only — a cron tick has no vision tool, so the aesthetic judgement is Stephen's at the
+gate. Every drawing was parsed back and checked programmatically: 26 part boxes (27 in C,
+which adds the reserved Rev 2 area), 6 pads, 4 mounting holes each; **zero** part-part
+overlaps, zero pads inside a part body, zero pads or holes inside a part, zero pad-pad
+clearance violations, everything inside the outline. Renders: 1122x925, 1270x1024, 1417x1122 px.
+
+## Not started, and why (not an omission)
+
+No schematic, no layout, no ERC/DRC, no Gerbers, no PR, no Copilot review, no ntfy.
+Layout is explicitly gated on Stephen's pick. Schematic capture is *not* gated by the pick, and
+is the obvious next step, but starting it in this run alongside the proposal would have split
+the tick across two deliverables; it is queued as the first action after the pick.
+
+**The 0075 capture cannot be promoted to a layout.** `origin/hermes/0075-solar-gate-v2-io-labels`
+@ `397f17d` is still the only capture, and it specifies AO3401 (SOT-23) for Q1A/Q1B/Q2A/Q2B and
+BAT54 for DA/DB/D1/D2 — against the as-built FQP27P06 (TO-220) and BAT85 (DO-35) — with no
+footprints on the passives and no PCB content at all. The path is a re-capture with the
+as-built symbols (FQP27P06 TO-220 upright, BAT85 DO-35, LM393 DIP-8, TL431 TO-92) plus pad
+footprints, not a swap of `lib_id` strings: the FET pin numbering differs (AO3401 pin 2 = S,
+3 = D; FQP27P06 pin 2 = D, 3 = S), so a textual symbol swap would mis-wire the pass path.
+
+## Decision owed
+
+Stephen picks **A, B or C**, and corrects any of the five declared assumptions only where he
+wants to differ (TL431 package TO-92 assumed; M3 corner holes assumed; NTC off-board;
+no test pads on `M`/`G`; 1 oz copper). Nothing else is blocking.
