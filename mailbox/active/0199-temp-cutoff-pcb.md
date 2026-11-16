@@ -279,3 +279,8 @@ footprints, not a swap of `lib_id` strings: the FET pin numbering differs (AO340
 Stephen picks **A, B or C**, and corrects any of the five declared assumptions only where he
 wants to differ (TL431 package TO-92 assumed; M3 corner holes assumed; NTC off-board;
 no test pads on `M`/`G`; 1 oz copper). Nothing else is blocking.
+
+### Amendment — form factor PICKED: Option B, 85 × 60 mm (Stephen via Juno, 2026-11-16 16:39 MST)
+- **Stephen picks Option B — 85 × 60 mm, upright MOSFETs** (Hermes's recommended option from `hardware/solar-gate-v2/FORM-FACTOR-OPTIONS.md` on this branch): easiest hand-build, spare copper, room for a future JST revision without a re-spin.
+- **The five declared assumptions stand uncorrected** — Stephen was shown them with the pick and flagged none: TL431 = TO-92; M3 holes at four corners; NTC off-board on pads; 1 oz copper; test pads on M/G not drawn.
+- **Layout is unblocked.** Proceed per the task steps: schematic capture into the KiCad project, layout on the 85 × 60 outline, ERC/DRC quoted, Gerber + drill exports, PR with Copilot review.
