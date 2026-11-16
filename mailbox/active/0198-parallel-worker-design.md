@@ -1,3 +1,11 @@
+---
+task_id: "0198"
+protocol_version: 1.2.0
+status: in_progress
+iteration: 1
+expect-reply-within: 12h
+---
+
 # 0198 — Design: cutting mailbox queue latency — drain mode, parallel pickup, or both
 
 ## Assignment
