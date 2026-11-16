@@ -1,3 +1,16 @@
+---
+task_id: "0196"
+protocol_version: 1.2.0
+status: in_progress
+iteration: 1
+expect-reply-within: 24h
+notes: |
+  Picked up 2026-11-16T17:15Z (10:15 MST), off-peak (PEAK: OFF-PEAK 17:15 UTC),
+  PROTOCOL MATCH 1.2.0. 0142/0159/0187 in active/ were all decision-blocked or
+  superseded and were left untouched; 0176 (lowest inbox number) carries
+  `status: superseded` and "Do not pick up", so 0196 is the lowest actionable task.
+---
+
 # 0196 — Two cleanups in one pass: `.worktrees/` into .gitignore (both repos) + retire the dead herdr 0.9.5 client
 
 ## Assignment
