@@ -1,3 +1,30 @@
+---
+task_id: "0200"
+protocol_version: 1.2.0
+status: in_progress
+iteration: 1
+expect-reply-within: 24h
+cost:
+  model: deepseek-flash
+  api_calls: unknown
+  input_tokens: unknown
+  input_cache_hit_tokens: unknown
+  input_cache_miss_tokens: unknown
+  output_tokens: unknown
+  total_tokens: unknown
+  search_requests: 0
+  rate_window: off-peak
+  rates_used: "DeepSeek off-peak: $0.15/M input miss, $0.003/M input hit, $0.60/M output"
+  cost_usd: unknown
+notes: |
+  PICKED UP 2026-11-16 by the cronrunner mailbox worker. This file arrived with NO
+  front-matter (only the body heading), so the protocol fields were added at pickup
+  per the handoff-mailbox rule for front-matter-less tasks; nothing in the body was
+  edited. Work is on branch hermes/0200-gui-polish off cabin-play main @ 2b40e34.
+  Cost fields are unknown because the harness exposes no per-call DeepSeek usage to
+  this cron session (not estimated).
+---
+
 # 0200 — Writing app: full GUI polish pass — make it look really good
 
 ## Assignment
