@@ -1,3 +1,16 @@
+---
+task_id: "0201"
+protocol_version: 1.2.0
+status: in_progress
+iteration: 1
+expect-reply-within: 24h
+notes: |
+  PICKUP 2026-11-16T23:15Z (16:15 MST), off-peak (PEAK: OFF-PEAK 23:15 UTC), PROTOCOL MATCH
+  1.2.0. This file arrived with no front-matter at all (as 0071 did), so the protocol fields
+  (task_id, protocol_version, status, iteration) were added at pickup; the body below is Juno's
+  relay verbatim.
+---
+
 # 0201 — Relay: Stephen approved the 0200 look — merge PR #5
 
 ## Assignment
