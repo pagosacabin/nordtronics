@@ -189,3 +189,9 @@ Until they arrive this task stays in `active/` with `status: in_progress`, no
 - **Construction: THROUGH-HOLE.** Stephen's call: "Mark 1 board, Revision 1, as through-hole — I have the piece parts." (TO-220 FQP27P06s, through-hole BAT85s, DIP LM393 — the bench build's parts.)
 - **Board designation: Mark 1, Revision 1** — carry it in the board title and on the silkscreen.
 - Still open (Hermes's gate stands until answered): board outline/mounting; off-board connector choice per net; worst-case current through the Q1/Q2 paths.
+
+### Amendment — outline/mounting (Stephen via Juno, 2026-11-16 ~14:19 MST)
+- **Outline is NOT a fixed size from Stephen — he wants options first.** His direction: "see how we could make this actually fit in an easy-to-work-with form factor first, but still keeping it small — it's just supposed to be a small cutoff circuit that we can add into this current existing setup."
+- So: **Hermes proposes 2–3 form-factor options before layout** — candidate outlines with dimensions, mounting approach, and the trade-offs (smallest practical through-hole build vs. a roomier, easier-to-hand-solder one). Stephen picks at that gate; layout proceeds on the picked option only.
+- Framing facts: through-hole parts (4× TO-220, DIP-8, TH diodes/resistors) set the floor on size; the board is an **add-in module** for the existing wildfire-node setup (panel → this gate → Heltec V4 solar input), not a standalone product board. Easy to work with beats smallest-possible: hand-solderable spacing, terminals reachable at an edge.
+- The connector choice affects edge space — state the connector assumption behind each form-factor option so Stephen can judge them together.
