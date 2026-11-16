@@ -1,3 +1,15 @@
+---
+task_id: "0193"
+protocol_version: 1.2.0
+status: in_progress
+iteration: 1
+expect-reply-within: 24h
+notes: |
+  PICKUP 2026-11-16T15:2xZ (08:2x MST), off-peak (PEAK: OFF-PEAK 15:15 UTC),
+  PROTOCOL MATCH 1.2.0. The task file arrived with NO front-matter (rule 16), so
+  the protocol fields were added at pickup; the body is unchanged.
+---
+
 # 0193 — Hermes git-worktree isolation: prove one per-task worktree, set subagent isolation if it fits
 
 ## Assignment
