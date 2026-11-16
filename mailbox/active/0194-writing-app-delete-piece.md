@@ -1,3 +1,13 @@
+---
+task_id: "0194"
+protocol_version: 1.2.0
+status: in_progress
+iteration: 1
+expect-reply-within: 24h
+notes: |
+  Front-matter added at pickup (the file shipped with none, per rule 16).
+---
+
 # 0194 — Writing app: delete a piece from history
 
 ## Assignment
