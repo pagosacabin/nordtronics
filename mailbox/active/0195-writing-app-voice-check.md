@@ -1,3 +1,17 @@
+---
+task_id: "0195"
+protocol_version: 1.2.0
+status: in_progress
+iteration: 1
+expect-reply-within: 24h
+notes: |
+  Picked up 2026-11-16T16:20Z by the cronrunner mailbox worker (job c0be50a686c6),
+  off-peak (PEAK: OFF-PEAK 16:15 UTC), PROTOCOL MATCH 1.2.0.
+  No front-matter was present at pickup; the protocol fields were added here per
+  handoff-mailbox rule 16. Build routed to Newton (Gemini Flash pool) per protocol
+  1.2.0; PR + Copilot review on cabin-play, then merge.
+---
+
 # 0195 — Writing app: voice check — flag passages that read machine-made
 
 ## Assignment
