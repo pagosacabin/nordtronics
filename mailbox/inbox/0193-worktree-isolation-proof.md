@@ -18,6 +18,8 @@ Why it matters here: you and Newton both work in the same repos (nordtronics, ca
 
 Stephen approved this task on 2026-11-16: enable what fits, and prove it on one task. This task is that one task.
 
+**There are two worktree systems in play — keep them separate in your reply.** The docs above describe the **Hermes Agent harness's** worktrees (`.worktrees/` inside the repo). Separately, **Herdr** has its own worktree feature: Stephen photographed Herdr's what's-new panel on 2026-11-16 — "New worktree can put checkouts in a folder you choose: `worktrees.directory` in settings.json. The default stays `~/.herdr/worktrees`." Herdr is also two products (the `herdr` 0.9.5 client vs the live **herdr-core 0.1.21**, driven via `hc` — proven in 0189/0190). Which product carries the worktree feature and where its settings live on your machine is yours to establish from `hc` help / the actual settings file, not from the screenshot.
+
 ## Task
 1. **Inventory the current state.** Capture raw output:
    - Your installed version, and the help text proving `-w` / `/worktree` / `hermes worktree` exist in the installed build (excerpts are fine, enough to show the flags/commands are real).
@@ -32,12 +34,14 @@ Stephen approved this task on 2026-11-16: enable what fits, and prove it on one 
 3. **Subagent isolation.** Set `delegation.worktree_isolation: true` in `~/.hermes/config.yaml`. Prove it with one short delegated subagent run in cabin-play (a trivial read-only or scratch-file job of your choosing — keep it small): capture what happened to the child's tree afterward (clean tree removed, or dirty tree archived — cite the `refs/hermes/archive/...` ref if one was created). If the proof passes, leave the flag **on**. If it fails, revert the flag, and report the exact error.
 4. **Mailbox worker question — report only, change nothing.** Based on the docs caveats and your worker's actual launch mechanism from step 1, answer plainly: could the mailbox worker launch each task session in its own worktree (`hermes -w`, or `/worktree new <task-number>` per task) instead of branch-switching the shared checkout? Name the exact change that would do it (file/job/command), and any caveat that makes it a bad idea (for example the cron/one-shot keep-prompt caveat). Do **not** change the worker's cron jobs, commands, or launch mechanism in this task — Stephen decides that switch from your report.
 5. **Newton routing question — one short paragraph.** You route Newton through Herdr panes, not through your own delegation system. State whether `delegation.worktree_isolation` affects Newton at all, and if Newton needs worktree separation, what would actually give it to him (for example Newton working in a worktree checkout inside his pane). Evidence over assumption: say how you know.
+6. **Herdr worktrees — report only, change nothing.** Establish from your machine's evidence: which Herdr product carries the worktree feature, where its settings file is, the current `worktrees.directory` value (or that the default `~/.herdr/worktrees` applies), and how a pane is opened in a Herdr worktree checkout via `hc`. Then answer plainly: is the Herdr route the practical way to give the pane agents (Newton, Copilot) isolated checkouts, and do the two systems collide or compose (different checkout directories, different branch naming — state what you find)? Do **not** change any Herdr setting in this task.
 
 ## Success criteria (falsifiable)
 - Before/after evidence in the reply shows: a named worktree existed on its own branch, the scratch file existed **only** inside it, and after cleanup the shared cabin-play checkout is on its original branch at its original HEAD SHA with a clean status and no leftover worktree.
 - `delegation.worktree_isolation` is either ON with a cited subagent proof (tree removed, or archive ref named), or reverted with the exact failure error quoted.
 - The mailbox-worker question is answered with the exact change named — a yes/no with no mechanism does not pass.
 - The Newton paragraph states plainly whether the delegation flag touches Newton, and what would.
+- The Herdr section names the product, settings file, and current/default worktree directory from machine evidence (not the screenshot), and states whether the two worktree systems collide or compose.
 
 ## Constraints
 - **Do NOT enable checkpoints** in this task. `checkpoints.enabled` is a separate open decision (2026-11-15 finding); record its current state in step 1, change nothing about it.
@@ -61,4 +65,5 @@ One staged reply with these sections:
 - Subagent isolation: flag set (yes/no), the proof run, and the child's tree outcome (removed, or the archive ref)
 - Mailbox worker: could it launch per-task worktrees — yes/no, the exact change, and the caveats
 - Newton: whether the delegation flag affects him, and what would give him worktree separation
+- Herdr worktrees: product, settings file, current/default `worktrees.directory`, how a pane opens in one, and collide-vs-compose with the harness's worktrees
 - Cost block
