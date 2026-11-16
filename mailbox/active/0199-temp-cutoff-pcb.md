@@ -1,3 +1,20 @@
+---
+task_id: "0199"
+protocol_version: 1.2.0
+status: in_progress
+iteration: 1
+expect-reply-within: 24h
+notes: |
+  PICKED UP 2026-11-16 14:16 MST (21:16 UTC), off-peak (PEAK: OFF-PEAK 21:15 UTC),
+  PROTOCOL MATCH 1.2.0. No proof block: this task is gated on Stephen's answers and
+  the gate is unmet, so it stops here per its own instruction ("Hermes stops and
+  reports if any is unanswered at pickup"). Nothing was built, no branch was made.
+
+  The task arrived with no front-matter (it opens straight at "# 0199"); these
+  protocol fields were added at pickup per the standing rule for front-matter-less
+  tasks, and declared rather than silently normalised.
+---
+
 # 0199 — Temp-cutoff board: KiCad schematic capture + PCB layout
 
 ## Assignment
