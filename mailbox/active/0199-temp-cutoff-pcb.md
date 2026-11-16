@@ -199,3 +199,7 @@ Until they arrive this task stays in `active/` with `status: in_progress`, no
 ### Amendment — off-board connectors (Stephen via Juno, 2026-11-16 ~14:20 MST)
 - **Connectors: solder pads** for Mark 1 Rev 1 — all off-board nets land on pads, no connector footprints on this revision.
 - **JST is a future revision**, explicitly deferred by Stephen ("the JST connectors will be in the future") — do not design for JST now; noted here so a later revision can pick it up.
+
+### Amendment — worst-case current (Stephen via Juno, 2026-11-16 15:02 MST)
+- **Worst-case current through the Q1/Q2 paths: 3 A.** Stephen's confirmed figure (his word, on Juno's derivation from his own node wiring spec: the existing 13 W / 5 V panel = 2.6 A nominal; 3 A covers the short-circuit ceiling for trace sizing. Normal running current is the Heltec charger's ~540 mA — 3 A is the design/fault ceiling, not the operating point.)
+- **Gate status: ALL open questions now answered** — through-hole ✓; Mark 1 Rev 1 ✓; connectors = solder pads (JST future rev) ✓; worst-case current 3 A ✓; outline = Hermes proposes 2–3 form-factor options for Stephen's pick (per the earlier amendment). Layout work is unblocked once Stephen picks a form factor from Hermes's proposals.
