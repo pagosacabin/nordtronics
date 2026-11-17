@@ -1,6 +1,18 @@
-# 0203 — Implement 0198 Step 1: drain mode + 15-minute cadence + wake-gate fix
-
+---
+task_id: "0203"
+protocol_version: 1.2.0
+status: in_progress
+iteration: 1
 expect-reply-within: 24h
+notes: |
+  Pickup 2026-11-17T12:20Z (05:20 MST), off-peak (PEAK: OFF-PEAK 12:15 UTC), PROTOCOL MATCH 1.2.0.
+  Front-matter absent on delivery (rule 16): task_id / protocol_version / status / iteration added at
+  pickup and the body-level `expect-reply-within: 24h` line folded into it. Body otherwise unchanged.
+  Empty `mailbox/active/.resume-needed` created in this pickup commit per item 1 (the sentinel's own
+  semantics); it is deleted in the staging commit.
+---
+
+# 0203 — Implement 0198 Step 1: drain mode + 15-minute cadence + wake-gate fix
 
 ## Assignment
 - **Hermes:** every step below — the worker job prompt, the helper script, the wake gate, the job schedule, and the protocol README update.
