@@ -1,6 +1,9 @@
 ---
+task_id: "0207"
+protocol_version: 1.3.0
 status: in_progress
 iteration: 1
+expect-reply-within: 6h
 claimed_by: "cronrunner/c0be50a686c6"
 claimed_at: "2026-11-17T16:15:52+00:00"
 lease_until: "2026-11-17T17:45:52+00:00"
