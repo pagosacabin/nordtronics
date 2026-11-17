@@ -1,6 +1,6 @@
 # Mailbox protocol — global rules
 
-protocol_version: 1.2.0
+protocol_version: 1.3.0
 
 ## Protocol versioning
 
@@ -18,6 +18,12 @@ in the previous format, carrying the exact skill-patch text to apply verbatim.
   pools are used in order — Gemini Flash first, Claude/GPT second once the
   Gemini pool drops under 20% — with Hermes on DeepSeek as the floor (see
   "Model pool routing" below).
+- 1.3.0 — 2026-11-17: drain mode. One worker fire may carry up to three
+  **tasks** (at most six transitions — a pickup and one terminal transition each);
+  pickup writes
+  a `mailbox/active/.resume-needed` sentinel that the wake gate keys on and that
+  staging, parking or blocking deletes; a blocked task ends the run; the parallel
+  lane is documented and left off (see "Parallel lane").
 
 The mailbox is a state machine. Task files move through directories; every
 transition is a `git mv` + commit + push. Never copy a task file — move it.
@@ -31,10 +37,54 @@ transition is a `git mv` + commit + push. Never copy a task file — move it.
 
 ## Transitions
 
-- Pickup: `inbox` → `active`. Set `status: in_progress`, increment `iteration` by 1, commit + push.
-- Done: `active` → `staged`. Set `status: staged` and fill in `proof` (below), commit + push.
+- Pickup: `inbox` → `active`. Set `status: in_progress`, increment `iteration` by 1, and create an
+  empty `mailbox/active/.resume-needed` in the same commit, then push. The sentinel is the durable
+  "this run intends to continue" marker: the worker's wake gate keys on it, so a tick that dies
+  mid-task is still wake-visible even though `main` == `origin/main`. Delete it in the same commit
+  that stages the task, stages it as `failed`, or parks it blocked — every exit path clears it, or a
+  stale sentinel wakes the worker every tick.
+- Done: `active` → `staged`. Set `status: staged` and fill in `proof` (below), delete
+  `.resume-needed`, commit + push.
+- Blocked: the task stays in `active/` with `status: in_progress`; delete `.resume-needed` in the
+  same *park* commit (see "Blocked"), which is the only commit a blocked task makes.
+- Failed: `active` → `staged` with `status: failed` at the iteration cap; delete `.resume-needed`.
 - Verified: `staged` → `archive`. Juno only, after independent verification.
-- Rejected: `staged` → `active`. Juno attaches `notes` explaining what failed verification. `iteration` does NOT increment.
+- Rejected: `staged` → `active`. Juno attaches `notes` explaining what failed verification.
+  `iteration` does NOT increment. The staging commit that sent the task to `staged/` deleted
+  `.resume-needed`, and Juno's rejection is itself a push to `main` — so the gate's
+  `main != origin/main` reason is what wakes the worker, on the first tick after the rejection
+  lands. The pull that brings the rejection in is the same commit that recreates the sentinel: a
+  rejected task is work to continue, and without the marker the gate cannot see it again once
+  `main` has caught up with origin.
+
+### Drain
+
+One fire may carry more than one transition. A task ends in one of three terminal outcomes —
+**staged**, **failed** at the iteration cap, or **parked blocked** — and after any of them the worker
+returns to the top of its pickup rule and takes the next one, until one of these stops the run:
+`inbox/` holds no task with `status: inbox`; three tasks have reached a terminal outcome in that run;
+the task just finished was parked **blocked** (a decision is owed, and picking up another task would
+bury it); the task just finished was staged `status: failed`; or more than 75 minutes have elapsed.
+Stop conditions are checked only between tasks — a task is never abandoned mid-work to obey the
+cap. The four directories and the `status:` values are unchanged, and the staged file is still the
+reply for every task that gets finished; what 1.3.0 changes is only how many tasks one run may
+carry, plus the sentinel that makes a half-done one visible.
+
+## Blocked
+
+Blocked is not `staged`, and it is not failure. A task that hits a blocking failure that needs a
+decision stays in `active/` with `status: in_progress`, the exact failing output and every deviation
+in `notes`, and a reply body saying plainly that there is no `proof` block.
+
+The run that finds the blocker does commit **one** transition — the *park* commit. That commit
+deletes `mailbox/active/.resume-needed` (otherwise the stale sentinel wakes the worker every tick
+forever), records the blocker and its failing output in `notes` plus the reply body, and adds no
+`proof`. The task file itself is what carries the record; what "left untouched" forbids is a later
+run re-opening it. **A decision-blocked task is not resumable: later runs do not re-investigate it,
+do not edit its `notes`, do not touch `iteration`, and do not re-declare the blocker.**
+
+A blocked task **ends the run**. The decision is owed, so the worker does not pick up another task
+in the same fire — doing so would bury the decision under fresh work.
 
 ## Front-matter
 
@@ -49,6 +99,10 @@ Every task file starts with YAML front-matter. Only these fields:
   "Cost format" below. Required on `staged` from 1.1.0 onward, or
   `unknown` with a plain reason if the harness cannot report per-call
   usage.
+
+Reserved for the parallel lane (see "Parallel lane"), and forbidden while it is off: `parallel_safe`,
+`claimed_by`, `claimed_at`, `lease_until`. A single-lane worker writes none of them; they become part
+of this allowlist only with the task that enables parallel pickup.
 
 The body stays freeform markdown — specs, context, reply format.
 
@@ -164,11 +218,25 @@ DeepSeek as the floor.
 - The 20% switch point is a first guess, revisited once 0171 measures the real
   per-sweep cost.
 
+## Parallel lane
+
+Documented in 1.3.0, **not enabled**. The current wiring starts exactly one worker; nothing reads
+`parallel_safe` yet, and no parallel pickup is performed.
+
+- A second worker may take a task concurrently only when that task's front-matter carries
+  `parallel_safe: true`. A task without the key is single-lane by default.
+- A lane worker claims through an optimistic compare-and-swap on `refs/heads/main` —
+  fetch → reset → test → commit → push — retrying a rejected push with backoff and **never
+  force-pushing**. The claim records `claimed_by`, `claimed_at` and `lease_until` in the
+  front-matter, so a claim is visible on origin and expires on its own.
+- **Enablement trigger:** two weeks of drain measurements after 1.3.0, then a separate task that
+  turns it on. Until that task lands, this section is a specification only.
+
 ## Rules
 
 1. Iteration cap: 5. `iteration` increments only on pickup (`inbox` → `active`). If a task reaches `iteration: 5` without being verified, move it to `staged` with `status: failed` and a failure summary in `notes`. Hard stop — no further automatic retries.
 2. Proof bar: `staged` requires `proof` pointers, not pasted output. Pasted terminal text is a claim; Juno verifies the pointers independently (branch SHAs, CI run state, artifacts). A fabricated or placeholder pointer fails the task.
-3. Replies live in the task file. There is no separate outbox — moving the file to `staged/` with `status: staged` IS the reply.
+3. Replies live in the task file. There is no separate outbox — moving the file to `staged/` with `status: staged` IS the reply. The one exception is a **blocked** task: its reply is the body of its `active/` file (see "Blocked"), which carries no `proof` block and keeps `status: in_progress`. A blocked reply is never `staged` and never `failed` — those mean work was done, or that the retry budget ran out.
 
 ## Task spec format (how Juno writes tasks)
 
