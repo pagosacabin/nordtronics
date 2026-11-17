@@ -1,0 +1,36 @@
+** Drc report for solar-gate-v2.kicad_pcb **
+** Created on 2026-11-17T08:53:57 **
+** Report includes: Errors, Warnings, Exclusions **
+
+** Found 2 DRC violations **
+[lib_footprint_mismatch]: Footprint 'SolderWire-2.5sqmm_1x02_P7.2mm_D2.4mm_OD3.6mm' does not match copy in library 'Connector_Wire'
+    Local override; warning
+    @(99.0000 mm, 58.0000 mm): Footprint TH1
+[lib_footprint_mismatch]: Footprint 'SolderWire-2.5sqmm_1x02_P7.2mm_D2.4mm_OD3.6mm' does not match copy in library 'Connector_Wire'
+    Local override; warning
+    @(99.0000 mm, 42.0000 mm): Footprint J2
+
+** Found 0 unconnected pads **
+
+** Found 4 Footprint errors **
+[extra_footprint]: Extra footprint
+    Local override; warning
+    @(25.0000 mm, 75.0000 mm): Footprint MH3
+[extra_footprint]: Extra footprint
+    Local override; warning
+    @(25.0000 mm, 25.0000 mm): Footprint MH1
+[extra_footprint]: Extra footprint
+    Local override; warning
+    @(100.0000 mm, 25.0000 mm): Footprint MH2
+[extra_footprint]: Extra footprint
+    Local override; warning
+    @(100.0000 mm, 75.0000 mm): Footprint MH4
+
+** Ignored checks **
+    - Footprint has no courtyard defined
+    - Track endpoint not centered on via
+    - Tuning profile track geometries
+    - Footprint doesn't match symbol's footprint filters
+    - Footprint component type doesn't match footprint pads
+
+** End of Report **
