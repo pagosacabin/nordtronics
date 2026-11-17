@@ -19,7 +19,8 @@ in the previous format, carrying the exact skill-patch text to apply verbatim.
   Gemini pool drops under 20% — with Hermes on DeepSeek as the floor (see
   "Model pool routing" below).
 - 1.3.0 — 2026-11-17: drain mode. One worker fire may carry up to three
-  **tasks** (at most six transitions — a pickup and a staging each); pickup writes
+  **tasks** (at most six transitions — a pickup and one terminal transition each);
+  pickup writes
   a `mailbox/active/.resume-needed` sentinel that the wake gate keys on and that
   staging, parking or blocking deletes; a blocked task ends the run; the parallel
   lane is documented and left off (see "Parallel lane").
@@ -48,14 +49,19 @@ transition is a `git mv` + commit + push. Never copy a task file — move it.
   same *park* commit (see "Blocked"), which is the only commit a blocked task makes.
 - Failed: `active` → `staged` with `status: failed` at the iteration cap; delete `.resume-needed`.
 - Verified: `staged` → `archive`. Juno only, after independent verification.
-- Rejected: `staged` → `active`. Juno attaches `notes` explaining what failed verification. `iteration` does NOT increment.
+- Rejected: `staged` → `active`. Juno attaches `notes` explaining what failed verification.
+  `iteration` does NOT increment. The staging commit that sent the task to `staged/` deleted
+  `.resume-needed`, so the worker's first **resume commit** for a rejected task recreates it — a
+  rejected task is work to continue, and without the sentinel the wake gate cannot see it once
+  `main` has caught up with origin.
 
 ### Drain
 
-One fire may carry more than one transition. After finishing a task (staged, or failed at the
-iteration cap) the worker returns to the top of its pickup rule and takes the next one, and stops
-the run only when: `inbox/` holds no task with `status: inbox`; three tasks have been completed in
-that run; the task just finished is blocked (a decision is owed, and picking up another task would
+One fire may carry more than one transition. A task ends in one of three terminal outcomes —
+**staged**, **failed** at the iteration cap, or **parked blocked** — and after any of them the worker
+returns to the top of its pickup rule and takes the next one, until one of these stops the run:
+`inbox/` holds no task with `status: inbox`; three tasks have reached a terminal outcome in that run;
+the task just finished was parked **blocked** (a decision is owed, and picking up another task would
 bury it); the task just finished was staged `status: failed`; or more than 75 minutes have elapsed.
 Stop conditions are checked only between tasks — a task is never abandoned mid-work to obey the
 cap. The four directories and the `status:` values are unchanged, and the staged file is still the
