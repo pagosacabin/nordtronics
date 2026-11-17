@@ -1,3 +1,10 @@
+---
+status: in_progress
+iteration: 1
+claimed_by: "cronrunner/c0be50a686c6"
+claimed_at: "2026-11-17T23:45:20+00:00"
+lease_until: "2026-11-18T01:15:20+00:00"
+---
 # 0208 — Propane bench firmware (ESPHome, ESP32-C3 Super Mini)
 
 ## Assignment
