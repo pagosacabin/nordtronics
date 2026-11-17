@@ -146,3 +146,18 @@ therefore be done independently of this pick and applied to whichever outline is
 Stephen picks A, B or C, and corrects any of the five assumptions only where he wants to differ.
 Then: schematic capture into a real KiCad project, layout on the picked outline, ERC/DRC,
 Gerbers and drill, PR with Copilot review — per task 0199 steps 1-4.
+
+## Outcome — Option B picked (Stephen, 2026-11-16 16:39 MST)
+
+Stephen picked **Option B, 85 × 60 mm, upright MOSFETs**, and left all five declared
+assumptions standing (TL431 = TO-92, M3 corner holes, NTC off-board on pads, 1 oz copper, no
+test pads on `M`/`G`). The layout in this directory follows it:
+
+- 85 × 60 mm outline, four M3 holes 5 mm in from the corners;
+- the power row along the top edge with `P` pads at the left, `SOLAR_OUT` at the right, and
+  the `M` node between the pairs as a **4 mm** copper bar (Q1/Q2 pair → bar → Q3/Q4 pair);
+- the control block (LM393 DIP-8, TL431, 2N3904, four BAT85s, 13 resistors, two 100 nF caps)
+  on the 13.5 mm resistor grid below it, 2.4 mm courtyard gaps;
+- `TH1` (NTC) on 4 mm pad footprints at the right edge, clear of the power pads.
+
+See `README.md` for the verification numbers and `docs/net-map.md` for the net list.

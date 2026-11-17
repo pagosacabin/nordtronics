@@ -20,3 +20,9 @@ mosquitto-config-check.log
 *.db-wal
 *.db-shm
 .worktrees/
+
+# KiCad per-user settings (never shared)
+*.kicad_prl
+
+# KiCad MCP server board backups
+.mcp-backups/
