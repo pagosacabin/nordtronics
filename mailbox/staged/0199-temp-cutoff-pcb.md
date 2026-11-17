@@ -1,90 +1,122 @@
 ---
 task_id: "0199"
 protocol_version: 1.2.0
-status: in_progress
+status: staged
 iteration: 1
 expect-reply-within: 24h
+proof:
+  branch: hermes/0199-temp-cutoff-pcb
+  sha: 7683739eb181f9b1506c888ed4f76b85ca2d1b6b
+  run: https://github.com/pagosacabin/nordtronics/actions/runs/44023608430
+  pull_request: https://github.com/pagosacabin/nordtronics/pull/5
+  review_comments:
+    - https://github.com/pagosacabin/nordtronics/pull/5#issuecomment-6939386592
+    - https://github.com/pagosacabin/nordtronics/pull/5#issuecomment-6939404710
+  files:
+    - hardware/solar-gate-v2/solar-gate-v2.kicad_sch
+    - hardware/solar-gate-v2/solar-gate-v2.kicad_pcb
+    - hardware/solar-gate-v2/solar-gate-v2.kicad_pro
+    - hardware/solar-gate-v2/sym-lib-table
+    - hardware/solar-gate-v2/fp-lib-table
+    - hardware/solar-gate-v2/README.md
+    - hardware/solar-gate-v2/docs/net-map.md
+    - hardware/solar-gate-v2/drc-report.rpt
+    - hardware/solar-gate-v2/FORM-FACTOR-OPTIONS.md
+    - hardware/solar-gate-v2/fab/bom.csv
+    - hardware/solar-gate-v2/fab/gerbers/ (7 layer files + .gbrjob)
+    - hardware/solar-gate-v2/fab/drill/ (PTH + NPTH Excellon)
+    - hardware/solar-gate-v2/renders/board-top.png
+    - hardware/solar-gate-v2/renders/board-bottom.png
+    - hardware/solar-gate-v2/renders/schematic.png
+    - .gitignore
+  files_note: >-
+    30 files changed in the branch overall (git diff --stat origin/main...7683739).
+    This run changed one of them, README.md (documentation qualification, 9+/2-).
 notes: |
-  RESUME 2026-11-16 22:15Z: the four gate questions this file declared unanswered are
-  ANSWERED (amendments below): through-hole, Mark 1 Rev 1, solder pads, 3 A ceiling — and the
-  outline gate is answered as "Hermes proposes 2-3 form factors, Stephen picks". That proposal
-  is now delivered on branch `hermes/0199-temp-cutoff-pcb` @ 1baf35f (no proof block, not
-  staged): three dimensioned outlines to choose from. Task stays `in_progress`; the earlier
-  "BLOCKED AT PICKUP" text below is the superseded declaration and is kept for the record.
-  BLOCKED AT PICKUP — DECISION OWED, no proof block. Run 2026-11-16
-  14:16-14:2x MST (21:16 UTC), off-peak (PEAK: OFF-PEAK 21:15 UTC), PROTOCOL
-  MATCH 1.2.0. Nothing was built: no branch, no KiCad edit, no PCB, no Gerbers,
-  no PR, no Copilot review, no ntfy.
+  DONE — staged with proof. Run 2026-11-17 05:15-05:2x UTC (22:15 MST 2026-11-16),
+  off-peak (PEAK: OFF-PEAK 05:15 UTC), PROTOCOL MATCH 1.2.0.
 
-  WHY THIS STOPS. The card gates itself: "Open questions for Stephen (Hermes
-  stops and reports if any is unanswered at pickup)" and "Stephen answers the
-  open-questions gate (below) before layout starts". Four questions are listed
-  and none is answered in the task, in the repo, or in the mailbox.
+  PICKUP. 0199 was the lowest-numbered actionable task in active/. 0142 and 0187 are
+  `status: superseded`; 0159 is decision-blocked and was left untouched (file unedited,
+  iteration unchanged). 0199 was already at iteration 1 from its pickup, so iteration did
+  not move again on this resume.
 
-  THE ANSWERS ARE NOWHERE — enumerated, not assumed (all from origin/main at
-  33e495f; recorded so the next run does not repeat the search):
-    - `grep -rn -iE "worst-case current|max dimensions|mounting hole"
-      --include=*.md .` excluding 0199 -> 4 hits, all in handoff/upwork-leads/
-      (2026-10-19, 10-30, 11-01, 11-11), none about the solar gate. 0 answers.
-    - `git log --all -S "FQP27P06" --oneline` -> 1 commit, b42a252, i.e. the
-      commit that ADDED this task file. `git grep -l BAT85 <all commits>` -> 0
-      outside that same file. The as-built part list exists only in the card.
-    - `grep -rln -i "pin 2s common|beep-out checklist" --include=*.md .` -> 0
-      outside the card. The 2026-10-24 beep-out checklist is not a repo
-      artifact, so "nets must match the checklist" is checkable only against
-      the card's own net names (M, G, P, SOLAR_OUT, DA/DB/D1/D2, Q1/Q2).
-    - `git ls-tree -r --name-only origin/main hardware/solar-gate-v2` -> 0
-      files. The v2 KiCad project is not on main; it lives only on the 0073/
-      0074/0075 branches.
+  WHAT WAS ALREADY THERE, AND WHAT THIS RUN DID. The previous tick had pushed the whole
+  build: branch `hermes/0199-temp-cutoff-pcb` @ aa63c16 with the schematic, layout, fab
+  outputs, renders and PR #5. THIS RUN DID NOT REBUILD ANYTHING. It (a) verified that work
+  independently, (b) ran the Copilot peer review the card assigns to Copilot, (c) made one
+  documentation fix in answer to the review's only substantive finding, and (d) staged this
+  reply. Stated plainly because a re-file is not the same as doing the work: the board was
+  built by the earlier tick, not by this one.
 
-  WHAT *IS* READY, so the next run starts from it rather than from zero: the
-  0075 branch carries the latest capture —
-    origin/hermes/0075-solar-gate-v2-io-labels -> 397f17d23018a74b592e838a77c0ca31208926dc
-    hardware/solar-gate-v2/solar-gate-v2.kicad_sch, 103,867 bytes
-    nets (14, from `(label "..."`): C, G, GND, H, M, N, OA, OB, P, PA, Q3B,
-      SOLAR_OUT, Vb, VREF  -> M, G, P and SOLAR_OUT all present
-    30 components (33 symbol instances, 3 are PWR_FLAG); ERC 0 errors /
-      24 warnings, all [lib_symbol_mismatch]
-    `grep -c '(footprint "'` -> 0 for the passives/diodes/NTC (J1/J2 carry
-      their JST GH 1.25 mm footprints); no PCB content at all. Its README says
-      so itself: "SCHEMATIC ONLY. No PCB layout, no fab outputs".
+  VERIFIED BY THIS RUN (each check run now, not quoted from the commit message):
+   - ERC re-run: `kicad-cli sch erc --severity-all --format report` -> "ERC messages: 0
+     Errors 0 Warnings 0".
+   - DRC re-run: `kicad-cli pcb drc --severity-all` -> "Found 2 violations", both
+     [lib_footprint_mismatch] on the rotated pad-only footprints J2/TH1; "Found 0
+     unconnected pads", "Found 0 Footprint errors".
+   - Netlist re-exported with kicad-cli and compared net by net against a netlist exported
+     from the 0075 capture (397f17d): 14 nets, 14 names identical modulo the NPN's
+     renamed net (Q3B -> Q5B, because the transistor is now Q5 — the TL431 holds Q3's old
+     slot). 22 of 22 two-pin parts map 1:1 with IDENTICAL (pin1-net, pin2-net) signatures;
+     the four FETs map Q1A/Q1B->Q1/Q2 and Q2A/Q2B->Q3/Q4 with the documented AO3401
+     S/D -> FQP27P06 D/S pin swap. So the re-capture is topologically identical to the
+     drawing, not merely net-name equal.
+   - Board outline read from the .kicad_pcb Edge.Cuts: (20,20)-(105,80) = 85 x 60 mm, and
+     165 segments + 1 via, matching the README.
+   - Gerbers re-plotted from the committed .kicad_pcb into scratch and byte-compared
+     (ignoring the creation-date/generator headers) against fab/gerbers/: all seven
+     fabrication layers — F_Cu, B_Cu, F_Mask, B_Mask, F_Silkscreen, B_Silkscreen,
+     Edge_Cuts — are identical. The repo carries only the fab-relevant set; the extra
+     user/ courtyard/adhesive layers a default plot emits are deliberately not committed.
+   - Renders opened as files and measured: board-top.png and board-bottom.png are
+     2184x1488 RGBA, schematic.png is 4961x3508 RGB (A3 at 300 dpi) — the phone-viewable
+     deliverable Stephen asked for in the 18:44 MST amendment. What I cannot do from a cron
+     tick is *look* at them; the aesthetic/legibility judgement is Stephen's, and that is
+     said here rather than claimed as verified.
 
-  TWO FINDINGS THAT MAKE THE MISSING ANSWERS LOAD-BEARING — this capture is
-  NOT the as-built circuit and cannot simply be promoted to a layout:
-    1. Part mismatch. The 0075 schematic carries Q1A/Q1B/Q2A/Q2B as AO3401
-       (Package_TO_SOT_SMD:SOT-23, a -30 V/4 A SMD P-FET) and DA/DB/D1/D2 as
-       BAT54. The as-built the card declares as source of truth is four
-       FQP27P06 (-60 V, TO-220, through-hole) and BAT85. That is exactly open
-       question 4, and it changes every footprint on the board.
-    2. Connector adequacy. The 0075 design brings P and SOLAR_OUT out on JST
-       GH 1.25 mm (JST_GH_SM02B-GHS-TB), a ~1 A-class connector, on a board
-       whose pass path is two paralleled FQP27P06 pairs. Whether that is
-       acceptable is a direct function of open question 3 (worst-case current),
-       so promoting the existing I/O to a board without that number risks
-       shipping an undersized connector. The as-built bench test ran an LED
-       load; it did not establish the design current.
+  COPILOT PEER REVIEW (routed through the Herdr pane t17, keyring OAuth, gh-env.sh NOT
+  sourced). Two comments, both on PR #5:
+   - first pass: 4 notes with no finding (FET G/D/S pin mapping, TL431 TO-92 REF/A/K,
+     net memberships vs the net map, copper sizing/clearance) and one [major] finding on
+     README.md: the file asserted the bench build "confirmed equal to the drawing" at line
+     18 while recording, 60 lines later, that the card's LM393 pin 1 <-> pin 5 note cannot
+     be reconciled with the drawing. Verdict: CHANGES.
+   - ADDRESSED, not rebutted: README.md now states the qualification where the claim is
+     made — the card asserts equivalence for the circuit as a whole, this capture does not
+     independently establish it for that one node, and the Open item section carries the
+     discrepancy. Documentation only: no circuit, net, footprint or layout change, because
+     the card forbids improving the circuit and the drawing is its stated source of truth.
+     Commit 7683739.
+   - second pass on that commit: "Finding 5 RESOLVED ... VERDICT: SHIP". The residual note
+     it keeps is the same open item: whether the physical build really ties pin 1 to pin 5
+     is unresolved and is Stephen's to confirm. It is not a board blocker (one strap, or a
+     Rev 2 note) and it is not hidden: it is in the README, in the PR body and below.
 
-  DECISION OWED (four answers, from Stephen; the fourth is partly answerable
-  from the as-built itself): (1) board outline — max dimensions, mounting
-  holes, any enclosure; (2) off-board connections — terminal blocks, JST or
-  solder pads, and for which nets (P, SOLAR_OUT, G, M, power), and whether the
-  existing JST GH 1.25 choice stands; (3) worst-case current through the Q1/Q2
-  paths, which sets trace width and copper weight and validates the connector
-  choice; (4) parts for the board version — Q4 is narrowed, not open: the
-  as-built fixes FQP27P06 (THT) and BAT85, so the question is whether to keep
-  THT or specify SMD equivalents.
+  CI. No workflow in .github/workflows/ covers hardware/** — enumerated this run:
+  android-build.yml (push: android-toolchain-setup only), android-companion-v0.yml,
+  backend.yml, detection-sim.yml, platformio.yml all carry path filters that hardware/ does
+  not match, and none lists this branch under push.branches. website-check.yml triggers on
+  pull_request -> main with no path filter, so the PR does get one run: Website Check
+  run 44023608430 @ 7683739 = success (and the same workflow at aa63c16 = success). That is
+  the run cited in proof.run; it is a link check on the site, NOT a build of this board —
+  the board evidence is the ERC/DRC/Gerber checks above.
 
-  This task is NOT resumable until those answers arrive: do not re-open, do not
-  re-declare this blocker, do not bump `iteration`, do not edit this file.
-  When an inbox task carrying the answers lands, that task is the work.
+  NTFY: no receipt published, and none is applicable — this is a hardware/fab task with no
+  compiled artifact and the card names no topic. Said explicitly rather than omitted.
 
-  Worktree note: three untracked paths pre-date this run and were left
-  untouched and uncommitted — hardware/solar-gate-v2/solar-gate-v2.kicad_sch.0073
-  (the preserved 0073 capture 0074 deliberately did not commit),
-  firmware/wildfire-node-v1/bench-override.ini, take_screenshots.py.
+  NOT DONE, deliberately: no parts ordered (card constraint), no merge (Juno verifies and
+  archives), no Rev 2 work (JST is deferred by Stephen), nothing committed to main except
+  this mailbox transition.
 
-  Cost: the harness exposes no per-call DeepSeek usage to this cron session, so
-  the token and cost fields below are `unknown`, not estimated.
+  Worktree note: main's worktree still carries untracked paths that pre-date this run
+  (.scratch0199/, hardware/solar-gate-mark1/, hardware/solar-gate-v2/ minus the committed
+  files, firmware/wildfire-node-v1/bench-override.ini, take_screenshots.py); left
+  untouched and uncommitted. The verification worktree was a detached scratch checkout,
+  removed after use -- nothing of it is referenced by the proof block.
+
+  Cost: the harness exposes no per-call DeepSeek usage to this cron session, so the token
+  and cost fields below are `unknown`, not estimated.
 cost:
   model: deepseek-flash
   api_calls: unknown
@@ -289,3 +321,106 @@ no test pads on `M`/`G`; 1 oz copper). Nothing else is blocking.
 - Stephen's ask, in his words: generate a graphical file he can view on his phone — "maybe not a PDF file, could be a PNG file. Some sort of graphical file" — so he can look the board over and analyze it simply, without a KiCad install.
 - **Deliverable added:** alongside the Gerber + drill exports, produce **PNG renders at phone-legible resolution: board TOP view, board BOTTOM view, and the SCHEMATIC sheet**. Commit them with the board files (hardware/solar-gate-v2/) and link them in the staged reply so they open directly on a phone.
 - These are for Stephen's visual check only — the Gerbers remain the fabrication source of truth.
+
+---
+
+# 0199 — STAGED: Mark 1 Rev 1 solar-gate PCB delivered, Copilot review attached
+
+**PR:** https://github.com/pagosacabin/nordtronics/pull/5
+**Head SHA:** `7683739eb181f9b1506c888ed4f76b85ca2d1b6b` (branch `hermes/0199-temp-cutoff-pcb`,
+verified with `git ls-remote --heads origin`; `gh pr view` reports the same headRefOid and
+`MERGEABLE`). Open for Juno's verification; not merged.
+
+**CI:** [Website Check run 44023608430](https://github.com/pagosacabin/nordtronics/actions/runs/44023608430)
+— success at that head SHA. It is the only workflow that fires on this PR (link check on the
+site); no workflow covers `hardware/**`, so the board's evidence is ERC/DRC/gerber parity
+below, not a build job.
+
+**Copilot review:** attached to the PR, two comments —
+[first pass, VERDICT: CHANGES](https://github.com/pagosacabin/nordtronics/pull/5#issuecomment-6939386592)
+(one [major] doc finding) and
+[second pass, VERDICT: SHIP](https://github.com/pagosacabin/nordtronics/pull/5#issuecomment-6939404710)
+(finding RESOLVED at 7683739).
+
+## Net list (all 14, from the exported netlist of the delivered schematic)
+
+| Net | Members |
+|---|---|
+| `P` | J1.1, Q1.3, Q2.3, C1.1, D1.2, R3.1, U1.8 |
+| `M` | Q1.2, Q2.2, Q3.2, Q4.2 |
+| `SOLAR_OUT` | J2.1, Q3.3, Q4.3, D2.2 |
+| `G` | Q1.1, Q2.1, Q3.1, Q4.1, Q5.3, R13.2 |
+| `H` | D1.1, D2.1, R13.1 |
+| `GND` | J1.2, J2.2, C1.2, C2.2, Q5.1, R2.2, R6.2, TH1.2, U1.4, U2.2 |
+| `VREF` | C2.1, R1.1, R3.2, R4.1, R5.1, R9.1, R10.1, R11.1, U2.1, U2.3 |
+| `Vb` | R5.2, R6.1, U1.6 |
+| `N` | TH1.1, R4.2, R8.2, U1.2, U1.5 |
+| `PA` | R1.2, R2.1, R7.2, U1.3 |
+| `OA` | U1.1, D3.1, R7.1, R9.2 |
+| `OB` | U1.7, D4.1, R8.1, R10.2 |
+| `C` | D3.2, D4.2, R11.2, R12.1 |
+| `Q5B` | Q5.2, R12.2 |
+
+Checklist names all present and matching: `M`, `G`, `P`, `SOLAR_OUT`; the four BAT85s at the
+bench names DA/DB/D1/D2 are `D3`/`D4` (OA/OB clamps) and `D1`/`D2` (the `H` rail); the FET
+pairs are `Q1`/`Q2` (P side) and `Q3`/`Q4` (SOLAR_OUT side), all pin-2 drains at `M`, all
+pin-1 gates at `G`, pin-3 sources at `P` / `SOLAR_OUT`. `P` never shares a net with
+`SOLAR_OUT`. The bench-name -> designator map is in `hardware/solar-gate-v2/docs/net-map.md`.
+
+## ERC / DRC
+
+- **ERC: 0 errors, 0 warnings** — re-run this tick, `kicad-cli sch erc --severity-all
+  --format report`.
+- **DRC: 0 unconnected pads, 0 footprint errors, 2 warnings** — re-run this tick,
+  `kicad-cli pcb drc --severity-all`. Both warnings are `[lib_footprint_mismatch]` on the
+  rotated pad-only footprints (J2, TH1), justified in `drc-report.rpt` and the README: the
+  same footprint at rotation 0 (J1) is clean, and a scratch copy with J2/TH1 forced to 0
+  reports no mismatch, so it is KiCad's library comparison, not a geometry difference. The
+  committed report additionally lists the four mounting holes as schematic-parity
+  `[extra_footprint]` notes (board-only parts, expected).
+
+## Fab outputs
+
+`fab/gerbers/` (F/B copper, mask, silkscreen, Edge.Cuts + `.gbrjob`) and `fab/drill/` (PTH +
+NPTH Excellon), all re-plotted this tick from the delivered `.kicad_pcb` and byte-identical
+to what the branch carries, so the fab set matches the board as delivered. Outline read back
+as 85 x 60 mm; `Power_3A` at 1.5 mm against IPC-2221's 1.37 mm for 3 A / 10 degC rise; the
+`M` node is a 4 mm bar between the back-to-back pairs.
+
+## Phone-viewable renders (the 18:44 MST amendment)
+
+`renders/board-top.png` and `renders/board-bottom.png` — 2184 x 1488 RGBA;
+`renders/schematic.png` — 4961 x 3508 (A3 @ 300 dpi). In the repo, linked from the README
+file table, openable straight from GitHub on a phone. Geometry and connectivity were checked
+programmatically; the visual judgement is Stephen's.
+
+## Open-question answers as received
+
+1. Board outline/mounting — **not fixed by Stephen; he asked for options.** Three were
+   proposed (`FORM-FACTOR-OPTIONS.md`), and he picked **Option B, 85 x 60 mm** on
+   2026-11-16 16:39 MST. The five assumptions that came with it stood uncorrected
+   (TL431 TO-92, M3 at four corners, NTC off-board on pads, 1 oz copper, no test pads on
+   M/G).
+2. Off-board connections — **solder pads** on `P`, `GND`, `SOLAR_OUT`, `TH1`; JST explicitly
+   deferred to a future revision.
+3. Worst-case current — **3 A** (2.6 A panel nominal; the Heltec charger runs ~540 mA).
+   Trace width and the 1.5 mm `Power_3A` class follow from that figure.
+4. Parts for the board version — **through-hole**, Mark 1 Rev 1: four FQP27P06 (TO-220),
+   four BAT85 (DO-35), LM393 DIP-8, TL431 TO-92, THT passives — Stephen's own piece parts.
+5. Added mid-task: phone-viewable renders (above).
+
+## The one thing still open for Stephen
+
+The card's bench note says the LM393 **pin 1 ↔ pin 5** node "stands as drawn", but the
+drawing — and therefore this board, net for net — has pin 1 on `OA` and pin 5 on `N`,
+different nets (`/OA: U1.1 …`, `/N: U1.2, U1.5 …`). This was found at capture time and is
+declared rather than worked around, as the card's constraints require. If the physical build
+really ties 1 to 5, it is one cut-and-strap on this revision plus a schematic note for Rev 2;
+nothing else on the board depends on it. Copilot flagged the same node and accepted the
+documentation qualification (README, commit 7683739) — it is now stated where the
+"confirmed equal to the drawing" claim is made, not only 60 lines later.
+
+## Cost
+
+`unknown` — the harness exposes no per-call DeepSeek usage to this cron session, so the
+token and cost fields are recorded as unknown rather than estimated.
