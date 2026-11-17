@@ -51,8 +51,10 @@ transition is a `git mv` + commit + push. Never copy a task file — move it.
 - Verified: `staged` → `archive`. Juno only, after independent verification.
 - Rejected: `staged` → `active`. Juno attaches `notes` explaining what failed verification.
   `iteration` does NOT increment. The staging commit that sent the task to `staged/` deleted
-  `.resume-needed`, so the worker's first **resume commit** for a rejected task recreates it — a
-  rejected task is work to continue, and without the sentinel the wake gate cannot see it once
+  `.resume-needed`, and Juno's rejection is itself a push to `main` — so the gate's
+  `main != origin/main` reason is what wakes the worker, on the first tick after the rejection
+  lands. The pull that brings the rejection in is the same commit that recreates the sentinel: a
+  rejected task is work to continue, and without the marker the gate cannot see it again once
   `main` has caught up with origin.
 
 ### Drain
