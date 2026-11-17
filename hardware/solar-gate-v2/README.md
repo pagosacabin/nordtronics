@@ -70,7 +70,19 @@ pin numbers above: **14 nets, identical member sets** (see `docs/net-map.md`).
   `Power_3A` net class routes `P`/`M`/`SOLAR_OUT` at **1.5 mm** and the `M` node is a
   **4 mm** bar between the two FET pairs (hand-drawn, not autorouted), with 2 mm stubs from
   each drain. The gate node `G`/`H` routes at 0.5 mm.
-- Routing: 165 segments, 1 via, both layers; all 14 nets connected (0 unconnected pads).
+- Routing: 160 segments, 7 vias (6 of them GND stitching vias), 2 GND copper pours
+  (F.Cu + B.Cu), both layers; all 14 nets connected (0 unconnected pads).
+
+### Layout change 2026-11-17 (task 0205)
+
+C1 (U1's supply bypass) moved from (30, 40) to (43.8, 48.6), against U1 pin 8: 5.83 mm
+pad-centre to pad-centre where it was 21.9 mm, and the `P` copper between C1.1 and U1.8 is
+now 5.8 mm of 1.5 mm trace instead of a 32 mm run through J1/D1. GND return is the pour
+itself (C1.2 sits in it, with a stitching via 1.5 mm away). GND pours were added on both
+layers (0.3 mm clearance, 0.5 mm thermal spokes) because the whole GND return — up to 3 A
+between J1.2 and J2.2 — was previously a 0.2 mm trace run. Off-board labels were moved onto
+their own pads, and U2's VREF strap was pushed to 1.05 mm clearance from pin 2 (was 0.20 mm).
+
 
 ### The 2 remaining DRC warnings, justified
 
@@ -81,15 +93,12 @@ clean). Probed, not assumed: a scratch copy with J2/TH1 forced to rotation 0 rep
 authoritative for fabrication; the Gerbers are plotted from it, and the pad geometry
 (4.0 mm pad, 3.0 mm drill, 7.2 mm pitch) is byte-identical to the library.
 
-## Open item for Stephen (declared, not worked around)
+## LM393 pin 1 ↔ pin 5 — resolved (2026-11-17)
 
-The task card's bench narrative says the LM393 **pin 1 ↔ pin 5** node "stands as drawn",
-while the drawing in the repo has **pin 1 on `OA`** and **pin 5 on `N`** — different nets.
-The netlist is unambiguous (`/OA: U1.1 …`, `/N: U1.2, U1.5 …`), and this board reproduces the
-drawing, because the card makes the as-built-equals-drawing its source of truth. If the
-physical build really does tie pin 1 to pin 5, that is one cut-and-strap on this revision
-(pin 1 to the `N` label at pin 5) and a schematic note for Rev 2 — it is not a layout change.
-Nothing else on the board depends on it.
+Stephen resolved the open item: the pin 1 ↔ pin 5 tie was a jumper he had added on his own
+bench build from a misread while wiring the breadboard, and he removed it. It was never a
+schematic feature — the drawing (pin 1 on `OA`, pin 5 on `N`) is right and this capture is
+correct as delivered. No board or schematic change follows from it.
 
 ## Fabrication notes
 
