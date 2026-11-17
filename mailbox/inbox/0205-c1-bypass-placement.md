@@ -60,3 +60,15 @@ Success criteria for this addition: in the re-rendered `renders/board-top.png`, 
 - Netlist still identical to the 7683739 netlist (14 nets, same memberships) — the pour changes copper, not connectivity.
 - ERC 0/0 and DRC 0 unconnected / only the two known J2/TH1 warnings, re-quoted after the change.
 - Re-exported Gerbers show the pours on both layers (Stephen's reviewer will re-check GND connectivity from the new zip).
+
+## Task addition 3 (2026-11-17 ~03:10 MST) — GND topology detail for the pour
+
+Juno traced the GND net's connectivity in the board file; Stephen's plot reading is confirmed exactly:
+
+- The J1.2 → J2.2 return path is **106.6 mm** of 0.2 mm trace, routed J1.2 → C2 pad → TH1 pad → J2.2, using the through-hole pads as layer bridges.
+- **C2's GND pad is the sole link between the two ground branches** (removing it disconnects the net in the connectivity graph). J1 side: C1.2, J1.2, R2.2, U1.4. Far side: J2.2, TH1.2, Q5.1, R6.2, U2.2. So U1 (comparator) and U2/C2 (reference) sit on OPPOSITE sides of the bottleneck — the reference ground shifts against the comparator ground by the return drop (~0.26 Ω ≈ 0.7 V at 2.6 A). The pour fixes this too, not just the heating.
+
+Refinements to Addition 2's fix:
+1. After refill, the pour must be **continuous between J1.2 and J2.2 on both layers** — the wide power tracks must not carve it into islands. Verify with zones filled: DRC unconnected = 0, and state in the reply that the J1↔J2 pour path is continuous on F.Cu and B.Cu.
+2. The natural load corridor is across the top of the board (J1 top-left, J2 top-right); U1/U2/C2 sit mid-board. Keep it that way — no need to move parts, just don't route the pour so the return current's shortest path runs under the control cluster.
+3. **U2 strap clearance (measured by Juno):** the B.Cu VREF strap bridging U2 pins 1–3 passes pin 2's pad at exactly **0.20 mm** clearance; the F.Cu GND run over pin 3 is also exactly 0.20 mm. Both pass, zero margin. Nudge the VREF strap for more clearance if it moves freely; report the resulting clearance either way. (The F.Cu GND run is subsumed by the pour if that changes it — report what stands after the pour.)
