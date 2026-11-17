@@ -19,9 +19,10 @@ in the previous format, carrying the exact skill-patch text to apply verbatim.
   Gemini pool drops under 20% — with Hermes on DeepSeek as the floor (see
   "Model pool routing" below).
 - 1.3.0 — 2026-11-17: drain mode. One worker fire may carry up to three
-  transitions; pickup writes a `mailbox/active/.resume-needed` sentinel that the
-  wake gate keys on and staging (or parking) deletes; a blocked task ends the
-  run; the parallel lane is documented and left off (see "Parallel lane").
+  **tasks** (at most six transitions — a pickup and a staging each); pickup writes
+  a `mailbox/active/.resume-needed` sentinel that the wake gate keys on and that
+  staging, parking or blocking deletes; a blocked task ends the run; the parallel
+  lane is documented and left off (see "Parallel lane").
 
 The mailbox is a state machine. Task files move through directories; every
 transition is a `git mv` + commit + push. Never copy a task file — move it.
@@ -39,9 +40,13 @@ transition is a `git mv` + commit + push. Never copy a task file — move it.
   empty `mailbox/active/.resume-needed` in the same commit, then push. The sentinel is the durable
   "this run intends to continue" marker: the worker's wake gate keys on it, so a tick that dies
   mid-task is still wake-visible even though `main` == `origin/main`. Delete it in the same commit
-  that stages the task (or that parks it back in `inbox`), or a stale sentinel wakes the worker
-  every tick.
-- Done: `active` → `staged`. Set `status: staged` and fill in `proof` (below), commit + push.
+  that stages the task, stages it as `failed`, or parks it blocked — every exit path clears it, or a
+  stale sentinel wakes the worker every tick.
+- Done: `active` → `staged`. Set `status: staged` and fill in `proof` (below), delete
+  `.resume-needed`, commit + push.
+- Blocked: the task stays in `active/` with `status: in_progress`; delete `.resume-needed` in the
+  same *park* commit (see "Blocked"), which is the only commit a blocked task makes.
+- Failed: `active` → `staged` with `status: failed` at the iteration cap; delete `.resume-needed`.
 - Verified: `staged` → `archive`. Juno only, after independent verification.
 - Rejected: `staged` → `active`. Juno attaches `notes` explaining what failed verification. `iteration` does NOT increment.
 
@@ -53,15 +58,22 @@ the run only when: `inbox/` holds no task with `status: inbox`; three tasks have
 that run; the task just finished is blocked (a decision is owed, and picking up another task would
 bury it); the task just finished was staged `status: failed`; or more than 75 minutes have elapsed.
 Stop conditions are checked only between tasks — a task is never abandoned mid-work to obey the
-cap. The four directories, the `status:` values and the staged-file-is-the-reply rule are
-unchanged: what 1.3.0 changes is only the rate at which one run performs transitions.
+cap. The four directories and the `status:` values are unchanged, and the staged file is still the
+reply for every task that gets finished; what 1.3.0 changes is only how many tasks one run may
+carry, plus the sentinel that makes a half-done one visible.
 
 ## Blocked
 
 Blocked is not `staged`, and it is not failure. A task that hits a blocking failure that needs a
 decision stays in `active/` with `status: in_progress`, the exact failing output and every deviation
-in `notes`, and a reply body saying plainly that there is no `proof` block. A decision-blocked task
-is not resumable: its file is left untouched and the blocker is not re-declared.
+in `notes`, and a reply body saying plainly that there is no `proof` block.
+
+The run that finds the blocker does commit **one** transition — the *park* commit. That commit
+deletes `mailbox/active/.resume-needed` (otherwise the stale sentinel wakes the worker every tick
+forever), records the blocker and its failing output in `notes` plus the reply body, and adds no
+`proof`. The task file itself is what carries the record; what "left untouched" forbids is a later
+run re-opening it. **A decision-blocked task is not resumable: later runs do not re-investigate it,
+do not edit its `notes`, do not touch `iteration`, and do not re-declare the blocker.**
 
 A blocked task **ends the run**. The decision is owed, so the worker does not pick up another task
 in the same fire — doing so would bury the decision under fresh work.
@@ -79,6 +91,10 @@ Every task file starts with YAML front-matter. Only these fields:
   "Cost format" below. Required on `staged` from 1.1.0 onward, or
   `unknown` with a plain reason if the harness cannot report per-call
   usage.
+
+Reserved for the parallel lane (see "Parallel lane"), and forbidden while it is off: `parallel_safe`,
+`claimed_by`, `claimed_at`, `lease_until`. A single-lane worker writes none of them; they become part
+of this allowlist only with the task that enables parallel pickup.
 
 The body stays freeform markdown — specs, context, reply format.
 
@@ -212,7 +228,7 @@ Documented in 1.3.0, **not enabled**. The current wiring starts exactly one work
 
 1. Iteration cap: 5. `iteration` increments only on pickup (`inbox` → `active`). If a task reaches `iteration: 5` without being verified, move it to `staged` with `status: failed` and a failure summary in `notes`. Hard stop — no further automatic retries.
 2. Proof bar: `staged` requires `proof` pointers, not pasted output. Pasted terminal text is a claim; Juno verifies the pointers independently (branch SHAs, CI run state, artifacts). A fabricated or placeholder pointer fails the task.
-3. Replies live in the task file. There is no separate outbox — moving the file to `staged/` with `status: staged` IS the reply.
+3. Replies live in the task file. There is no separate outbox — moving the file to `staged/` with `status: staged` IS the reply. The one exception is a **blocked** task: its reply is the body of its `active/` file (see "Blocked"), which carries no `proof` block and keeps `status: in_progress`. A blocked reply is never `staged` and never `failed` — those mean work was done, or that the retry budget ran out.
 
 ## Task spec format (how Juno writes tasks)
 
