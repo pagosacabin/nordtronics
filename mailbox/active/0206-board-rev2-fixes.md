@@ -1,3 +1,10 @@
+---
+status: in_progress
+iteration: 1
+claimed_by: "cronrunner/c0be50a686c6"
+claimed_at: "2026-11-17T15:45:30+00:00"
+lease_until: "2026-11-17T17:15:30+00:00"
+---
 # 0206 — Temp-cutoff board: solid J1/J2 grounds, input cap, REV 2 marks, U2 label
 
 ## Assignment
