@@ -15,8 +15,15 @@ current in both directions when off — that is what makes `P` never beep to `SO
 
 ## Schematic source
 
-The circuit is Stephen's as-built bench build, confirmed 2026-11-16 as **equal to the
-drawing**. This capture starts from the last capture in the repo
+The circuit is Stephen's as-built bench build. The card records it on 2026-11-16 as
+**confirmed equal to the drawing**, with one qualification: the card's own LM393 pin 1 ↔
+pin 5 note cannot be reconciled with the drawing from anything in the repo, and that
+discrepancy is carried, unresolved, in "Open item for Stephen" below. Equivalence is
+therefore asserted by the card for the circuit as a whole and *not* independently
+established by this capture for that one node. Everything else here reproduces the
+drawing net for net.
+
+This capture starts from the last capture in the repo
 (`origin/hermes/0075-solar-gate-v2-io-labels` @ `397f17d`,
 `hardware/solar-gate-v2/solar-gate-v2.kicad_sch`) and re-draws it with the as-built parts:
 four **FQP27P06** (TO-220) instead of AO3401, **BAT85** (DO-35) instead of BAT54, **LM393**
