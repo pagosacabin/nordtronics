@@ -1,3 +1,11 @@
+---
+task_id: "0202"
+protocol_version: 1.2.0
+status: in_progress
+iteration: 1
+expect-reply-within: 6h
+---
+
 # 0202 — Writing app: switchable themes — three looks plus a light customize
 
 ## Assignment
