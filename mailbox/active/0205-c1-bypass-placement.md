@@ -1,3 +1,10 @@
+---
+status: in_progress
+iteration: 1
+claimed_by: "cronrunner/c0be50a686c6"
+claimed_at: "2026-11-17T12:30:26+00:00"
+lease_until: "2026-11-17T14:00:26+00:00"
+---
 # 0205 — Temp-cutoff board: C1 move, silkscreen label fixes, GND pour
 
 ## Assignment
