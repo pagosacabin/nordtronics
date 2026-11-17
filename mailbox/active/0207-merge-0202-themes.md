@@ -1,3 +1,10 @@
+---
+status: in_progress
+iteration: 1
+claimed_by: "cronrunner/c0be50a686c6"
+claimed_at: "2026-11-17T16:15:52+00:00"
+lease_until: "2026-11-17T17:45:52+00:00"
+---
 # 0207 — Merge 0202 themes (PR #6) and redeploy the writing app
 
 ## Assignment
