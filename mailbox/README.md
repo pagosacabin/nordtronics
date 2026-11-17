@@ -1,6 +1,6 @@
 # Mailbox protocol — global rules
 
-protocol_version: 1.2.0
+protocol_version: 1.3.0
 
 ## Protocol versioning
 
@@ -18,6 +18,10 @@ in the previous format, carrying the exact skill-patch text to apply verbatim.
   pools are used in order — Gemini Flash first, Claude/GPT second once the
   Gemini pool drops under 20% — with Hermes on DeepSeek as the floor (see
   "Model pool routing" below).
+- 1.3.0 — 2026-11-17: drain mode. One worker fire may carry up to three
+  transitions; pickup writes a `mailbox/active/.resume-needed` sentinel that the
+  wake gate keys on and staging (or parking) deletes; a blocked task ends the
+  run; the parallel lane is documented and left off (see "Parallel lane").
 
 The mailbox is a state machine. Task files move through directories; every
 transition is a `git mv` + commit + push. Never copy a task file — move it.
@@ -31,10 +35,36 @@ transition is a `git mv` + commit + push. Never copy a task file — move it.
 
 ## Transitions
 
-- Pickup: `inbox` → `active`. Set `status: in_progress`, increment `iteration` by 1, commit + push.
+- Pickup: `inbox` → `active`. Set `status: in_progress`, increment `iteration` by 1, and create an
+  empty `mailbox/active/.resume-needed` in the same commit, then push. The sentinel is the durable
+  "this run intends to continue" marker: the worker's wake gate keys on it, so a tick that dies
+  mid-task is still wake-visible even though `main` == `origin/main`. Delete it in the same commit
+  that stages the task (or that parks it back in `inbox`), or a stale sentinel wakes the worker
+  every tick.
 - Done: `active` → `staged`. Set `status: staged` and fill in `proof` (below), commit + push.
 - Verified: `staged` → `archive`. Juno only, after independent verification.
 - Rejected: `staged` → `active`. Juno attaches `notes` explaining what failed verification. `iteration` does NOT increment.
+
+### Drain
+
+One fire may carry more than one transition. After finishing a task (staged, or failed at the
+iteration cap) the worker returns to the top of its pickup rule and takes the next one, and stops
+the run only when: `inbox/` holds no task with `status: inbox`; three tasks have been completed in
+that run; the task just finished is blocked (a decision is owed, and picking up another task would
+bury it); the task just finished was staged `status: failed`; or more than 75 minutes have elapsed.
+Stop conditions are checked only between tasks — a task is never abandoned mid-work to obey the
+cap. The four directories, the `status:` values and the staged-file-is-the-reply rule are
+unchanged: what 1.3.0 changes is only the rate at which one run performs transitions.
+
+## Blocked
+
+Blocked is not `staged`, and it is not failure. A task that hits a blocking failure that needs a
+decision stays in `active/` with `status: in_progress`, the exact failing output and every deviation
+in `notes`, and a reply body saying plainly that there is no `proof` block. A decision-blocked task
+is not resumable: its file is left untouched and the blocker is not re-declared.
+
+A blocked task **ends the run**. The decision is owed, so the worker does not pick up another task
+in the same fire — doing so would bury the decision under fresh work.
 
 ## Front-matter
 
@@ -163,6 +193,20 @@ DeepSeek as the floor.
   notes, so the choice is visible.
 - The 20% switch point is a first guess, revisited once 0171 measures the real
   per-sweep cost.
+
+## Parallel lane
+
+Documented in 1.3.0, **not enabled**. The current wiring starts exactly one worker; nothing reads
+`parallel_safe` yet, and no parallel pickup is performed.
+
+- A second worker may take a task concurrently only when that task's front-matter carries
+  `parallel_safe: true`. A task without the key is single-lane by default.
+- A lane worker claims through an optimistic compare-and-swap on `refs/heads/main` —
+  fetch → reset → test → commit → push — retrying a rejected push with backoff and **never
+  force-pushing**. The claim records `claimed_by`, `claimed_at` and `lease_until` in the
+  front-matter, so a claim is visible on origin and expires on its own.
+- **Enablement trigger:** two weeks of drain measurements after 1.3.0, then a separate task that
+  turns it on. Until that task lands, this section is a specification only.
 
 ## Rules
 
