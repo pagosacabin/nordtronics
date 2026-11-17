@@ -72,3 +72,12 @@ Refinements to Addition 2's fix:
 1. After refill, the pour must be **continuous between J1.2 and J2.2 on both layers** — the wide power tracks must not carve it into islands. Verify with zones filled: DRC unconnected = 0, and state in the reply that the J1↔J2 pour path is continuous on F.Cu and B.Cu.
 2. The natural load corridor is across the top of the board (J1 top-left, J2 top-right); U1/U2/C2 sit mid-board. Keep it that way — no need to move parts, just don't route the pour so the return current's shortest path runs under the control cluster.
 3. **U2 strap clearance (measured by Juno):** the B.Cu VREF strap bridging U2 pins 1–3 passes pin 2's pad at exactly **0.20 mm** clearance; the F.Cu GND run over pin 3 is also exactly 0.20 mm. Both pass, zero margin. Nudge the VREF strap for more clearance if it moves freely; report the resulting clearance either way. (The F.Cu GND run is subsumed by the pour if that changes it — report what stands after the pour.)
+
+## Task addition 4 (2026-11-17 ~03:17 MST) — Stephen's pour checklist (parameters for Addition 2)
+
+Stephen's checklist for the revision; Juno confirms each point at verification.
+
+1. **Pours:** GND zone on both F.Cu and B.Cu. Zone clearance **0.3 mm or more** around the high-current nets. Thermal-relief spoke width **at least 0.5 mm** on pads connecting to the pour (matters most at J1.2/J2.2 — the spokes are where the return current enters and leaves the pour; four 0.5 mm spokes give ~2 mm of copper at each connector pad).
+2. **J1 to J2 path:** the pour must give a direct, wide connection between the J1 GND pad and the J2 GND pad that does not route through U1, U2, or C2. (Juno will re-render GND-highlight plots from the finished board and check for a solid path.)
+3. **Stitching vias:** several, **0.8 mm pad / 0.4 mm drill** (the board's existing via size), near J1, J2, and U1, tying the top and bottom pours together.
+4. **Fill and DRC:** refill the zones after placing them, then re-run DRC (Addition 2's criteria: 0 unconnected, only the two known J2/TH1 lib warnings).
