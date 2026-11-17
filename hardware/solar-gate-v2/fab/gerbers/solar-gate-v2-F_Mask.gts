@@ -1,12 +1,12 @@
 %TF.GenerationSoftware,KiCad,Pcbnew,10.0.8-1.fc44*%
-%TF.CreationDate,2026-11-17T05:43:06-07:00*%
-%TF.ProjectId,solar-gate-v2,736f6c61-722d-4676-9174-652d76322e6b,1*%
+%TF.CreationDate,2026-11-17T08:52:19-07:00*%
+%TF.ProjectId,solar-gate-v2,736f6c61-722d-4676-9174-652d76322e6b,2*%
 %TF.SameCoordinates,Original*%
 %TF.FileFunction,Soldermask,Top*%
 %TF.FilePolarity,Negative*%
 %FSLAX46Y46*%
 G04 Gerber Fmt 4.6, Leading zero omitted, Abs format (unit mm)*
-G04 Created by KiCad (PCBNEW 10.0.8-1.fc44) date 2026-11-17 05:43:06*
+G04 Created by KiCad (PCBNEW 10.0.8-1.fc44) date 2026-11-17 08:52:19*
 %MOMM*%
 %LPD*%
 G01*
@@ -106,6 +106,13 @@ D16*
 %TO.C,MH3*%
 X25000000Y-75000000D03*
 %TD*%
+D15*
+%TO.C,C3*%
+X34500000Y-48300000D03*
+D10*
+X36500000Y-48300000D03*
+%TD*%
+D16*
 %TO.C,MH1*%
 X25000000Y-25000000D03*
 %TD*%

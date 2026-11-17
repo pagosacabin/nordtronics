@@ -1,5 +1,6 @@
 "Reference","Value","Footprint"
 "C1,C2","0.1uF","Capacitor_THT:C_Disc_D5.0mm_W2.5mm_P5.00mm"
+"C3","47uF 16V","Capacitor_THT:CP_Radial_D5.0mm_P2.00mm"
 "D1-D4","BAT85","Diode_THT:D_DO-35_SOD27_P7.62mm_Horizontal"
 "J1","SOLAR IN","Connector_Wire:SolderWire-2.5sqmm_1x02_P7.2mm_D2.4mm_OD3.6mm"
 "J2","TO HELTEC","Connector_Wire:SolderWire-2.5sqmm_1x02_P7.2mm_D2.4mm_OD3.6mm"

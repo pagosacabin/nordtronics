@@ -1,4 +1,4 @@
-# Solar gate — temperature cutoff, Mark 1 Rev 1
+# Solar gate — temperature cutoff, Mark 1 Rev 2
 
 An add-in module for the wildfire-node power path: `panel (+) → this board → Heltec V4
 solar input`. It switches the panel feed off when the cell is too cold or too hot, using a
@@ -6,7 +6,7 @@ solar input`. It switches the panel feed off when the cell is too cold or too ho
 pass element is two back-to-back FQP27P06 pairs (common drain at `M`), so the board blocks
 current in both directions when off — that is what makes `P` never beep to `SOLAR_OUT`.
 
-- **Board designation:** Mark 1 Rev 1 (silkscreen, title block)
+- **Board designation:** Mark 1 Rev 2 (silkscreen, title block)
 - **Outline:** 85 × 60 mm, 2 layers, 1.6 mm, through-hole, 1 oz copper (Option B from
   `FORM-FACTOR-OPTIONS.md`, picked by Stephen 2026-11-16)
 - **Off-board connections:** solder pads only — `P`, `GND`, `SOLAR_OUT`, `TH1` (NTC leads).
@@ -48,13 +48,13 @@ pin numbers above: **14 nets, identical member sets** (see `docs/net-map.md`).
 | Path | What |
 |---|---|
 | `solar-gate-v2.kicad_pro` | KiCad project (net classes: `Power_3A` 1.5 mm / 0.3 mm, `Gate` 0.5 mm) |
-| `solar-gate-v2.kicad_sch` | Schematic, A3, Mark 1 Rev 1 title block |
+| `solar-gate-v2.kicad_sch` | Schematic, A3, Mark 1 Rev 2 title block |
 | `solar-gate-v2.kicad_pcb` | PCB, 85 × 60 mm, routed 2-layer |
 | `sym-lib-table`, `fp-lib-table` | Project library tables (comment-free; `KICAD10_*_DIR`) |
 | `drc-report.rpt` | DRC run on the delivered board, `--severity-all --schematic-parity` |
 | `fab/gerbers/` | Gerbers (F/B copper, mask, silkscreen, Edge.Cuts) + `.gbrjob` |
 | `fab/drill/` | Excellon drill, separate PTH / NPTH |
-| `fab/bom.csv` | BOM grouped by value + footprint |
+| `fab/bom.csv` | BOM grouped by value + footprint (C3 = 47 µF 16 V, `CP_Radial_D5.0mm_P2.00mm`) |
 | `renders/board-top.png`, `renders/board-bottom.png` | 3D renders, 2200 × 1500, for a phone |
 | `renders/schematic.png` | Schematic sheet, 4961 × 3508 (A3 @ 300 dpi) |
 | `docs/net-map.md` | Net list and the bench-name → designator map |
@@ -70,7 +70,7 @@ pin numbers above: **14 nets, identical member sets** (see `docs/net-map.md`).
   `Power_3A` net class routes `P`/`M`/`SOLAR_OUT` at **1.5 mm** and the `M` node is a
   **4 mm** bar between the two FET pairs (hand-drawn, not autorouted), with 2 mm stubs from
   each drain. The gate node `G`/`H` routes at 0.5 mm.
-- Routing: 160 segments, 7 vias (6 of them GND stitching vias), 2 GND copper pours
+- Routing: 161 segments, 7 vias (6 of them GND stitching vias), 2 GND copper pours
   (F.Cu + B.Cu), both layers; all 14 nets connected (0 unconnected pads).
 
 ### Layout change 2026-11-17 (task 0205)
@@ -83,6 +83,47 @@ layers (0.3 mm clearance, 0.5 mm thermal spokes) because the whole GND return �
 between J1.2 and J2.2 — was previously a 0.2 mm trace run. Off-board labels were moved onto
 their own pads, and U2's VREF strap was pushed to 1.05 mm clearance from pin 2 (was 0.20 mm).
 
+
+### Rev 2 changes (task 0206, 2026-11-17)
+
+Four review items, all Stephen's 2026-11-17 decisions:
+
+1. **J1.2 and J2.2 are solid-connected to the GND pours** (pad-level `zone_connect 2`), so the
+   full return no longer passes through four thermal spokes. Every other GND pad keeps thermal
+   relief; the pours themselves are untouched (0.3 mm clearance, 0.3 mm gap, 0.5 mm spokes).
+   Read back from the committed board: a 24-point sample ring at pad radius reports **24/24**
+   points inside the fill on both layers for J1.2 and J2.2, and 6–12/24 (spokes only) for every
+   other GND pad.
+2. **C3, 47 µF 16 V input electrolytic, added at J1** — the only circuit change. `/P` gains
+   C3.1 and `/GND` gains C3.2; nothing else moves (netlist diff below). It sits in the pocket
+   between D1 (bottom edge y = 45.3) and U1 (top edge y = 51.4), centred at **(35.5, 48.3)**
+   with pad 1 at (34.5, 48.3) and pad 2 at (36.5, 48.3) — i.e. the first clear pocket below the
+   area C1 vacated at (30, 40), which is 0.3 mm from U1's pads and 1.8 mm from D1's pad and
+   cannot take a 5 mm can. The `+` pad ties to the `P` trunk with one new 1.5 mm B.Cu segment
+   (34.5, 48.3) → (30, 48.3); the `−` pad lands in the GND pour with a normal thermal relief.
+   Courtyard gaps: 0.21 mm to D1, 0.35 mm to U1 — no overlap.
+3. **Revision marks are REV 2**: silkscreen text `MARK 1 REV 2`, board and schematic title
+   blocks (title and revision field).
+4. **U2's reference designator** moved from (83.27, 51.0) to **(84.6, 47.0)** — 0.1 mm below the
+   footprint courtyard, still under U2's right half, 2.5 mm clear of Q5's courtyard and 1.5 mm
+   clear of the `MARK 1 REV 2` text.
+
+**Footprint substitution, declared.** The card named `Capacitor_THT:C_Radial_D5.0mm_P2.00mm`;
+KiCad 10 has no such footprint. The only 5 mm / 2 mm-pitch radial parts are
+`C_Radial_D5.0mm_H{5,7,11}.0mm_P2.00mm` (unpolarized ceramic/film) and
+`CP_Radial_D5.0mm_P2.00mm` (polarized electrolytic). A 47 µF electrolytic is polarized, so the
+can assumed is **`CP_Radial_D5.0mm_P2.00mm` — 5 mm diameter, 7 mm height, 2 mm pitch**, with the
+matching polarized symbol `Device:C_Polarized` (pin 1 = `+`). If Stephen's stocked part is a
+taller can (5 × 11 mm), swap the footprint; the pads and the placement do not move. The
+footprint's own silkscreen carries the `+` mark beside pad 1 (the 0.5 mm cross at
+(32.95, 46.83)); no duplicate mark was added.
+
+Verification for this revision: ERC **0 errors / 0 warnings**; DRC **2 warnings, 0 errors,
+0 unconnected pads, 4 extra-footprint notes** — the same two `lib_footprint_mismatch` warnings
+on J2/TH1 as Rev 1 and nothing new. Netlist versus Rev 1 (`f4f6edb`): 14 nets both sides,
+`/P` +C3.1, `/GND` +C3.2, no other membership change. Render diff against the Rev 1 renders
+confines every changed pixel cluster to the four intended areas (C3, the `REV 2` digit, U2's
+label at its old and new positions, and the J1.2/J2.2 pad copper).
 
 ### The 2 remaining DRC warnings, justified
 

@@ -5,13 +5,13 @@
       "Application": "Pcbnew",
       "Version": "10.0.8-1.fc44"
     },
-    "CreationDate": "2026-11-17T05:43:06-07:00"
+    "CreationDate": "2026-11-17T08:52:19-07:00"
   },
   "GeneralSpecs": {
     "ProjectId": {
       "Name": "solar-gate-v2",
       "GUID": "736f6c61-722d-4676-9174-652d76322e6b",
-      "Revision": "1"
+      "Revision": "2"
     },
     "Size": {
       "X": 85.1,

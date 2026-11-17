@@ -1,4 +1,4 @@
-# Net map — solar gate Mark 1 Rev 1
+# Net map — solar gate Mark 1 Rev 2
 
 Generated from `solar-gate-v2.kicad_sch` (`kicad-cli sch export netlist --format kicadxml`)
 and checked net-by-net against the previous capture
@@ -6,11 +6,15 @@ and checked net-by-net against the previous capture
 after the documented pin remap (FQP27P06 G/D/S = 1/2/3 vs AO3401 G/S/D = 1/2/3, and the
 TL431LP REF/A/K numbering).
 
+Rev 2 adds the input electrolytic C3 at J1 (task 0206). It is the only membership change since
+Rev 1: `/P` gains C3.1 and `/GND` gains C3.2, exactly one each, and no net is added, split or
+merged.
+
 ## Nets
 
 | Net | Pins | Members |
 |---|---|---|
-| `/P` | 7 | C1.1, D1.2, J1.1, Q1.3, Q2.3, R3.1, U1.8 |
+| `/P` | 8 | C1.1, C3.1, D1.2, J1.1, Q1.3, Q2.3, R3.1, U1.8 |
 | `/M` | 4 | Q1.2, Q2.2, Q3.2, Q4.2 |
 | `/SOLAR_OUT` | 4 | D2.2, J2.1, Q3.3, Q4.3 |
 | `/G` | 6 | Q1.1, Q2.1, Q3.1, Q4.1, Q5.3, R13.2 |
@@ -23,7 +27,7 @@ TL431LP REF/A/K numbering).
 | `/Vb` | 3 | R5.2, R6.1, U1.6 |
 | `/OA` | 4 | D3.1, R7.1, R9.2, U1.1 |
 | `/OB` | 4 | D4.1, R10.2, R8.1, U1.7 |
-| `/GND` | 10 | C1.2, C2.2, J1.2, J2.2, Q5.1, R2.2, R6.2, TH1.2, U1.4, U2.2 |
+| `/GND` | 11 | C1.2, C2.2, C3.2, J1.2, J2.2, Q5.1, R2.2, R6.2, TH1.2, U1.4, U2.2 |
 
 `M` is the common-drain node between the two back-to-back pairs: `P` → Q1/Q2 sources →
 `M` → Q3/Q4 sources → `SOLAR_OUT`. With the FETs off, neither body diode can conduct, so
