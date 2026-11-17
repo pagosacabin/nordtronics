@@ -284,3 +284,8 @@ no test pads on `M`/`G`; 1 oz copper). Nothing else is blocking.
 - **Stephen picks Option B — 85 × 60 mm, upright MOSFETs** (Hermes's recommended option from `hardware/solar-gate-v2/FORM-FACTOR-OPTIONS.md` on this branch): easiest hand-build, spare copper, room for a future JST revision without a re-spin.
 - **The five declared assumptions stand uncorrected** — Stephen was shown them with the pick and flagged none: TL431 = TO-92; M3 holes at four corners; NTC off-board on pads; 1 oz copper; test pads on M/G not drawn.
 - **Layout is unblocked.** Proceed per the task steps: schematic capture into the KiCad project, layout on the 85 × 60 outline, ERC/DRC quoted, Gerber + drill exports, PR with Copilot review.
+
+### Amendment — add phone-viewable board renders to the deliverables (Stephen via Juno, 2026-11-16 18:44 MST)
+- Stephen's ask, in his words: generate a graphical file he can view on his phone — "maybe not a PDF file, could be a PNG file. Some sort of graphical file" — so he can look the board over and analyze it simply, without a KiCad install.
+- **Deliverable added:** alongside the Gerber + drill exports, produce **PNG renders at phone-legible resolution: board TOP view, board BOTTOM view, and the SCHEMATIC sheet**. Commit them with the board files (hardware/solar-gate-v2/) and link them in the staged reply so they open directly on a phone.
+- These are for Stephen's visual check only — the Gerbers remain the fabrication source of truth.
