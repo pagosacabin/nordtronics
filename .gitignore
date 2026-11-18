@@ -20,3 +20,6 @@ mosquitto-config-check.log
 *.db-wal
 *.db-shm
 .worktrees/
+
+# ESPHome per-device secrets (generated locally, never committed)
+secrets.yaml
