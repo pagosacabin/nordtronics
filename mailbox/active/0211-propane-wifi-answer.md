@@ -1,3 +1,10 @@
+---
+status: in_progress
+iteration: 1
+claimed_by: "cronrunner/c0be50a686c6"
+claimed_at: "2026-11-18T17:45:40+00:00"
+lease_until: "2026-11-18T19:15:40+00:00"
+---
 # 0211 — 0209 answer: one passphrase for both bands — confirm the join and close out
 
 ## Assignment
