@@ -20,6 +20,35 @@ cost:
   rates_used: "DeepSeek off-peak: $0.15/M input miss, $0.003/M input hit, $0.60/M output"
   cost_usd: unknown
 notes: |
+  CORRECTION 2026-11-18 15:20 MST — THE BOARD IS NOT CONDEMNED. It joins, intermittently, and
+  the fault follows its power state, not the AP.
+    - Minutes after the separator capture, the same image (config_hash=ba74307d) associated with
+      the house AP: ping 3/3 (18-60 ms), TCP 6053 open, ARP 9c:cc:01:d0:78:80 at **192.168.1.130**,
+      mDNS propane-bench.local advertising config_hash=ba74307d.
+    - Same boot's serial: `Auth Expired` -> `reason='SA query timeout'` -> `[I][wifi:1626]:
+      Connected` 14 s later. The 600 s hotspot window's 0-joins stands as measured; the inference
+      "this radio cannot complete a WPA2-PSK exchange against ANY AP" is withdrawn.
+    - **0209 step 3 IS NOW SATISFIED for this board**: adopted in Home Assistant as "Propane Bench"
+      via the ESPHome user flow (host 192.168.1.130 + its existing api_encryption_key, so the device
+      identity is unchanged). 7 entities, threshold 2.50 V intact, entry `loaded`.
+    - Stephen ran a deliberate bench test at 15:14-15:15 MST (pull the dev board from the
+      breadboard to test his 5 V-rail theory). Its log, same board:
+      `[I][i2c:205]: Performing bus recovery` + `[E][ads1115:070]: Communication failed` +
+      `ads1115 was marked as failed` at boot; 54 s later recovery to **-1.500 V / -1.497 V**
+      (below ADC ground — sensor side unpowered, not noise, healthy is ~+1.4 V);
+      `ads1115.sensor took a long time for an operation (67 ms), max is 50 ms`; and in the same
+      seconds `Auth Expired` -> `SA query timeout` -> `Connected`.
+    - Working hypothesis (Stephen's, supported by the above): **5 V rail sag under heater + WiFi
+      load**, two MQ-6/Figaro heaters at ~150 mA each against a 500 mA USB budget. It explains the
+      intermittent auth failures, the I2C bus recovery, and the negative ADC readings in one
+      mechanism, and why the presence sensor (no heaters) never had this fight.
+  DECISION OWED: (i) accept this as 0216's close (fault isolated to the rig's power path, board
+  cleared of condemnation, 0209 step 3 done) or (ii) have it carry on as a rail-validation task —
+  measure 5 V at the sensor rail with both heaters warm and WiFi active, add bulk capacitance or a
+  separate supply, then prove a stable session. No new access, no config/threshold/API change.
+  Vault corrected at 56beefa; skeleton addendum still cites the older verdict and needs the same
+  correction once the branch above is chosen.
+
   STEP 1 DONE 2026-11-18 14:50-15:00 MST — SEPARATOR TEST RAN; THE BOARD IS THE FAULT.
   Interactive run from Stephen's session, using the 0217 hotspot relay (hotspot ON,
   2.4 GHz). No new access grant, no router change, no change to threshold, API key or
