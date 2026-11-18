@@ -1,3 +1,10 @@
+---
+status: in_progress
+iteration: 1
+claimed_by: "cronrunner/c0be50a686c6"
+claimed_at: "2026-11-18T20:13:41+00:00"
+lease_until: "2026-11-18T21:43:41+00:00"
+---
 # 0213 — ESPHome device skeleton: three-layer base for every ESP32 build
 
 ## Assignment
