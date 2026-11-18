@@ -56,9 +56,19 @@ join still fails, which is what finally ruled the credential out for good.
 
 ## Where the propane board stands (so this file is not read as a claim of success)
 
-The propane board is refused with `Auth Expired` on every attempt; the credential, build
-method, framework, signal and MAC-collision explanations are all ruled out (task 0216).
-Two suspects remain — the router refusing that client, or a faulty radio/efuse on that
-Super Mini — and the separator test is a **2.4 GHz phone hotspot**: joins it, the board is
-fine and the router is at fault; refused there too, the board is condemned and the rig
-moves to a spare C3. Recorded in the crew vault, `bench/wifi-lessons.md`.
+**Resolved 2026-11-18 14:50-15:00 MST by the separator test (task 0216 step 1, with the
+0217 hotspot relay): the board itself is the fault.** Flashed with the hotspot's
+credentials — same config otherwise — it was refused by an AP that is a *plain WPA2* one
+(`Nightrain`: security `WPA2`, key-mgmt `wpa-psk`, pmf `0`) and whose passphrase had just
+been proven by joining it from the laptop (`10.255.222.69`). One flash, one 600 s capture:
+**0 joins, 0 `Got IP`, 191 `reason='Auth Expired'`**, sensor line healthy throughout
+(`MQ-6=1.475 V  Figaro=1.354 V  thr=2.50 V  alarm=off`).
+
+So "the router is refusing this client" is dead, and what remains is the board's own 2.4 GHz
+radio: it cannot complete a WPA2-PSK exchange against any AP, on either the house network or
+a verified-second one. **MAC `9c:cc:01:d0:78:80` is condemned**; the presence sensor
+(`9c:cc:01:d0:64:6c`) and the shed JK-BMS are healthy on the same AP, so this is a
+per-board defect, not a family or firmware trait. The next step is the spare C3 Super Mini —
+rebuilt, then provisioned **through the portal**, which makes that board the first real proof
+of layer 1 above.
+Recorded in the crew vault, `bench/wifi-lessons.md` (separator-test section, same date).
