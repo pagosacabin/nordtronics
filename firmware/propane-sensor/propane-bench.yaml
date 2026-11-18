@@ -26,6 +26,8 @@ substitutions:
   # threshold - this. Wide enough to ignore ADS1115 noise at 1 s sampling, tight enough that
   # a slow propane rise still trips well before the sensor saturates.
   hysteresis: "0.1"
+  # Grace before an unreadable channel is treated as a sensor fault (see evaluate_alarm).
+  fault_grace_ms: "30000"
 
 esphome:
   name: ${device_name}
@@ -108,13 +110,21 @@ binary_sensor:
     device_class: gas
     icon: mdi:gas-cylinder
 
+  # Distinct from the gas alarm: a channel that cannot be read (unplugged sensor, I2C fault).
+  # The on-device script latches the gas alarm after 30 s of this, so it never reads as "safe".
+  - platform: template
+    id: sensor_fault
+    name: "Sensor fault"
+    device_class: problem
+    icon: mdi:alert-circle-outline
+
 number:
   - platform: template
     id: alarm_threshold
     name: "Alarm threshold"
     unit_of_measurement: V
     icon: mdi:tune
-    min_value: 0.1
+    min_value: 0.15
     max_value: 5.0
     step: 0.05
     initial_value: 1.0
@@ -142,6 +152,8 @@ switch:
 
 # A 10 s status line at INFO is the bench's only view of the sensors over the USB console:
 # ESPHome logs individual sensor states at DEBUG, which would drown in WiFi retries here.
+# It also re-runs the alarm evaluation: a dead channel publishes NOTHING, so without this
+# tick the fault grace timer could never expire and the fault alarm would never fire.
 interval:
   - interval: 10s
     then:
@@ -149,6 +161,14 @@ interval:
           ESP_LOGI("monitor", "MQ-6=%.3f V  Figaro=%.3f V  thr=%.2f V  alarm=%s",
                    id(mq6_voltage).state, id(figaro_voltage).state,
                    id(alarm_threshold).state, id(alarm_active).state ? "ON" : "off");
+      - script.execute: evaluate_alarm
+
+globals:
+  # When a channel first went unreadable, so a fault needs 30 s of no data before it alarms.
+  - id: invalid_since
+    type: uint32_t
+    restore_value: false
+    initial_value: "0"
 
 script:
   - id: evaluate_alarm
@@ -161,22 +181,52 @@ script:
           const float figaro = id(figaro_voltage).state;
           const bool mq6_valid = !std::isnan(mq6);
           const bool figaro_valid = !std::isnan(figaro);
+          const uint32_t now = millis();
 
-          // No data at all: hold the latch. Missing readings are never evidence of clean air.
-          if (!mq6_valid && !figaro_valid) {
-            ESP_LOGW("alarm", "no channel data (%s/%s) - holding current state",
-                     mq6_valid ? "ok" : "nan", figaro_valid ? "ok" : "nan");
+          // ---- an unreadable channel is a FAULT, never clean air -------------------------
+          // A dead sensor or a broken I2C link must not read as "safe": with one channel gone
+          // the device cannot know the air is clean, so it latches the alarm after a 30 s
+          // grace window (one dropped sample should not buzz the bench). A real rise on the
+          // surviving channel still trips immediately - gas evidence beats a missing peer.
+          if (!mq6_valid || !figaro_valid) {
+            id(sensor_fault).publish_state(true);
+            const bool above_now = (mq6_valid && mq6 > threshold) || (figaro_valid && figaro > threshold);
+            if (above_now) {
+              if (!id(alarm_active).state) {
+                id(alarm_active).publish_state(true);
+                id(buzzer).turn_on();
+                id(alert_led).turn_on();
+              }
+              ESP_LOGW("alarm", "ALARM  MQ-6=%s  Figaro=%s  thr=%.3f V (one channel unreadable)",
+                       mq6_valid ? "ok" : "nan", figaro_valid ? "ok" : "nan", threshold);
+              return;
+            }
+            if (id(invalid_since) == 0) {
+              id(invalid_since) = now;
+              ESP_LOGW("alarm", "channel unreadable (MQ-6=%s, Figaro=%s) - 30 s grace before fault alarm",
+                       mq6_valid ? "ok" : "nan", figaro_valid ? "ok" : "nan");
+            } else if (now - id(invalid_since) > ${fault_grace_ms}) {
+              if (!id(alarm_active).state) {
+                id(alarm_active).publish_state(true);
+                id(buzzer).turn_on();
+                id(alert_led).turn_on();
+                ESP_LOGE("alarm", "FAULT  channel unreadable > 30 s (MQ-6=%s, Figaro=%s) - alarm forced ON",
+                         mq6_valid ? "ok" : "nan", figaro_valid ? "ok" : "nan");
+              }
+            }
             return;
           }
 
-          // Trip on ANY channel above threshold, including while the other is still unknown:
-          // a false alarm is recoverable, a missed one is not.
-          const bool above = (mq6_valid && mq6 > threshold) ||
-                             (figaro_valid && figaro > threshold);
-          // Release only when BOTH channels are valid AND both are below the hysteresis band.
-          const bool below = mq6_valid && figaro_valid &&
-                             mq6 < (threshold - hysteresis) &&
-                             figaro < (threshold - hysteresis);
+          id(invalid_since) = 0;
+          id(sensor_fault).publish_state(false);
+
+          // Release level sits inside the real range: the threshold floor is 0.15 V and the
+          // hysteresis 0.1 V, so threshold - hysteresis is at worst 0.05 V and a tripped alarm
+          // can always clear on a real reading (it could not at a 0.1 V floor).
+          const float release_level = threshold - hysteresis;
+
+          const bool above = mq6 > threshold || figaro > threshold;
+          const bool below = mq6 < release_level && figaro < release_level;
 
           if (above && !id(alarm_active).state) {
             id(alarm_active).publish_state(true);

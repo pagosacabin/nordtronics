@@ -9,7 +9,17 @@ MQ-6 vs Figaro TGS2610-D00 shootout can run on live data.
 | Config | `propane-bench.yaml` (`esphome config` / `esphome compile` clean on ESPHome 2026.9.1) |
 | Board | ESP32-C3 Super Mini, MAC `9c:cc:01:d0:78:80`, ESP32-C3 (QFN32) rev v0.4 |
 | Console | USB Serial/JTAG (`logger.hardware_uart: USB_SERIAL_JTAG`) — the Super Mini's USB-C is wired to the chip's USB peripheral, not UART0, so this is required for logs |
-| Evidence | `bench-log-2026-11-17-serial.txt` (bus probe, 100 s of both channels, alarm trip + release) |
+| Evidence | `bench-log-2026-11-17-serial.txt` (bus probe, 120 s of both channels, alarm trip + release, sensor-fault path) |
+
+## Peer review (Copilot, Herdr pane, 2026-11-17)
+
+Reviewed at the repo path before hand-off. Three findings, all answered:
+
+| # | Severity | Finding | Resolution |
+|---|---|---|---|
+| 1 | MAJOR | ADS1115 VDD is 5 V; if the module pulls SDA/SCL up to VDD, GPIO7/6 see 5 V and can be damaged. Use 3.3 V pull-ups or level shifting. | **Hardware, not firmware — flagged for Stephen.** Nothing in the YAML can fix a 5 V pull-up: the C3 is not 5 V tolerant and the pin is pulled to VDD regardless of the internal pull-up setting. The rig as built works, but this should be a 3.3 V pull-up (or an I2C level shifter) before the rung is trusted long-term. |
+| 2 | BLOCKER | At startup with no readings, or with one channel failed while the other is below threshold, the alarm stays off — a gas rise on the dead channel is undetectable. | **Fixed.** Unreadable channels now latch a FAULT alarm after a 30 s grace window, with a `Sensor fault` entity, while a rise on the surviving channel still trips immediately. While fixing it, a second defect surfaced: the grace timer could never expire because a dead channel publishes nothing — so the eval now also runs on the 10 s interval. Both are proven on hardware in bench log section 4. |
+| 3 | NIT | The 0.1 V minimum threshold equals the 0.1 V hysteresis, so the release level is 0 V and a tripped alarm can never clear. | **Fixed.** Threshold floor raised to 0.15 V, so the release level is at worst 0.05 V. |
 
 ## Division of labour
 
@@ -71,14 +81,27 @@ on the device.
 |---|---|---|
 | MQ-6 VRL | sensor, V | ADS1115 A0, 1 s updates |
 | Figaro VRL | sensor, V | ADS1115 A1, 1 s updates |
-| Alarm threshold | number, 0.1–5.0 V, step 0.05, start 1.0 V | trip level; `restore_value` keeps a tuned value across reboots |
+| Alarm threshold | number, 0.15–5.0 V, step 0.05, start 1.0 V | trip level; `restore_value` keeps a tuned value across reboots |
 | Gas alarm | binary_sensor (gas) | latched alarm state |
+| Sensor fault | binary_sensor (problem) | a channel is unreadable right now |
 | Buzzer / Alert LED | switches (GPIO10 / GPIO5) | driven only by the alarm script |
 
 Hysteresis is 0.1 V (`substitutions.hysteresis`): trip when **either** channel rises above
-the threshold, clear only when **both** channels fall below `threshold − 0.1 V`. A channel
-that is `nan` (sensor unplugged) is never treated as clean air — a trip can happen on one
-valid channel, a release requires both.
+the threshold, clear only when **both** channels fall below `threshold − 0.1 V`. The
+threshold floor is 0.15 V so that band always has room above 0 V — at a 0.1 V floor the
+release level would be 0 V and a tripped alarm could never clear on a real reading.
+
+An unreadable channel (`nan`: sensor unplugged, ADC gone, I2C fault) is a **fault, never
+clean air**. The device tolerates 30 s of lost data (`substitutions.fault_grace_ms`) so one
+dropped sample does not buzz the bench, then latches the gas alarm ON and reports
+`Sensor fault` — a gas detector that goes quiet when its sensor dies is the one failure
+mode it must not have. A rise above threshold on whichever channel is still valid trips
+immediately, without waiting out the grace window.
+
+The evaluation runs both on each sensor publish **and** on the 10 s status interval. That
+second trigger is load-bearing: a dead channel publishes nothing at all, so with only the
+sensor triggers the grace timer could never expire (this was caught in review and fixed —
+see the fault-path probe in the bench log).
 
 ## Bench observation: the 1.0 V starting threshold is below this rig's clean-air baseline
 

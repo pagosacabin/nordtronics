@@ -1,16 +1,16 @@
 # Propane bench — serial evidence, 2026-11-17
 #
-# Board: ESP32-C3 Super Mini (TENSTAR), USB Serial/JTAG on /dev/ttyACM0..1,
-#        MAC 9c:cc:01:d0:78:80, ESP32-C3 (QFN32) rev v0.4.
-# Tool:  ESPHome 2026.9.1, esp-idf 5.5.5 framework, board esp32-c3-devkitm-1.
+# Board: ESP32-C3 Super Mini (TENSTAR), USB Serial/JTAG, MAC 9c:cc:01:d0:78:80,
+#        ESP32-C3 (QFN32) rev v0.4.
+# Tool:  ESPHome 2026.9.1, esp-idf 5.5.5, board esp32-c3-devkitm-1.
 #
-# Captured with `esphome run propane-bench.yaml --device <by-id>` so the log starts at
-# boot. Nothing here is edited except the removal of interleaved WiFi-retry lines
-# (wifi:1506 / wifi:1145 / wifi_esp32:860 / wifi:1729 — the device has no network
-# credentials on this laptop, see README) and the elision marks.
+# Captured with `esphome run propane-bench.yaml --device <by-id>` so each log starts at
+# boot. Edited only to drop the interleaved WiFi-retry lines (wifi:1506, wifi:1145,
+# wifi_esp32:860, wifi:1729 — this unit has no network credentials) and to insert the
+# elision marks. Everything else is the device's own output.
 
 ===== 1. I2C bus orientation: the brief's pin order finds nothing =====================
-Config as written in the task brief: sda: GPIO6, scl: GPIO7  (probe build, logger DEBUG)
+Brief as written: sda: GPIO6, scl: GPIO7   (probe build, logger level DEBUG)
 
 [17:04:40.657][C][i2c:092]: I2C Bus:
 [17:04:40.657][C][i2c:093]:   SDA Pin: GPIO6
@@ -22,8 +22,8 @@ Config as written in the task brief: sda: GPIO6, scl: GPIO7  (probe build, logge
 [17:04:40.745][E][ads1115:070]: Communication failed
 [17:04:40.746][E][component:143]:   ads1115 is marked FAILED: unspecified
 
-=> no device acknowledges on 6/7; the ADS1115 is absent from the scan and the component
-   is marked failed. Same board, same power, pins transposed (sda: GPIO7, scl: GPIO6):
+=> no device acknowledges on 6/7: the bus scan is empty and the ADS1115 is marked failed.
+   Same board, same power, pair transposed (sda: GPIO7, scl: GPIO6):
 
 [17:07:33.096][C][i2c:092]: I2C Bus:
 [17:07:33.096][C][i2c:093]:   SDA Pin: GPIO7
@@ -33,41 +33,44 @@ Config as written in the task brief: sda: GPIO6, scl: GPIO7  (probe build, logge
 [17:07:33.097][C][i2c:113]: Results from bus scan:
 [17:07:33.098][C][i2c:119]: Found device at address 0x48
 
-=> the ADS1115 answers at 0x48 on the transposed pair. The ship config uses GPIO7/GPIO6.
+=> the ADS1115 answers at 0x48 on the transposed pair. The shipping config uses GPIO7/GPIO6.
 
-===== 2. Deliverable build (repo yaml, unchanged) — boot + 100 s of both channels =====
-config_hash 0x76cff689, build 2026-11-17 17:10:17 -0700
+===== 2. Deliverable build (repo yaml) — boot + ~120 s of both channels ==============
+config_hash 0xc078324e
 
-[17:10:40.617][I][app:060]: Running through setup()
-[17:10:40.619][I][i2c:205]: Performing bus recovery
-[17:10:40.638][W][alarm:167]: no channel data (nan/nan) - holding current state
-[17:10:40.691][I][app:117]: setup() finished successfully!
-[17:10:40.694][I][app:151]: ESPHome version 2026.9.1 compiled on 2026-11-17 17:10:17 -0700
-[17:10:40.695][I][app:158]: ESP32 Chip: ESP32-C3 rev0.4, 1 core(s)
-[17:10:40.700][W][alarm:185]: ALARM  MQ-6=nan V  Figaro=1.696 V  thr=1.000 V
+[17:31:57.702][I][app:060]: Running through setup()
+[17:31:57.703][I][i2c:205]: Performing bus recovery
+[17:31:57.723][W][alarm:206]: channel unreadable (MQ-6=nan, Figaro=nan) - 30 s grace before fault alarm
+[17:31:57.785][I][app:117]: setup() finished successfully!
+[17:31:57.788][I][app:151]: ESPHome version 2026.9.1 compiled on 2026-11-17 17:31:39 -0700
+[17:31:57.789][I][app:158]: ESP32 Chip: ESP32-C3 rev0.4, 1 core(s)
 
-[ ... 100 s of 10 s status lines ... ]
-[17:10:41.560][I][monitor:149]: MQ-6=1.533 V  Figaro=1.696 V  thr=1.00 V  alarm=ON
-[17:10:51.559][I][monitor:149]: MQ-6=1.532 V  Figaro=1.687 V  thr=1.00 V  alarm=ON
-[17:11:01.559][I][monitor:149]: MQ-6=1.535 V  Figaro=1.688 V  thr=1.00 V  alarm=ON
-[17:11:11.558][I][monitor:149]: MQ-6=1.534 V  Figaro=1.687 V  thr=1.00 V  alarm=ON
-[17:11:21.558][I][monitor:149]: MQ-6=1.537 V  Figaro=1.693 V  thr=1.00 V  alarm=ON
-[17:11:31.558][I][monitor:149]: MQ-6=1.538 V  Figaro=1.686 V  thr=1.00 V  alarm=ON
-[17:11:41.557][I][monitor:149]: MQ-6=1.529 V  Figaro=1.673 V  thr=1.00 V  alarm=ON
-[17:11:51.557][I][monitor:149]: MQ-6=1.527 V  Figaro=1.677 V  thr=1.00 V  alarm=ON
-[17:12:01.556][I][monitor:149]: MQ-6=1.534 V  Figaro=1.677 V  thr=1.00 V  alarm=ON
-[17:12:11.556][I][monitor:149]: MQ-6=1.530 V  Figaro=1.676 V  thr=1.00 V  alarm=ON
+[ ... 10 s status lines ... ]
+[17:32:00.687][I][monitor:161]: MQ-6=1.474 V  Figaro=1.534 V  thr=2.50 V  alarm=off
+[17:32:10.686][I][monitor:161]: MQ-6=1.472 V  Figaro=1.527 V  thr=2.50 V  alarm=off
+[17:32:20.686][I][monitor:161]: MQ-6=1.466 V  Figaro=1.525 V  thr=2.50 V  alarm=off
+[17:32:30.686][I][monitor:161]: MQ-6=1.465 V  Figaro=1.524 V  thr=2.50 V  alarm=off
+[17:32:40.685][I][monitor:161]: MQ-6=1.464 V  Figaro=1.526 V  thr=2.50 V  alarm=off
+[17:32:50.685][I][monitor:161]: MQ-6=1.467 V  Figaro=1.524 V  thr=2.50 V  alarm=off
+[17:33:00.684][I][monitor:161]: MQ-6=1.463 V  Figaro=1.519 V  thr=2.50 V  alarm=off
+[17:33:10.684][I][monitor:161]: MQ-6=1.467 V  Figaro=1.520 V  thr=2.50 V  alarm=off
+[17:33:20.684][I][monitor:161]: MQ-6=1.468 V  Figaro=1.522 V  thr=2.50 V  alarm=off
+[17:33:30.683][I][monitor:161]: MQ-6=1.470 V  Figaro=1.523 V  thr=2.50 V  alarm=off
+[17:33:40.683][I][monitor:161]: MQ-6=1.473 V  Figaro=1.523 V  thr=2.50 V  alarm=off
+[17:33:50.682][I][monitor:161]: MQ-6=1.471 V  Figaro=1.520 V  thr=2.50 V  alarm=off
+[17:34:00.682][I][monitor:161]: MQ-6=1.468 V  Figaro=1.520 V  thr=2.50 V  alarm=off
 
-Both channels report every second; the 10 s status line is the only INFO-level view
-(ESPHome logs raw sensor states at DEBUG). Values are uncalibrated: MQ-6 ~1.53 V,
-Figaro ~1.68 V, both drifting slowly downward as the heaters condition. Note the
-alarm is ON here: the brief's 1.0 V starting threshold sits BELOW this rig's clean-air
-baseline, so the first Figaro sample trips it (see the [W][alarm] line at boot).
+Both channels report every second; the 10 s INFO status line is the only view, because
+ESPHome publishes raw sensor states at DEBUG. Values uncalibrated: MQ-6 ~1.47 V,
+Figaro ~1.52 V, drifting down slowly as the heaters condition. Threshold here is 2.50 V
+because the number entity restores its last value from NVS (see README); the yaml's
+initial value is the brief's 1.0 V, which sits BELOW this rig's clean-air baseline and
+therefore alarms on the first sample.
 
 ===== 3. Alarm trip AND release, driven on hardware (probe build, threshold ramped) =
 Probe-only build: identical alarm script, initial_value 2.0, plus two repeating interval
-actions that set the threshold to 1.0 V every 25 s and to 2.5 V every 60 s, so the trip
-and the release both fire without an API client (the device has no network on the bench).
+actions that set the threshold to 1.0 V every 25 s and 2.5 V every 60 s, so the trip and
+the release both fire without an API client (the device has no network on the bench).
 
 [17:16:11.175][W][alarm:178]: no channel data (nan/nan) - holding current state
 [17:16:11.882][I][monitor:149]: MQ-6=1.502 V  Figaro=1.632 V  thr=2.00 V  alarm=off
@@ -86,6 +89,28 @@ and the release both fire without an API client (the device has no network on th
 [17:17:51.878][I][monitor:149]: MQ-6=1.502 V  Figaro=1.616 V  thr=1.00 V  alarm=ON
 [17:18:01.877][I][monitor:149]: MQ-6=1.499 V  Figaro=1.613 V  thr=1.00 V  alarm=ON
 
-=> ALARM (trip) and CLEAR (release) both execute on the device, with the switch/LED
-   outputs driven by the same script. The release branch requires BOTH channels below
-   threshold - hysteresis (0.1 V), which is what the CLEAR line demonstrates.
+=> ALARM (trip) and CLEAR (release) both execute on the device, driving the buzzer and
+   LED from the same script. Release requires BOTH channels below threshold - hysteresis.
+
+===== 4. Sensor-fault path (probe build pointing at 0x49, where nothing answers) =====
+Probe-only build: `address: 0x49`, everything else identical. This is the path that makes
+an unreadable channel fail SAFE instead of reading as clean air.
+
+[17:30:01.504][W][alarm:206]: channel unreadable (MQ-6=nan, Figaro=nan) - 30 s grace before fault alarm
+[17:30:01.673][E][ads1115:070]: Communication failed
+[17:30:01.705][I][monitor:161]: MQ-6=nan V  Figaro=nan V  thr=2.50 V  alarm=off
+[17:30:11.705][I][monitor:161]: MQ-6=nan V  Figaro=nan V  thr=2.50 V  alarm=off
+[17:30:21.704][I][monitor:161]: MQ-6=nan V  Figaro=nan V  thr=2.50 V  alarm=off
+[17:30:31.704][I][monitor:161]: MQ-6=nan V  Figaro=nan V  thr=2.50 V  alarm=off
+[17:30:31.705][E][alarm:213]: FAULT  channel unreadable > 30 s (MQ-6=nan, Figaro=nan) - alarm forced ON
+[17:30:41.703][I][monitor:161]: MQ-6=nan V  Figaro=nan V  thr=2.50 V  alarm=ON
+[17:30:51.703][I][monitor:161]: MQ-6=nan V  Figaro=nan V  thr=2.50 V  alarm=ON
+[17:31:01.703][I][monitor:161]: MQ-6=nan V  Figaro=nan V  thr=2.50 V  alarm=ON
+[17:31:11.702][I][monitor:161]: MQ-6=nan V  Figaro=nan V  thr=2.50 V  alarm=ON
+[17:31:21.702][I][monitor:161]: MQ-6=nan V  Figaro=nan V  thr=2.50 V  alarm=ON
+[17:31:31.701][I][monitor:161]: MQ-6=nan V  Figaro=nan V  thr=2.50 V  alarm=ON
+
+=> the code is a FAULT state: 30 s of no data latches the gas alarm ON rather than leaving
+   the device silent. The first draft of this script did not do that, and the grace timer
+   could never expire either (a dead channel publishes nothing, so nothing re-ran the
+   evaluation) — the 10 s interval tick is what makes this observable.
