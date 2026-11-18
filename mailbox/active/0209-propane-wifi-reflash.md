@@ -1,3 +1,10 @@
+---
+status: in_progress
+iteration: 1
+claimed_by: "cronrunner/c0be50a686c6"
+claimed_at: "2026-11-18T15:15:30+00:00"
+lease_until: "2026-11-18T16:45:30+00:00"
+---
 # 0209 — Propane bench: reflash with real WiFi credentials
 
 ## Assignment
