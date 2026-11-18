@@ -3,11 +3,181 @@ task_id: "0214"
 protocol_version: 1.3.0
 status: in_progress
 iteration: 1
-expect-reply-within: 12h
 claimed_by: "cronrunner/c0be50a686c6"
 claimed_at: "2026-11-18T21:03:53+00:00"
 lease_until: "2026-11-18T22:33:53+00:00"
+expect-reply-within: 12h
+cost:
+  model: deepseek-flash
+  api_calls: unknown
+  input_tokens: unknown
+  input_cache_hit_tokens: unknown
+  input_cache_miss_tokens: unknown
+  output_tokens: unknown
+  total_tokens: unknown
+  search_requests: 0
+  rate_window: off-peak
+  rates_used: "DeepSeek off-peak: $0.15/M input miss, $0.003/M input hit, $0.60/M output"
+  cost_usd: unknown
+notes: |
+  BLOCKED — DECISION OWED, no proof block, nothing staged. Run
+  2026-11-18 14:00-15:05 MST (21:00-22:05 UTC), off-peak (PEAK: OFF-PEAK 21:00
+  UTC), PROTOCOL MATCH 1.3.0. Cost fields are `unknown` because this harness
+  exposes no per-call DeepSeek usage to the cron session (not estimated).
+
+  TASK CHOICE. 0214 was taken as the lowest actionable task. In `mailbox/active/`:
+  0142 and 0187 carry `status: superseded`; 0159, 0209 and 0213 are
+  decision-blocked (left untouched — no notes edit, no iteration change). In
+  `mailbox/inbox/`, 0176 is `status: superseded` ("Do not pick up", withdrawn
+  2026-11-12). 0214 was the only actionable task. Its front-matter was added at
+  pickup (rule 16: it arrived with no protocol fields), claimed with the transition
+  helper at 2210a6b.
+
+  WHAT IS DONE AND VERIFIED (steps 1-4 of the task, 5 of 6):
+  The vault exists at /home/astroboy/crew-vault, git-initialised, HEAD {vhead},
+  seven files, six commits, every message naming the agent:
+
+  {vlog}
+
+  Tree (bytes): {tree}
+
+  Content provenance — every page written from a record, nothing invented:
+    bench/propane-sensor.md   0208's committed firmware (read back from
+                              origin/hermes/0208-propane-bench-firmware @ ccece52,
+                              not from notes) plus 0208's bench log and 0212's
+                              600 s capture. Pins, gain, part numbers, baselines,
+                              hysteresis and the 0.15 V threshold floor were all
+                              taken from the YAML and log, not recalled.
+    bench/wifi-lessons.md     0098 (October WPA2/WPA3 toolchain lesson), 0208,
+                              0209, 0211, 0212. Includes 0212's outcome, which
+                              HAS landed: credential confirmed three ways, join
+                              still refused -> AP-side. Join question marked OPEN.
+    decisions/...             step 4's decision page. Points at firmware/skeleton/
+                              and marks it IN FLIGHT with the branch and SHA -
+                              verified this run that main carries ZERO files
+                              under firmware/skeleton/ (`git ls-tree -r --name-only
+                              main firmware/skeleton/` -> empty) and that the
+                              branch is hermes/0213-esphome-skeleton @ 668f244.
+    crew/roles.md             0214's brief, the handoff-mailbox skill's worker and
+                              Herdr wiring, and 0213's pane facts.
+    log/2026-11-18.md         first entry, signed, including this retest attempt.
+  TWO CLAIMS ARE MARKED UNVERIFIED rather than asserted: that the presence-sensor
+  C3 (Arduino build) joins the house WiFi, and that the Starlink app exposes no
+  MAC-filter UI. Both are Stephen's statements of 2026-11-18 as recorded in the
+  task brief; neither is a measurement in a record I could reach (a grep for a
+  presence-sensor join capture across mailbox/*/*.md found none). 0106 (2026-10-04)
+  is cited separately as the one captured Espressif join in the records.
+
+  STEP 5 — THE RETEST — IS WHAT FAILS. The task's success criterion is "Newton
+  answers both retest questions correctly from the vault alone, in a fresh
+  session". Newton could not be driven, so there is no Q&A to report and no proof
+  block. The failure is authentication, not the vault.
+
+    Fresh pane, driven through herdr-core exactly as the skill prescribes:
+      hc run --bg --name newton-retest-0214b agy -p "<the two questions + the
+        vault path, nothing else>"
+    The pane (t1m) returned, verbatim:
+      Authentication required. Please visit the URL to log in: https://accounts.
+        google.com/o/oauth2/auth?... (URL elided here, it carries a live
+        code_challenge and state)
+      Waiting for authentication (timeout 60s)...
+      Or, paste the authorization code here and press Enter:
+      Error: authentication timed out.
+      error: authentication failed or timed out
+    A first attempt (t1k) produced the same message and was removed by --rm before
+    it could be read; the second attempt is the one quoted.
+
+    This is not a shell-environment artefact: `hc exec 'agy -p "/usage"'` (the
+    herdr-core server's own environment, i.e. what the panes are spawned from) also
+    returned "Authentication required". The live Antigravity pane t19 ("agy-main")
+    is sitting at its login selector — "You are currently not signed in. Select
+    login method" — so the interactive session is logged out too, not just the
+    headless path.
+
+    Mechanism, stated as observation rather than diagnosis: auth is keyring-backed
+    (the CLI's own log shows "ChainedAuth: authenticated via keyring") and the
+    secrets service is not registered on the session bus from here —
+    `busctl --user call org.freedesktop.secrets /org/freedesktop/secrets
+    org.freedesktop.secrets.Service1 ReadAlias s default` answers "No such
+    interface org.freedesktop.secrets.Service1". No OAuth credential was found in
+    the environment or in any profile .env (checked for GEMINI / ANTIGRAVITY /
+    GOOGLE_* variables — none set), so there is no non-interactive way in.
+
+    Copilot is no fallback and is not a substitute: pane t17 ("copilot-main",
+    idle) answers "Please use /login to sign in to use Copilot". Substituting a
+    different agent for the one the task names would not satisfy the criterion
+    either, so none was substituted.
+
+  STEP 1's OPTIONAL REMOTE IS BLOCKED, and reported as such (the task allows it).
+    Probe with a deliberately invalid repo name — 403 means the permission is
+    absent, 422 would mean only the name was bad:
+      POST /user/repos {"name":"invalid name with spaces"} ->
+        403 {"message":"Resource not accessible by personal access token"}
+    The keyring fallback is dead as well:
+      env -u GH_TOKEN -u GITHUB_TOKEN gh auth status ->
+        "Failed to log in to github.com account pagosacabin (default) ...
+         The token in default is invalid."
+    So the vault stays local-git only, which the task says still leaves the pilot
+    valid.
+
+  DEVIATIONS DECLARED.
+   1. Front-matter added to the task at pickup (it shipped without any) and pushed
+      as its own commit before the claim.
+   2. The vault is on the laptop at ~/crew-vault with no remote — per step 1's
+      blocked branch, not an omission.
+   3. `expect-reply-within: 12h` was chosen at pickup; the task named no interval.
+   4. No PR, no branch, no CI run: nothing in the nordtronics repo changed. The
+      only repo writes are this mailbox file and mailbox/active/.resume-needed.
+   5. The design-credit note in crew/roles.md that the two CLI agents are logged
+      out is a live-state observation, dated, and will be stale once Stephen logs
+      them in — it is written as of 2026-11-18 for that reason.
+
+  THE DECISION OWED — one of:
+   (a) sign Newton in: run `agy` interactively once in pane t19 (or any shell with
+       the keyring unlocked) and complete the Google OAuth; the retest then takes
+       one fresh `agy -p` call with the two questions already written up in
+       log/2026-11-18.md and the vault on disk, or
+   (b) approve a different retest subject — but that changes the criterion, so it
+       is Stephen's call, not mine.
+  Also worth a line to Juno: the vault pilot's non-retest half is complete, so the
+  follow-on work (folding the crew's other knowledge into it) is not blocked by
+  this.
+
+  NO PROOF BLOCK IS PRESENT BECAUSE THERE IS NOTHING TO POINT AT: no branch, no
+  run, and no retest Q&A. The vault's own git history is real and local; it is not
+  a substitute for criterion 2 and is not presented as one.
 ---
+## Status (run 2026-11-18, 14:00-15:05 MST)
+
+**The vault is built and seeded. The retest is not done, because Newton cannot be
+driven — both CLI agents on this laptop are logged out.**
+
+| Step | State |
+|---|---|
+| 1. Vault at `~/crew-vault`, `git init` | **done** — 7 files, 6 commits, agent named in each |
+| 1. Optional private remote | **blocked** — repo creation returns `403 Resource not accessible by personal access token`; local-git only, as the task allows |
+| 2. `README.md` + `INDEX.md` | **done** |
+| 3. Seed pages | **done** — four pages, every fact dated and sourced; two claims marked `unverified` |
+| 4. Commit per page with agent attribution | **done** |
+| 5. Newton retest in a fresh session | **FAILED — Newton is not signed in** |
+| 6. Staged reply with the retest Q&A | not possible: there is no Q&A, so no `proof` block |
+
+The failure, verbatim, from a fresh pane started through herdr-core:
+
+```
+Authentication required. Please visit the URL to log in: https://accounts.google.com/o/oauth2/auth?...
+Waiting for authentication (timeout 60s)...
+Or, paste the authorization code here and press Enter:
+Error: authentication timed out.
+error: authentication failed or timed out
+```
+
+The interactive Antigravity pane (`t19`) is at its login selector too, and
+Copilot's pane (`t17`) answers "Please use /login to sign in". Details, the
+mechanism probe, and the decision owed are in `notes:` above.
+
+The vault itself is usable now: read `~/crew-vault/README.md` and `INDEX.md`.
+
 # 0214 — Crew vault pilot: shared memory for the laptop agents
 
 ## Assignment
