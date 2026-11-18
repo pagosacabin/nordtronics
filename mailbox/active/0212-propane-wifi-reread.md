@@ -1,3 +1,10 @@
+---
+status: in_progress
+iteration: 1
+claimed_by: "cronrunner/c0be50a686c6"
+claimed_at: "2026-11-18T20:01:01+00:00"
+lease_until: "2026-11-18T21:31:01+00:00"
+---
 # 0212 — Propane board: verify the password three ways, then retry the join post-reboot
 
 ## Assignment
