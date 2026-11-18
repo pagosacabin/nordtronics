@@ -1,0 +1,91 @@
+# Propane bench — serial evidence, 2026-11-17
+#
+# Board: ESP32-C3 Super Mini (TENSTAR), USB Serial/JTAG on /dev/ttyACM0..1,
+#        MAC 9c:cc:01:d0:78:80, ESP32-C3 (QFN32) rev v0.4.
+# Tool:  ESPHome 2026.9.1, esp-idf 5.5.5 framework, board esp32-c3-devkitm-1.
+#
+# Captured with `esphome run propane-bench.yaml --device <by-id>` so the log starts at
+# boot. Nothing here is edited except the removal of interleaved WiFi-retry lines
+# (wifi:1506 / wifi:1145 / wifi_esp32:860 / wifi:1729 — the device has no network
+# credentials on this laptop, see README) and the elision marks.
+
+===== 1. I2C bus orientation: the brief's pin order finds nothing =====================
+Config as written in the task brief: sda: GPIO6, scl: GPIO7  (probe build, logger DEBUG)
+
+[17:04:40.657][C][i2c:092]: I2C Bus:
+[17:04:40.657][C][i2c:093]:   SDA Pin: GPIO6
+[17:04:40.657][C][i2c:093]:   SCL Pin: GPIO7
+[17:04:40.657][C][i2c:093]:   Frequency: 100000 Hz
+[17:04:40.658][C][i2c:103]:   Recovery: bus successfully recovered
+[17:04:40.658][C][i2c:113]: Results from bus scan:
+[17:04:40.659][C][i2c:115]: Found no devices
+[17:04:40.745][E][ads1115:070]: Communication failed
+[17:04:40.746][E][component:143]:   ads1115 is marked FAILED: unspecified
+
+=> no device acknowledges on 6/7; the ADS1115 is absent from the scan and the component
+   is marked failed. Same board, same power, pins transposed (sda: GPIO7, scl: GPIO6):
+
+[17:07:33.096][C][i2c:092]: I2C Bus:
+[17:07:33.096][C][i2c:093]:   SDA Pin: GPIO7
+[17:07:33.096][C][i2c:093]:   SCL Pin: GPIO6
+[17:07:33.096][C][i2c:093]:   Frequency: 100000 Hz
+[17:07:33.097][C][i2c:103]:   Recovery: bus successfully recovered
+[17:07:33.097][C][i2c:113]: Results from bus scan:
+[17:07:33.098][C][i2c:119]: Found device at address 0x48
+
+=> the ADS1115 answers at 0x48 on the transposed pair. The ship config uses GPIO7/GPIO6.
+
+===== 2. Deliverable build (repo yaml, unchanged) — boot + 100 s of both channels =====
+config_hash 0x76cff689, build 2026-11-17 17:10:17 -0700
+
+[17:10:40.617][I][app:060]: Running through setup()
+[17:10:40.619][I][i2c:205]: Performing bus recovery
+[17:10:40.638][W][alarm:167]: no channel data (nan/nan) - holding current state
+[17:10:40.691][I][app:117]: setup() finished successfully!
+[17:10:40.694][I][app:151]: ESPHome version 2026.9.1 compiled on 2026-11-17 17:10:17 -0700
+[17:10:40.695][I][app:158]: ESP32 Chip: ESP32-C3 rev0.4, 1 core(s)
+[17:10:40.700][W][alarm:185]: ALARM  MQ-6=nan V  Figaro=1.696 V  thr=1.000 V
+
+[ ... 100 s of 10 s status lines ... ]
+[17:10:41.560][I][monitor:149]: MQ-6=1.533 V  Figaro=1.696 V  thr=1.00 V  alarm=ON
+[17:10:51.559][I][monitor:149]: MQ-6=1.532 V  Figaro=1.687 V  thr=1.00 V  alarm=ON
+[17:11:01.559][I][monitor:149]: MQ-6=1.535 V  Figaro=1.688 V  thr=1.00 V  alarm=ON
+[17:11:11.558][I][monitor:149]: MQ-6=1.534 V  Figaro=1.687 V  thr=1.00 V  alarm=ON
+[17:11:21.558][I][monitor:149]: MQ-6=1.537 V  Figaro=1.693 V  thr=1.00 V  alarm=ON
+[17:11:31.558][I][monitor:149]: MQ-6=1.538 V  Figaro=1.686 V  thr=1.00 V  alarm=ON
+[17:11:41.557][I][monitor:149]: MQ-6=1.529 V  Figaro=1.673 V  thr=1.00 V  alarm=ON
+[17:11:51.557][I][monitor:149]: MQ-6=1.527 V  Figaro=1.677 V  thr=1.00 V  alarm=ON
+[17:12:01.556][I][monitor:149]: MQ-6=1.534 V  Figaro=1.677 V  thr=1.00 V  alarm=ON
+[17:12:11.556][I][monitor:149]: MQ-6=1.530 V  Figaro=1.676 V  thr=1.00 V  alarm=ON
+
+Both channels report every second; the 10 s status line is the only INFO-level view
+(ESPHome logs raw sensor states at DEBUG). Values are uncalibrated: MQ-6 ~1.53 V,
+Figaro ~1.68 V, both drifting slowly downward as the heaters condition. Note the
+alarm is ON here: the brief's 1.0 V starting threshold sits BELOW this rig's clean-air
+baseline, so the first Figaro sample trips it (see the [W][alarm] line at boot).
+
+===== 3. Alarm trip AND release, driven on hardware (probe build, threshold ramped) =
+Probe-only build: identical alarm script, initial_value 2.0, plus two repeating interval
+actions that set the threshold to 1.0 V every 25 s and to 2.5 V every 60 s, so the trip
+and the release both fire without an API client (the device has no network on the bench).
+
+[17:16:11.175][W][alarm:178]: no channel data (nan/nan) - holding current state
+[17:16:11.882][I][monitor:149]: MQ-6=1.502 V  Figaro=1.632 V  thr=2.00 V  alarm=off
+[17:16:14.665][W][alarm:196]: ALARM  MQ-6=1.500 V  Figaro=1.630 V  thr=1.000 V
+[17:16:21.881][I][monitor:149]: MQ-6=1.510 V  Figaro=1.631 V  thr=1.00 V  alarm=ON
+[17:16:31.881][I][monitor:149]: MQ-6=1.511 V  Figaro=1.633 V  thr=1.00 V  alarm=ON
+[17:16:41.880][I][monitor:149]: MQ-6=1.522 V  Figaro=1.640 V  thr=1.00 V  alarm=ON
+[17:16:51.880][I][monitor:149]: MQ-6=1.513 V  Figaro=1.631 V  thr=1.00 V  alarm=ON
+[17:17:01.880][I][monitor:149]: MQ-6=1.513 V  Figaro=1.629 V  thr=1.00 V  alarm=ON
+[17:17:11.879][I][monitor:149]: MQ-6=1.516 V  Figaro=1.629 V  thr=1.00 V  alarm=ON
+[17:17:14.357][I][alarm:201]: CLEAR  MQ-6=1.516 V  Figaro=1.628 V  thr=2.500 V
+[17:17:21.879][I][monitor:149]: MQ-6=1.502 V  Figaro=1.629 V  thr=2.50 V  alarm=off
+[17:17:29.662][W][alarm:196]: ALARM  MQ-6=1.495 V  Figaro=1.620 V  thr=1.000 V
+[17:17:31.878][I][monitor:149]: MQ-6=1.503 V  Figaro=1.627 V  thr=1.00 V  alarm=ON
+[17:17:41.878][I][monitor:149]: MQ-6=1.503 V  Figaro=1.616 V  thr=1.00 V  alarm=ON
+[17:17:51.878][I][monitor:149]: MQ-6=1.502 V  Figaro=1.616 V  thr=1.00 V  alarm=ON
+[17:18:01.877][I][monitor:149]: MQ-6=1.499 V  Figaro=1.613 V  thr=1.00 V  alarm=ON
+
+=> ALARM (trip) and CLEAR (release) both execute on the device, with the switch/LED
+   outputs driven by the same script. The release branch requires BOTH channels below
+   threshold - hysteresis (0.1 V), which is what the CLEAR line demonstrates.

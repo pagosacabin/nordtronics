@@ -1,0 +1,191 @@
+# Propane bench firmware — ESP32-C3 Super Mini + ADS1115 (bench task 0208, 2026-11-17)
+#
+# Two MOS propane sensors on one ADS1115 so the MQ-6 vs Figaro TGS2610-D00 shootout runs on
+# live data. The alarm lives on the device: it never consults WiFi, Home Assistant or any
+# network state, and it latches until BOTH channels fall below threshold minus hysteresis.
+#
+# Wiring (as built by Stephen, 2026-11-17 — do not re-derive):
+#   I2C  SDA = GPIO7, SCL = GPIO6  (transposed vs the brief — see the i2c: block below)
+#   ADS1115 at 0x48, ADDR -> GND, VDD = 5 V, ALRT unconnected
+#     VDD at 5 V means NO input dividers, so A0/A1 see true VRL -> use the +/-6.144 V range
+#   A0 = MQ-6 VRL      (sense pair -> +5 V, other pair -> RL 10k -> GND, output at junction)
+#   A1 = Figaro VRL    (pin 3 -> +5 V, pin 2 -> RL 10k -> GND, output at junction)
+#   Buzzer  GPIO10 (type not yet confirmed: treated as a plain switch output)
+#   LED     GPIO5, active HIGH, 470 ohm series
+#   GPIO8/GPIO9 untouched (strapping; GPIO8 = onboard LED, GPIO9 = BOOT). GPIO20/21 are the
+#   chip's UART0 and are left free — logging goes out the USB Serial/JTAG peripheral instead,
+#   which is the port the Super Mini's USB-C connector is actually wired to.
+#
+# Required secrets.yaml keys (values are never committed):
+#   wifi_ssid, wifi_password, api_encryption_key
+
+substitutions:
+  device_name: propane-bench
+  friendly_name: Propane Bench
+  # Hysteresis in volts. Compliance is level-latched: trip at threshold, release only below
+  # threshold - this. Wide enough to ignore ADS1115 noise at 1 s sampling, tight enough that
+  # a slow propane rise still trips well before the sensor saturates.
+  hysteresis: "0.1"
+
+esphome:
+  name: ${device_name}
+  friendly_name: ${friendly_name}
+
+esp32:
+  board: esp32-c3-devkitm-1
+  framework:
+    type: esp-idf
+
+logger:
+  # The Super Mini's USB-C is wired to the C3's USB Serial/JTAG peripheral, not to UART0.
+  # Without this the device logs into GPIO20/21 and the host sees an empty console.
+  hardware_uart: USB_SERIAL_JTAG
+  level: INFO
+
+api:
+  encryption:
+    key: !secret api_encryption_key
+
+ota:
+  - platform: esphome
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  # No fallback AP: this rung is reporting-only, the alarm does not need the network, and a
+  # fallback AP password would be one more credential to hold without adding a safety path.
+
+i2c:
+  id: i2c_bus
+  # The task brief said SDA = GPIO6 / SCL = GPIO7, but the rig as wired answers the other
+  # way round: on the live board a bus scan finds NO devices with 6/7 and finds the ADS1115
+  # at 0x48 with 7/6 (two probe builds, 2026-11-17, evidence in README.md). The working
+  # orientation is used here so the sensor actually reads; if the wiring is ever corrected
+  # to the brief, swap these two lines back.
+  sda: GPIO7
+  scl: GPIO6
+  scan: true
+  frequency: 100kHz
+
+ads1115:
+  - id: ads
+    address: 0x48
+    i2c_id: i2c_bus
+
+sensor:
+  # Gain 6.144 V on purpose: VDD is 5 V, there are no dividers, and a single-ended reading
+  # must not clip a sensor whose VRL can swing to the 5 V rail during a heater transient.
+  - platform: ads1115
+    id: mq6_voltage
+    ads1115_id: ads
+    multiplexer: 'A0_GND'
+    gain: 6.144
+    name: "MQ-6 VRL"
+    unit_of_measurement: V
+    accuracy_decimals: 3
+    update_interval: 1s
+    on_value:
+      - script.execute: evaluate_alarm
+
+  - platform: ads1115
+    id: figaro_voltage
+    ads1115_id: ads
+    multiplexer: 'A1_GND'
+    gain: 6.144
+    name: "Figaro VRL"
+    unit_of_measurement: V
+    accuracy_decimals: 3
+    update_interval: 1s
+    on_value:
+      - script.execute: evaluate_alarm
+
+binary_sensor:
+  # Single source of truth for "is the alarm sounding". Mirrored to Home Assistant, but it is
+  # driven only by the on-device evaluate_alarm script.
+  - platform: template
+    id: alarm_active
+    name: "Gas alarm"
+    device_class: gas
+    icon: mdi:gas-cylinder
+
+number:
+  - platform: template
+    id: alarm_threshold
+    name: "Alarm threshold"
+    unit_of_measurement: V
+    icon: mdi:tune
+    min_value: 0.1
+    max_value: 5.0
+    step: 0.05
+    initial_value: 1.0
+    optimistic: true
+    restore_value: true
+    on_value:
+      - script.execute: evaluate_alarm
+
+switch:
+  - platform: gpio
+    id: buzzer
+    pin:
+      number: GPIO10
+    name: "Buzzer"
+    restore_mode: ALWAYS_OFF
+    internal: false
+
+  - platform: gpio
+    id: alert_led
+    pin:
+      number: GPIO5
+    name: "Alert LED"
+    restore_mode: ALWAYS_OFF
+    internal: false
+
+# A 10 s status line at INFO is the bench's only view of the sensors over the USB console:
+# ESPHome logs individual sensor states at DEBUG, which would drown in WiFi retries here.
+interval:
+  - interval: 10s
+    then:
+      - lambda: |-
+          ESP_LOGI("monitor", "MQ-6=%.3f V  Figaro=%.3f V  thr=%.2f V  alarm=%s",
+                   id(mq6_voltage).state, id(figaro_voltage).state,
+                   id(alarm_threshold).state, id(alarm_active).state ? "ON" : "off");
+
+script:
+  - id: evaluate_alarm
+    mode: restart
+    then:
+      - lambda: |-
+          const float threshold = id(alarm_threshold).state;
+          const float hysteresis = ${hysteresis};
+          const float mq6 = id(mq6_voltage).state;
+          const float figaro = id(figaro_voltage).state;
+          const bool mq6_valid = !std::isnan(mq6);
+          const bool figaro_valid = !std::isnan(figaro);
+
+          // No data at all: hold the latch. Missing readings are never evidence of clean air.
+          if (!mq6_valid && !figaro_valid) {
+            ESP_LOGW("alarm", "no channel data (%s/%s) - holding current state",
+                     mq6_valid ? "ok" : "nan", figaro_valid ? "ok" : "nan");
+            return;
+          }
+
+          // Trip on ANY channel above threshold, including while the other is still unknown:
+          // a false alarm is recoverable, a missed one is not.
+          const bool above = (mq6_valid && mq6 > threshold) ||
+                             (figaro_valid && figaro > threshold);
+          // Release only when BOTH channels are valid AND both are below the hysteresis band.
+          const bool below = mq6_valid && figaro_valid &&
+                             mq6 < (threshold - hysteresis) &&
+                             figaro < (threshold - hysteresis);
+
+          if (above && !id(alarm_active).state) {
+            id(alarm_active).publish_state(true);
+            id(buzzer).turn_on();
+            id(alert_led).turn_on();
+            ESP_LOGW("alarm", "ALARM  MQ-6=%.3f V  Figaro=%.3f V  thr=%.3f V", mq6, figaro, threshold);
+          } else if (below && id(alarm_active).state) {
+            id(alarm_active).publish_state(false);
+            id(buzzer).turn_off();
+            id(alert_led).turn_off();
+            ESP_LOGI("alarm", "CLEAR  MQ-6=%.3f V  Figaro=%.3f V  thr=%.3f V", mq6, figaro, threshold);
+          }
