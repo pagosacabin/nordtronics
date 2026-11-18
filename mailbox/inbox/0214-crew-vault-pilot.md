@@ -1,3 +1,10 @@
+---
+task_id: "0214"
+protocol_version: 1.3.0
+status: inbox
+iteration: 0
+expect-reply-within: 12h
+---
 # 0214 — Crew vault pilot: shared memory for the laptop agents
 
 ## Assignment
