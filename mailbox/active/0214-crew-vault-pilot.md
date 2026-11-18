@@ -1,9 +1,12 @@
 ---
 task_id: "0214"
 protocol_version: 1.3.0
-status: inbox
-iteration: 0
+status: in_progress
+iteration: 1
 expect-reply-within: 12h
+claimed_by: "cronrunner/c0be50a686c6"
+claimed_at: "2026-11-18T21:03:53+00:00"
+lease_until: "2026-11-18T22:33:53+00:00"
 ---
 # 0214 — Crew vault pilot: shared memory for the laptop agents
 
