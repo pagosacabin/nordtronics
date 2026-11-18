@@ -4,6 +4,10 @@ Added 2026-11-18 by Hermes under task 0216. This is an **addendum**, not a rewri
 `README.md`: the three-layer design there stands. What this file adds is the build and
 provisioning path actually exercised on hardware, and the history that made it the rule.
 
+Corrected the same day under task 0218: the propane board is **not** faulty — the WiFi fault
+follows the rig it is mounted in. See "Where the propane board stands" at the bottom; the
+build and portal rules above are unaffected by that correction.
+
 ## The path
 
 1. **Build locally with `esphome`.** Not the Home Assistant add-on, not PlatformIO. The
@@ -56,19 +60,31 @@ join still fails, which is what finally ruled the credential out for good.
 
 ## Where the propane board stands (so this file is not read as a claim of success)
 
-**Resolved 2026-11-18 14:50-15:00 MST by the separator test (task 0216 step 1, with the
-0217 hotspot relay): the board itself is the fault.** Flashed with the hotspot's
-credentials — same config otherwise — it was refused by an AP that is a *plain WPA2* one
-(`Nightrain`: security `WPA2`, key-mgmt `wpa-psk`, pmf `0`) and whose passphrase had just
-been proven by joining it from the laptop (`10.255.222.69`). One flash, one 600 s capture:
-**0 joins, 0 `Got IP`, 191 `reason='Auth Expired'`**, sensor line healthy throughout
-(`MQ-6=1.475 V  Figaro=1.354 V  thr=2.50 V  alarm=off`).
+**Correction 2026-11-18 15:30 MST (task 0218): the board is NOT the fault and is not to be
+replaced.** The paragraph below records the 14:50-15:00 MST reading, which was too strong
+and is retracted here rather than deleted, because the way it went wrong is the lesson this
+addendum exists to teach.
 
-So "the router is refusing this client" is dead, and what remains is the board's own 2.4 GHz
-radio: it cannot complete a WPA2-PSK exchange against any AP, on either the house network or
-a verified-second one. **MAC `9c:cc:01:d0:78:80` is condemned**; the presence sensor
-(`9c:cc:01:d0:64:6c`) and the shed JK-BMS are healthy on the same AP, so this is a
-per-board defect, not a family or firmware trait. The next step is the spare C3 Super Mini —
-rebuilt, then provisioned **through the portal**, which makes that board the first real proof
-of layer 1 above.
-Recorded in the crew vault, `bench/wifi-lessons.md` (separator-test section, same date).
+What the same board then did, on the same firmware image (`config_hash=ba74307d`) and the
+same credential: **pulled off the breadboard and tested on its own, it joined immediately**
+and became the `propane-bench` client in the Starlink device list; seated in the rig minutes
+earlier it had refused a plain-WPA2 AP whose passphrase had just been proven from a laptop.
+So the refusal travels with the **rig environment**, not with the board, the router, the
+credential or the build. The next separator, when the rig is reassembled, is to power the
+board from **clean USB while it is seated in the rig**: a join points at the rig's power path
+(shared 5 V rail, sensor heaters, breadboard leads) drooping under WiFi transmit load; a
+refusal on clean power points at the rig's RF/antenna environment. Until that test runs, the
+mechanism is undetermined — treat the rail-sag theory as a hypothesis, not a finding.
+
+Consequences for this addendum: **MAC `9c:cc:01:d0:78:80` is not condemned**, there is no
+"replacement board" step, and the first real proof of the portal path will be whichever
+board the rig runs next — not a replacement bought to replace a healthy part.
+
+> Superseded text (kept for provenance, do not act on it): "Resolved 2026-11-18
+> 14:50-15:00 MST by the separator test (task 0216 step 1, with the 0217 hotspot relay):
+> the board itself is the fault … MAC `9c:cc:01:d0:78:80` is condemned … The next step is the
+> spare C3 Super Mini." That verdict was based on one 600 s window with the board still
+> mounted in the rig; it measured a placement, not the board.
+Recorded in the crew vault, `bench/wifi-lessons.md` (the 15:30 MST "board is GOOD" section,
+with the 15:01 MST verdict marked retracted in place).
+
