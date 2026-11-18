@@ -27,8 +27,10 @@ flashed as a secret — a class of mistake the portal removes.
 3. Add the project's own code **below** the skeleton — never inside layers 1 and 2.
 4. Create a local `secrets.yaml` next to the config (mode 600, never committed, listed in
    `.gitignore`) with a freshly generated key:
-   `esphome secrets.yaml` → key `api_encryption_key`, value
+   `api_encryption_key:` + the output of
    `python3 -c "import base64,os;print(base64.b64encode(os.urandom(32)).decode())"`.
+   A key must be exactly 32 bytes base64 (44 characters); the value in
+   `secrets.yaml.example` is a valid-format placeholder, not a usable key.
    Only `secrets.yaml.example` is committed.
 5. `esphome config <project>.yaml` then `esphome run <project>.yaml` to flash.
 6. On the phone: join the board's `<device_name> setup` AP, open the setup page, pick the
