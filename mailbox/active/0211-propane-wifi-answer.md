@@ -1,4 +1,6 @@
 ---
+task_id: "0211"
+protocol_version: 1.3.0
 status: in_progress
 iteration: 1
 claimed_by: "cronrunner/c0be50a686c6"
