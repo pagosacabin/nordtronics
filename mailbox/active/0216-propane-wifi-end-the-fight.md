@@ -1,3 +1,10 @@
+---
+status: in_progress
+iteration: 1
+claimed_by: "cronrunner/c0be50a686c6"
+claimed_at: "2026-11-18T21:46:08+00:00"
+lease_until: "2026-11-18T23:16:08+00:00"
+---
 # 0216 — Propane board: end the WiFi fight, and make it the last one (AMENDED 2026-11-18 ~14:40 MST)
 
 ## Assignment
