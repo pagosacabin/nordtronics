@@ -20,6 +20,39 @@ cost:
   rates_used: "DeepSeek off-peak: $0.15/M input miss, $0.003/M input hit, $0.60/M output"
   cost_usd: unknown
 notes: |
+  STEP 1 DONE 2026-11-18 14:50-15:00 MST — SEPARATOR TEST RAN; THE BOARD IS THE FAULT.
+  Interactive run from Stephen's session, using the 0217 hotspot relay (hotspot ON,
+  2.4 GHz). No new access grant, no router change, no change to threshold, API key or
+  sensor content.
+    - The second AP is a plain WPA2 one: `Nightrain`, security `WPA2`, key-mgmt
+      `wpa-psk`, pmf `0`, BSSID 3E:7A:51:90:BA:F4 ch 6. Its passphrase was proven from
+      an independent client BEFORE the board test — this laptop joined it and took
+      10.255.222.69 — so a board refusal cannot be blamed on a bad relay. (The relayed
+      value was never staged to a file on this host; 0217 is its whole provenance.)
+    - Board flashed with those credentials (same config otherwise, esp-idf,
+      config_hash=0xbf0df018), one flash (`Hash of data verified.`), one 600 s capture
+      14:50:30-15:00:30 MST: **0 joins, 0 `Got IP`**, 191 `reason='Auth Expired'`,
+      16 `Probe Request Unsuccessful`, 10 `Unspecified` (all-zero bssid, first attempt).
+      Sensors healthy throughout: `MQ-6=1.475 V  Figaro=1.354 V  thr=2.50 V  alarm=off`.
+    - **Branch entered: (b) the board is faulty.** Suspect (a) — the Starlink refusing
+      this client — is dead, because an AP that admits other clients with a verified
+      password refuses this board identically. **MAC 9c:cc:01:d0:78:80 CONDENNED.**
+      Presence 9c:cc:01:d0:64:6c and the shed JK-BMS are healthy on the same AP, so
+      this is a per-board defect, not a family or firmware trait.
+    - Board restored afterwards to the delivered house-credential image
+      (`thr=2.50 V  alarm=off`); the hotspot build, its secrets file and its build tree
+      were shredded. Nothing about the hotspot credential remains on disk.
+  STEP 3 OUTSTANDING — Stephen's hands: move the rig onto a spare C3 Super Mini, rebuild,
+    flash, provision it through the skeleton's portal, adopt; 0209 step 3 then closes
+    against the new board, and the condemned board is physically marked.
+  STEP 4 DONE: crew vault `bench/wifi-lessons.md` @ 63a48d8 (separator-test section,
+  condensed rules 7-8); skeleton addendum `firmware/skeleton/BUILD-AND-PROVISION.md` on
+  branch `hermes/0213-esphome-skeleton` @ **7924694** (tip moved from c0e5abd by that
+  documentation-only commit — no code change on the branch).
+  0217 deleted from `inbox/` in this same commit, per its own instruction.
+  NOT staged: the task is blocked on hardware, `iteration` unchanged, no `proof` block.
+  The worker's park note below is the previous run's record and is left as written.
+
   PARKED — hot-spot test owed (Stephen's hands), no proof block, nothing staged.
   Run 2026-11-18 14:46-15:20 MST (21:46-22:20 UTC), off-peak (PEAK: OFF-PEAK
   21:45 UTC), PROTOCOL MATCH 1.3.0. 0216 arrived with no front-matter; the
