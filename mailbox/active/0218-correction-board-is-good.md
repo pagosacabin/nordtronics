@@ -1,3 +1,10 @@
+---
+status: in_progress
+iteration: 1
+claimed_by: "cronrunner/c0be50a686c6"
+claimed_at: "2026-11-18T22:15:28+00:00"
+lease_until: "2026-11-18T23:45:28+00:00"
+---
 # 0218 — Correction to 0216: the board is GOOD — the fault is in the rig (not a task)
 
 Stephen's bench report, 2026-11-18 ~15:08 MST, supersedes the board-branch reasoning in 0216:
