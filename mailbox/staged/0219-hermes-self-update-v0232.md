@@ -169,4 +169,4 @@ Same eight ids as before the update. The mailbox worker and the 5 AM Upwork swee
 ### 5. Deviations
 None. No second `hermes update`, no systemd/timer/subprocess bounce, no config change, no cron mutation. One note for transparency: the *before* version string is carried from the previous tick that executed the update — this tick verified the after-state and the handoff rather than re-running the update.
 
-**0220–0222 are unblocked by this.**
+**0220 and 0222 were gated on this and are unblocked.** (Correction added after staging: 0221 is `status: superseded` — held by Juno pending Stephen's OpenRouter decision — so only 0220 and 0222 were waiting on this task.)
