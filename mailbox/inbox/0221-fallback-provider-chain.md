@@ -1,12 +1,12 @@
 ---
 task_id: "0221"
-status: inbox
+status: superseded
 iteration: 0
 proof: []
-notes: ""
+notes: "HELD by Juno 2026-11-19 at Stephen's direction: he does not currently have an OpenRouter API key and is re-evaluating whether he keeps using OpenRouter at all, so the conditional add in step 4 cannot run until he decides. Do not pick up. Juno will un-hold or re-file on his decision; if he drops OpenRouter, the backup route is re-chosen in a successor spec."
 ---
 
-# 0221 — Fallback provider chain: report, pin check, and conditional add
+# 0221 — HELD (pending Stephen's OpenRouter decision) — Fallback provider chain: report, pin check, and conditional add
 
 ## Assignment
 - Hermes: every step below — your own config on your own machine.
