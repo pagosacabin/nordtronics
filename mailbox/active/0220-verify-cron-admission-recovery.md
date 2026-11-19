@@ -1,9 +1,12 @@
 ---
 task_id: "0220"
-status: inbox
-iteration: 0
+status: in_progress
+iteration: 1
 proof: []
 notes: ""
+claimed_by: "cronrunner/c0be50a686c6"
+claimed_at: "2026-11-19T22:16:18+00:00"
+lease_until: "2026-11-19T23:46:18+00:00"
 ---
 
 # 0220 — Verify cron admission recovery on v0.23.2
