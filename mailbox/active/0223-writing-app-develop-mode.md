@@ -1,9 +1,12 @@
 ---
 task_id: "0223"
-status: inbox
-iteration: 0
+status: in_progress
+iteration: 1
 proof: []
 notes: ""
+claimed_by: "cronrunner/c0be50a686c6"
+claimed_at: "2026-11-19T22:51:40+00:00"
+lease_until: "2026-11-20T00:21:40+00:00"
 ---
 
 # 0223 — Writing app: Develop mode (story-development conversation, story bible, merge) + Stuck? helper
