@@ -37,8 +37,12 @@ notes: |
    1. read post-restart-health.log — confirm is-active=active, the MainPID is a
       NEW pid (not 1774), it started after 2026-11-19T22:00Z, and `hermes
       --version` in it reads v0.23.2;
-   2. if the log is missing or shows a dead/inactive service, that is the
-      blocked outcome: park it with the exact text, do not improvise;
+   2. if the log is MISSING, the timer has not fired yet: change nothing (no
+      restart, no park, no notes edit, no iteration bump) and end the run — the
+      next tick re-checks. If the log exists but has no "finished:" line, the
+      restart is still in progress: same. Only when the log is complete does the
+      step-1 verdict apply; a service that is dead/inactive at that point is the
+      blocked outcome (park with the exact text, do not improvise);
    3. otherwise stage with the version outputs from the log, the cron id lists and
       this notes block, plus a cost block (unknowns + reason: this harness exposes
       no per-call DeepSeek usage).
