@@ -3,7 +3,7 @@ task_id: "0230"
 status: open
 iteration: 1
 proof: []
-notes: ""
+notes: "Stephen plugged in the ESP32-CAM on 2026-11-20 ~14:55 MST — the board is on the bench and available. Rungs that do not touch the frame board's SD card (CAM capture to its own slot; ESP-NOW link to the frame board) may proceed. The SD-dependent rungs wait on the interactive 0229 diagnosis, which is being worked by Stephen and Hermes directly."
 ---
 
 expect-reply-within: 6h
