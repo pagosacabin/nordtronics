@@ -3,7 +3,7 @@ task_id: "0229"
 status: open
 iteration: 1
 proof: []
-notes: "INTERACTIVE per Stephen's decision 2026-11-20: he and Hermes work this at the bench directly — do NOT run it as a queued task and do not flash over the board for it. The ladder below stays the shared checklist. New evidence 2026-11-20 PM: kit card proven good in the laptop (wrote Testy/testy.txt, ejected, reinserted, intact; 959 MiB) — fault narrowed to the holder side (VDD with card seated, contacts, holder). Juno closes this task with the outcome once the interactive diagnosis lands."
+notes: "INTERACTIVE per Stephen's decision 2026-11-20: he and Hermes work this at the bench directly — do NOT run it as a queued task and do not flash over the board for it. The ladder below stays the shared checklist. New evidence 2026-11-20 PM: kit card proven good in the laptop (wrote Testy/testy.txt, ejected, reinserted, intact; 959 MiB) — fault narrowed to the holder side (VDD with card seated, contacts, holder). Juno closes this task with the outcome once the interactive diagnosis lands. Bench update 2026-11-20 15:21 MST: Stephen resoldered pins 10, 11, 12, 13 (CS/MOSI/SCK/MISO) with a new solder he is unsure of — a marginal joint there is a live suspect (a joint can beep through on continuity and still fail in service). Retest after the resolder is the next data point."
 ---
 
 expect-reply-within: 6h
