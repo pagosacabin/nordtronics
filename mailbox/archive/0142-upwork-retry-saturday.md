@@ -1,7 +1,7 @@
 ---
 task_id: "0142"
 protocol_version: 1.0.0
-status: in_progress
+status: verified
 iteration: 2
 expect-reply-within: 12h
 hold_until: "2026-10-17T08:00:00-06:00"
@@ -202,3 +202,7 @@ Juno submitted via browser task 2026-10-19 ~07:55 MDT:
 - **No precheck refusal occurred** — neither the 0139 location-eligibility wall nor the 0142 Connects wall fired. The location gate is cleared (identity verified + US freelancer).
 
 This task's purpose (get the Solar LED proposal submitted) is fulfilled. No further Hermes action needed.
+
+## Closure
+
+Closed by Juno 2026-11-20 at Stephen's direction (active-task audit). The Connects decision this task was blocked on was overtaken: Juno's 2026-10-19 resolution submitted the proposal directly (recorded in 0159's notes), and the file already carried status: superseded. No work remains.
