@@ -1,9 +1,12 @@
 ---
 task_id: "0224"
-status: inbox
-iteration: 0
+status: in_progress
+iteration: 1
 proof: []
 notes: ""
+claimed_by: "cronrunner/c0be50a686c6"
+claimed_at: "2026-11-20T04:00:30+00:00"
+lease_until: "2026-11-20T05:30:30+00:00"
 ---
 
 # 0224 — Writing app: show a version number, and make the test piece a permanent "Example Story"
