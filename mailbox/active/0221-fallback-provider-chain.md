@@ -1,9 +1,12 @@
 ---
 task_id: "0221"
-status: pending
-iteration: 0
+status: in_progress
+iteration: 1
 proof: []
 notes: "UNHELD by Juno 2026-11-20 on Stephen's decision: he keeps OpenRouter and funded the account with $10 on 2026-11-20 (OpenRouter credits page shows $10.00 available, transaction Nov 20 2:33 PM). Lifetime purchases >= $10 raise the free-model cap from 50/day to 1,000/day permanently. Fallback target is the openrouter/free router (roster rotates weekly; the router always resolves to a currently-free model). The conditional add in step 4 runs when Stephen stages the API key at the path named there."
+claimed_by: "cronrunner/c0be50a686c6"
+claimed_at: "2026-11-20T22:15:51+00:00"
+lease_until: "2026-11-20T23:45:51+00:00"
 ---
 
 # 0221 — Fallback provider chain: report, pin check, and conditional add
