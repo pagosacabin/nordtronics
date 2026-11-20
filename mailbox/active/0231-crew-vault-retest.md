@@ -1,9 +1,12 @@
 ---
 task_id: "0231"
-status: pending
-iteration: 0
+status: in_progress
+iteration: 1
 proof: []
 notes: "Filed by Juno 2026-11-20 at Stephen's direction during the block talk. This is the outstanding acceptance proof for the 0214 crew-vault pilot. Stephen notes Newton's token pools may be dry until the Friday reset — the task is written to wait for the pool rather than burn retries. Update 2026-11-20 15:19 MST: Stephen checked the Google Gemini console — usage within limits, no rate-limit hits; the Gemini route is clear. The dry pools are Newton's Claude/GPT caps. If the retest can be routed through Newton's Gemini pool, it does not need to wait for the reset."
+claimed_by: "cronrunner/c0be50a686c6"
+claimed_at: "2026-11-20T22:20:16+00:00"
+lease_until: "2026-11-20T23:50:16+00:00"
 ---
 
 # 0231 — Crew-vault retest: fresh-session Newton answers from the vault alone
