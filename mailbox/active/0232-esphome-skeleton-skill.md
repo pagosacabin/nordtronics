@@ -1,9 +1,12 @@
 ---
 task_id: "0232"
-status: pending
-iteration: 0
+status: in_progress
+iteration: 1
 proof: []
 notes: "Filed by Juno 2026-11-20 at Stephen's direction (block talk, issue 6). Prerequisite met: 0213 is verified. Stephen's shape for the live proof: the skeleton doubles as the standard new-board test — when a new board arrives he hooks it up, and Juno files a short run-through task for Hermes to flash and test the skeleton on it. That board task is filed at board-arrival time, not here; this task delivers the skill that makes it routine."
+claimed_by: "cronrunner/c0be50a686c6"
+claimed_at: "2026-11-20T22:24:05+00:00"
+lease_until: "2026-11-20T23:54:05+00:00"
 ---
 
 # 0232 — Encode the ESPHome skeleton as your own skill, with the new-board bring-up procedure
