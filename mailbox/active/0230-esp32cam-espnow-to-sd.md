@@ -1,9 +1,12 @@
 ---
 task_id: "0230"
-status: open
-iteration: 1
+status: in_progress
+iteration: 2
 proof: []
 notes: "Stephen plugged in the ESP32-CAM on 2026-11-20 ~14:55 MST — the board is on the bench and available. Rungs that do not touch the frame board's SD card (CAM capture to its own slot; ESP-NOW link to the frame board) may proceed. The SD-dependent rungs wait on the interactive 0229 diagnosis, which is being worked by Stephen and Hermes directly."
+claimed_by: "cronrunner/c0be50a686c6"
+claimed_at: "2026-11-20T23:16:25+00:00"
+lease_until: "2026-11-21T00:46:25+00:00"
 ---
 
 expect-reply-within: 6h
