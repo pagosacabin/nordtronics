@@ -20,13 +20,14 @@ Hermes does this task. Firmware stays Hermes's (protocol 1.3.0). Copilot peer-re
 - Stephen's direction (2026-11-20): the next step is an actual photograph on it — "photo quality." A test card proves the path; a photograph is what the gift actually displays.
 - Use the SAME source photograph as the earlier picture test (the 0179/0180-era test image, in the repo's living-frame area) so Stephen can compare this rendering against the ones he has already judged. If that image is not in the repo, stop and report — do not substitute a different picture; Stephen will supply it.
 - The SD card still does not answer (0225) and the FTDI console is still dead (0225/0226) — neither blocks this task: the converted image ships inside the firmware/flash, and the flash read-back path is the established proof channel.
-- Agreed pin map, timings, orientation convention (portrait canvas rotated 90 deg clockwise into the raster, monitor pivoted counter-clockwise), and the Heltec's 0180 build all stay as they are.
+- Agreed pin map, timings, and the Heltec's 0180 build stay as they are. Orientation changes per Stephen's amendment below.
 
 ## Task
 
 Put the photograph on the panel, full-screen, at the build's native best:
 
 1. Convert the source photo on the laptop to the panel's format: 480x640 portrait canvas (the raster stays 640x480 native, 1:1 — no doubling, no upscale of a smaller source), 64-colour RGB222.
+2. **Orientation (Stephen's amendment, 2026-11-20): flip the displayed image 180 degrees relative to the 0226 test card.** The test card was drawn for a counter-clockwise-pivoted monitor; Stephen's monitor is pivoted the other way, so the card reads upside down from where he sits. The photograph must read right way up from Stephen's side with the monitor pivoted as it is now. How the flip is implemented (canvas rotation direction, scan order) is Hermes's choice — the outcome is what's specified.
 2. Photo quality at 6-bit colour lives or dies on dithering: use Floyd–Steinberg (or a comparable error-diffusion) dither for the conversion, and commit the conversion tool/script with the firmware so the pipeline is reproducible.
 3. Embed the converted image in the firmware/flash (307,200 B raw framebuffer fits the 16 MB flash) and display it full-screen on boot, held on screen.
 4. Report: source image identity (filename, dimensions), the conversion settings used, and the firmware's own numbers (framebuffer size/location, refresh) via the flash read-back path.
@@ -42,7 +43,7 @@ Put the photograph on the panel, full-screen, at the build's native best:
 
 - The one wired board only. Do not reflash the Heltec's 0180 build.
 - Do not depend on the SD card.
-- Do not change the pin map, timings, or orientation convention.
+- Do not change the pin map or timings. The 180-degree display flip above is Stephen's explicit instruction and supersedes the 0180 orientation convention for this build.
 - One deliverable: the photograph on the panel. No slideshow, no image rotation, no UI — those are later rungs if Stephen asks.
 - No new purchases.
 
