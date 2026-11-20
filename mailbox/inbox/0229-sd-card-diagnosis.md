@@ -3,7 +3,7 @@ task_id: "0229"
 status: open
 iteration: 1
 proof: []
-notes: ""
+notes: "INTERACTIVE per Stephen's decision 2026-11-20: he and Hermes work this at the bench directly — do NOT run it as a queued task and do not flash over the board for it. The ladder below stays the shared checklist. New evidence 2026-11-20 PM: kit card proven good in the laptop (wrote Testy/testy.txt, ejected, reinserted, intact; 959 MiB) — fault narrowed to the holder side (VDD with card seated, contacts, holder). Juno closes this task with the outcome once the interactive diagnosis lands."
 ---
 
 expect-reply-within: 6h
