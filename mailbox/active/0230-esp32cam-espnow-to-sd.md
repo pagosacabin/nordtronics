@@ -3,10 +3,68 @@ task_id: "0230"
 status: in_progress
 iteration: 2
 proof: []
-notes: "Stephen plugged in the ESP32-CAM on 2026-11-20 ~14:55 MST — the board is on the bench and available. Rungs that do not touch the frame board's SD card (CAM capture to its own slot; ESP-NOW link to the frame board) may proceed. The SD-dependent rungs wait on the interactive 0229 diagnosis, which is being worked by Stephen and Hermes directly."
+notes: |
+  Stephen plugged in the ESP32-CAM on 2026-11-20 ~14:55 MST — the board is on the bench and available. Rungs that do not touch the frame board's SD card (CAM capture to its own slot; ESP-NOW link to the frame board) may proceed. The SD-dependent rungs wait on the interactive 0229 diagnosis, which is being worked by Stephen and Hermes directly.
+  BLOCKED 2026-11-20 16:23 MST (23:23 UTC) — no proof block, nothing staged. Rung 1 is
+  unattainable this run: THE KIT ESP32-CAM HAS NO TALKING CAMERA MODULE.
+    Board, proven this run (probe firmware flashed over the CH340 uplink):
+      chip ESP32-D0WD-V3 rev3, MAC f0:16:1d:ae:2b:20, flash 4,194,304 B, PSRAM 4,192,123 B.
+      `esptool write_flash` -> `Hash of data verified.`, and the app's console came back
+      end-to-end over /dev/serial/.../usb-1a86_USB_Serial-if00-port0 at 115200. Note the
+      0225 "live console dead" fault belongs to the frame board's FTDI bridge, not to this
+      CH340 path — the CAM console works.
+    Camera fault: `esp_camera_init()` = 261 (ESP_ERR_NOT_FOUND) — the sensor probe gets no
+    ACK on SCCB. The diag build (XCLK stopped / 20 MHz / 10 MHz, PWDN high and low, both
+    candidate pin pairs, internal pull-ups forced on) reports:
+      idle_sda=1 idle_scl=1 at every scan; i2c_found_count=0 on 26/27 in all five scans;
+      ov2640_pid_20mhz=0x00 (expect 0x26); alt pair 21/22 also 0 devices.
+    Zero devices on two pin pairs with the bus idling high is not a pin-map or XCLK fault;
+    it is an absent or unpowered module (ribbon not seated / module not fitted / dead
+    module). Unfixable from firmware — Stephen's hands.
+    CAM's own microSD slot: `sd_begin=0 card_type=0 (NONE)` — no card in the CAM slot. The
+    probe is read-only by design (card choice is 0229's), so nothing was written to any card.
+    Rung 2/3 not attempted: they need a working capture and the frame board, which is under
+    the interactive 0229 diagnosis with Stephen's re-solder retest pending — flashing a test
+    build over it now would disturb that session. Frame board end state: untouched (no write);
+    one `esptool read_mac` identification reset was run on its port, after which its flashed
+    app resumes.
+    DELIVERED AND PUSHED (not the task's proof, which needs device numbers): cabin-play branch
+    hermes/0230-esp32cam-capture @ e672d11 carries living-frame/firmware/esp32cam-capture/ —
+    three envs (esp32cam capture, esp32cam-probe identity+SD, esp32cam-diag SCCB scan), the
+    pyserial bench harness (bench/capture.py, flash + console + base64->JPEG decode), the raw
+    console logs of this run, README.md with the measured numbers, and PROTOCOL.md (chunked
+    ESP-NOW layout, ACK/NACK/retry rule, the three-point SHA-256 chain). The retest after the
+    ribbon and card are seated is one flash per env.
+    CI: cabin-play has NO .github/workflows directory at all (`ls .github/workflows/` empty,
+    `git ls-tree -r --name-only origin/hermes/0230-esp32cam-capture .github/workflows` empty),
+    so no run exists or is expected for this branch — `run: none` is enumerated, not assumed.
+    ntfy: not applicable — this task's proof section names branch SHA + device report paths,
+    no topic, and nothing was published.
+    Copilot peer review: no PR was opened (task's proof asks for review on GitHub-bound work,
+    and the deliverable is blocked anyway); the review step is owed on the retest branch.
+    DECISION OWED: (i) seat/replace the OV2640 module (ribbon contacts toward the board, latch
+    closed) and seat a card in the CAM slot, then a tick re-runs `esp32cam-diag` (expect
+    i2c_found=0x30, ov2640_pid=0x26) and `esp32cam`; (ii) name the bench window for rung 2 so
+    the frame board can take a test build without colliding with 0229's SD retest.
+    Run facts: PEAK OFF-PEAK 23:15Z, PROTOCOL MATCH 1.3.0; pickup commit 7bf9bd2 (iteration 2);
+    active/ held 0213 and 0216, both decision-blocked and left untouched; inbox 0176 is
+    `superseded` and 0229 is interactive per Stephen, so 0230 was the lowest actionable task.
 claimed_by: "cronrunner/c0be50a686c6"
 claimed_at: "2026-11-20T23:16:25+00:00"
 lease_until: "2026-11-21T00:46:25+00:00"
+cost:
+  model: deepseek-flash
+  api_calls: unknown
+  input_tokens: unknown
+  input_cache_hit_tokens: unknown
+  input_cache_miss_tokens: unknown
+  output_tokens: unknown
+  total_tokens: unknown
+  search_requests: 0
+  rate_window: off-peak
+  rates_used: "DeepSeek off-peak: $0.15/M input miss, $0.003/M input hit, $0.60/M output"
+  cost_usd: unknown
+  note: "This harness exposes no per-call usage to the cron session; token and cost fields are unknown rather than estimated."
 ---
 
 expect-reply-within: 6h
@@ -56,3 +114,42 @@ Rungs in order, each proven before the next:
 ## Reply format
 
 Standard mailbox reply format: each rung's result with its numbers, the protocol as built, the repo pointer (branch SHA), the frame board's end state (which build is on it), and what blocks the next rung, if anything.
+
+## Reply 2026-11-20 23:23 UTC (16:23 MST) — BLOCKED at rung 1, no proof block
+
+Rung 1 cannot be completed this run, so there is no `proof` block and the task is not
+staged. The board is on the bench and reachable; its **camera module is not**: the OV2640
+does not answer on SCCB at any XCLK/PWDN state or pin pair, and the CAM's own microSD slot
+holds no card. Both are hands-at-the-bench conditions.
+
+**Rung 1 — camera bring-up: FAILED, cause isolated.** `esp_camera_init()` returns
+`261 / ESP_ERR_NOT_FOUND`. The diagnostic build scanned the bus with XCLK stopped, at
+20 MHz and at 10 MHz, with PWDN high and low, with internal pull-ups forced on, and on the
+alternate 21/22 pin pair: **zero devices at every address**, `ov2640_pid_20mhz=0x00`
+(expected `0x26`). Lines idle high throughout, so the bus is not being held — nothing is
+driving it. That is an absent/unseated module, not a firmware fault.
+
+**Board identity (proven, flashed and read back):** ESP32-D0WD-V3 rev 3,
+MAC `f0:16:1d:ae:2b:20`, 4 MB flash, 4 MB PSRAM; flashing verifies (`Hash of data
+verified.`) and the console is live over the CH340 uplink at 115200.
+
+**Rung 1 — SD sink: no card.** `sd_begin=0 card_type=0 (NONE)`. The probe is read-only
+(0229 owns the card decision); nothing was written.
+
+**Rungs 2-3: not started, two dependencies.** They need a working capture, and they need
+the frame board, which is inside the interactive 0229 diagnosis with Stephen's pin-10..13
+re-solder retest pending. Flashing a test build over it now would disturb that bench
+session. The frame board was not written to (one read-only `esptool read_mac` reset).
+
+**What is committed:** cabin-play `hermes/0230-esp32cam-capture` @ `e672d11`
+(`living-frame/firmware/esp32cam-capture/`) — capture/probe/diag firmware, the bench
+capture harness, this run's raw console logs, a README carrying the measured numbers, and
+`PROTOCOL.md` with the chunked ESP-NOW design (16-byte header, 234-byte payload, in-order
+chunks, NACK-on-gap, SHA-256 equality at capture → reassembly → SD-rest). No CI exists in
+that repo (`ls .github/workflows/` is empty), so `run: none`; ntfy not applicable (the
+task names no topic and nothing was published).
+
+**Decision owed:** (i) reseat/replace the OV2640 module and seat a card in the CAM slot —
+the next tick then re-runs `esp32cam-diag` (expect `i2c_found=0x30`, `ov2640_pid=0x26`) and
+`esp32cam`; (ii) name a frame-board bench window for rung 2 that does not collide with
+0229's retest.
