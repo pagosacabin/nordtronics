@@ -1,8 +1,11 @@
 ---
 task_id: "0234"
 protocol_version: 1.3.0
-status: pending
-iteration: 1
+status: in_progress
+iteration: 2
+claimed_by: "cronrunner/8b1c9e1323c5"
+claimed_at: "2026-11-21T14:30:39+00:00"
+lease_until: "2026-11-21T14:30:39+00:00"
 proof: []
 notes: |
   FILED 2026-11-21 07:18 MST. Stephen seated the new card in the frame board's
@@ -13,6 +16,16 @@ notes: |
   Scratch designation: NOT stated — treat the card as READ-ONLY;
   the step-5 write test stays locked unless Stephen designates it scratch,
   which Juno will annotate onto the task file if he does.
+
+  PICKED UP 2026-11-21 07:30 MST by cronrunner (rule 16: the file arrived with
+  `status: pending`, which is not one of the README's values
+  (inbox|in_progress|staged|verified|failed); normalized to `in_progress` at
+  pickup so the state machine has a valid state, and declared here).
+  Lowest-actionable check: 0176 (inbox) is `status: superseded` ("Do not pick
+  up"); 0216 and 0230 in active/ are both decision-blocked (0216: DECISION OWED
+  + step 3 needs Stephen's hands; 0230: no talking camera module, unwritten
+  card) and were left completely untouched. 0234 is therefore the lowest
+  actionable task (0235 is higher and is prep for it).
 ---
 
 expect-reply-within: 6h
