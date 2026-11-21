@@ -1,7 +1,8 @@
 ---
 task_id: "0229"
-status: pending
-iteration: 1
+protocol_version: 1.3.0
+status: in_progress
+iteration: 2
 proof: []
 notes: "QUEUED per Stephen's direction 2026-11-20 19:59 MST — this supersedes the earlier INTERACTIVE marking. Stephen has done his side (pins 10-13 resoldered 15:21). Hermes: run the diagnosis now and report back either way. History: raw-SPI probe pre-resolder saw no card answering (CMD responses identical across modes/speeds, MISO held high by pull-up); kit card proven good in the laptop (Testy/testy.txt write test, 959 MiB). Fault was narrowed to the holder side: VDD with card seated, contacts, holder. If the card answers after the resolder, say so with numbers; if it still fails, continue the ladder (VDD at holder with card seated BEFORE trying a known-good card, then a known-good card in this holder, then seating/contacts) and report where it stops."
 ---
