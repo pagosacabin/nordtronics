@@ -19,7 +19,7 @@ build and portal rules above are unaffected by that correction.
    printf 'api_encryption_key: "%s"\n' "$(python3 -c 'import base64,os;print(base64.b64encode(os.urandom(32)).decode())')" > secrets.yaml
    chmod 600 secrets.yaml          # never committed; only secrets.yaml.example is
    esphome config  <project>.yaml  # expect: INFO Configuration is valid!
-   ./check-secrets.sh              # pre-flash guard: refuses the example key/placeholder
+   ../../firmware/skeleton/check-secrets.sh secrets.yaml <project>.yaml   # pre-flash guard
    esphome compile <project>.yaml  # expect: INFO Successfully compiled program.
    esphome run     <project>.yaml  # flash over USB; expect: Hash of data verified.
    ```

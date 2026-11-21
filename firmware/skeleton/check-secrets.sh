@@ -9,6 +9,11 @@
 #
 #   ./check-secrets.sh [secrets.yaml] [config.yaml]
 #
+# From another project directory, name both files (the guard stays here, in the
+# skeleton, so a project copy cannot drift from it):
+#   firmware/skeleton/check-secrets.sh firmware/<project>/secrets.yaml \
+#                                      firmware/<project>/<project>.yaml
+#
 # Exit codes: 0 ok (warnings allowed), 2 no/unreadable secrets file,
 #             3 placeholder key still in place, 4 key is not 32 bytes base64.
 set -euo pipefail
@@ -44,9 +49,21 @@ if [ -n "$placeholder" ] && [ "$key" = "$placeholder" ]; then
   exit 3
 fi
 
-bytes="$(printf '%s' "$key" | base64 -d 2>/dev/null | wc -c || true)"
+# Strict, canonical validation: python's validate=True rejects non-alphabet
+# characters and bad padding, and the re-encode comparison rejects trailing
+# garbage or a non-canonical encoding that `base64 -d` would happily decode.
+bytes="$(printf '%s' "$key" | python3 -c '
+import base64, sys
+k = sys.stdin.read().strip()
+try:
+    raw = base64.b64decode(k, validate=True)
+except Exception:
+    print(0); raise SystemExit
+print(len(raw) if base64.b64encode(raw).decode() == k else 0)
+' 2>/dev/null || echo 0)"
 if [ "${bytes:-0}" -ne 32 ]; then
-  printf 'REFUSED: api_encryption_key decodes to %s bytes; ESPHome requires exactly 32 (44 base64 chars).\n' "${bytes:-0}"
+  printf 'REFUSED: api_encryption_key is not a canonical 32-byte base64 value (need 44 chars, one "=" pad); got %s bytes.\n' "${bytes:-0}"
+  printf 'Generate a real one:\n  python3 -c '"'"'import base64,os;print(base64.b64encode(os.urandom(32)).decode())'"'"'\n'
   exit 4
 fi
 

@@ -32,11 +32,17 @@ flashed as a secret — a class of mistake the portal removes.
    A key must be exactly 32 bytes base64 (44 characters); the value in
    `secrets.yaml.example` is a valid-format placeholder, not a usable key.
    Only `secrets.yaml.example` is committed.
-5. `esphome config <project>.yaml`, then **`./check-secrets.sh`** — the pre-flash guard.
-   It refuses a missing secrets file, the committed example key (which is public: every
-   board flashed with it would share one API encryption key) or a key that is not 32
-   bytes, and it warns while the bench `setup_ap_password` is still in place. Only then
-   `esphome run <project>.yaml` to flash.
+5. `esphome config <project>.yaml`, then the pre-flash guard — it lives in the skeleton, so
+   call it with the project's two files:
+
+   ```bash
+   firmware/skeleton/check-secrets.sh firmware/<project>/secrets.yaml firmware/<project>/<project>.yaml
+   ```
+
+   It refuses a missing secrets file, the committed example key (public: every board
+   flashed with it would share one API encryption key), a key that is not canonical
+   base64 of exactly 32 bytes, and it warns while the bench `setup_ap_password` is still in
+   place. Only then `esphome run <project>.yaml` to flash.
 6. On the phone: join the board's `<device_name> setup` AP, open the setup page, pick the
    house network and enter its passphrase. That is the only place the house credential is
    typed.
