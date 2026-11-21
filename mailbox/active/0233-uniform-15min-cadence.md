@@ -1,7 +1,7 @@
 ---
 task_id: "0233"
-status: pending
-iteration: 0
+status: in_progress
+iteration: 1
 proof: []
 notes: "Filed by Juno 2026-11-20 on Stephen's direct instruction: the mailbox worker runs a 15-minute cadence during off-peak hours, period — all seven days. Today the cadence is Mon-Thu only; Fri/Sat/Sun are hourly at :15 (per Hermes's own schedule table, 2026-11-20). This task removes the day-of-week distinction."
 ---
