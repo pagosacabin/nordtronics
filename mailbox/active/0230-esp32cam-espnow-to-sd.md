@@ -58,6 +58,7 @@ notes: |
   four passes (fb336ec -> 99960cd -> f1cca1b -> 03c8713): 7 findings, all fixed, final verdict
   SHIP at 03c8713. Full numbers in the Reply section at the end of this file. iteration unchanged
   (this is a resume of iteration 2, not a new pickup).
+  Power fact (Stephen, 18:25 MST): the CAM board is powered over USB 5 V. The fed-at-3.3 V candidate is therefore CLOSED by the owner — do not re-raise it. Remaining camera candidates: dead module/ribbon, FFC orientation. Stephen notes a replacement via Amazon would not arrive in time for the build; no decision taken yet.
 claimed_by: "cronrunner/c0be50a686c6"
 claimed_at: "2026-11-20T23:16:25+00:00"
 lease_until: "2026-11-21T00:46:25+00:00"
