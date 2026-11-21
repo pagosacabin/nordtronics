@@ -1,9 +1,12 @@
 ---
 task_id: "0235"
 protocol_version: 1.3.0
-status: pending
-iteration: 1
+status: in_progress
+iteration: 2
 proof: []
+claimed_by: "cronrunner/8b1c9e1323c5"
+claimed_at: "2026-11-21T17:00:36+00:00"
+lease_until: "2026-11-21T18:30:36+00:00"
 notes: |
   Filed 2026-11-21 07:15 MST on Stephen's word ("Yes go ahead") to the daily
   learning finding: Hermes's framework has Persistent Goals (/goal) — a judge
