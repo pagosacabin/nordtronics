@@ -8,7 +8,9 @@ notes: |
   FILED 2026-11-21 07:18 MST. Stephen seated the new card in the frame board's
   holder this morning (~07:17 MST) and said so in chat — that was the filing
   trigger agreed Nov 20. Card brand/size unknown until probed (step 1 reads
-  the CID). Scratch designation: NOT stated — treat the card as READ-ONLY;
+  the CID). Stephen adds (07:19): it's a 512 MB card, one he hadn't used for
+  a bit — expect SDSC; check the partition type before assuming FAT32.
+  Scratch designation: NOT stated — treat the card as READ-ONLY;
   the step-5 write test stays locked unless Stephen designates it scratch,
   which Juno will annotate onto the task file if he does.
 ---
