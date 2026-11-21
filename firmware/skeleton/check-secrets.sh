@@ -30,9 +30,9 @@ example="$here/secrets.yaml.example"
 read_field() {  # $1 = file, $2 = key
   [ -r "$1" ] || return 0
   local v
-  v="$(sed -n "s/^[[:space:]]*$2:[[:space:]]*\"\(.*\)\"[[:space:]]*\$/\1/p" "$1" | head -n 1)"
+  v="$(sed -n "s/^[[:space:]]*$2:[[:space:]]*\"\([^\"]*\)\"[[:space:]]*\(#.*\)\{0,1\}\$/\1/p" "$1" | head -n 1)"
   if [ -z "$v" ]; then
-    v="$(sed -n "s/^[[:space:]]*$2:[[:space:]]*'\(.*\)'[[:space:]]*\$/\1/p" "$1" | head -n 1)"
+    v="$(sed -n "s/^[[:space:]]*$2:[[:space:]]*'\([^']*\)'[[:space:]]*\(#.*\)\{0,1\}\$/\1/p" "$1" | head -n 1)"
   fi
   if [ -z "$v" ]; then
     v="$(sed -n "s/^[[:space:]]*$2:[[:space:]]*\([^#]*\).*\$/\1/p" "$1" | head -n 1)"
