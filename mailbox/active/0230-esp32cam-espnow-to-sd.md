@@ -50,6 +50,7 @@ notes: |
     active/ held 0213 and 0216, both decision-blocked and left untouched; inbox 0176 is
     `superseded` and 0229 is interactive per Stephen, so 0230 was the lowest actionable task.
   Update 2026-11-20 17:02 MST (Stephen, via Juno): the OV2640 module has been reseated. Re-run authorized now — diag first (expect i2c_found=0x30, ov2640_pid=0x26), then the capture rung. Rung 2 window is GRANTED: Stephen says the between-boards ESP-NOW test can go ahead, so flash the frame-board test build as needed; restore the accepted 800x600 build when the rung ends. CAM slot card state was not stated — report what you find in the slot.
+  Reseat detail (Stephen, 17:05 MST): full reseat — board unplugged, camera module unplugged, camera replugged, board replugged, all to the SAME slots. So the module connection was broken and remade and the board power-cycled; no port or slot changed.
 claimed_by: "cronrunner/c0be50a686c6"
 claimed_at: "2026-11-20T23:16:25+00:00"
 lease_until: "2026-11-21T00:46:25+00:00"
