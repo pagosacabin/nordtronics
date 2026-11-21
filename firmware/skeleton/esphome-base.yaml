@@ -23,8 +23,11 @@ substitutions:
   board: esp32-c3-devkitm-1         # ESP32-C3 Super Mini default. ESP32-S3 boards swap this
                                     # line (e.g. esp32-s3-devkitc-1) — nothing else changes.
   # Setup-AP password. NOT A SECRET and not a house credential: it guards only the
-  # provisioning page the board raises when it has no network. Change it per board if
-  # you like; anyone on the bench can read it here by design.
+  # provisioning page the board raises when it has no network. This default is for the
+  # BENCH ONLY — it is published in this repo, so anyone in radio range of an
+  # unprovisioned board can reach its setup page with it. Set a unique value per board
+  # before a device leaves the bench (check-secrets.sh warns while this default is in
+  # place).
   setup_ap_password: "provision-me"
   skeleton_version: "1.0.0"
 
@@ -65,6 +68,9 @@ logger:
 
 # The encryption key is per device and lives only in the local, uncommitted secrets.yaml
 # at flash time. Home Assistant needs it once, when it adopts the board.
+# The committed secrets.yaml.example carries a VALID-FORMAT placeholder so `esphome config`
+# can be verified against this file; it is NOT a usable identity. Run ./check-secrets.sh
+# before every flash — it refuses the placeholder, a wrong-length key, or a missing file.
 api:
   encryption:
     key: !secret api_encryption_key

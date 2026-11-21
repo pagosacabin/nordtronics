@@ -32,7 +32,11 @@ flashed as a secret — a class of mistake the portal removes.
    A key must be exactly 32 bytes base64 (44 characters); the value in
    `secrets.yaml.example` is a valid-format placeholder, not a usable key.
    Only `secrets.yaml.example` is committed.
-5. `esphome config <project>.yaml` then `esphome run <project>.yaml` to flash.
+5. `esphome config <project>.yaml`, then **`./check-secrets.sh`** — the pre-flash guard.
+   It refuses a missing secrets file, the committed example key (which is public: every
+   board flashed with it would share one API encryption key) or a key that is not 32
+   bytes, and it warns while the bench `setup_ap_password` is still in place. Only then
+   `esphome run <project>.yaml` to flash.
 6. On the phone: join the board's `<device_name> setup` AP, open the setup page, pick the
    house network and enter its passphrase. That is the only place the house credential is
    typed.
@@ -44,7 +48,10 @@ flashed as a secret — a class of mistake the portal removes.
 - **House WiFi credentials are never committed or staged in a file again.** The portal is
   the provisioning path; the fallback AP password is not a secret and is labelled as such.
 - `secrets.yaml` is local and uncommitted. The repo carries only
-  `secrets.yaml.example` with placeholders.
+  `secrets.yaml.example` with placeholders, and `check-secrets.sh` makes the placeholder
+  fail closed at flash time — never skip it.
+- `setup_ap_password` ships as the public bench default `provision-me`; give any board
+  that leaves the bench its own value (`check-secrets.sh` warns until you do).
 - Infrastructure addresses are firmware defaults, never portal fields or per-device
   settings.
 - Keep v1 minimal: no project sensors, no MQTT, no web server. Extend the base only once a
