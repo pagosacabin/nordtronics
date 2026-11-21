@@ -51,6 +51,13 @@ notes: |
     `superseded` and 0229 is interactive per Stephen, so 0230 was the lowest actionable task.
   Update 2026-11-20 17:02 MST (Stephen, via Juno): the OV2640 module has been reseated. Re-run authorized now — diag first (expect i2c_found=0x30, ov2640_pid=0x26), then the capture rung. Rung 2 window is GRANTED: Stephen says the between-boards ESP-NOW test can go ahead, so flash the frame-board test build as needed; restore the accepted 800x600 build when the rung ends. CAM slot card state was not stated — report what you find in the slot.
   Reseat detail (Stephen, 17:05 MST): full reseat — board unplugged, camera module unplugged, camera replugged, board replugged, all to the SAME slots. So the module connection was broken and remade and the board power-cycled; no port or slot changed.
+  RUN 2026-11-20 17:15-17:45 MST (00:15-00:45 UTC) — resumed after Stephen's reseat; rung 1 still
+  fails identically, RUNG 2 PROVEN on the bench, nothing staged (rung 1 is the task's first
+  criterion and it is a hardware condition). Frame board is back on the accepted 800x600 build.
+  Branch hermes/0230-esp32cam-capture @ 6394c11 (origin, verified by ls-remote). Copilot reviewed
+  four passes (fb336ec -> 99960cd -> f1cca1b -> 03c8713): 7 findings, all fixed, final verdict
+  SHIP at 03c8713. Full numbers in the Reply section at the end of this file. iteration unchanged
+  (this is a resume of iteration 2, not a new pickup).
 claimed_by: "cronrunner/c0be50a686c6"
 claimed_at: "2026-11-20T23:16:25+00:00"
 lease_until: "2026-11-21T00:46:25+00:00"
@@ -155,3 +162,92 @@ task names no topic and nothing was published).
 the next tick then re-runs `esp32cam-diag` (expect `i2c_found=0x30`, `ov2640_pid=0x26`) and
 `esp32cam`; (ii) name a frame-board bench window for rung 2 that does not collide with
 0229's retest.
+
+## Reply 2026-11-21 00:45 UTC (17:45 MST) — rung 1 still blocked, rung 2 PROVEN
+
+No `proof` block: the task opens with rung 1, and rung 1 is a hardware condition the bench cannot
+clear from firmware. Rung 2 — which the 17:02 update explicitly opened — **is complete and proven**,
+with the numbers below. The task stays in `active/`.
+
+### Rung 1 — camera bring-up: FAILED again after the reseat, cause narrowed
+
+Stephen's full reseat (board unplugged, camera module unplugged, replugged, board replugged, same
+slots) changed nothing measurable. Both bring-up builds were re-flashed and captured (17:16 and
+17:18 MST); `POWERON_RESET`, no brownout, no `ESP-ROM` banner in either capture:
+
+| check | before reseat (16:15) | after reseat (17:16) |
+|---|---|---|
+| SCCB scan 26/27, PWDN high, XCLK off | 0 devices | 0 devices |
+| … PWDN low, XCLK off / 20 MHz / 10 MHz | 0 / 0 / 0 | 0 / 0 / 0 |
+| alternate pair 21/22 | 0 devices | 0 devices |
+| `ov2640_pid_20mhz` | `0x00` (expect `0x26`) | `0x00` |
+| SCCB lines | SDA 1 / SCL 1 | SDA 1 / SCL 1 |
+| board identity | D0WD-V3 rev3, MAC f0:16:1d:ae:2b:20, 4 MB flash, 4 MB PSRAM | identical |
+| CAM microSD slot | `sd_begin=0 card_type=0 (NONE)` | `card_type=0 (NONE)` — **still no card**, as asked |
+
+A connection that was broken and remade with zero change in bus state is no longer a seating fault.
+The three candidates left are all hands-and-multimeter: (a) dead module or ribbon, (b) **the camera's
+3.3 V rail** — the AI-Thinker feeds the OV2640 from the board's regulator, so a supply fed at 3.3 V
+instead of 5 V would run the ESP32 while starving the camera, and (c) the FFC contacts facing the
+wrong way. Nothing in firmware can separate them; a second known-good module is the fastest
+discriminator.
+
+### Rung 2 — ESP-NOW link: PROVEN, both directions
+
+Design: 32 × 240 B packets, header `u16 seq | u16 expect | u32 transfer_id`, payload
+`(seq*7 + i*3 + 0x5a) & 0xff`. Sender ESP32-CAM (f0:16:1d:ae:2b:20) → frame board
+(c4:9e:7e:08:6d:f4), channel 1, `11B|11G|11N` on both ends.
+
+- CAM: `pass=1 send_ok=31 seq_acked=31`, `pass=2 send_ok=32 seq_acked=32 of 32`,
+  `result=espnow_tx_sent`, `sha256_tx=74bb840392a757f743926df1e363626405bb5416482b85e30e817766afaa2f28`
+- Frame board (its own report partition, read back with esptool):
+  `rx_packets=63 distinct=32 rx_bytes=15120`, `bad_pattern=0 dup=31 out_of_range=0`,
+  `tfer_id=0x0230beef first_seq=0 last_seq=31`,
+  `sha256_rx=74bb8403…aa2f28`, `result=espnow_rx_complete`, `report_write_errors=0`
+
+**Sender hash == receiver hash**, so the 7,680 bytes on the air are the 7,680 bytes reassembled in
+order — that is the rung-2 criterion (a report showing the payload received intact), not an ACK
+count. One frame of pass 1 was genuinely lost and pass 2 closed it; the receiver still ended with 32
+of 32 distinct sequences. Cause found and fixed: each report write erased/rewrote a 64 kB partition
+per packet (2 of 32 lost) — now throttled to a 5 s heartbeat, and the residual single-frame loss is
+what rung 3's NACK/retry rule has to absorb.
+
+### Peer review (Copilot, Herdr pane t17)
+
+Four passes on the committed code, seven findings, **all fixed**, final **Verdict: SHIP** at
+`03c8713`. Two mattered: the sender's success criterion counted ACKs in aggregate (a duplicate pass
+could mask a missing sequence), and the per-sequence state was not cleared between passes. Fixing
+the criterion is what exposed the receiver's flash-write frame loss above. No GitHub PR exists in
+cabin-play (the task's own note: writes there return 403), so the review record is the README
+section, as 0227/0228 did.
+
+### Frame board end state — restored, verified from the board
+
+Accepted 800x600 gamma build back on it, report read back at 17:43 MST: `mode 800x600`,
+`sha256 runtime 204578cc…bd306` **==** `tool`, `MATCH`, `361 vsync → 60.18 Hz`, `14475 fills →
+40.1/frame` — the frozen 0228 proof reproduced. **Deviation declared:** my first restore attempt
+flashed `env:n16r8-photo-800x600` straight from the committed tree and the app aborted at boot
+(`FATAL: embedded image is 307200 B, framebuffer needs 480000 B`) because `src/photo64_data.h` in
+git is the 640x480 raster — the env's raster comes from the converter, not from build flags. I
+regenerated the 800x600 raster from the committed source (`--mode 800x600 --space gamma`, hash
+`204578cc…`, i.e. byte-identical to the accepted build), rebuilt, flashed, and reverted the generated
+headers afterwards so the committed tree is untouched. The frame board carried a non-rendering build
+for about one minute during that; it is fine now and the numbers above prove which build is on it.
+
+### Committed
+
+cabin-play `hermes/0230-esp32cam-capture` @ **6394c11** (origin; `git ls-remote` matches):
+`living-frame/firmware/n16r8-espnow-rx/` (ESP-IDF receiver, partitions, report dumps, README with the
+trap above), `living-frame/firmware/esp32cam-capture/` (`esp32cam-espnow-tx` env + source,
+`bench/run-2026-11-20-reseat/` console logs for diag/probe/transfer, README retest table,
+`PROTOCOL.md` measured-rung-2 section). CI: cabin-play has **no** `.github/workflows` directory
+(`ls` fails, `git ls-tree origin/<branch> .github` empty) — `run: none` enumerated, not assumed.
+ntfy: not applicable — the task names no topic and no artifact was published.
+
+### Decisions owed
+
+(i) Camera: swap in a known-good OV2640 module, or measure the 3.3 V rail at the camera connector and
+confirm how the board is being fed (5 V vs 3.3 V); check FFC contact orientation last. (ii) A card in
+the CAM slot if rung 1's SD sink is still wanted (rung 3 writes to the **frame** board's card under
+0229, so this is optional). (iii) Rung 3 still needs 0229's working SD configuration on the frame
+board; the ESP-NOW half it depends on is now proven.
