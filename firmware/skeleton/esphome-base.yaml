@@ -1,0 +1,123 @@
+# =============================================================================
+# nordtronics ESPHome device skeleton — v1
+#
+# Three layers, in order:
+#   1. Portal provisioning  — the board joins the house WiFi through its own setup
+#                             page. No station credentials are ever baked in.
+#   2. Firmware defaults    — identical on every board: api, ota, logger, time,
+#                             the standard diagnostics.
+#   3. Per-device settings  — the place each project declares its own values
+#                             (persisted on the board, adjustable in HA).
+#
+# HOW TO USE
+#   Copy this file for a new device, set the substitutions below, then add the
+#   project's own code BELOW the skeleton — never inside layers 1 and 2, so the
+#   base can be regenerated from this file without losing project work.
+#   Required local file (never committed): secrets.yaml with api_encryption_key.
+#   See README.md for the full start-a-new-device walkthrough.
+# =============================================================================
+
+substitutions:
+  device_name: change-me            # hostname + entity prefix; kebab-case, unique per board
+  friendly_name: Change Me          # Home Assistant display name
+  board: esp32-c3-devkitm-1         # ESP32-C3 Super Mini default. ESP32-S3 boards swap this
+                                    # line (e.g. esp32-s3-devkitc-1) — nothing else changes.
+  # Setup-AP password. NOT A SECRET and not a house credential: it guards only the
+  # provisioning page the board raises when it has no network. This default is for the
+  # BENCH ONLY — it is published in this repo, so anyone in radio range of an
+  # unprovisioned board can reach its setup page with it. Set a unique value per board
+  # before a device leaves the bench (check-secrets.sh warns while this default is in
+  # place).
+  setup_ap_password: "provision-me"
+  skeleton_version: "1.0.0"
+
+esphome:
+  name: ${device_name}
+  friendly_name: ${friendly_name}
+  project:
+    name: nordtronics.skeleton
+    version: ${skeleton_version}
+
+esp32:
+  board: ${board}
+  framework:
+    type: esp-idf
+
+# =============================================================================
+# LAYER 1 — PORTAL PROVISIONING (no station credentials here, by design)
+# =============================================================================
+# The board boots into its own access point and setup page. Stephen joins it from
+# his phone, picks the house network, types the passphrase there, and it is stored
+# in NVS on the board. Nothing about the house credential ever exists in a file,
+# a repo, or a task reply.
+wifi:
+  ap:
+    ssid: "${device_name} setup"
+    password: ${setup_ap_password}
+
+captive_portal:
+
+# =============================================================================
+# LAYER 2 — FIRMWARE DEFAULTS (identical on every board)
+# =============================================================================
+logger:
+  # The C3 Super Mini's USB-C is wired to the chip's USB Serial/JTAG peripheral, not UART0;
+  # without this the host sees an empty console. On an S3 board the same line applies.
+  hardware_uart: USB_SERIAL_JTAG
+  level: INFO
+
+# The encryption key is per device and lives only in the local, uncommitted secrets.yaml
+# at flash time. Home Assistant needs it once, when it adopts the board.
+# The committed secrets.yaml.example carries a VALID-FORMAT placeholder so `esphome config`
+# can be verified against this file; it is NOT a usable identity. Run ./check-secrets.sh
+# before every flash — it refuses the placeholder, a wrong-length key, or a missing file.
+api:
+  encryption:
+    key: !secret api_encryption_key
+
+ota:
+  - platform: esphome
+
+time:
+  - platform: sntp
+    id: sntp_time
+    timezone: America/Denver
+
+sensor:
+  - platform: uptime
+    name: "Uptime"
+    update_interval: 60s
+
+  - platform: wifi_signal
+    name: "WiFi Signal"
+    update_interval: 60s
+
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: "IP Address"
+
+button:
+  - platform: restart
+    name: "Restart"
+
+# =============================================================================
+# LAYER 3 — PER-DEVICE SETTINGS PATTERN (one worked example — delete or keep)
+# =============================================================================
+# THE RULE: each project declares its own settings here — thresholds, offsets,
+# intervals, toggles. Every one of them is persisted on the board (restore_value) and
+# adjustable from Home Assistant after adoption, so a value never has to be re-flashed.
+# Infrastructure addresses (broker, server, API host) belong in firmware defaults, never
+# in a portal field or a per-device setting.
+number:
+  - platform: template
+    id: example_threshold
+    name: "Example threshold"
+    unit_of_measurement: V
+    icon: mdi:tune
+    min_value: 0.0
+    max_value: 5.0
+    step: 0.01
+    initial_value: 2.5
+    optimistic: true        # required with restore_value: the device is the source of truth
+    restore_value: true     # survives reboots and OTA; set from HA, not from the YAML
