@@ -1,9 +1,9 @@
 ---
 task_id: "0229"
-status: open
+status: pending
 iteration: 1
 proof: []
-notes: "INTERACTIVE per Stephen's decision 2026-11-20: he and Hermes work this at the bench directly — do NOT run it as a queued task and do not flash over the board for it. The ladder below stays the shared checklist. New evidence 2026-11-20 PM: kit card proven good in the laptop (wrote Testy/testy.txt, ejected, reinserted, intact; 959 MiB) — fault narrowed to the holder side (VDD with card seated, contacts, holder). Juno closes this task with the outcome once the interactive diagnosis lands. Bench update 2026-11-20 15:21 MST: Stephen resoldered pins 10, 11, 12, 13 (CS/MOSI/SCK/MISO) with a new solder he is unsure of — a marginal joint there is a live suspect (a joint can beep through on continuity and still fail in service). Retest after the resolder is the next data point."
+notes: "QUEUED per Stephen's direction 2026-11-20 19:59 MST — this supersedes the earlier INTERACTIVE marking. Stephen has done his side (pins 10-13 resoldered 15:21). Hermes: run the diagnosis now and report back either way. History: raw-SPI probe pre-resolder saw no card answering (CMD responses identical across modes/speeds, MISO held high by pull-up); kit card proven good in the laptop (Testy/testy.txt write test, 959 MiB). Fault was narrowed to the holder side: VDD with card seated, contacts, holder. If the card answers after the resolder, say so with numbers; if it still fails, continue the ladder (VDD at holder with card seated BEFORE trying a known-good card, then a known-good card in this holder, then seating/contacts) and report where it stops."
 ---
 
 expect-reply-within: 6h
@@ -56,3 +56,12 @@ If a mount succeeds at any rung: list the root directory, read the first bytes o
 ## Reply format
 
 Standard mailbox reply format: the ladder as actually walked (each rung's result, not just the winner), the root cause or the isolated component, the working configuration if any, the repo pointer (branch SHA), and what blocks the next rung, if anything.
+
+
+## Update 2026-11-20 19:59 MST — Stephen's direction: run it now
+
+The interactive marking is lifted. Stephen's words: he has redone everything he needs to do (the resolder); Hermes is to go look at the frame board's SD, find out whether it works now, and report back — that is the whole ask.
+
+- Re-run the SD probe/mount test on the frame board with the kit card seated. Report the result either way, with numbers.
+- If it still fails, work the ladder in the original task (VDD at the holder with the card seated first) and report where it stops.
+- You may flash the probe build on the frame board for this; restore the accepted 800x600 gamma build afterward, byte-identical, as in 0230.
