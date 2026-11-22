@@ -1,8 +1,12 @@
 ---
 task_id: '0236'
-status: pending
-iteration: 1
+protocol_version: 1.3.0
+status: in_progress
+iteration: 2
 proof: []
+claimed_by: "cronrunner/8b1c9e1323c5"
+claimed_at: "2026-11-22T02:31:00+00:00"
+lease_until: "2026-11-22T04:01:00+00:00"
 expect-reply-within: 6h
 notes: |
   Filed 2026-11-21 09:55 MST at Stephen's direction in chat ("can we try a
