@@ -1,9 +1,12 @@
 ---
 task_id: '0238'
-status: pending
-iteration: 1
+status: in_progress
+iteration: 2
 proof: []
 expect-reply-within: 6h
+claimed_by: "cronrunner/c0be50a686c6"
+claimed_at: "2026-11-22T04:01:08+00:00"
+lease_until: "2026-11-22T05:31:08+00:00"
 notes: |
   Filed 2026-11-21 20:50 MST at Stephen's direction in chat ("Yes" to Juno's
   offer to file the CS/framing test). Card in the holder is the 512 GB
