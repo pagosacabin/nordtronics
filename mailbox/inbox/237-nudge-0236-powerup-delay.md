@@ -1,3 +1,16 @@
+---
+task_id: '237'
+status: superseded
+iteration: 0
+auto-nudge-for: '0236'
+proof: []
+notes: |
+  Satisfied: 0236 was picked up and staged at 9ce7483 (2026-11-22 03:40 UTC).
+  No further action needed; Juno may archive this nudge. Front-matter added by
+  the worker on pickup so the wake gate does not treat a satisfied, unactionable
+  file as a new task every tick.
+---
+
 # 237 — Nudge: SD first-pass power-up delay test
 
 auto-nudge-for: 0236
