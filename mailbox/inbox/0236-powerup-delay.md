@@ -3,7 +3,7 @@ task_id: '0236'
 status: pending
 iteration: 1
 proof: []
-expect-reply-within: 24h
+expect-reply-within: 6h
 notes: |
   Filed 2026-11-21 09:55 MST at Stephen's direction in chat ("can we try a
   test with a delay after activating?"). Stephen is on shift at Bart's; this
@@ -11,6 +11,10 @@ notes: |
   from 0234 — READ-ONLY, no writes, no format, nothing that touches its
   contents. If the card has been swapped since, run the same test on whatever
   card is seated and say which.
+  WINDOW CORRECTED 2026-11-21 19:20 MST: originally filed at 24h (Juno's
+  error — the house standard is 6h); the task sat unclaimed ~9.5h and the
+  watch never flagged it. Stephen directed a manual nudge (237) and this
+  correction the same evening.
 ---
 
 # 0236 — First-pass SD failure: does a power-up delay fix it?
