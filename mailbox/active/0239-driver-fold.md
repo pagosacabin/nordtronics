@@ -1,7 +1,8 @@
 ---
 task_id: '0239'
-status: pending
-iteration: 1
+protocol_version: 1.3.0
+status: in_progress
+iteration: 2
 proof: []
 expect-reply-within: 6h
 notes: |
