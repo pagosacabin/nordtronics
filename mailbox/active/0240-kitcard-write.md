@@ -1,7 +1,7 @@
 ---
 task_id: '0240'
-status: pending
-iteration: 1
+status: in_progress
+iteration: 2
 proof: []
 expect-reply-within: 6h
 notes: |
