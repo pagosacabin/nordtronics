@@ -273,10 +273,13 @@ worker's gate, not the protocol.
   demand; the fixture pair is the deterministic substitute. The spec's dummy-task variant
   needs ticks *after* this staging, which a single run cannot supply. What is proven is
   that the gate's decision is correct for the same file state on the real repo.
-- **The next real tick's log line.** The live `_run_job_script` invocation appended
-  `2026-11-23T04:03:51Z GATE wake=true … active-in-progress` to
-  `~/.hermes/profiles/cronrunner/mailbox-gate.log`; the 04:15Z tick's own line will be the
-  scheduler-fired confirmation, and with 0243 (`status: pending`) waiting it should read
-  `inbox-non-empty`. The quiet case becomes observable again once `inbox/` is clear.
+- **The next real tick's log line.** What exists instead: this run appended
+  `2026-11-23T04:03:51Z GATE wake=true … active-in-progress` (mid-task) and, after staging,
+  `2026-11-23T04:05:53Z GATE wake=true inbox-non-empty` to
+  `~/.hermes/profiles/cronrunner/mailbox-gate.log` through the real job wiring. The second
+  line is the post-change steady state: `active/` holds only the two parked tasks (suppressed,
+  no `active-in-progress`) and the wake comes from 0243's `pending` inbox entry. Once
+  `inbox/` is clear the gate returns `wake=false` — that is the `fx_parked` / `fx_quiet`
+  evidence above.
 - Nothing else in the tree was touched: 0216 and 0230 were left byte-identical, no job was
   edited (cadence, peak guard, drain caps all unchanged), and no `next_run_at` moved.
