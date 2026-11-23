@@ -251,6 +251,14 @@ Filed by me at `ca03fb2` as a normal inbox task carrying `run_as_goal: true`; fr
   pagosacabin/nordtronics` returned empty.
 - **(e) Cost unknown** — the cron harness exposes no per-call usage objects; stated, not
   estimated.
+- **(f) The first staging commit staged the wrong file, and it is corrected on origin.** With two
+  tasks carrying id 0247, `mailbox-transition.py --mode stage --task 0247` matched
+  `mailbox/active/0247-live-recovery.md` (the other task) by numeric prefix, moved it to
+  `staged/` and overwrote it with this reply. Commit `72a6027` did that; `80783d4` restored
+  `0247-live-recovery.md` to `active/` byte-identically (from `318da84`) and staged *this* file
+  by hand. Nothing was lost, but origin carried a wrong state for one commit — and it is the
+  duplicate id, not the helper alone, that made the selection ambiguous.
+
 - **Skill edit is host-side, not in the repo.** The skill lives in the cronrunner profile, so
   its "proof" is the quoted lines above plus the file itself; no branch pointer can cover it.
 
