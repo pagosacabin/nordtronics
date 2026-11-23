@@ -122,26 +122,70 @@ The body stays freeform markdown — specs, context, reply format.
 
 Added in 1.4.0. A task whose front-matter carries `run_as_goal: true` is executed as a
 goal rather than a single pass, and the staging boundary is hardened: the worker may only
-stage the reply when the goal card completes **and** every gate exits 0.
+stage the reply when the goal card completed **and** every gate exits 0.
 
-- `run_as_goal` (optional, boolean, default false): the worker executes this task as a goal.
-  It creates a kanban card with `--goal` and `--goal-max-turns` taken from `goal.max_turns`,
-  dispatches it, and stages the mailbox reply only when the card completes **and** every
-  command in `goal.gates` exits 0. A failing gate's output is fed back to a continuation
-  card, up to `max_turns`; exhausting the budget parks the task in `active/` with the last
-  gate output. `goal.contract` is passed verbatim as the card body. With
-  `goal.github_contract`, the card additionally carries `--completion-contract` so exact-head
-  CI must be green before it can complete.
-- Gates run in the order written, after the card run finishes and before any staging
-  transition. A gate is judged by its exit code only; the worker quotes its output tail in
-  the reply and in the continuation card. Silent success is not accepted as gate evidence —
-  the reply quotes the gate command and its exit status.
-- The kanban card is the execution record, not the reply: the mailbox task still moves
-  `inbox` → `active` → `staged` normally, and `.resume-needed` follows the ordinary rules.
-  A goal task parked at budget exhaustion is **blocked**, not failed: it stays in `active/`
-  with `status: in_progress`, the last gate output in `notes`, and no `proof` block.
-- Tasks without `run_as_goal` follow exactly the path they follow under 1.3.0. The field is
-  additive; no existing behaviour changes.
+### The fields
+
+- `run_as_goal` (optional, YAML boolean, default `false`): the worker executes this task as
+  a goal. A task with `run_as_goal: false` or no `run_as_goal` at all takes exactly the
+  1.3.0 path; a `goal:` block that is present while `run_as_goal` is false or absent is
+  ignored, and the worker says so in the reply rather than acting on it.
+- `goal` (required when `run_as_goal: true`) — validated at claim, before any card is
+  created. An invalid block is a **blocked** pickup (park, no card, no `proof`), naming the
+  offending field:
+  - `max_turns`: integer > 0 (the turn budget for continuation cards).
+  - `contract`: non-empty string, passed verbatim as the card body.
+  - `gates`: non-empty list of non-empty shell-command strings, run in order.
+  - `github_contract` (optional): `OWNER/REPO`; adds `--completion-contract` to the card so
+    exact-head CI must be green before the card can complete. Omit it for host-only work.
+
+### What the worker does on claim
+
+1. Create the card: `hermes kanban create "<task title>" --body-file <file holding
+   goal.contract> --assignee cronrunner --goal --goal-max-turns <goal.max_turns>`, adding
+   `--completion-contract <goal.github_contract>` only when that field is set.
+2. Wait for the run (`hermes kanban runs <id>`, `hermes kanban show <id>`). The gateway
+   dispatcher ticks about every 60 s, so poll in bounded waits rather than assuming an
+   immediate start.
+3. Re-run the **complete ordered gate list from scratch** after every completed card turn,
+   stopping at the first non-zero exit. A pass from an earlier turn never counts: the gate
+   list is re-executed in full before the staging decision.
+4. A non-zero gate dispatches a continuation card that carries the original task body, the
+   same `goal.contract`, the failed gate's command, its exit status and its output tail, and
+   what remains to be done; the reply requirements in the task body are retained, not
+   replaced.
+5. Stage the mailbox reply **only** when the card completed and the final full gate pass
+   exited 0 for every command.
+
+### Gate evidence
+
+Exit status and a quoted tail are not durable by themselves, so a gate run also leaves an
+artifact. For each command the worker writes
+`mailbox/gate-logs/NNNN-<index>-<slug>.log` containing, in order: the command, the working
+directory, the workspace HEAD (`git rev-parse HEAD` where the workspace is a git tree, or
+`n/a`), the exit status, and the full output. Those files are committed in the same commit
+as the staging transition and cited in `proof` and in the reply. A stage with no gate log
+is a fabricated pass; a replayed gate is the only thing that counts as a pass.
+
+### Precedence, failure modes, and the ordinary bar
+
+- The ordinary `staged` requirements are unchanged and additive: a goal task still needs
+  `proof` pointers, `cost`, and a `notes` block. Goal mode narrows what may be staged; it
+  never substitutes for the proof bar.
+- **Budget exhaustion parks; it does not fail.** When `max_turns` continuation cards are
+  spent without a full green pass, the task stays in `active/` with `status: in_progress`,
+  the last gate command and output in `notes`, no `proof` block, and `.resume-needed`
+  deleted in the park commit. That park does not increment `iteration` and does not compete
+  with the iteration cap: the cap counts pickups (`inbox` → `active`), so one exhausting
+  goal may not produce both a park and a `status: failed` staging. The iteration cap still
+  governs how many times the task may be picked up.
+- A card that is cancelled, cannot be spawned, or otherwise never completes is never a
+  stage: the worker dispatches a continuation up to the budget, then parks blocked with the
+  exact failure (dispatcher guard reason, spawn error, or run outcome) and no `proof`.
+- A goal task parked blocked is a decision, not a retry: later runs do not re-open it under
+  the ordinary resumable rules. Juno or Stephen resolves it and re-files.
+- `.resume-needed` follows the ordinary rules throughout: the pickup commit creates it; the
+  staging or park commit deletes it.
 
 ## Proof format
 
@@ -159,6 +203,10 @@ proof:
   that its head SHA matches the claimed `sha` and the current branch tip.
 - A green run with matching pointers verifies the task. A red run, a wrong SHA,
   or a run whose head no longer matches the branch tip fails it.
+- For a `run_as_goal` task, the committed gate logs
+  (`mailbox/gate-logs/NNNN-*.log`) are cited as additional `proof` pointers
+  alongside the branch/run pointers; they are durable because they are
+  committed, and they are what makes a gate pass checkable from origin.
 
 Build tasks (the deliverable is a CI-built artifact — APK, firmware, image):
 proof additionally requires a build-green ntfy notification. Once the run is
