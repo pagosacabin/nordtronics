@@ -1,6 +1,6 @@
 # Mailbox protocol — global rules
 
-protocol_version: 1.3.0
+protocol_version: 1.4.0
 
 ## Protocol versioning
 
@@ -24,6 +24,11 @@ in the previous format, carrying the exact skill-patch text to apply verbatim.
   a `mailbox/active/.resume-needed` sentinel that the wake gate keys on and that
   staging, parking or blocking deletes; a blocked task ends the run; the parallel
   lane is documented and left off (see "Parallel lane").
+- 1.4.0 — 2026-11-23: goal mode. Optional front-matter `run_as_goal: true` plus a
+  `goal` block (`max_turns`, `contract`, `gates`, optional `github_contract`) makes the
+  worker execute the task as a goal and lets it stage only when the card completes and
+  every gate exits 0 (see "Goal mode"). Tasks without the field behave exactly as before.
+  Approved by Stephen 2026-11-23 11:54 MST (task 0247).
 
 The mailbox is a state machine. Task files move through directories; every
 transition is a `git mv` + commit + push. Never copy a task file — move it.
@@ -99,12 +104,44 @@ Every task file starts with YAML front-matter. Only these fields:
   "Cost format" below. Required on `staged` from 1.1.0 onward, or
   `unknown` with a plain reason if the harness cannot report per-call
   usage.
+- `run_as_goal` (optional, boolean, default `false`): execute this task as a goal.
+  See "Goal mode" below. A task without the field takes exactly the path it took
+  under 1.3.0.
+- `goal` (required when `run_as_goal: true`): the goal block —
+  `max_turns` (integer budget), `contract` (the goal text, passed verbatim as the
+  card body), `gates` (list of shell commands the worker runs itself), and the
+  optional `github_contract` (`OWNER/REPO`) that adds the CI completion gate.
 
 Reserved for the parallel lane (see "Parallel lane"), and forbidden while it is off: `parallel_safe`,
 `claimed_by`, `claimed_at`, `lease_until`. A single-lane worker writes none of them; they become part
 of this allowlist only with the task that enables parallel pickup.
 
 The body stays freeform markdown — specs, context, reply format.
+
+## Goal mode (`run_as_goal`)
+
+Added in 1.4.0. A task whose front-matter carries `run_as_goal: true` is executed as a
+goal rather than a single pass, and the staging boundary is hardened: the worker may only
+stage the reply when the goal card completes **and** every gate exits 0.
+
+- `run_as_goal` (optional, boolean, default false): the worker executes this task as a goal.
+  It creates a kanban card with `--goal` and `--goal-max-turns` taken from `goal.max_turns`,
+  dispatches it, and stages the mailbox reply only when the card completes **and** every
+  command in `goal.gates` exits 0. A failing gate's output is fed back to a continuation
+  card, up to `max_turns`; exhausting the budget parks the task in `active/` with the last
+  gate output. `goal.contract` is passed verbatim as the card body. With
+  `goal.github_contract`, the card additionally carries `--completion-contract` so exact-head
+  CI must be green before it can complete.
+- Gates run in the order written, after the card run finishes and before any staging
+  transition. A gate is judged by its exit code only; the worker quotes its output tail in
+  the reply and in the continuation card. Silent success is not accepted as gate evidence —
+  the reply quotes the gate command and its exit status.
+- The kanban card is the execution record, not the reply: the mailbox task still moves
+  `inbox` → `active` → `staged` normally, and `.resume-needed` follows the ordinary rules.
+  A goal task parked at budget exhaustion is **blocked**, not failed: it stays in `active/`
+  with `status: in_progress`, the last gate output in `notes`, and no `proof` block.
+- Tasks without `run_as_goal` follow exactly the path they follow under 1.3.0. The field is
+  additive; no existing behaviour changes.
 
 ## Proof format
 
