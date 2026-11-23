@@ -1,8 +1,8 @@
 ---
 task_id: "0248"
 title: "Goal-mode live proof — broken scratch job, gate must fail then pass"
-status: inbox
-iteration: 0
+status: in_progress
+iteration: 1
 expect-reply-within: 24h
 run_as_goal: true
 goal:
@@ -25,6 +25,9 @@ goal:
   gates:
     - "cd /home/astroboy/.hermes/profiles/cronrunner/cache/scratch/0248/goaljob && /usr/bin/python3 -m unittest discover -s tests"
 proof: []
+claimed_by: "cronrunner/c0be50a686c6"
+claimed_at: "2026-11-23T19:11:42+00:00"
+lease_until: "2026-11-23T20:41:42+00:00"
 notes: |
   Filed by the worker for 0247 step 4. Host-only scratch proof of the protocol 1.4.0
   run_as_goal standard: the initial state FAILS its gate (2 tests, 2 failures), and the
