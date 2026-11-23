@@ -1,11 +1,11 @@
 ---
 task_id: "0244"
 title: Button photo flow — countdown on the frame, library on the frame board's SD, land the camera work in cabin-play
-status: pending
+status: in_progress
 iteration: 1
 expect-reply-within: 6h
 proof: []
-notes: Filed by Juno 2026-11-23 at Stephen's direction. Supersedes the camera-side library in the interactive cam-button build.
+notes: Filed by Juno 2026-11-23 at Stephen's direction. Supersedes the camera-side library in the interactive cam-button build. Picked up interactively (Stephen at the laptop) 2026-11-23 ~10:00 MST; the four cronrunner worker jobs (c0be50a686c6, 7aff6948c2c1, 8b1c9e1323c5, 5c1532977f15) are PAUSED for the duration and must be resumed on staging.
 ---
 
 ## Assignment
