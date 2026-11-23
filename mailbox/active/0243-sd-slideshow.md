@@ -1,9 +1,12 @@
 ---
 task_id: '0243'
-status: pending
-iteration: 1
+status: in_progress
+iteration: 2
 proof: []
 expect-reply-within: 12h
+claimed_by: "cronrunner/c0be50a686c6"
+claimed_at: "2026-11-23T04:15:38+00:00"
+lease_until: "2026-11-23T05:45:38+00:00"
 notes: |
   Filed 2026-11-22 19:12 MST at Stephen's direction in chat, with his
   amendment: Hermes collects the ten images himself (downloads them),
