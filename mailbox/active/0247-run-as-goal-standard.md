@@ -1,11 +1,14 @@
 ---
 task_id: "0247"
 title: Make run_as_goal a standard — protocol bump, worker behaviour, live host-only proof
-status: pending
-iteration: 1
+status: in_progress
+iteration: 2
 expect-reply-within: 24h
 proof: []
 notes: Filed by Juno 2026-11-23. Stephen approved the protocol-level standard from 0246 (option A) in chat 2026-11-23 11:54 MST ("Yes"). The 24h window spans the proof task's lifecycle across worker ticks.
+claimed_by: "cronrunner/c0be50a686c6"
+claimed_at: "2026-11-23T19:00:48+00:00"
+lease_until: "2026-11-23T20:30:48+00:00"
 ---
 
 ## Assignment
