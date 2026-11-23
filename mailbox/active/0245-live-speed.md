@@ -1,11 +1,11 @@
 ---
 task_id: "0245"
 title: Live photo flow speed-up — show first/store second, SD clock ladder, ESP-NOW pacing
-status: pending
+status: in_progress
 iteration: 1
 expect-reply-within: 6h
 proof: []
-notes: Filed by Juno 2026-11-23 at Stephen's direction. Builds on 0244 (closed and verified the same morning). Amended the same morning at Stephen's direction: this task runs as a supervised Hermes goal-mode run (see Goal-mode run, below).
+notes: Filed by Juno 2026-11-23 at Stephen's direction. Builds on 0244 (closed and verified the same morning). Amended the same morning at Stephen's direction: this task runs as a supervised Hermes goal-mode run (see Goal-mode run, below). CLAIMED INTERACTIVELY 2026-11-23 ~11:05 MST as a goal-mode run; the four cronrunner worker jobs (c0be50a686c6, 7aff6948c2c1, 8b1c9e1323c5, 5c1532977f15) are PAUSED for the duration and must be resumed on staging.
 ---
 
 ## Assignment
