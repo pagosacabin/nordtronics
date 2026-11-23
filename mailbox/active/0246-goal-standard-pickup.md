@@ -1,11 +1,14 @@
 ---
 task_id: "0246"
 title: Goal mode through the standard pickup — find the mechanism, prove it host-only
-status: pending
-iteration: 1
+status: in_progress
+iteration: 2
 expect-reply-within: 24h
 proof: []
 notes: Filed by Juno 2026-11-23 at Stephen's direction. Research-shaped like 0235, hence the 24h window. Companion to 0245, which runs as a hand-driven interactive goal in the meantime.
+claimed_by: "cronrunner/c0be50a686c6"
+claimed_at: "2026-11-23T18:40:13+00:00"
+lease_until: "2026-11-23T20:10:13+00:00"
 ---
 
 ## Assignment
