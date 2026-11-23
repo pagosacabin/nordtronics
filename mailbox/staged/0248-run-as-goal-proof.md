@@ -57,6 +57,13 @@ notes: |
   file and the sentinel; and no continuation card was needed, so the gate-failure ->
   continuation branch is not exercised live. Cost unknown: the cron harness exposes no
   per-call usage objects, stated rather than estimated.
+  RECOVERY DEVIATION: the first copies of both gate logs (and a commit naming the goaljob path
+  absolutely in the contract) were discarded by the transition helper's fetch-reset, which resets
+  main to origin/main and drops unpushed local commits. Both logs were regenerated at 19:40Z: t2 by
+  re-running the same gate on the same fixed tree, t1 by reproducing the pre-fix state in a copy
+  whose restored pkg/topic.py hashes to f8b4405599eefbfb2601b1b03c56d724369313fb8528c6d1360a9aab155d4266,
+  byte-identical to the seeded defect. They are committed in the commit immediately AFTER the
+  staging commit; the gate_log proof pointers resolve there and at main tip.
 ---
 
 ## Reply

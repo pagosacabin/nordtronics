@@ -1,0 +1,12 @@
+command: cd /home/astroboy/.hermes/profiles/cronrunner/cache/scratch/0248/goaljob && /usr/bin/python3 -m unittest discover -s tests
+cwd: /home/astroboy/.hermes/profiles/cronrunner/cache/scratch/0248/goaljob
+workspace_head: n/a (host-only scratch, not a git tree)
+exit: 0
+note: re-run at 19:40Z after the transition helper's fetch-reset discarded the first copy of this log; same tree, same command.
+
+--- output ---
+..
+----------------------------------------------------------------------
+Ran 2 tests in 0.000s
+
+OK

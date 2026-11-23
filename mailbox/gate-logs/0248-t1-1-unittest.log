@@ -1,0 +1,52 @@
+command: cd /home/astroboy/.hermes/profiles/cronrunner/cache/scratch/0248/repro && /usr/bin/python3 -m unittest discover -s tests
+cwd: /home/astroboy/.hermes/profiles/cronrunner/cache/scratch/0248/repro
+workspace_head: n/a (host-only scratch, not a git tree)
+exit: 1
+note: reproduction of the pre-fix state (the only change is the return value restored to f"wildfire/{node}/{kind}",
+the exact bytes of the seeded defect); the original t1 log was lost when the transition helper's fetch-reset
+discarded the local commit that carried it. Reproduction at 19:40Z, same command, same tests.
+
+--- output ---
+FF
+======================================================================
+FAIL: test_default_kind (test_topic.TelemetryTopicTest.test_default_kind)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/astroboy/.hermes/profiles/cronrunner/cache/scratch/0248/repro/tests/test_topic.py", line 14, in test_default_kind
+    self.assertEqual(
+    ~~~~~~~~~~~~~~~~^
+        telemetry_topic("bench-02"),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "nordtronics/wildfire/bench-02/telemetry",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+AssertionError: 'wildfire/bench-02/telemetry' != 'nordtronics/wildfire/bench-02/telemetry'
+- wildfire/bench-02/telemetry
++ nordtronics/wildfire/bench-02/telemetry
+? ++++++++++++
+
+
+======================================================================
+FAIL: test_full_topic (test_topic.TelemetryTopicTest.test_full_topic)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/astroboy/.hermes/profiles/cronrunner/cache/scratch/0248/repro/tests/test_topic.py", line 8, in test_full_topic
+    self.assertEqual(
+    ~~~~~~~~~~~~~~~~^
+        telemetry_topic("bench-01", "telemetry"),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "nordtronics/wildfire/bench-01/telemetry",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+AssertionError: 'wildfire/bench-01/telemetry' != 'nordtronics/wildfire/bench-01/telemetry'
+- wildfire/bench-01/telemetry
++ nordtronics/wildfire/bench-01/telemetry
+? ++++++++++++
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.001s
+
+FAILED (failures=2)
