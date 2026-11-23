@@ -159,13 +159,23 @@ stage the reply when the goal card completed **and** every gate exits 0.
 
 ### Gate evidence
 
-Exit status and a quoted tail are not durable by themselves, so a gate run also leaves an
+Exit status and a quoted tail are not durable by themselves, so every gate run also leaves an
 artifact. For each command the worker writes
-`mailbox/gate-logs/NNNN-<index>-<slug>.log` containing, in order: the command, the working
-directory, the workspace HEAD (`git rev-parse HEAD` where the workspace is a git tree, or
-`n/a`), the exit status, and the full output. Those files are committed in the same commit
-as the staging transition and cited in `proof` and in the reply. A stage with no gate log
-is a fabricated pass; a replayed gate is the only thing that counts as a pass.
+`mailbox/gate-logs/NNNN-t<turn>-<index>-<slug>.log` — the turn is the goal turn the run
+belongs to (`t1` for the initial pass, `t2`, `t3` … for each pass after a continuation), the
+index is the command's position in `goal.gates`, and the slug is a short form of the command.
+The log contains, in order: the command, the working directory, the workspace HEAD
+(`git rev-parse HEAD` where the workspace is a git tree, or `n/a`), the exit status, and the
+full output.
+
+- The **final green pass** logs are committed in the same commit as the staging transition
+  and cited in `proof`.
+- The **failing** pass logs are committed too — in the continuation commit that dispatches
+  the next card, or, on budget exhaustion, in the park commit that deletes `.resume-needed`.
+  A park with no committed failing gate log is a blocked report with no evidence.
+- Different turns therefore never overwrite each other: the filename carries the turn and
+  the logs are immutable once committed. A stage with no green gate log for the current turn
+  is a fabricated pass; a replayed gate is the only thing that counts as a pass.
 
 ### Precedence, failure modes, and the ordinary bar
 
@@ -203,10 +213,22 @@ proof:
   that its head SHA matches the claimed `sha` and the current branch tip.
 - A green run with matching pointers verifies the task. A red run, a wrong SHA,
   or a run whose head no longer matches the branch tip fails it.
-- For a `run_as_goal` task, the committed gate logs
-  (`mailbox/gate-logs/NNNN-*.log`) are cited as additional `proof` pointers
-  alongside the branch/run pointers; they are durable because they are
-  committed, and they are what makes a gate pass checkable from origin.
+- For a `run_as_goal` task, gate logs are additional `proof` pointers with their own canonical
+  entry shape:
+
+  ```yaml
+  proof:
+    - branch: hermes/NNNN-...
+      sha: 92a5b2b44bf30a0fde9eb4dfc72ca25c8692d299
+    - gate_log: mailbox/gate-logs/NNNN-t2-1-unittest.log
+      turn: 2
+      exit: 0
+  ```
+
+  A `gate_log` entry is resolved at the commit that staged the task (the staging commit on
+  `main`), so it is checkable from origin the same way a branch SHA is. It names a green run
+  for the turn that authorised the staging; failing runs from earlier turns stay in the
+  history as their own committed logs.
 
 Build tasks (the deliverable is a CI-built artifact — APK, firmware, image):
 proof additionally requires a build-green ntfy notification. Once the run is
