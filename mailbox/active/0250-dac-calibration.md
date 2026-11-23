@@ -1,11 +1,14 @@
 ---
 task_id: "0250"
 title: Per-channel DAC calibration — measure the real ladder levels, build per-channel quant tables
-status: pending
-iteration: 1
+status: in_progress
+iteration: 2
 expect-reply-within: 24h
 proof: []
 notes: Filed by Juno 2026-11-23 on Stephen's word ("Go ahead", 12:32 MST) after Juno's assessment of the external Claude review he shared. The 24h window is because rung 2 needs human hands at the bench. Follow-on already agreed in direction: the error-diffusion A/B comes after this, using the calibrated levels — it is NOT part of this task.
+claimed_by: "cronrunner/c0be50a686c6"
+claimed_at: "2026-11-23T19:46:00+00:00"
+lease_until: "2026-11-23T21:16:00+00:00"
 ---
 
 ## Assignment
