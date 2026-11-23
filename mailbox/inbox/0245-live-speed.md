@@ -5,7 +5,7 @@ status: pending
 iteration: 1
 expect-reply-within: 6h
 proof: []
-notes: Filed by Juno 2026-11-23 at Stephen's direction. Builds on 0244 (closed and verified the same morning).
+notes: Filed by Juno 2026-11-23 at Stephen's direction. Builds on 0244 (closed and verified the same morning). Amended the same morning at Stephen's direction: this task runs as a supervised Hermes goal-mode run (see Goal-mode run, below).
 ---
 
 ## Assignment
@@ -14,6 +14,16 @@ notes: Filed by Juno 2026-11-23 at Stephen's direction. Builds on 0244 (closed a
 - **Copilot:** peer review of the cabin-play changes, driven by Hermes via Herdr (GitHub-bound work rule). Reviewer, not the proof.
 - **Newton:** not assigned — firmware stays with Hermes.
 - **Juno:** verifies independently on the staged reply — branch SHA on origin, repo paths, no secrets in the commit, the timing and ladder evidence.
+
+## Goal-mode run (Stephen's direction, 2026-11-23)
+
+This task runs as a **supervised interactive `/goal` run**, not a normal worker pickup — the second goal-mode run after the 0235 trial, and the first on a real deliverable.
+
+- **Pickup:** Hermes claims this task in the interactive session before a worker tick takes it. Pause the four worker jobs for the duration, as with 0244, and resume them on staging.
+- **The contract is the Success criteria section below, verbatim.** The goal is met when every criterion holds with its evidence, the Copilot findings are addressed, and the staged reply is written to the mailbox. Work the three rungs in order, taking as many turns as the ladder needs — do not stop between rungs to wait for Stephen; he is supervising, not starting each leg.
+- **Flashing is in scope.** Unlike 0235's host-only job, this task requires flashing both boards and running the bench flows. Stephen is at the laptop for the run.
+- **The judge's DONE is not the proof** (0235's lesson: the judge judges the claim, not the artifact). Copilot's review and Juno's independent verification still sit on top of the goal's own gate, exactly as in the Assignment block.
+- **Gates can't stop a mid-turn action** (0235's other lesson), so the constraint lines below bind from the first turn: settle-lower-rather-than-flaky, no out-of-scope changes, secrets out of the repo.
 
 ## Context
 
