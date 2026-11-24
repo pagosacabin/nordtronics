@@ -248,3 +248,25 @@ This task comes from an external review Stephen shared and Juno assessed in chat
 ## Reply format
 
 Status line first. The voltage table. What the tables became. The photos. Deviations plainly.
+
+## Rung 2 measured 2026-11-23 17:1x MST (interactive, Stephen at the meter)
+
+DC meter on the VGA connector, monitor connected, one reading per cell, volts.
+Frames generated in firmware (DAC test mode, 15 s each with a 1 s black gap)
+because the board cannot write its own /sdcard/FRAMES and the card never left
+the holder.
+
+| channel | L0 | L1 | L2 | L3 (full scale) | L1/L3 | L2/L3 |
+|---|---|---|---|---|---|---|
+| R | 0.00 | 0.26 | 0.40 | 0.70 | 0.371 | 0.571 |
+| G | 0.00 | 0.27 | 0.43 | 0.68 | 0.397 | 0.632 |
+| B | 0.00 | 0.27 | 0.45 | 0.72 | 0.375 | 0.625 |
+
+Ideal is 0.333 / 0.667.  Level 1 sits high on all three; red's level 2 is the
+worst deviation (0.571).  Full scales differ by 6% (0.68-0.72 V), recorded but
+not corrected -- the table is normalised per channel.
+
+Rung 3 applied: s_dac_v in freenove-cam/src/main.cpp now carries
+{0, 0.371, 0.571, 1}, {0, 0.397, 0.632, 1}, {0, 0.375, 0.625, 1}.
+Camera build is green; the CAM board was unplugged for the measurement and must
+be plugged back in to flash rung 3.
