@@ -1,11 +1,14 @@
 ---
 task_id: "0252"
 title: Crew-vault librarian cron — weekly distillation, with a Nov 18 → today catch-up run
-status: pending
-iteration: 1
+status: in_progress
+iteration: 2
 expect-reply-within: 6h
 proof: []
 notes: Filed by Juno 2026-11-23 on Stephen's word ("Go ahead with 0252", 21:41 MST). AMENDED 21:45 MST the same evening: Stephen had already asked his interactive Hermes session to do the one-time librarian catch-up pass directly, before 0252 was filed. So the catch-up may be done — or in progress — by the time the worker picks this up. On pickup, check the vault HEAD first: if it has advanced past 6db52d8, treat the interactive pass as the catch-up and scope step 3 to whatever window remains after the latest vault commit (possibly nothing). The durable deliverable of this task is the recurring cron. Context: the fresh Hermes session found the crew vault healthy but asleep — HEAD 6db52d8, last commit 2026-11-18 15:16, ~30 tasks of durable knowledge since never distilled. Stephen approved Juno's proposal: a weekly librarian job on Hermes's side, window = since the last vault commit (self-healing), one-line staged report per run so Juno's outbox watch sees the vault move. The vault remote/backup question is deliberately NOT in this task (repo creation 403s on the narrow PAT; Stephen creating the empty private repo in the GitHub UI is a separate one-minute step).
+claimed_by: "cronrunner/c0be50a686c6"
+claimed_at: "2026-11-24T04:45:21+00:00"
+lease_until: "2026-11-24T06:15:21+00:00"
 ---
 
 ## Assignment
