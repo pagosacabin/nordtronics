@@ -17,7 +17,7 @@ proof:
     - "31c6769 — bench+log: fold 0250 verified DAC calibration; INDEX updated"
   branch: "none — mailbox main only (no code branch; the repo's tree is unchanged apart from the staged report)"
   sha: "725dd9f — mailbox main commit carrying mailbox/staged/librarian-report-2026-11-23.md (repository revision this reply describes; the staging commit that carries this reply follows it)"
-  run: "https://github.com/pagosacabin/nordtronics/actions/runs/45328875628 — Website Check on 725dd9f, conclusion success. The mailbox push to main is what triggers it (website-check.yml fires on push to branches [main]); no build workflow covers mailbox/*.md, so this is the only run to cite."
+  run: "https://github.com/pagosacabin/nordtronics/actions/runs/45329056225 — Website Check on 4ce5462 (this reply's own staging commit), conclusion success. The commit that carries the report, 725dd9f, has its own green run: https://github.com/pagosacabin/nordtronics/actions/runs/45328875628. The mailbox push to main is what triggers these (website-check.yml fires on push to branches [main]); no build workflow covers mailbox/*.md, so this is the only run to cite."
   files:
     - "mailbox/staged/librarian-report-2026-11-23.md"
 notes: |
