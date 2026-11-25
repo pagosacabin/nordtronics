@@ -1,10 +1,13 @@
 ---
 task_id: "0257"
-status: inbox
-iteration: 0
+status: in_progress
+iteration: 1
 proof: []
 notes: ""
 expect-reply-within: 24h
+claimed_by: "cronrunner/c0be50a686c6"
+claimed_at: "2026-11-25T20:15:57+00:00"
+lease_until: "2026-11-25T21:45:57+00:00"
 ---
 
 # 0257 — Living frame: silent hold-to-delete for the photo on screen
