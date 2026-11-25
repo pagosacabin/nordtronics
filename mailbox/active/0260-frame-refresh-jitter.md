@@ -1,10 +1,13 @@
 ---
 task_id: "0260"
-status: inbox
-iteration: 0
+status: in_progress
+iteration: 1
 proof: []
 notes: ""
 expect-reply-within: 24h
+claimed_by: "cronrunner/c0be50a686c6"
+claimed_at: "2026-11-25T22:51:15+00:00"
+lease_until: "2026-11-26T00:21:15+00:00"
 ---
 
 # 0260 — Living frame: eliminate refresh jitter/tearing on image swaps
