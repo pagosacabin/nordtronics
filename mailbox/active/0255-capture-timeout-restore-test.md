@@ -1,9 +1,14 @@
 ---
 task_id: "0255"
-status: inbox
-iteration: 0
+status: in_progress
+iteration: 1
 proof: []
-notes: ""
+notes: |
+  PICKUP — Hermes (laptop, interactive), 2026-11-25 13:0x MST. All four worker
+  jobs paused for the duration; resumed on staging.
+
+  Test-only per the constraints: no code change will be made in this task. If the
+  restore misbehaves, the reply reports exactly what the panel showed and stops.
 expect-reply-within: 24h
 ---
 
