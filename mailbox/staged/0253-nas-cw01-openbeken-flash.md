@@ -1,15 +1,27 @@
 ---
 task_id: "0253"
-status: in_progress
+status: staged
 iteration: 1
-proof: []
+proof:
+  kind: host-only
+  port: "/dev/ttyUSB0 — 1a86:7523 CH340 (driver ch341), the only serial port present"
+  ltchiptool: "v4.15.0, installed with uv tool install ltchiptool"
+  handshake: "no-answer — TimeoutError: Timed out attempting to link with chip (90 s wall, 20 s chip timeout)"
+  port_state: "opens cleanly, 0 bytes received in 4 s at 115200 — link is alive, chip is silent"
+  chip_writes: "none — no dump taken, no write attempted, chip untouched"
 notes: |
-  INTERACTIVE PICKUP — Hermes (laptop), 2026-11-25 09:36 MST. All four mailbox
-  worker jobs paused at pickup (c0be50a686c6, 7aff6948c2c1, 8b1c9e1323c5,
-  5c1532977f15) so no cron tick resumes this task; resume on staging.
-  Port fact that contradicts the filing: the only serial port present is
-  /dev/ttyUSB0 = 1a86:7523 CH340 (driver ch341), not a CP2102. Identity taken
-  from udev/lsusb, not assumed from the filing. Proceeding on that port.
+  NO-ANSWER, STOPPED AT STEP 3 EXACTLY AS THE TASK INSTRUCTS — Hermes (laptop),
+  2026-11-25 09:36-09:41 MST. Nothing below step 3 was attempted: no dump, no
+  flash, no write of any kind. The chip is untouched.
+
+  Deviation from the filing, declared: the task names a Freenove CP2102 serial
+  port. The only port on the laptop is /dev/ttyUSB0 = 1a86:7523 CH340, driver
+  ch341 (from udev and lsusb, not assumed). ltchiptool used it without
+  complaint; the identity came from the device, not the filing.
+
+  Workers: all four mailbox jobs were paused at pickup and are RESUMED on this
+  staging (c0be50a686c6, 7aff6948c2c1, 8b1c9e1323c5, 5c1532977f15), verified
+  with cron list.
 expect-reply-within: 6h
 ---
 
@@ -81,3 +93,79 @@ Stage the reply in this file with these fields filled in:
 - `flash_verify`: pass / fail + one line
 - `power_cycle_instruction`: exact instruction for Stephen (bench supply off/on) so Juno can hand him the next step
 - `notes`: anything unexpected (port name surprise, ltchiptool quirk, retry needed)
+
+---
+
+# Reply — 0253: handshake no-answer, nothing written
+
+**Status: blocked at step 3, staged per the task's own instruction. The BK7231N did not answer the
+bootloader, so no dump was taken and no write was made. The chip is untouched.**
+
+Everything below the handshake field is n/a by the task's reply format; the fields are filled in
+that shape rather than omitted, so the reply parses the same way a successful one would.
+
+| Field | Value |
+|---|---|
+| `port` | `/dev/ttyUSB0` — `1a86:7523` CH340, driver `ch341` |
+| `ltchiptool_version` | `v4.15.0` |
+| `handshake` | **no-answer** |
+| `stock_dump_path` | n/a — nothing read |
+| `stock_dump_size_bytes` | n/a |
+| `stock_dump_sha256` | n/a |
+| `stock_dump_verified` | n/a |
+| `openbeken_version` | n/a — not fetched, not flashed |
+| `openbeken_url` | n/a |
+| `openbeken_binary_sha256` | n/a |
+| `flash_verify` | n/a |
+| `power_cycle_instruction` | n/a — no write occurred, so there is nothing to boot. Stephen's next action is the re-stage below, not a power cycle |
+
+## The failure, verbatim
+
+```
+I: Connecting to 'Beken 7231N' on /dev/ttyUSB0 @ 115200
+E: TimeoutError: Timed out attempting to link with chip
+E: |-- File ".../bk7231tools/serial/linking.py", line 23, in connect
+```
+
+## What was checked before stopping
+
+1. **Port identity** — from udev and `lsusb`: `1a86:7523 QinHeng CH340`, driver `ch341`,
+   `/dev/serial/by-id/usb-1a86_USB_Serial-if00-port0`. This contradicts the filing's
+   "Freenove CP2102"; the filing is wrong about the bridge chip, and it is declared here rather
+   than smoothed over.
+2. **The port is free and the link is alive** — opened at 115200 with only one process, then 4 s
+   of read: **0 bytes**, no exception. So the adapter enumerates and the tty accepts data; what is
+   missing is a chip that answers.
+3. **No baud-rate guessing and no retry loop** — one link attempt, the documented default. The task
+   forbids working around a dead link by guessing at ports or rates, so that is where it stopped.
+
+## Why it is out of download mode, and the exact re-stage needed
+
+This is the mechanism ltchiptool itself prints, and it is more specific than the filing's
+pre-flight note: *"To enter download mode, the chip has to be rebooted while the flashing program
+is trying to establish communication. In order to do that, you need to bridge CEN pin to GND with
+a wire."*
+
+The filing's pre-flight says CEN was held to GND **at power-on, then released**. That satisfies
+the *boot* condition but not the *link* condition: once CEN is released the stock application runs,
+and the bootloader is no longer listening — which is exactly what a silent port and a link timeout
+look like.
+
+So the re-stage is not "power cycle the board". It is:
+
+1. Keep the 3.3 V bench supply on WIFI_3V3 (hole 2). **Never 5 V.**
+2. Have a wire or jumper ready on **CEN (hole 9) to GND**.
+3. Say the word — I start `ltchiptool flash info bk7231n -d /dev/ttyUSB0` in one pane and tell you
+   "bridge now" the moment the link window opens; CEN goes to GND then, and comes off ~1 s later.
+   The chip must see its reset inside that window, not before it.
+
+If that still does not answer, the next suspects are the two data wires (adapter TX0 → hole 8, RX0
+→ hole 7) and the common ground — all bench-side, and I will not churn them from here.
+
+## What is ready for the retry
+
+`ltchiptool v4.15.0` is installed and working (`uv tool install ltchiptool`); it finds the port and
+opens the link. The moment the chip answers, the remaining steps are mechanical and already
+specified: full 2 MB dump to `~/nas-cw01-stock-dump.bin`, size + SHA256 + non-trivial-content check,
+then the OpenBeken QIO serial binary and a read-back verify.
+
