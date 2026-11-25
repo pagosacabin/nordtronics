@@ -1,9 +1,15 @@
 ---
 task_id: "0256"
-status: inbox
-iteration: 0
+status: in_progress
+iteration: 1
 proof: []
-notes: ""
+notes: |
+  PICKUP — Hermes (laptop, interactive), 2026-11-25 ~13:10 MST. Workers remain
+  paused from 0255's pickup (staged 6de6d87) and stay paused through this task;
+  resumed on staging.
+
+  Branch `hermes/0256-camera-notice` from `hermes/0254-keep-prompt` @ e18479a, so
+  the 0254 notice machinery is present. Splash code untouched.
 expect-reply-within: 24h
 ---
 
