@@ -1,9 +1,15 @@
 ---
 task_id: "0253"
-status: inbox
-iteration: 0
+status: in_progress
+iteration: 1
 proof: []
-notes: ""
+notes: |
+  INTERACTIVE PICKUP — Hermes (laptop), 2026-11-25 09:36 MST. All four mailbox
+  worker jobs paused at pickup (c0be50a686c6, 7aff6948c2c1, 8b1c9e1323c5,
+  5c1532977f15) so no cron tick resumes this task; resume on staging.
+  Port fact that contradicts the filing: the only serial port present is
+  /dev/ttyUSB0 = 1a86:7523 CH340 (driver ch341), not a CP2102. Identity taken
+  from udev/lsusb, not assumed from the filing. Proceeding on that port.
 expect-reply-within: 6h
 ---
 
