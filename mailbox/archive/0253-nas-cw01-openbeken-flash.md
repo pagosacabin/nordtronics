@@ -195,3 +195,47 @@ Two filing errors, mine, corrected here for the record:
 Outcome: handshake no-answer, no dump taken, no write made, chip untouched. Next step is a
 re-stage (live interactive finish offered by Hermes in-session, or a new mailbox task).
 Nothing is bricked and nothing needs unwinding.
+
+
+---
+
+# Addendum — live-session outcome, 2026-11-25 ~10:42 MST (Juno)
+
+The "handshake no-answer" verdict above was accurate when staged at 09:41 and wrong within
+the hour. In a live session at the bench, Hermes got the chip to link after three measured
+fixes. This addendum supersedes the no-answer verdict; the stop-rule outcome is preserved
+above as history.
+
+What the rig proved (Hermes, live session):
+- The chip IS a BK7231N and it links: chip-info TLV blocks intact across three runs.
+- Read path works: a 64 KiB slice read clean (sha256 ace03d80...), 256 distinct byte values
+  (real firmware); a 32 KiB slice starting where the previous run died also read clean
+  (rules out a bad flash region).
+- No full dump exists: best full-dump attempt 12,288 of 2,097,152 bytes — NOT a backup.
+  No write was ever attempted; the chip is untouched. Power-cycle the 3.3 V rail and it is
+  back on stock firmware.
+
+Three filing errors, all measured at the bench (all mine):
+1. TX/RX backwards for this adapter. The filing said Freenove TX0 -> hole 8, RX0 -> hole 7.
+   Measured correct: TX0 -> hole 7, RX0 -> hole 8. The Freenove header labels are
+   ESP-centric: the TX0 pin is the CH340's RX input and the RX0 pin is the CH340's TX
+   output. Loopback across 7/8 proved both wires fine — it was direction.
+2. "Common ground" wasn't. 50 ohms measured between the Freenove's GND and the supply
+   negative. One dedicated jumper from Freenove GND to hole 1 brought it under 1 ohm and
+   is what made reads work.
+3. Transfer ceiling (time-based, not address-based): ~28 KB at 115200, ~200 KB at 921600,
+   fails at block 0 at 2 Mbaud.
+   (Plus the two errors already noted in the verification above: CP2102 vs CH340, and the
+   CEN hold-at-power-on procedure vs bridge-during-link.)
+
+Knowledge preserved outside the mailbox (host-only, on the laptop): ~/crew-vault/bench/
+nas-cw01-bk7231n.md (wiring, ground fault, transfer ceiling, hashes, "no write until a
+full dump exists" rule) and log/2026-11-25.md; committed at 8587fbd, tree clean. Hermes
+also created and corrected the bk7231n-programming skill (flag order for -s; 0x32000 is
+200 KB, not 2 MiB).
+
+Next move (Stephen's call, per Hermes): (a) a dedicated CP2102/FT232 adapter — most
+likely fix for the transfer ceiling; (b) supervised slice-wise dump, 32 KiB slices with
+Stephen tapping CEN between them (tens of resets, every block hash-checked); (c) park the
+board and leave OpenBeken for another day. Re-filing the result as a new mailbox task
+needs Stephen's word.
