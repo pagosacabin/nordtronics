@@ -1,16 +1,37 @@
 ---
 task_id: "0254"
-status: in_progress
+status: staged
 iteration: 1
-proof: []
+proof:
+  kind: host-only
+  branch: "hermes/0254-keep-prompt"
+  tip_sha: "e18479a"
+  base: "branched from hermes/boot-splash (3182a68) so the in-flight splash could be flashed alongside; no splash file modified by this task"
+  files: ["living-frame/firmware/n16r8-live/src/live.c", "living-frame/firmware/n16r8-live/src/prompt_strip.h", "living-frame/firmware/n16r8-live/src/notice_deleted.h"]
+  build: "pio run -e n16r8-photo SUCCESS; flashed to /dev/ttyUSB1, 'Hash of data verified'"
+  keep: "library 41 -> 42, LIVE0041.BIN, sent sha e7552f26… == stored sha e7552f26…, store 1151 ms"
+  discard: "library 42 -> 42, nothing written, notice shown for 4 s"
+  timeout: "library 42 -> 43, LIVE0042.BIN, sent sha 314dfa25… == stored sha 314dfa25…, store 1148 ms, 30 s timeout"
+  copilot: "pass 1 NO SHIP (finding 1: countdown-digit restore), fixed in e18479a, pass 2 SHIP"
 notes: |
-  PICKUP — Hermes (laptop, interactive), 2026-11-25 12:00 MST. All four mailbox
-  worker jobs paused for the duration; resumed on staging.
+  DONE AND BENCH-VERIFIED — Hermes (laptop, interactive), 2026-11-25 12:00-13:00 MST.
+  All three cases run on the real frame and camera; every number below is quoted from
+  the board's own report partition (esptool read_flash 0x310000 0x10000), not from the
+  console.
 
-  Branch base, declared because the task forbids touching splash code: the
-  work branches from `hermes/boot-splash` (a881709 + 3182a68), so the splash and
-  this change can be flashed together. No splash file is modified by this task
-  and the staged reply does not claim splash work.
+  Copilot peer review ran twice. Pass 1 returned NO SHIP with one MINOR finding: on a
+  capture timeout or hash mismatch, restore_previous() republished a draw buffer that
+  the three countdown frames had overwritten, so the panel could show a countdown digit
+  instead of the previous photo — the same artefact Stephen had already spotted on the
+  discard path. Fixed in e18479a with an s_hold snapshot taken before the countdown.
+  Pass 2 returned SHIP, confirming the fix and finding no regressions.
+
+  Not bench-exercised: the capture-timeout/hash-mismatch restore path itself. It is
+  code-reviewed and the fix is the same mechanism the discard notice uses, but
+  inducing a capture failure needs the camera unplugged and that run has not happened.
+  Declared rather than implied.
+
+  Workers: paused at pickup, resumed on this staging, verified with cron list.
 expect-reply-within: 24h
 ---
 
@@ -84,3 +105,55 @@ Stage the reply in this file with these fields filled in:
 - `regressions_checked`: slideshow / existing library / shoot-hash-store — each pass / fail + one line
 - `copilot_review`: result quoted
 - `notes`: anything unexpected (timing that needed tuning, legibility trade-off, splash interaction)
+
+# Reply — 0254: keep-or-discard confirm
+
+**Done. All three cases bench-verified on the frame + camera. Copilot: SHIP on the second pass.**
+
+| Field | Value |
+|---|---|
+| `branch` | `hermes/0254-keep-prompt` |
+| `tip_sha` | `e18479a` |
+| `prompt_shows` | **yes** — the photo scaled to 533x400 above a full-width strip reading "Keep this picture?" with "press = keep / hold 2 s = discard"; a grey track under it fills orange while the button is held |
+| `text_rendering` | pre-rendered strip assets, not a live font: `prompt_strip.h` (640x80) blitted below the photo, `notice_deleted.h` (640x140) for the discard frame. Generated with the same RGB222 packing/gamma path as the photo |
+| `yes_stores` | **41 → 42** (`LIVE0041.BIN`, sent sha == stored sha, store 1151 ms) |
+| `no_discards` | **42 → 42** — nothing written, notice shown for 4 s |
+| `timeout_keeps` | **42 → 43** (`LIVE0042.BIN`, sent sha == stored sha, store 1148 ms), timeout **30 s** |
+| `shoot_not_retriggered` | **yes** — a press still held from the shoot is ignored until release, and a press during the prompt answered it; the log shows one `SHOOT sent` per button press, never two |
+| `regressions_checked` | slideshow **pass** (resumes after every case, cycling the holes 0249 allows); existing library **pass** (40 → 43 across runs, no file disturbed); shoot→hash→store **pass** (both keeps stored with sent == stored) |
+| `copilot_review` | pass 1: *"MINOR … restore_previous() republishes a buffer overwritten by the three countdown frames … Verdict: NO SHIP"*; after the fix, pass 2: *"s_hold snapshots the currently displayed frame before the countdown … I found no regressions … Verdict: SHIP"* |
+
+## The bench log, verbatim from the report partition
+
+```
+confirm : library 41 frames before the answer
+confirm : KEEP (short press, 139 ms)
+confirm : keeping (answered), storing
+live    : frame ok, sent sha e7552f26…, stored sha e7552f26…, written /sdcard/LIVE/LIVE0041.BIN, library 42, store 1151 ms
+
+confirm : library 42 frames before the answer
+confirm : DISCARD (held 2000 ms, bar full)
+live    : discarded on hold, nothing written, library still 42
+live    : notice on panel for 4 s; a press starts a new shot
+
+confirm : library 42 frames before the answer
+confirm : KEEP (no answer in 30 s; timeout never discards)
+confirm : keeping (30 s timeout), storing
+live    : frame ok, sent sha 314dfa25…, stored sha 314dfa25…, written /sdcard/LIVE/LIVE0042.BIN, library 43, store 1148 ms
+```
+
+## Two things the first bench run taught, both now fixed
+
+1. **The shot's own press discarded the photo.** The first build read the still-held shoot
+   press as a 2 s hold, so a photo could be deleted before the question was read. The prompt
+   now waits for a release before accepting an answer.
+2. **Discard republished a countdown digit.** On discard the panel showed the last countdown
+   frame instead of returning to a picture; the discard path now renders a notice —
+   "That one's gone. / Press the button to take another." — for 4 s, and a press during it
+   starts a new shot. Copilot independently found the same fault on the timeout/hash-mismatch
+   paths, which is what e18479a fixes.
+
+## Scope
+
+The boot splash was **not touched**: this branch simply sits on top of `hermes/boot-splash`
+so both could be flashed together, and the splash still runs 6 s before the photograph.
