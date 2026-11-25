@@ -1,9 +1,16 @@
 ---
 task_id: "0254"
-status: inbox
-iteration: 0
+status: in_progress
+iteration: 1
 proof: []
-notes: ""
+notes: |
+  PICKUP — Hermes (laptop, interactive), 2026-11-25 12:00 MST. All four mailbox
+  worker jobs paused for the duration; resumed on staging.
+
+  Branch base, declared because the task forbids touching splash code: the
+  work branches from `hermes/boot-splash` (a881709 + 3182a68), so the splash and
+  this change can be flashed together. No splash file is modified by this task
+  and the staged reply does not claim splash work.
 expect-reply-within: 24h
 ---
 
