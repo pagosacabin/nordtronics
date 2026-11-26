@@ -1,10 +1,13 @@
 ---
 task_id: "0264"
-status: filed
-iteration: 1
+status: in_progress
+iteration: 2
 proof: []
 notes: ""
 expect-reply-within: 24h
+claimed_by: "cronrunner/c0be50a686c6"
+claimed_at: "2026-11-26T16:01:48+00:00"
+lease_until: "2026-11-26T17:31:48+00:00"
 ---
 
 # 0264 — Decision on 0262: reboot it, Stephen restarts Herdr by hand
