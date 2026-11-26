@@ -25,9 +25,11 @@ proof:
     table (gc0308_settings.h) writes {0x14, 0x11} -- page 0, reg 0x14, bit0 = h-mirror -- so
     the part starts mirrored.  Measured at boot, not assumed:
     "sensor : power-on state hmirror 1, vflip 0 (reg 0x14)".  The panel path was ruled out
-    first and independently: the frame publishes the received raster straight, and
-    convert_photo64.py's portrait->raster map (bx = cy, by = 479 - cx) has determinant +1, a
-    rotation, which is the same handedness as live.c's view_index() -- no mirror downstream.
+    first and independently: every stored photograph travels the same raster->panel path and
+    reads correctly on the same screen, so the display path cannot be the mirror; the live
+    frame is published straight, with no transform of its own.  (As a code check:
+    convert_photo64.py's portrait->raster map has determinant +1, a rotation, and live.c's
+    view_index() is the exact inverse of the rot90 the converter uses for its as-seen preview.)
   fix: >-
     set_hmirror(s, 0) in camera_start() -- one I2C write at init, zero per-pixel cost.
     The build_raster() x-flip fallback was not needed.  Note the card's phrasing assumed the
