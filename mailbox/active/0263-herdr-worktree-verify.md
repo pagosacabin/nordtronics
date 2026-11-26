@@ -1,10 +1,13 @@
 ---
 task_id: "0263"
-status: filed
-iteration: 1
+status: in_progress
+iteration: 2
 proof: []
 notes: ""
 expect-reply-within: 6h
+claimed_by: "cronrunner/c0be50a686c6"
+claimed_at: "2026-11-26T15:45:23+00:00"
+lease_until: "2026-11-26T17:15:23+00:00"
 ---
 
 # 0263 — Verify which Herdr binary carries worktree commands (report only)
