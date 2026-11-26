@@ -4,29 +4,57 @@ status: in_progress
 iteration: 2
 proof: []
 notes: |
-  REBOOT ISSUED 2026-11-26 09:04 MST (2026-11-26T16:04:00Z) — this tick will die with the machine.
+  BLOCKED — the reboot cannot be issued by the worker; no proof block; nothing staged.
+  DECISION OWED: Stephen must run the reboot himself. This task is NOT resumable.
 
-  Pre-reboot state, all verified read-only and pushed:
-   - host "home", Fedora 44 KDE, boot_id 1cac51fe (up 7d 19h), no LUKS on any block
-     device, polkit CanReboot = "yes", so the reboot needs no interactive auth.
-   - 7 live panes, all idle or done — nothing mid-run: t3 Stephen's Hermes (idle
-     prompt), t17 copilot-main turn 308 status done, t19 agy-main idle, t1n
-     antigravity done, t1c/t1d/t1f idle zsh.
-   - herdr-core 0.1.22, pid 830950, keeps_running_after_logout=true; config
-     ~/.config/herdr-core/config.toml carries restore_screen = true (added by 0262).
-   - hermes-gateway.service is an enabled user unit and astroboy has Linger=yes, so
-     the cron scheduler returns at the greeter without a login session. Herdr does
-     not: its launchers are XDG autostart entries inside a graphical session.
-   - "Before" half of the 0262 proof committed: mailbox/files/0262/
-     pre-reboot-pane-capture.txt (proof pane t17; distinctive strings 'Verdict: SHIP',
-     'Session: 119.51 AIC used', 'fix-shell-env'). One OpenRouter key found in pane
-     t1d's scrollback was redacted before the push (GitHub push protection caught it).
+  The exact failure, first attempt, verbatim:
+    $ shutdown -r +2 "0264: rebooting per Stephen's decision. Herdr/Hermes/Copilot/
+      Newton stay down until you log in and restart Herdr by hand."
+    BLOCKED (hardline): system shutdown/reboot. This command is on the unconditional
+    blocklist and cannot be executed via the agent — not even with --yolo, /yolo,
+    approvals.mode=off, or cron approve mode. If you genuinely need to run it, run it
+    yourself in a terminal outside the agent.
 
-  NOT DONE, and correctly so: no SDDM autologin was enabled, nothing else was
-  changed. After the reboot the machine sits at the greeter until Stephen logs in and
-  restarts Herdr by hand (his stated plan). The next tick must therefore wait: it may
-  verify nothing and must NOT stage this task or 0262 until Herdr is back and the
-  kept pane is confirmed to show its pre-reboot screen above the new shell.
+  So the mechanism Stephen chose (0262 option b: "say reboot it and the worker reboots")
+  is not attainable as written: this laptop is the agent's own host, and the harness
+  refuses system shutdown/reboot unconditionally. It was NOT a permissions problem —
+  polkit answered CanReboot = "yes" for this process, the block comes from the agent
+  harness above polkit. I did not route the same reboot through D-Bus or any other
+  path to get around the block: that is a safety control, and working around it is not
+  something a worker may do on its own authority.
+
+  What WAS done before the attempt (all read-only or already-committed, all on origin):
+   - Claimed 0264; 0262's active file carries the note 0264 step 1 asked for, corrected
+     to say the reboot was refused rather than issued.
+   - Captured the "before" half of the 0262 reboot proof at
+     mailbox/files/0262/pre-reboot-pane-capture.txt — 7 live panes, all idle or done so
+     nothing was interrupted mid-run; proof pane t17 (copilot-main, turn 308, status
+     done) with distinctive strings 'Verdict: SHIP', 'Session: 119.51 AIC used',
+     'fix-shell-env'.
+   - Redacted one OpenRouter API key found in pane t1d's scrollback (a plain
+     `cat ~/.hermes/openrouter-api-key.txt` from an earlier session). GitHub push
+     protection rejected the first push on it. The key is now a marker in the committed
+     file and appears nowhere in the repo or in this report. Stephen should rotate it:
+     it was echoed into pane scrollback and is likely in ~/.zsh_history too.
+   - Verified the return path, so the plan is sound once he presses the button:
+     hermes-gateway.service is an enabled *user* unit and astroboy has Linger=yes, so
+     the cron worker comes back at the greeter with no login; herdr-core 0.1.22
+     (keeps_running_after_logout=true) does not, because its launchers are XDG autostart
+     entries inside a graphical session. No LUKS on any block device, so the machine
+     returns without a passphrase.
+
+  No SDDM autologin was enabled (0264 forbids it) and nothing else was changed.
+  Restore_screen = true remains in ~/.config/herdr-core/config.toml from 0262.
+
+  What Stephen needs to do (the whole remaining task):
+   1. Reboot this laptop himself (terminal outside the agent, or the desktop menu).
+   2. Log in and start Herdr by hand, as he already planned.
+   3. File a nudge task (or any push to main) so the worker wakes — otherwise nothing
+      wakes it, because both 0262 and 0264 are parked decision-blocked and the wake gate
+      deliberately ignores tasks that declare a decision owed.
+  The next worker run then verifies that a kept pane shows its pre-reboot screen above
+  the new shell and that Herdr/Hermes/Copilot/Newton are back, stages 0262 with that
+  proof, and stages this task's reply.
 expect-reply-within: 24h
 claimed_by: "cronrunner/c0be50a686c6"
 claimed_at: "2026-11-26T16:01:48+00:00"
@@ -96,3 +124,45 @@ Short report: reboot done (when); Herdr restarted by Stephen (when);
 
 Hermes does all steps himself on the laptop. No Newton (no build), no
 Copilot (not GitHub-bound, no repo change).
+
+## Result (2026-11-26 09:06 MST) — BLOCKED: the agent cannot reboot its own host
+
+**No reboot happened, and no proof block — this file is parked, not staged.**
+
+Stephen's decision reached me cleanly through this task, and I had everything ready:
+the "before" capture of the proof pane committed, the return path checked, nothing
+running that a reboot would interrupt. The reboot itself was refused by the agent
+harness, not by the OS:
+
+```
+$ shutdown -r +2 "0264: rebooting per Stephen's decision. …"
+BLOCKED (hardline): system shutdown/reboot. This command is on the unconditional
+blocklist and cannot be executed via the agent — not even with --yolo, /yolo,
+approvals.mode=off, or cron approve mode. If you genuinely need to run it, run it
+yourself in a terminal outside the agent.
+```
+
+polkit says `CanReboot = "yes"` for this process; the refusal comes from a layer above
+polkit. I did not try to reach the same reboot through D-Bus or another route: that is
+a safety control, and a worker should not work around one on its own authority.
+
+**The one thing now blocking 0262 is one keystroke from Stephen:**
+
+1. Reboot the laptop himself.
+2. Log in and start Herdr by hand, as he planned.
+3. File a nudge task (or any push to main) so the worker wakes — with both 0262 and
+   this task parked decision-blocked, the wake gate correctly ignores them, so nothing
+   wakes the worker on its own.
+
+Then the next run verifies that a kept pane shows its pre-reboot screen above the new
+shell and that Herdr/Hermes/Copilot/Newton are back, stages 0262 with that proof, and
+stages this reply.
+
+**Also, separately from the task: one secret was exposed in pane scrollback.** Pane t1d
+holds a plain `cat ~/.hermes/openrouter-api-key.txt` from an earlier session, so the
+OpenRouter key is sitting in Herdr's saved terminal state and is probably in
+`~/.zsh_history`. GitHub push protection caught it in my capture before it reached
+origin; the committed file carries a marker instead. The key should be rotated.
+
+Host changes made by this task: none (config.toml was 0262's, and it is unchanged).
+No reboot, no autologin change, no pane touched, no branch, no CI (host-only task).

@@ -52,16 +52,31 @@ notes: |
   a temporary isolated core under the worker scratch dir, stopped and killed afterwards. No repo
   changes, no reboot, no changes to any pane, no Newton, no Copilot, no branch/CI (host-only task).
 
-  0264 DECISION RECEIVED — the blocker above is resolved. Stephen chose the reboot
-  (option b) and Juno filed 0264 to carry it. The worker is rebooting the laptop NOW
-  under 0264; no SDDM autologin was enabled and nothing else was changed. The "before"
-  half of the reboot proof is captured and committed at
+  0264 DECISION RECEIVED, BUT THE REBOOT COULD NOT BE ISSUED — this supersedes the
+  paragraph that stood here a minute ago (it said the worker was rebooting now; that
+  was written before the command was attempted, and it is not true). Juno filed 0264
+  carrying Stephen's choice of option (b), and the worker claimed it and prepared
+  everything, then found that the Hermes agent harness hardline-blocks system
+  shutdown/reboot: `shutdown -r +2` returned "BLOCKED (hardline): system
+  shutdown/reboot. This command is on the unconditional blocklist and cannot be
+  executed via the agent — not even with --yolo, /yolo, approvals.mode=off, or cron
+  approve mode. If you genuinely need to run it, run it yourself in a terminal outside
+  the agent." This is a host of the agent, so option (b) was never attainable as
+  written; routing the same reboot through D-Bus to get around the block would be
+  circumventing a safety control and was not done.
+
+  So the decision is owed again, and it is now one keystroke for Stephen: reboot the
+  laptop himself, log in, and start Herdr by hand as he planned. Everything else is
+  ready — the "before" half of the proof is captured and committed at
   ../files/0262/pre-reboot-pane-capture.txt (7 live panes, chosen proof pane t17
   copilot-main, distinctive strings 'Verdict: SHIP' / 'Session: 119.51 AIC used' /
-  'fix-shell-env'). After the reboot the machine sits at the greeter until Stephen logs
-  in and restarts Herdr by hand; criteria 2 and 3 (kept pane shows its pre-reboot
-  screen above the new shell; Herdr/Hermes/Copilot/Newton back) are verified after
-  that, and this file is staged only then — not before.
+  'fix-shell-env'), and restore_screen = true is already in the config. Once Herdr is
+  back, a nudge task (or any push) wakes the worker to verify criteria 2 and 3 and
+  stage this reply; this file is staged only then — not before. No reboot, no
+  autologin change, no pane touched.
+
+  DECISION OWED (Stephen): reboot, then restart Herdr. Then file a nudge so the worker
+  verifies and stages.
 
   One redaction, declared: the capture as first taken contained one OpenRouter API
   key that pane t1d's scrollback held (a `cat ~/.hermes/openrouter-api-key.txt`
@@ -208,3 +223,30 @@ Evidence (committed with this file):
 
 Host changes: created `~/.config/herdr-core/config.toml`; a temporary isolated core (stopped and killed).
 No reboot, no pane touched, no repo change, no branch/CI (host-only task).
+
+## Addendum (2026-11-26 09:06 MST) — option (b) is not available to the worker
+
+0264 relayed Stephen's choice of **option (b): "say reboot it"**. I prepared everything
+and then could not issue the reboot: the agent harness hardline-blocks system
+shutdown/reboot unconditionally (`BLOCKED (hardline): system shutdown/reboot … cannot
+be executed via the agent — not even with --yolo, /yolo, approvals.mode=off, or cron
+approve mode`). polkit allowed it (`CanReboot = "yes"`); the block is above polkit, so
+option (b) as I wrote it was never attainable on this host. I did not route around the
+block through D-Bus.
+
+**So the reboot is Stephen's to press**, and then everything is ready for the proof:
+
+- `restore_screen = true` is already in `~/.config/herdr-core/config.toml` (unchanged).
+- The "before" capture of the proof pane is committed:
+  `../files/0262/pre-reboot-pane-capture.txt` — proof pane **t17** (`copilot-main`,
+  turn 308), distinctive strings `Verdict: SHIP`, `Session: 119.51 AIC used`,
+  `fix-shell-env`. All 7 panes were idle or done, so nothing was interrupted.
+- Return path verified: `hermes-gateway.service` is an enabled user unit and astroboy
+  has `Linger=yes`, so the worker returns at the greeter; `herdr-core` (0.1.22,
+  `keeps_running_after_logout=true`) does not, because its launchers are XDG autostart
+  entries inside a graphical session. No LUKS anywhere, so it comes back without a
+  passphrase.
+
+After Stephen reboots, logs in and starts Herdr, a nudge (or any push) wakes the worker;
+it then verifies criteria 2 and 3 and stages this reply. Until then this file stays
+parked with no `proof` block.
