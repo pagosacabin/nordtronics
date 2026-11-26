@@ -1,0 +1,42 @@
+0265 - Herdr spaces evidence, captured 2026-11-26 15:31-15:32 MST
+
+BEFORE (herdr-app ls, unchanged since 0263):
+  space '~' folder=/home/astroboy id=sp337cc57ac6e8032e899a573e9ea40b37 active=True
+    tab 'Hermes': ['t3', 't1d']
+    tab 'Hermes 2': ['t1c', 't1f']
+    tab 'Antigravity': ['t1n']
+    tab 'Copilot': ['t17']
+    terminals: ['t17', 't1c', 't1d', 't1f', 't1n', 't3']
+
+AFTER (herdr-app ls):
+  space 'crew' folder=/home/astroboy id=sp337cc57ac6e8032e899a573e9ea40b37 active=True
+    tab 'Hermes': ['t3', 't1d']
+    tab 'Hermes 2': ['t1c', 't1f']
+    tab 'Antigravity': ['t1n']
+    tab 'Copilot': ['t17']
+  space 'nordtronics' folder=/home/astroboy/nordtronics id=spa8c8ff2995e2410a1752d8516314e50a active=False
+    tab '1': ['t3m']
+  space 'cabin-play' folder=/home/astroboy/cabin-play id=sp7c1ff3be7499cbe6326023eafd24dfad active=False
+    tab '1': ['t3n']
+
+hc ls (terminals and their cwd; 'where' = space / tab):
+  t3   cwd=/home/astroboy                      where=crew / Hermes        state=live
+  t17  cwd=/home/astroboy                      where=crew / Copilot       state=live
+  t19  cwd=/home/astroboy                      where=crew / Hermes        state=live
+  t1c  cwd=/home/astroboy                      where=crew / Hermes 2      state=live
+  t1d  cwd=/home/astroboy                      where=crew / Hermes        state=live
+  t1f  cwd=/home/astroboy                      where=crew / Hermes 2      state=live
+  t1n  cwd=/home/astroboy                      where=crew / Antigravity   state=live
+  t3m  cwd=/home/astroboy/nordtronics          where=nordtronics / 1      state=live
+  t3n  cwd=/home/astroboy/cabin-play           where=cabin-play / 1       state=live
+
+herdr-app status (window still on the crew space / Hermes tab):
+  space: sp337cc57ac6e8032e899a573e9ea40b37
+  tab: tbb8570606da99feb1118023fa18b0d665
+  focused_pane: pae6d5c9cdba3c046f187fffec9d33b59
+  layout: main
+  agent: t17
+  errors: []
+
+Vault note: crew-vault crew/roles.md section 'Herdr spaces (2026-11-26, task 0265)',
+INDEX.md updated; commit 8a6c58b in the crew-vault repo.
