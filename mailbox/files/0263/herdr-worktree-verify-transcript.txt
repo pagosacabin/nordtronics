@@ -1,0 +1,97 @@
+# 0263 Herdr worktree verification transcript — 2026-11-26T08:46:23-07:00 on home
+## which binaries exist
+lrwxrwxrwx. 1 astroboy astroboy        10 Nov 11 18:59 hc -> herdr-core
+lrwxrwxrwx. 1 astroboy astroboy        47 Nov 11 18:59 herdr-app -> /home/astroboy/.local/share/herdr-app/herdr-app
+-rwxr-xr-x. 1 astroboy astroboy   8279256 Nov 23 08:39 herdr-core
+-rwxr-xr-x. 1 astroboy astroboy  30285672 Nov  6 10:16 herdr-legacy-0.9.5
+
+## versions
+$ herdr --version
+/usr/sbin/bash: line 10: herdr: command not found
+$ ~/.local/bin/herdr-legacy-0.9.5 --version
+herdr 0.9.5
+$ hc --version
+hc 0.1.22
+
+## legacy binary worktree support
+$ herdr-legacy-0.9.5 worktree --help
+Manage Git worktree-backed workspaces
+
+Usage: herdr worktree [COMMAND]
+
+Commands:
+  list    List worktree workspaces
+  create  Create and open a Git worktree
+  open    Open an existing Git worktree
+  remove  Remove a worktree checkout
+
+$ herdr-legacy-0.9.5 worktree list
+{"id":"cli:worktree:list","error":{"code":"server_not_running","message":"no herdr server is running at /home/astroboy/.config/herdr/herdr.sock; run `herdr` to start or attach it"}}
+exit=1
+$ herdr-legacy-0.9.5 status
+client:
+  version: 0.9.5
+  channel: stable
+  protocol: 22
+  endpoint_protocol_generation: 1
+
+server:
+  status: not running
+  socket: /home/astroboy/.config/herdr/herdr.sock
+
+update:
+  restart_needed: no
+
+## live manager (herdr-core 0.1.22)
+$ hc worktree --help
+{"error":{"hint":"see `hc --help`","kind":"usage","message":"unrecognized subcommand 'worktree'"}}
+exit=2
+$ hc worktree list
+{"error":{"hint":"see `hc --help`","kind":"usage","message":"unrecognized subcommand 'worktree'"}}
+exit=2
+$ hc server status
+{"core":{"id":"b5f627c1098bc294d1c08d5017248613","name":"home"},"finished":43,"holder":{"current":true,"instance":"9b2daaac955ec9b660fd0917b305659c","pid":1015294,"terminals":0},"holders":[{"current":false,"instance":"0f239cd7e2eee593920c24b7e7a9eb74","pid":2142,"terminals":7},{"current":true,"instance":"9b2daaac955ec9b660fd0917b305659c","pid":1015294,"terminals":0}],"installed_by":null,"keeps_running_after_logout":true,"live":7,"logout_linger_user":"astroboy","pid":830950,"uptime_ms":175558043,"version":"0.1.22"}
+$ hc ls
+{"hidden_finished":43,"terminals":[{"address":"t3","agent":"zsh","cwd":"/home/astroboy","state":"live","turn":0,"where":"~ / Hermes"},{"address":"t17","agent":"copilot","cwd":"/home/astroboy","name":"copilot-main","parent":"t3","state":"live","status":"done","turn":308,"where":"~ / Copilot"},{"address":"t19","agent":"antigravity","cwd":"/home/astroboy","name":"agy-main","parent":"t3","state":"live","status":"idle","turn":1,"where":"~ / Hermes"},{"address":"t1c","agent":"zsh","cwd":"/home/astroboy","state":"live","turn":0,"where":"~ / Hermes 2"},{"address":"t1d","agent":"zsh","cwd":"/home/astroboy","state":"live","turn":0,"where":"~ / Hermes"},{"address":"t1f","agent":"zsh","cwd":"/home/astroboy","state":"live","turn":0,"where":"~ / Hermes 2"},{"address":"t1n","agent":"antigravity","cwd":"/home/astroboy","state":"live","status":"done","turn":3,"where":"~ / Antigravity"}]}
+
+## binary string probes
+herdr-core occurrences of 'worktree': 0
+herdr-legacy-0.9.5 occurrences of 'worktree': 366
+legacy literal default dir: ~/.herdr/worktrees
+
+## config files
+$ cat ~/.config/herdr-core/config.toml
+# herdr-core settings — read by `herdr-core serve` from ~/.config/herdr-core/config.toml
+#
+# restore_screen: when a kept terminal's program is lost (reboot, shutdown, crash),
+# show that program's last saved screen above the new shell, separated by a divider.
+# Defaults to false. Written 2026-11-26 by the mailbox worker for task 0262; it was
+# absent before this change, so the default (false) was in force.
+restore_screen = true
+$ cat ~/.config/herdr/config.toml
+onboarding = false
+$ grep -rin worktree ~/.config/herdr-core/ ~/.config/herdr/ (logs excluded)
+(no matches above)
+
+## directory existence
+$ ls -lad ~/.herdr ~/.herdr/worktrees
+ls: cannot access '/home/astroboy/.herdr': No such file or directory
+ls: cannot access '/home/astroboy/.herdr/worktrees': No such file or directory
+$ git -C /home/astroboy/nordtronics worktree list
+/home/astroboy/nordtronics      ddd7a15 [main]
+/home/astroboy/nordtronics-0095 08d2500 [hermes/0095-alert-pipeline]
+/home/astroboy/wt-0041          6fee46a [hermes/0041-config-comment-guard]
+/home/astroboy/wt-0043          25993dc [hermes/0043-tl431-swap]
+/home/astroboy/wt-0045          9937a16 [hermes/0045-companion-v0]
+/home/astroboy/wt-0046          89e9ca8 [hermes/0046-companion-icon]
+/home/astroboy/wt-0047          5ac8fc1 [hermes/0047-nodes-toolbar-insets]
+/home/astroboy/wt-0048          eb24b91 [hermes/0048-app-batch-1]
+/home/astroboy/wt-0049          0cc5e3d [hermes/0049-companion-v01-ui]
+/home/astroboy/wt-0050          fb7701d [hermes/0050-splash-wordmark-fix]
+/home/astroboy/wt-0056          697ab66 [hermes/0056-backend-v1]
+/home/astroboy/wt-0060          b0fe67e [hermes/0060-worker-cron-mdt]
+/home/astroboy/wt-0067          1594b5e [hermes/0067-ci-mosquitto-ownership]
+/home/astroboy/wt-0077          5b62975 [hermes/0077-wildfire-node-rev-c-relayout]
+/home/astroboy/wt-0078          7dc2416 [hermes/0078-wildfire-node-rev-c-text-fix]
+/home/astroboy/wt-0085          98ff1bc [hermes/0085-site-app-screenshots-dawn-pine]
+/home/astroboy/wt-0090          e8bbc15 [hermes/0090-app-ui-v2]
