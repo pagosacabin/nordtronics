@@ -1,0 +1,65 @@
+0262 — why no reboot was performed: the autostart chain needs a manual login (read-only evidence)
+2026-11-26 08:25 MST, host `home` (Fedora 44 KDE, chassis=laptop). Nothing below changed any setting;
+every line is a read.
+
+1. SDDM has no autologin configured.
+   $ cat /etc/sddm.conf          (excerpt, verbatim)
+     [Autologin]
+     # Whether sddm should automatically log back into sessions when they exit
+     #Relogin=false
+     # Name of session file for autologin session
+     #Session=
+     # Username for autologin session
+     #User=
+   $ ls -la /etc/sddm.conf.d/    -> total 0 (empty: no drop-in sets Autologin either)
+   => after a reboot the laptop stops at the greeter; no session is created until someone
+      logs in.
+
+2. The boot record shows there is no automatic login.
+   $ last -x | head
+   astroboy tty2    2026-11-18T13:48:18-07:00   still logged in
+   reboot  system boot 7.3.3-200.fc44.* 2026-11-18T13:36:46-07:00   still running
+   $ loginctl show-session 9 -p Timestamp -> Wed 2026-11-18 13:48:17 MST
+   $ journalctl -b 0 | grep sddm -> "Started sddm.service" 13:36:53
+
+   First class=user session per boot (kernel first journal line vs first astroboy session):
+     boot -5  2026-11-11T18:25:05 -> 2026-11-11T18:25:44   (+39 s)
+     boot -4  2026-11-12T20:19:18 -> 2026-11-12T20:19:46   (+28 s)
+     boot -3  2026-11-13T07:48:29 -> (none)
+     boot -2  2026-11-13T08:01:35 -> 2026-11-13T08:02:03   (+28 s)
+     boot -1  2026-11-18T13:32:43 -> (none)
+     boot  0  2026-11-18T13:36:40 -> 2026-11-18T13:48:17   (+11 min 37 s)
+   Two boots (-3, -1) never produced a user session at all -- 12 minutes and 4 minutes of
+   uptime with no desktop -- and the long one above sat at the greeter for 11 minutes. That
+   is the signature of a typed login, not autologin (which would be uniform and immediate).
+
+3. What WOULD come back on its own, and what would not.
+   $ ls ~/.config/systemd/user/default.target.wants/
+   herdr-surface.service -> .../herdr-surface.service
+   hermes-gateway.service -> .../hermes-gateway.service
+   $ loginctl show-user astroboy -p Linger  -> Linger=yes
+   $ systemctl --user list-unit-files | grep -iE 'herdr|hermes'
+   herdr-surface.service   enabled   (After=/PartOf=graphical-session.target)
+   hermes-gateway.service  enabled
+   $ grep -rl herdr-core ~/.config/systemd/user/ /etc/systemd/user/   -> no unit mentions it
+   $ ps -o pid,ppid,cmd -p 830950 -> herdr-core serve, PPID 1673 (the user manager);
+     it runs from the transient unit hc-serve-9ce03d48.service (systemd-run), which is not
+     enabled and does not survive a reboot.
+   $ ls ~/.config/autostart/ -> herdr-app.desktop, herdr-agents.desktop
+     ("Herdr" and "Herdr agent reconciler" -- XDG autostart, which only runs inside a
+      graphical session)
+
+   => Hermes (hermes-gateway.service, enabled + linger) would return at boot with no login.
+      Herdr would not: herdr-core has no boot unit and its launchers are desktop-autostart
+      entries, so herdr, Copilot and Newton stay down until Stephen logs in.
+
+4. Why that rules out the reboot tonight rather than merely predicting a failed criterion:
+   the task's criteria 2 and 3 are about exactly this chain. Rebooting now would take the
+   laptop from a working state (7 live terminals: t3 Stephen's Hermes, t17 copilot-main
+   turn 308, t19 agy-main, three shells, t1n antigravity) to a greeter with herdr down and
+   nothing able to bring it back without a manual login -- while Stephen is away for the day.
+   The restart chain is therefore a decision for Stephen, not a step the worker may take.
+
+Root-cause note (not fixed by this task, not applied by the worker): SDDM must be given
+   [Autologin] User=astroboy  Session=plasma  (system file, root) for the chain to survive a
+   reboot unattended -- or the reboot must be done with Stephen present.

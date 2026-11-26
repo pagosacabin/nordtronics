@@ -1,0 +1,69 @@
+0262 — restore_screen MECHANISM PROOF, run on an isolated herdr-core (no impact on Stephen's panes)
+2026-11-26 08:18-08:24 MST, host `home`, herdr-core 0.1.22.
+
+Why isolated: the laptop's live core (pid 830950, 7 live terminals incl. copilot-main,
+agy-main and Stephen's interactive Hermes) carries work nobody authorized this task to
+destroy. A second core was started with its own config/state/socket dirs:
+
+  env XDG_CONFIG_HOME=<scratch>/cfg  XDG_STATE_HOME=<scratch>/state \
+      XDG_RUNTIME_DIR=<scratch>/run  HC_SOCKET=<scratch>/run/test.sock \
+      herdr-core serve
+
+Identity check before any stop: the test core answered id bd72d5eb057ed36a32986d4f03bb68bc
+pid 1237562; the real core still answered id b5f627c1098bc294d1c08d5017248613 pid 830950
+live 7 -- so no command in this test could reach Stephen's core.
+
+A. WITH restore_screen = true (the option this task enabled):
+   $ hc run --keep --bg --name restoreproof -- bash -lc 'echo RESTORE-PROOF-0262-LINE-A; seq 1 5; echo RESTORE-PROOF-0262-LINE-B; exec sleep 900'
+   {"address":"t1","agent":"bash","name":"restoreproof","state":"live"}
+   $ hc read restoreproof          # pre-loss screen
+   RESTORE-PROOF-0262-LINE-A
+   1
+   2
+   3
+   4
+   5
+   RESTORE-PROOF-0262-LINE-B
+
+   $ hc server stop                # parks the kept terminal: the program is lost
+   {"stopped":true}
+   $ hc read t1                    # after the next core start (recovery)
+   RESTORE-PROOF-0262-LINE-A
+   1
+   2
+   3
+   4
+   5
+   RESTORE-PROOF-0262-LINE-B
+   -- the program above ended; this is a new shell --
+   [astroboy@home]~/.hermes/profiles/cronrunner/cache/scratch/0262/work%
+
+   => the lost program's last screen is shown above the new shell, separated by a divider.
+
+B. NEGATIVE CONTROL, same core config with restore_screen = false (restart first, so the
+   changed value is the one in force):
+   $ hc run --keep --bg --name ctrl2 -- bash -lc 'echo CTRL2-0262-SCREEN-A; seq 11 15; echo CTRL2-0262-SCREEN-B; exec sleep 900'
+   $ hc read ctrl2                 # pre-loss screen
+   CTRL2-0262-SCREEN-A
+   11
+   12
+   13
+   14
+   15
+   CTRL2-0262-SCREEN-B
+   $ hc server stop ; hc server start ; hc read ctrl2
+   [astroboy@home]~/.hermes/profiles/cronrunner/cache/scratch/0262/work%
+
+   => with false, the recovered pane is blank: only the new shell prompt, no old screen.
+      The behaviour therefore tracks the option, not the recovery machinery alone.
+
+C. Cleanup: the test core was killed by pid (only a process whose /proc/<pid>/environ named
+   the scratch path was signalled); the real core answered again with pid 830950 and
+   live 7 terminals ['t3','t17','t19','t1c','t1d','t1f','t1n'] afterwards.
+
+What this proves and what it does not:
+  proved  -- restore_screen = true is the operative switch in 0.1.22 and produces
+             "last screen above the new shell, separated by a divider" on recovery.
+  not proved -- the laptop reboot itself. See restore-screen-autostart-chain.txt: no
+             graphical session returns without a manual SDDM login, so a reboot performed
+             while Stephen is away leaves the laptop at the greeter with herdr down.

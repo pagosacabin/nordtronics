@@ -1,0 +1,36 @@
+0262 — herdr-core config.toml: before and after
+Captured 2026-11-26 08:17-08:25 MST by the mailbox worker (cronrunner/c0be50a686c6) on host `home`.
+
+herdr-core version: 0.1.22  (/home/astroboy/.local/bin/herdr-core, `hc 0.1.22`)
+Config path (located, not guessed): determined from the binary's own help text --
+  "Set `restore_screen = true` in `~/.config/herdr-core/config.toml` ... to show the lost
+   program's last saved screen above the new shell, separated by a divider.
+   It defaults to false and applies at the next recovery."
+`strings ~/.local/bin/herdr-core` lists `restore_screen` among the config keys it parses.
+
+BEFORE (no config.toml existed; the directory held only templates/):
+$ ls -la ~/.config/herdr-core/
+total 0
+drwxr-xr-x. 1 astroboy astroboy   18 Nov 23 21:56 .
+drwxr-xr-x. 1 astroboy astroboy 2828 Nov 23 21:56 ..
+drwxr-xr-x. 1 astroboy astroboy   64 Nov 23 21:56 templates
+$ test -f ~/.config/herdr-core/config.toml && echo EXISTS || echo ABSENT
+ABSENT
+
+=> restore_screen was NOT set; the documented default (false) was in force.
+
+AFTER (written by task 0262; the option was ABSENT before, so this task added it):
+$ cat ~/.config/herdr-core/config.toml
+# herdr-core settings — read by `herdr-core serve` from ~/.config/herdr-core/config.toml
+#
+# restore_screen: when a kept terminal's program is lost (reboot, shutdown, crash),
+# show that program's last saved screen above the new shell, separated by a divider.
+# Defaults to false. Written 2026-11-26 by the mailbox worker for task 0262; it was
+# absent before this change, so the default (false) was in force.
+restore_screen = true
+
+$ ls -l ~/.config/herdr-core/config.toml
+-rw-r--r--. 1 astroboy astroboy 434 Nov 26 08:17 /home/astroboy/.config/herdr-core/config.toml
+
+The running core (pid 830950) was left running and was not restarted; restore_screen is read at
+(startup /) recovery time, so a fresh core reads it -- which a reboot necessarily is.
