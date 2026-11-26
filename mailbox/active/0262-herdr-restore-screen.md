@@ -51,6 +51,24 @@ notes: |
   Host changes made by this task: created ~/.config/herdr-core/config.toml (434 B, mode 644);
   a temporary isolated core under the worker scratch dir, stopped and killed afterwards. No repo
   changes, no reboot, no changes to any pane, no Newton, no Copilot, no branch/CI (host-only task).
+
+  0264 DECISION RECEIVED — the blocker above is resolved. Stephen chose the reboot
+  (option b) and Juno filed 0264 to carry it. The worker is rebooting the laptop NOW
+  under 0264; no SDDM autologin was enabled and nothing else was changed. The "before"
+  half of the reboot proof is captured and committed at
+  ../files/0262/pre-reboot-pane-capture.txt (7 live panes, chosen proof pane t17
+  copilot-main, distinctive strings 'Verdict: SHIP' / 'Session: 119.51 AIC used' /
+  'fix-shell-env'). After the reboot the machine sits at the greeter until Stephen logs
+  in and restarts Herdr by hand; criteria 2 and 3 (kept pane shows its pre-reboot
+  screen above the new shell; Herdr/Hermes/Copilot/Newton back) are verified after
+  that, and this file is staged only then — not before.
+
+  One redaction, declared: the capture as first taken contained one OpenRouter API
+  key that pane t1d's scrollback held (a `cat ~/.hermes/openrouter-api-key.txt`
+  from an earlier session). GitHub push protection blocked the push on it; the key
+  is replaced by a marker in the committed file, and the key itself appears nowhere
+  in this repo or in the reply. Stephen should rotate it — it was echoed in plain
+  pane scrollback and is likely also in ~/.zsh_history.
 expect-reply-within: 6h
 claimed_by: "cronrunner/c0be50a686c6"
 claimed_at: "2026-11-26T15:17:37+00:00"
