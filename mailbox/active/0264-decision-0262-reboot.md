@@ -3,7 +3,30 @@ task_id: "0264"
 status: in_progress
 iteration: 2
 proof: []
-notes: ""
+notes: |
+  REBOOT ISSUED 2026-11-26 09:04 MST (2026-11-26T16:04:00Z) — this tick will die with the machine.
+
+  Pre-reboot state, all verified read-only and pushed:
+   - host "home", Fedora 44 KDE, boot_id 1cac51fe (up 7d 19h), no LUKS on any block
+     device, polkit CanReboot = "yes", so the reboot needs no interactive auth.
+   - 7 live panes, all idle or done — nothing mid-run: t3 Stephen's Hermes (idle
+     prompt), t17 copilot-main turn 308 status done, t19 agy-main idle, t1n
+     antigravity done, t1c/t1d/t1f idle zsh.
+   - herdr-core 0.1.22, pid 830950, keeps_running_after_logout=true; config
+     ~/.config/herdr-core/config.toml carries restore_screen = true (added by 0262).
+   - hermes-gateway.service is an enabled user unit and astroboy has Linger=yes, so
+     the cron scheduler returns at the greeter without a login session. Herdr does
+     not: its launchers are XDG autostart entries inside a graphical session.
+   - "Before" half of the 0262 proof committed: mailbox/files/0262/
+     pre-reboot-pane-capture.txt (proof pane t17; distinctive strings 'Verdict: SHIP',
+     'Session: 119.51 AIC used', 'fix-shell-env'). One OpenRouter key found in pane
+     t1d's scrollback was redacted before the push (GitHub push protection caught it).
+
+  NOT DONE, and correctly so: no SDDM autologin was enabled, nothing else was
+  changed. After the reboot the machine sits at the greeter until Stephen logs in and
+  restarts Herdr by hand (his stated plan). The next tick must therefore wait: it may
+  verify nothing and must NOT stage this task or 0262 until Herdr is back and the
+  kept pane is confirmed to show its pre-reboot screen above the new shell.
 expect-reply-within: 24h
 claimed_by: "cronrunner/c0be50a686c6"
 claimed_at: "2026-11-26T16:01:48+00:00"
