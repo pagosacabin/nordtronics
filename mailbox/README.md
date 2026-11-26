@@ -366,3 +366,18 @@ early.
 
 Never assume Hermes's local installation has any framework feature configured
 (skills, memory, profiles, gateways) — only what he has proven on his own machine.
+
+## Peer review + security (added 2026-11-25, Stephen's call)
+
+- Every GitHub-bound task gets a Copilot peer-review step in the Assignment block. Copilot is a reviewer, never the proof — Juno verifies independently on top.
+- Security review is a separate, explicit pass for locked-lane code only. The open lane skips it: a generic "review this" catches style, not security.
+- Locked lane: the backend API, MQTT, the captive portal, and any firmware that parses network input (e.g. ESP-NOW chunks). Open lane: living-frame display, play projects, the ESPHome skeleton.
+- For locked-lane work, the reviewer must answer this checklist in the reply, pass/fail each item:
+  1. No hardcoded secrets — no keys, passwords, or tokens in the code or the commit.
+  2. Every network input validated and bounds-checked before use.
+  3. Auth on every endpoint — nothing that reads or changes state without a key; keys revocable.
+  4. TLS where traffic leaves the device or the box — no plaintext credentials on the wire.
+  5. Least privilege — only the access the code needs, no broad tokens.
+  6. Errors fail closed and don't leak internals — no stack traces, keys, or paths back to the client.
+  7. Dependencies pinned — no new package in locked-lane code without naming it in the reply.
+- A second reviewer (Codex or Claude Code) is planned after 0261 lands; which one is still to be decided, and it follows the same lanes and checklist.
