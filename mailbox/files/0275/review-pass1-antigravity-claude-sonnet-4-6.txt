@@ -1,0 +1,620 @@
+SECURITY PEER REVIEW — pocket-conquest-bridge
+Reviewer: Antigravity/Claude Sonnet 4.6
+Date: 2026-11-27
+Files reviewed:
+  server.py (501 lines)
+  agent_core.py (296 lines)
+  pocket_conquest.py (989 lines)
+  README.md (134 lines)
+
+═══════════════════════════════════════════════════════════════
+SECTION 1 — SEVEN-ITEM CHECKLIST
+═══════════════════════════════════════════════════════════════
+
+1. No hardcoded secrets          PASS — DEEPSEEK_API_KEY is read from the environment
+                                        at call time (server.py:176); it is never literal
+                                        in source, never logged, never echoed in a response.
+
+2. Inputs bounds-checked         PASS — Content-Length is required and capped at 16 384 B
+                                        (server.py:68, 436); header block is counted and
+                                        capped at 8 192 B (server.py:80); moves list capped
+                                        at 400 items × 48 chars (server.py:69-70); every
+                                        field in the position is validated/normalised before
+                                        use (pocket_conquest.py:247-336).
+
+3. Auth on every endpoint        PASS — The design constraint (no auth, Tailscale provides
+                                        network-layer isolation) is documented; a token
+                                        bucket (60 req/min, burst 10) and a 4-slot worker
+                                        pool defend the API budget; /health requires no
+                                        auth but returns nothing sensitive.
+
+4. TLS off-box                   PASS — Tailscale Serve terminates TLS; the service binds
+                                        only 127.0.0.1 (server.py:55); the upstream URL
+                                        allowlist at startup refuses cleartext off-loopback
+                                        (server.py:98-111).
+
+5. Least privilege               PASS — Runs as a systemd user unit (README.md:112-114);
+                                        the process reads one env var and writes only to
+                                        stderr; it does not touch the filesystem, the
+                                        network beyond one known HTTPS endpoint, or any
+                                        system resource.
+
+6. Fail-closed errors            PASS — Exceptions produce opaque 500s with detail only
+                                        in the journal (server.py:452-455); a model that
+                                        cannot produce a legal move yields 500, not a
+                                        random move (server.py:458-464; README.md:99).
+
+7. Pinned dependencies           FAIL — There is no requirements.txt, Pipfile.lock,
+                                        pyproject.toml, or any other dependency manifest.
+                                        The codebase uses only the Python standard library,
+                                        so today this is a NIT rather than an exploitable
+                                        gap, but if a third-party library is ever added
+                                        there is no pinning discipline in place.
+
+═══════════════════════════════════════════════════════════════
+SECTION 2 — CODE REVIEW: FINDINGS
+═══════════════════════════════════════════════════════════════
+
+──────────────────────────────────────────────
+FINDING 1 — HIGH
+server.py:445  raw body read without drain on early 400
+──────────────────────────────────────────────
+  raw = self.rfile.read(length)   # server.py:445
+
+After the SLOTS semaphore is acquired and the body is read, a BadRequest raises
+at parse_request() (line 446) or pick_move() raises another exception (line 447).
+Both are caught by the except blocks at lines 448-455, which call _send() without
+drain=True.  When a client sends a large (up to 16 384 B) POST, the entire body is
+consumed before the exception path runs, so there is no drain problem for the body
+itself — but if the client has pipelined a second request, or if the socket has
+buffered data beyond the declared Content-Length, that trailing data is left in the
+rfile buffer, and the next HTTP/1.1 keep-alive request will be misrouted.
+
+More concretely: `self.rfile.read(length)` reads exactly `length` bytes, which is
+correct; however the BadRequest path at line 448-451 does NOT set
+`self.close_connection = True`, so Python's HTTP/1.1 machinery will attempt to read
+a next pipelined request from the same socket.  If the attacker sent more data than
+declared (the Content-Length check passes, but the socket has excess bytes because
+the client lied after acquiring a slot), those bytes become the prefix of the next
+request parse.  This allows request-smuggling of a second, unauthenticated request
+into an already-granted worker slot.
+
+Mitigation: add `self.close_connection = True` to the BadRequest handler at
+server.py:448-451, or add `drain=True` to `_send()` calls on that path.
+
+──────────────────────────────────────────────
+FINDING 2 — HIGH
+server.py:433-436  Content-Length: 0 is rejected but chunked transfer is not
+──────────────────────────────────────────────
+  length = int(self.headers.get("Content-Length") or 0)   # line 433
+  if length <= 0 or length > MAX_BODY:                     # line 436
+      self._send(400, ...)
+      return
+
+The guard blocks bodies with no Content-Length by treating the missing header as 0
+and refusing it.  However it does not explicitly refuse Transfer-Encoding: chunked.
+Python's BaseHTTPRequestHandler does not transparently handle chunked encoding;
+`self.rfile.read(length)` with a chunked body will read the raw chunk-framing bytes
+rather than the decoded payload.  The JSON parser will then reject them with a
+BadRequest, so the worst case is a 400, not a hang — but a client can bypass the
+16 384-byte body cap by sending a small Content-Length with a chunked override.
+More importantly, Python's http.server does not validate that Content-Length matches
+the actual bytes received; a client can claim Content-Length: 100 and send 16 384
+bytes; `rfile.read(100)` will only consume 100, leaving 16 283 in the buffer (see
+Finding 1).
+
+Mitigation: add an explicit check:
+  if self.headers.get("Transfer-Encoding", "").lower() != "":
+      self._send(400, {"error": "chunked bodies not accepted"}, origin, drain=True)
+      return
+
+──────────────────────────────────────────────
+FINDING 3 — MEDIUM
+server.py:287-307  BoundedReader only limits readline(), not read()
+──────────────────────────────────────────────
+  def read(self, n=-1):
+      return self.stream.read(n)    # server.py:304  — no byte counting
+
+BoundedReader is designed to cap the header block: it counts bytes through
+readline() and raises HeaderTooLarge, but its read() method is a plain passthrough.
+This is intentional (body reads happen later and are bounded by Content-Length) but
+creates a correctness hazard: if anything in BaseHTTPRequestHandler.parse_request()
+calls rfile.read() instead of rfile.readline() for some versions of Python, the
+header cap is silently bypassed.  Document the assumption explicitly with an
+assertion or comment, or switch to a size-limited file wrapper for all reads.
+
+Additionally, BoundedReader.__getattr__ at line 306 proxies all unknown attribute
+accesses to the underlying stream, including makefile(), peek(), and other methods
+used internally by http.server on some platforms — none of which go through the
+readline count.  This is consistent with the existing approach but should be
+documented.
+
+──────────────────────────────────────────────
+FINDING 4 — MEDIUM
+server.py:440-457  SLOTS.release() in finally is correct, but exception from _send()
+leaks the slot only on a narrow path
+──────────────────────────────────────────────
+  try:
+      raw = self.rfile.read(length)
+      ...
+  except BadRequest as exc:
+      self._send(400, ...)
+      return                         # <-- exits try block; finally still runs: OK
+  except Exception as exc:
+      self._send(500, ...)
+      return                         # <-- same, OK
+  finally:
+      SLOTS.release()                # server.py:457
+
+This is correct: Python's finally clause runs even when an inner `return` is
+executed.  The slot is released in all paths.  No double-release issue exists.
+
+However, if `_send()` itself raises an exception (e.g., a broken pipe from a client
+that disconnected between reading the body and writing the response), the exception
+propagates out of the except handler, back through the try/finally, releasing the
+slot correctly, and then propagates to handle_one_request() where it is caught by
+the standard machinery.  The journal line at lines 462-463 or 466-469 is then never
+written, leaving the request unlogged.  This is LOW severity, not exploitable.
+
+──────────────────────────────────────────────
+FINDING 5 — MEDIUM
+server.py:278  Retry guard uses wall-clock check AFTER the failed attempt, not before
+──────────────────────────────────────────────
+  for attempt in range(2):                                  # server.py:265
+      text, err, usage_now = ask_model(prompt, deadline, prior_error)
+      ...
+      if deadline - time.monotonic() < RETRY_MIN_REMAINING: # server.py:278
+          break
+
+The time check at line 278 is evaluated AFTER ask_model() returns, which is
+correct (it gates whether to do the NEXT attempt).  However, ask_model() itself
+already checks `remaining <= 0.3` before opening the socket (server.py:180-181),
+so if the second attempt starts with <0.3 s left it correctly short-circuits.
+
+The gap: RETRY_MIN_REMAINING = 1.0 s and MODEL_TIMEOUT = 3.2 s.  If the first
+attempt consumes exactly 2.6 s of the 5.5 s budget, 2.9 s remains, which is
+≥1.0 s, so the loop does not break and a second attempt is allowed.  But the
+second attempt's timeout is capped at min(3.2, 2.9-0.1) = 2.8 s, leaving 0.1 s
+for the response write.  This is very tight — the page's client timeout is 6 s and
+HANDLER_BUDGET is 5.5 s, leaving 0.5 s of margin — but it is not incorrect.  The
+accounting is sound; flag this as a documentation/NIT issue.
+
+──────────────────────────────────────────────
+FINDING 6 — MEDIUM
+server.py:151-153  CORS wildcard when ALLOWED_ORIGINS is unset sends the actual
+Origin value back, not "*"
+──────────────────────────────────────────────
+  if not ALLOWED_ORIGINS:
+      return {
+          "Access-Control-Allow-Origin": origin or "*",   # server.py:153
+          ...
+          "Vary": "Origin",
+      }
+
+When PC_BRIDGE_ALLOWED_ORIGINS is not set (the documented default), and the request
+carries an Origin header, the server echoes that exact Origin value as
+Access-Control-Allow-Origin.  This is functionally equivalent to "*" for
+cross-origin reads because the endpoint carries no credentials, but it is NOT
+equivalent to "*" in one important way: browsers cache CORS preflight responses
+keyed by (origin, path), and the Vary: Origin header is present, so each distinct
+origin gets its own preflight cache entry — this is correct.  However, echoing the
+exact Origin string means that if any browser or proxy miscaches the response
+without the Vary header, a different origin will receive a stale ACAO header
+pointing to the first origin's value and will be blocked.
+
+More importantly, returning the caller's Origin string verbatim is a known
+pattern that can enable CORS-based ambient-authority attacks IF the endpoint ever
+gains cookies or session state.  It is documented as intentional for this
+unauthenticated endpoint, but should be annotated with a comment warning against
+adding credentials to this endpoint without revisiting the CORS logic.
+
+No immediate exploitability. MEDIUM because the shape is dangerous.
+
+──────────────────────────────────────────────
+FINDING 7 — MEDIUM
+agent_core.py:22-28  _CANDIDATE_RE can match a move from INSIDE an injection string
+──────────────────────────────────────────────
+  _CANDIDATE_RE = re.compile(
+      r"(?<![A-Za-z0-9_+])("
+      r"M [A-F][1-5] [A-F][1-5] [1-9][0-9]* \+ [A-F][1-5] [1-9][0-9]*"
+      r"|M [A-F][1-5] [A-F][1-5] [1-9][0-9]*"
+      r"|B [A-F][1-5] [1-9][0-9]*"
+      r"|END"
+      r")(?![A-Za-z0-9_+])"
+  )
+
+The position payload is attacker-controlled. If a town name in the position
+(town.name field, pocket_conquest.py:163-166) contains a syntactically valid move
+string, it will appear verbatim in the board description that build_prompt()
+includes in the prompt (agent_core.py:89, pc.describe(position)).  The town name
+is validated only to be a non-empty string (pocket_conquest.py:165):
+
+  if not isinstance(t_name, str) or not t_name.strip():
+      raise ValueError(...)
+
+An attacker can POST a position with a town named e.g. "B B5 2" (which is a legal
+build move).  That string ends up inside the BOARD section of the prompt, e.g.:
+
+  " 3  .    B3T  .    .    ."
+
+...displayed as the town label in describe().  _format_cell() (pc:688) will render
+it as "S2T" (owner, armies, T-suffix), so the tile representation in the describe()
+output does NOT inject the town name — the name is NOT rendered in describe().
+
+However, the name IS injected into the TACTICS block via _tactics():
+  pc._parse_move(move) is called only on legal move strings, not on tile names.
+  The town name is not placed in the numbered legal list.
+
+On re-examination: pc.describe() uses _format_cell() which does NOT output the town
+name. The town name appears in raw tile dicts but NOT in the board text or the legal
+move list.  Therefore the attack surface is narrower than it initially appears.
+
+However, the RULES string itself (agent_core.py:10-18) is static.  The position
+fields that ARE rendered into the prompt are: side (validated enum), gold (ints),
+turn (int), board (render of tile fields), tactics (computed from legal moves, which
+are engine-generated strings, not attacker-supplied), and the legal move list
+(engine-generated).  Attacker-controlled text that reaches the prompt is:
+
+  - `position.grid.*.town.name` — NOT rendered in describe()
+  - `position.captured_this_turn` — NOT rendered in the prompt directly
+  - `position.side`, `position.gold`, `position.turn`, tile owner/terrain/armies —
+    all validated to be one of a small enumeration or non-negative integer.
+
+Verdict on prompt injection: the actual injection surface is very small.  The town
+name is the only free-text field, and it is NOT placed into the prompt by any path
+in the current code.  If describe() is ever extended to show town names, the
+town-name validation at pc:165 must be tightened.
+
+Downgraded to LOW — real risk only if describe() is changed.
+
+──────────────────────────────────────────────
+FINDING 8 — MEDIUM
+pocket_conquest.py:600-602  Support tile incorrectly marked moved on attacker WIN
+even when the tile-falls path is not taken
+──────────────────────────────────────────────
+  if remaining_def == 0:          # pc:592 — tile falls
+      ...
+      if sup_name is not None:
+          grid[sup_name]["moved"] = True   # pc:601-602
+
+The support tile is marked moved only when the tile falls (remaining_def == 0).
+When the attacker wins but the tile does NOT fall (remaining_def > 0, which cannot
+happen with the current combat model — attacker_wins means defender_losses >= 1 and
+remaining_def = max(0, def_armies - losses); if attacker wins then losses >= 1 so
+remaining_def could be > 0 for a large militia), wait — let's trace:
+
+resolve_attack() line 504: defender_losses = 2 if margin >= 3 else 1.
+remaining_def = max(0, def_armies - 1) or max(0, def_armies - 2).
+If def_armies == 1 and losses == 1 → remaining_def = 0.
+If def_armies == 3 and losses == 1 → remaining_def = 2.  Tile does NOT fall.
+
+In that case (attacker wins, tile survives) execution falls to line 615:
+  src["moved"] = True
+  if sup_name is not None:
+      grid[sup_name]["moved"] = True   # pc:616-617
+
+So the support IS marked moved in the "attacker wins, tile survives" path at
+lines 616-617 as well.  Both branches correctly mark the support moved after a
+winning attack.  This is CLEAN — no bug here.
+
+Re-examining the LOSING attacker path (pc:619-638):
+  losses = result["attacker_losses"]
+  main_loss = min(count, losses)
+  src["armies"] -= main_loss
+  ...
+  if sup_name is not None:
+      sup = grid[sup_name]
+      sup_loss = min(sup_count, losses - main_loss)   # pc:631
+
+If main_loss == losses (attacker sent enough to absorb all losses alone),
+  sup_loss = min(sup_count, 0) = 0
+  sup["armies"] -= 0  → unchanged
+  sup["moved"] = True (line 635 or 637)
+
+The support tile is marked moved even when it takes zero losses.  This is correct
+per the rules: "Pincer (+): adjacent stack adds armies, stays put" — "stays put"
+means the support tile does not advance, but it HAS committed armies so it should
+be treated as having moved for this turn.  CLEAN.
+
+──────────────────────────────────────────────
+FINDING 9 — MEDIUM
+pocket_conquest.py:650  Non-combat move into an ENEMY-OWNED tile is allowed
+──────────────────────────────────────────────
+  # Non-combat move into empty or friendly tile        # pc:641
+  ...
+  if dst["terrain"] in ("town", "capital") and dst["owner"] != side:
+      pos["captured_this_turn"].append(dst_name)       # pc:651-652
+  dst["owner"] = side
+
+The comment says "empty or friendly tile."  If _is_attack_target() returns False, we
+fall through to this block.  _is_attack_target (pc:351-357):
+
+  def _is_attack_target(tile, side):
+      if tile["owner"] not in (None, side) and tile["armies"] > 0:
+          return True
+      if tile["town"] is not None and tile["town"]["militia"] > 0:
+          return True
+      return False
+
+A tile owned by the enemy with armies == 0 is NOT an attack target.  The
+non-combat path at pc:650-658 then captures it silently, without any combat roll.
+
+Is this a rules bug?  README/rules: "Empty tile claimed; enemy or militia=combat."
+If an enemy stack has been fully destroyed (armies=0) but the owner field was not
+cleared, the tile is listed as enemy-owned with 0 armies.  apply_move should have
+reset owner to None when armies hit 0 from combat (pc:593 leaves src["armies"]=0
+but src["owner"] stays as side — this is intentional for the source tile).  For the
+destination: when defenders fall to 0, pc:607 sets dst["owner"] = side, correctly
+transferring ownership.  So the only way dst["owner"] is enemy and dst["armies"]==0
+is if the page sends us a position where an enemy tile has armies=0 — which the
+normaliser allows (pc:173-177 allows armies=0 without requiring armies>0, only
+preventing armies>0 without owner).
+
+An attacker can craft a position where an enemy capital has armies=0, then the
+engine generates a "M src cap 1" move that falls into the non-combat path and
+captures the capital without a roll.  legal_moves() will generate that move, it
+is valid under is_legal(), and apply_move will silently flip ownership.
+
+However: (a) this is a free move on an undefended tile, which is correct — if
+the enemy capital has 0 armies it really is undefended and capturing it without a
+roll is correct. (b) The README says "Win by occupying enemy capital," not "win by
+defeating its last defender."  CLEAN — the behaviour is correct; armies=0 on an
+enemy tile means it is undefended and walkable.
+
+──────────────────────────────────────────────
+FINDING 10 — MEDIUM
+agent_core.py:119-124  Bare numeric reply: index 0 accepted by isdigit() edge-case
+──────────────────────────────────────────────
+  index = stripped.rstrip(".")
+  if index.isdigit():
+      n = int(index)
+      if 1 <= n <= len(legal):
+          return legal[n - 1]
+      return None
+
+"0".isdigit() returns True, n=0, then 1 <= 0 is False → returns None. CLEAN.
+"00".isdigit() returns True, n=0 → returns None. CLEAN.
+"01".isdigit() returns True, n=1 → returns legal[0]. This is an off-spec parse: the
+prompt numbers from 1 and doesn't zero-pad, so "01" is not a valid answer, but it
+maps to move index 1 (legal[0]).  Low severity: the resulting move IS legal and in
+the list, so it cannot produce an illegal move.  NIT.
+
+──────────────────────────────────────────────
+FINDING 11 — LOW
+agent_core.py:170  Error snippet uses repr() with a hard-coded 80-char trim
+──────────────────────────────────────────────
+  snippet = repr(raw) if len(repr(raw)) <= 80 else repr(raw)[:77] + "...'"
+
+repr(raw)[:77] + "...'" appends a literal single-quote after the ellipsis,
+regardless of whether repr(raw) started with a single-quote prefix.  For a bytes
+object it would be `b'...'`, trimmed to `b'...<77 chars>...'` with an extra `'`
+appended → `b'<77 chars>...'` — the closing quote is correct by accident.  But if
+raw were a str (it is here, since pick_legal receives the model's string return)
+the repr starts with `'`, the slice is 77 chars, and `"...'"` is appended, giving
+`'<77 chars>...'` — correct.
+
+Actually raw is whatever model_call returns, which could be any string.  If the
+string contains embedded quotes the repr will escape them and the final output is
+cosmetically wrong but harmless.  This only appears in an internal error log snippet
+so the impact is cosmetic.  NIT.
+
+──────────────────────────────────────────────
+FINDING 12 — LOW
+server.py:447  ask_model exposes the prior_error string to the model, which is
+attacker-influenced
+──────────────────────────────────────────────
+  user += "\n\nYour previous answer was rejected: %s. Answer with exactly one move from the list." % prior_error
+                                                     # server.py:184
+
+prior_error can originate from:
+  - ask_model itself returning err from an HTTP error code (line 214): "upstream HTTP 403"
+  - an exception type name (line 216): "upstream error: URLError"
+  - "reply was not a legal move" (server.py:277, pick_move)
+  - ask_model returning None with "no DEEPSEEK_API_KEY" (line 178)
+  - "no time left for the model call" (line 181)
+
+None of these are attacker-controlled strings — they come from the HTTP client
+library or hard-coded literals.  The model's own reply is NOT injected as
+prior_error; instead the string "not one of the listed moves" is used (line 277).
+
+LOW because the shape (injecting text into the next model call) is a known
+injection pattern, but the actual values are all server-controlled.
+
+──────────────────────────────────────────────
+FINDING 13 — LOW
+server.py:206  Upstream response body is read with a fixed cap of 65536 bytes
+──────────────────────────────────────────────
+  raw = response.read(65536)   # server.py:206
+
+The DeepSeek API can return arbitrarily large JSON (error bodies, usage objects).
+If the response is exactly 65 536 bytes, the JSON is silently truncated and
+json.loads() will raise ValueError, which is caught as a generic Exception at line
+215 and returned as "upstream error: ValueError" — a 500 to the caller.  The
+DeepSeek chat completions endpoint typically sends 300-2 000 bytes for a move with
+max_tokens=32, so this is not exploitable in practice.  Raise the cap to 1 MiB or
+use streaming with an explicit size guard.
+
+──────────────────────────────────────────────
+FINDING 14 — LOW
+server.py:378-382  Second header-size check counts only key+value bytes, not
+the ": " separators or CR LF
+──────────────────────────────────────────────
+  size = sum(len(k) + len(v) for k, v in self.headers.items())   # server.py:378
+  if size > MAX_HEADER_BYTES:
+      self._send(431, ...)
+
+The BoundedReader counts actual bytes on the wire (including the ": " delimiter and
+"\r\n" line endings) during readline(), but the second check at line 378 counts only
+key+value and skips separators (~4 bytes per header).  For the default cap of 8192
+bytes, the discrepancy is at most ~4 × (number of headers), well under the margin.
+The two checks are complementary rather than conflicting, so there is no exploitable
+gap, but the second check is tighter than intended and could reject a header block
+that the BoundedReader would have accepted.  Cosmetic inconsistency.
+
+──────────────────────────────────────────────
+FINDING 15 — LOW
+pocket_conquest.py:600-602  Support tile "moved" flag set even when sup_name pincer
+kill was at a captured-this-turn tile (the win branch)
+──────────────────────────────────────────────
+  if remaining_def == 0:          # tile falls
+      ...
+      if sup_name is not None:
+          grid[sup_name]["moved"] = True   # pc:601-602
+
+This is correct behaviour per the rules: the support stack contributed armies and is
+therefore exhausted for this turn.  CLEAN — noted for confirmation only.
+
+──────────────────────────────────────────────
+FINDING 16 — NIT
+pocket_conquest.py:313  Grid must contain exactly 30 tiles — only checked for dict
+form, not list form
+──────────────────────────────────────────────
+  if len(grid_map) != 30:
+      raise ValueError(...)   # pc:313-314
+
+This check only applies to the dict branch.  The list branch at pc:295-302 checks
+len(raw_grid) == 5 (rows) and len(row) == 6 (cols) per row, which guarantees 30
+cells.  CLEAN — the invariant is enforced, just via different checks.
+
+──────────────────────────────────────────────
+FINDING 17 — NIT
+server.py:89  PATHS includes "/" which silently accepts POSTs to the root
+──────────────────────────────────────────────
+  PATHS = ("/pocket-conquest-move", "/")   # server.py:89
+
+A POST to "/" receives the same processing as a POST to "/pocket-conquest-move".
+The page can call either URL.  This is probably intentional for Tailscale Serve
+path routing, but it means the endpoint is reachable at two URLs with no
+differentiation in the journal (both log their actual path).  Low noise, but worth
+documenting.
+
+──────────────────────────────────────────────
+FINDING 18 — NIT
+agent_core.py:62-63  Tactics hint assumes militia>0 means active militia
+──────────────────────────────────────────────
+  militia = tile["town"]["militia"] if tile["town"] else 0
+  defenders = militia if militia > 0 else tile["armies"]
+
+This is consistent with _is_attack_target() (pc:355-356) and apply_move()'s
+is_militia check (pc:575).  CLEAN — the pattern is used consistently.
+
+══════════════════════════════════════════════════════════════
+SECTION 3 — RULES ENGINE vs README/agent_core RULES BLOCK
+══════════════════════════════════════════════════════════════
+
+Checking each stated rule against the implementation:
+
+BUILD 5 gold/army at capital or owned town
+  legal_moves: pc:406-416 — BUILD_COST=5 (pc:21), only capital or town tiles that
+  the side owns and that are not in captured_this_turn. ✓
+
+Only armies built THIS turn are immobile
+  _movable_armies: pc:360-362 — returns armies - built_armies, not all armies when
+  built=True. The old "built" boolean treated all armies as immobile; built_armies
+  fixes this. legal_moves uses _movable_armies. is_legal uses _movable_armies. ✓
+
+Town captured this turn cannot be built at
+  legal_moves: pc:413 — name not in captured. is_legal: pc:462. ✓
+
+Orthogonal movement
+  legal_moves: pc:429 — dst in _NEIGHBORS[src]; _neighbors() uses only
+  (dc, dr) offsets of (0,±1) and (±1,0). ✓
+
+Splitting
+  legal_moves: pc:430 — range(1, armies+1) generates all split counts. ✓
+
+Pincer support stays put
+  apply_move: win path pc:601-602 sets moved=True but does NOT advance sup to dst.
+  Losing path pc:634-637 sets moved=True but support tile armies just reduced.
+  In all cases sup retains its tile position. ✓
+
+Tie to defender
+  resolve_attack: pc:497 — "if attacker_total > defender_total" — strict greater-
+  than means equal totals fall through to the else (defender wins). ✓
+
+Margin >= 3 loses 2 else 1
+  resolve_attack: pc:504, pc:511 — "2 if margin >= 3 else 1". ✓
+
+Hill +1 to defender
+  resolve_attack: pc:496 — "+1 if defender_on_hill else 0" added to defender_total.
+  apply_move passes dst["terrain"] == "hill". ✓
+
+Tile falls only at 0 defenders
+  apply_move: pc:592 — "if remaining_def == 0" gates the tile-fall path. ✓
+
+Income 5/4/2 (capital/town/plain+hill)
+  _compute_income: pc:523-528 — INCOME_CAPITAL=5, INCOME_TOWN=4,
+  INCOME_LAND=2 for plain AND hill. The rules block says "plain/hill 2". ✓
+  Note: a tile with terrain="hill" that is owned awards 2 gold, same as a plain.
+  This matches the rules condensed text "plain/hill 2".
+
+END collects and hands over
+  apply_move "END" branch: pc:544-557 — adds _compute_income(), clears moved/built,
+  clears captured_this_turn, advances side, increments turn when R ends. ✓
+
+Win by taking the capital
+  winner(): pc:339-348 — returns the owner if owner != capital's original side. ✓
+  apply_move sets winner after both combat and non-combat captures. ✓
+
+RULES MATCH: all checked rules are faithfully implemented.
+
+One subtle point: the rules condensed text (agent_core.py:14) says "END collects
+gold (cap 5, town 4, plain/hill 2)."  _compute_income() (pc:516-529) awards income
+for every owned tile, including tiles the side captured this turn (since
+captured_this_turn is cleared by END after income is computed, but income is
+computed from grid ownership which already includes captures).  This is correct:
+the rules do not say income is withheld for newly captured tiles.
+
+══════════════════════════════════════════════════════════════
+SECTION 4 — PATHS THAT COULD RETURN AN ILLEGAL OR RANDOM MOVE
+══════════════════════════════════════════════════════════════
+
+The server NEVER returns a move that is not in the engine's legal list:
+
+  parse_reply() (agent_core.py:104-140) only returns a string that is in
+  legal_set (a frozenset built from the engine's legal_moves() output).
+
+  pick_move() (server.py:258-280) returns None if parse_reply() returns None for
+  all attempts; the caller at server.py:458-464 turns None into a 500, never
+  returning a move string.
+
+  random_legal() (pc:662-668) is defined in pocket_conquest.py but is NOT called
+  anywhere in server.py or agent_core.py's server-side path.
+
+  The /health endpoint (server.py:409-411) returns {"ok": true} and no move.
+
+CONCLUSION: No code path can return an illegal or random move to the caller.
+
+══════════════════════════════════════════════════════════════
+SECTION 5 — EXCEPTION PATHS THAT COULD ESCAPE AS A 200
+══════════════════════════════════════════════════════════════
+
+The try/except at server.py:444-457 catches every exception from body reads and
+game logic.  _send() at line 358-371 can itself raise (broken pipe, etc.), but that
+propagates to handle_one_request() and results in a connection close, not a 200
+with a wrong body.  No path sends 200 without a valid {"move": ...} payload.
+
+══════════════════════════════════════════════════════════════
+SUMMARY TABLE
+══════════════════════════════════════════════════════════════
+
+#   Sev      File:line     Issue
+1   HIGH     server.py:448 BadRequest path does not close connection → pipelining / slot-bypass risk
+2   HIGH     server.py:433 Chunked Transfer-Encoding not rejected → body-cap bypass
+3   MEDIUM   server.py:304 BoundedReader.read() unmetered — relies on undocumented assumption
+4   LOW      server.py:456 _send() exception in error path drops journal line (not exploitable)
+5   MEDIUM   server.py:278 Deadline arithmetic is tight but sound (documentation gap)
+6   MEDIUM   server.py:153 Origin-echo CORS shape is dangerous if credentials ever added
+7   LOW      agent_core.py:22 Prompt-injection surface minimal; town name not rendered (flag for future)
+8   —        pc.py:600     Support-move accounting: CLEAN (verified both win/lose paths)
+9   —        pc.py:650     Enemy 0-army tile captured without roll: CORRECT per rules
+10  NIT      agent_core.py:119 "01" accepted as index 1 (move is still legal)
+11  NIT      agent_core.py:170 Error snippet quote character cosmetic bug
+12  LOW      server.py:184 prior_error injected into retry prompt — values are server-controlled
+13  LOW      server.py:206 65 536-byte response cap (safe given max_tokens=32)
+14  LOW      server.py:378 Header-size double-check undercounts separator bytes (safe margin)
+15  —        pc.py:313     30-tile check: CLEAN (enforced by both branches)
+16  NIT      server.py:89  Root "/" accepted as alias for the move endpoint
+17  NIT      agent_core.py:62 Militia-defender pattern: CLEAN
+
+Verdict: FIX

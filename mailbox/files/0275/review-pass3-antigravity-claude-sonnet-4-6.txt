@@ -1,0 +1,127 @@
+POCKET-CONQUEST-BRIDGE — SECURITY / CORRECTNESS REVIEW, PASS 3
+==============================================================
+Reviewer: Antigravity (Claude Sonnet 4.6)
+Date: 2026-11-27
+Files reviewed: server.py (532 lines), hardening.py (138 lines)
+Prior findings resolved: HIGH-2 (429 drain), HIGH-3 (404/403 drain+close), HIGH-4 (secondary 431 close), MEDIUM-5 (no-legal-move 500 close)
+
+──────────────────────────────────────────────────────────────
+CHECKLIST — ITEMS RAISED BY PASS 2
+──────────────────────────────────────────────────────────────
+
+1. do_POST 404 (unknown path) — server.py lines 431-437
+   ✓ close_connection = True set at line 434.
+   ✓ _send(..., drain=True) called at line 435.
+   ✓ COMMENT at lines 432-433 explains the pipelining rationale.
+   VERDICT: FIXED.
+
+2. do_POST 403 (origin not allowed) — server.py lines 438-442
+   ✓ close_connection = True set at line 439.
+   ✓ _send(..., drain=True) called at line 440.
+   VERDICT: FIXED.
+
+3. Handler.parse_request secondary 431 — server.py lines 388-392
+   ✓ close_connection = True set at line 389.
+   ✓ _send(..., drain=True) called at line 390.
+   VERDICT: FIXED.
+
+4. "No legal move" 500 — server.py lines 487-494
+   ✓ close_connection = True set at line 491.
+   Body has been fully read before we reach this branch (rfile.read(length)
+   is called at line 470, before pick_move), so no body-smuggling window
+   exists; draining is not required, and indeed is absent — correct.
+   VERDICT: FIXED.
+
+5. do_OPTIONS 404 path — server.py lines 401-405
+   ✓ close_connection = True set at line 402.
+   ✓ _send(..., drain=True) called at line 403.
+   OPTIONS carries no body, so the drain loop is a minor no-op but harmless.
+   VERDICT: FIXED.
+
+6. do_OPTIONS 403 path — server.py lines 406-409
+   ✗ close_connection is NOT set.
+   ✗ _send is called WITHOUT drain=True.
+   OPTIONS carries no body (no smuggling vector), so this is not a
+   request-smuggling defect. However, the origin-rejection response leaves
+   the connection alive, which is inconsistent with every other rejection
+   path in the file and could confuse a proxy that inspects Connection state.
+   This is a LOW-severity consistency issue, not a security defect.
+
+7. Success 200 path — server.py lines 496-500
+   ✓ close_connection is NOT set (keep-alive preserved).
+   ✓ _send is called WITHOUT drain=True.
+   Body was consumed at line 470, so no drain is needed.
+   VERDICT: CORRECT — keep-alive and no drain preserved.
+
+──────────────────────────────────────────────────────────────
+HARDENING.PY COVERAGE CHECK
+──────────────────────────────────────────────────────────────
+
+8. 404 pipelining probe — hardening.py lines 99-108
+   ✓ Present. The probe sends a POST to /nope with the second request packed
+     inside the first request's declared body (classic smuggling shape), then
+     counts HTTP/1.1 response lines. It passes iff count == 1, i.e. the server
+     did not parse and answer the second "request".
+   ✓ The check at server.py lines 434-435 (close + drain) prevents the
+     smuggling exactly the way the probe expects.
+   ✓ read_until_close=True is used, matching the behaviour of a persistent
+     TCP connection — the server closing its side is what terminates the loop.
+   VERDICT: PROBE CORRECT AND ALIGNED WITH THE SERVER PATH.
+
+9. Generic bad-body pipelining probe — hardening.py lines 91-97
+   ✓ Still present and unchanged from pass 2; exercises the BadRequest 400
+     path with close + drain.
+   VERDICT: UNCHANGED — PASS.
+
+10. 431 header-bomb probe — hardening.py lines 83-87
+    ✓ Still present, fires the BoundedReader / handle_one_request path.
+    VERDICT: UNCHANGED — PASS.
+
+──────────────────────────────────────────────────────────────
+NEW FINDINGS THIS PASS
+──────────────────────────────────────────────────────────────
+
+LOW-1  server.py:407-408  do_OPTIONS 403 missing close+drain
+  do_OPTIONS refuses the OPTIONS method before any body is sent (OPTIONS has
+  no body under RFC 7231), so this is not a request-smuggling or
+  slot-accounting defect. It is a consistency/hygiene gap: every other
+  error path sets close_connection = True; this one leaves the connection
+  open after a rejected preflight. A determined client could pipeline further
+  OPTIONS requests on the same socket. Because OPTIONS carries no body the
+  attack surface is negligible, and drain is unnecessary. Recommended fix:
+    self.close_connection = True
+    self._send(403, {"error": "origin not allowed"}, origin)
+  (drain=False is fine).
+
+──────────────────────────────────────────────────────────────
+REQUEST-SMUGGLING / SLOT-ACCOUNTING ASSESSMENT
+──────────────────────────────────────────────────────────────
+
+All previously identified request-smuggling vectors (HIGH-3, HIGH-4) are
+closed. The 404 and 403 do_POST paths both set close_connection and drain
+before responding. The secondary 431 in parse_request does likewise. The
+no-legal-move 500 sets close_connection; draining is not required there
+because the body was already consumed. The hardening.py 404-pipeline probe
+correctly models the smuggling shape and aligns with the fix.
+
+No slot-accounting defects remain: the SLOTS semaphore is released in a
+finally block (line 486), reached regardless of which exception path exits
+the try. The 404 and 403 paths in do_POST branch before SLOTS.acquire, so
+they never take a slot.
+
+No new high or medium severity defects were found. The only new finding is
+LOW-1 above (consistency in do_OPTIONS 403).
+
+──────────────────────────────────────────────────────────────
+SUMMARY TABLE
+──────────────────────────────────────────────────────────────
+
+Finding  Sev     File:Line       Description                   Status
+-------  ------  --------------  ----------------------------  --------
+HIGH-3   (prev)  server.py:434   POST 404 close+drain          FIXED
+HIGH-3   (prev)  server.py:439   POST 403 close+drain          FIXED
+HIGH-4   (prev)  server.py:389   parse_request 431 close+drain FIXED
+MED-5    (prev)  server.py:491   no-legal-move 500 close       FIXED
+LOW-1    NEW     server.py:407   OPTIONS 403 missing close      OPEN
+
+Verdict: SHIP

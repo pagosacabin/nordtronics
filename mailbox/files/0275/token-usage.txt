@@ -1,0 +1,17 @@
+usage={"prompt_tokens": 487, "completion_tokens": 1, "total_tokens": 488, "prompt_tokens_details": {"cached_tokens": 256}, "prompt_cache_hit_tokens": 256, "prompt_cache_miss_tokens": 231}
+usage={"prompt_tokens": 384, "completion_tokens": 1, "total_tokens": 385, "prompt_tokens_details": {"cached_tokens": 128}, "prompt_cache_hit_tokens": 128, "prompt_cache_miss_tokens": 256}
+usage={"prompt_tokens": 725, "completion_tokens": 9, "total_tokens": 734, "prompt_tokens_details": {"cached_tokens": 512}, "prompt_cache_hit_tokens": 512, "prompt_cache_miss_tokens": 213}
+usage={"prompt_tokens": 756, "completion_tokens": 7, "total_tokens": 763, "prompt_tokens_details": {"cached_tokens": 512}, "prompt_cache_hit_tokens": 512, "prompt_cache_miss_tokens": 244}
+usage={"prompt_tokens": 487, "completion_tokens": 1, "total_tokens": 488, "prompt_tokens_details": {"cached_tokens": 256}, "prompt_cache_hit_tokens": 256, "prompt_cache_miss_tokens": 231}
+usage={"prompt_tokens": 384, "completion_tokens": 1, "total_tokens": 385, "prompt_tokens_details": {"cached_tokens": 128}, "prompt_cache_hit_tokens": 128, "prompt_cache_miss_tokens": 256}
+usage={"prompt_tokens": 725, "completion_tokens": 9, "total_tokens": 734, "prompt_tokens_details": {"cached_tokens": 512}, "prompt_cache_hit_tokens": 512, "prompt_cache_miss_tokens": 213}
+usage={"prompt_tokens": 756, "completion_tokens": 7, "total_tokens": 763, "prompt_tokens_details": {"cached_tokens": 512}, "prompt_cache_hit_tokens": 512, "prompt_cache_miss_tokens": 244}
+usage={"prompt_tokens": 487, "completion_tokens": 1, "total_tokens": 488, "prompt_tokens_details": {"cached_tokens": 256}, "prompt_cache_hit_tokens": 256, "prompt_cache_miss_tokens": 231}
+usage={"prompt_tokens": 511, "completion_tokens": 9, "total_tokens": 520, "prompt_tokens_details": {"cached_tokens": 0}, "prompt_cache_hit_tokens": 0, "prompt_cache_miss_tokens": 511}
+usage={"prompt_tokens": 725, "completion_tokens": 7, "total_tokens": 732, "prompt_tokens_details": {"cached_tokens": 512}, "prompt_cache_hit_tokens": 512, "prompt_cache_miss_tokens": 213}
+usage={"prompt_tokens": 756, "completion_tokens": 7, "total_tokens": 763, "prompt_tokens_details": {"cached_tokens": 512}, "prompt_cache_hit_tokens": 512, "prompt_cache_miss_tokens": 244}
+usage={"prompt_tokens": 487, "completion_tokens": 1, "total_tokens": 488, "prompt_tokens_details": {"cached_tokens": 256}, "prompt_cache_hit_tokens": 256, "prompt_cache_miss_tokens": 231}
+usage={"prompt_tokens": 487, "completion_tokens": 1, "total_tokens": 488, "prompt_tokens_details": {"cached_tokens": 256}, "prompt_cache_hit_tokens": 256, "prompt_cache_miss_tokens": 231}
+usage={"prompt_tokens": 511, "completion_tokens": 9, "total_tokens": 520, "prompt_tokens_details": {"cached_tokens": 256}, "prompt_cache_hit_tokens": 256, "prompt_cache_miss_tokens": 255}
+usage={"prompt_tokens": 725, "completion_tokens": 9, "total_tokens": 734, "prompt_tokens_details": {"cached_tokens": 512}, "prompt_cache_hit_tokens": 512, "prompt_cache_miss_tokens": 213}
+usage={"prompt_tokens": 756, "completion_tokens": 7, "total_tokens": 763, "prompt_tokens_details": {"cached_tokens": 512}, "prompt_cache_hit_tokens": 512, "prompt_cache_miss_tokens": 244}

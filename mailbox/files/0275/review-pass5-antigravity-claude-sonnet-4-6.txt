@@ -1,0 +1,90 @@
+Pass 5 — server.py @ f0ea732
+Scope: PATHS expansion + HEALTH_PATHS split
+Reviewer: Antigravity
+Date: 2026-11-27
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+QUESTION 1 — Can the added paths match something they should not?
+
+_path() (line 408) is:
+    return self.path.split("?")[0]
+
+Membership is tested with Python's `in` operator on a tuple of exact strings
+(lines 94-101, 413, 433, 444). `in` on a tuple is element-by-element equality
+(`==`), never prefix, suffix, glob, or regex. The five POST paths and two
+health paths are:
+
+    "/pocket-conquest-move"
+    "/pocket-conquest"
+    "/pocket-conquest/"
+    "/pocket-conquest/pocket-conquest-move"
+    "/"
+    "/health"
+    "/pocket-conquest/health"
+
+Each is an absolute path with no wildcards. No path contains `..`, `%`, or
+double slashes. The split on "?" strips the query string but leaves the path
+component unchanged — there is no URL-decode step, no case fold, and no
+normalisation that could collapse `//` or `/../`. CPython's `str.split("?",
+maxsplit not set)` returns the prefix up to the first "?", which is exactly
+what the client sent for the path portion. No traversal is possible.
+
+The only slight surface to note: "/" is in PATHS. It was there before this
+change and was reviewed in passes 1-4. The new members do not widen "/" — it
+was already accepted. Its presence means a direct-loopback caller hitting the
+root gets a 200 from do_POST (and a 404 from do_GET, as covered below), which
+is the documented intent and consistent with the chess-bridge precedent. This
+is not a finding.
+
+QUESTION 2 — Is GET still health-only?
+
+do_GET (lines 430-438) checks `self._path() in HEALTH_PATHS`; if true it
+returns `{"ok": true}` with 200; otherwise it falls through to a 404. There
+is no branch in do_GET that checks PATHS or returns anything other than the
+health JSON or 404. The PATHS tuple is not consulted anywhere in do_GET.
+Specifically, the five newly added POST paths ("/pocket-conquest",
+"/pocket-conquest/", "/pocket-conquest/pocket-conquest-move", "/", and the
+retained "/pocket-conquest-move") are not in HEALTH_PATHS and therefore all
+produce 404 from do_GET. Health-only GET is preserved.
+
+Observation (non-finding): do_GET does not set close_connection or drain on
+the 404 path (line 437). For a GET the body is typically absent, so this is
+not a smuggling risk. The pre-existing pattern was the same and was accepted in
+earlier passes.
+
+QUESTION 3 — Does the 404 branch close and drain on rejected POST paths?
+
+do_POST path-rejection (lines 444-450):
+    self.close_connection = True
+    self._send(404, {"error": "not found"}, origin, drain=True)
+
+_send with drain=True calls _drain() (lines 391-392), which reads up to
+16 × 8192 = 131072 bytes with a 0.2 s timeout before returning (lines
+369-376). close_connection = True prevents keep-alive reuse of the socket.
+Both defences are present. The 403 (origin) rejection on lines 452-454 is
+identical. This matches the pattern for every other early-exit branch in
+do_POST and is correct.
+
+QUESTION 4 — Are rate limiting and slot accounting unchanged for the new paths?
+
+The PATHS check (line 444) is the first guard in do_POST and is the only thing
+that changed. After a path passes that check, every subsequent guard is
+unchanged:
+
+  • origin_allowed() check — lines 451-455
+  • LIMITER.allow() token-bucket — lines 456-460 (global, path-agnostic)
+  • Transfer-Encoding rejection — lines 463-467
+  • Content-Length cap — lines 468-476
+  • SLOTS.acquire() semaphore — lines 477-481 (global, path-agnostic)
+
+LIMITER and SLOTS are module-level singletons initialised once; they count all
+requests regardless of which of the five accepted paths was used. No path
+bypasses them or gets a separate, looser counter. Rate limiting and slot
+accounting are identical for the new paths.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+No findings.
+
+Verdict: SHIP

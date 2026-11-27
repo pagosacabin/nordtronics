@@ -1,0 +1,9 @@
+# literal curl against the running service (final build f0ea732)
+$ curl -sS -X POST http://127.0.0.1:8767/pocket-conquest-move -H "Content-Type: application/json" --data-binary @0275-curl-body.json -w "\nHTTP %{http_code} total %{time_total}s\n"
+{"move": "M B5 B4 1"}
+HTTP 200  total 0.595715s  size 21B
+
+$ curl -sS http://127.0.0.1:8767/health
+{"ok": true}  HTTP 200
+
+# body: initial position, 12 legal moves listed (0275-curl-body.json)

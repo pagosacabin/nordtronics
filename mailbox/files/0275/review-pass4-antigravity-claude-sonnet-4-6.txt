@@ -1,0 +1,134 @@
+pocket-conquest-bridge  server.py  —  Pass 4 Review
+=====================================================
+Reviewer:   Antigravity (Claude Sonnet 4.6)
+Date:       2026-11-27
+Commits in scope: 125b3f0 (LOW-1 fix), 90a2851 (proof.py only, not served)
+Prior verdict:    Pass 3 → SHIP (one open LOW-1)
+
+
+─────────────────────────────────────────────────────
+1. do_OPTIONS 403: close_connection and drain
+─────────────────────────────────────────────────────
+
+server.py lines 406-410 (commit 125b3f0):
+
+    if not origin_allowed(origin):
+        self.close_connection = True
+        self._send(403, {"error": "origin not allowed"}, origin)
+        log("OPTIONS", self._path(), 403, "none", started)
+        return
+
+LOW-1 is PARTIALLY FIXED.
+
+  • close_connection = True  ✓  — the critical half of the finding is
+    resolved.  The server will not attempt to read a next request on
+    this socket, so there is no pipelining / slot-accounting hazard.
+
+  • drain=True               ✗  — the call passes only the positional
+    arguments (status, payload, origin); the keyword argument drain
+    defaults to False, so _drain() is not called.
+
+Compare the 404 branch two lines above (line 403):
+
+    self._send(404, {"error": "not found"}, origin, drain=True)
+
+That branch does drain.  The 403 branch does not.  This is an
+inconsistency.
+
+Impact assessment: LOW (unchanged from the original finding, not
+promoted to MEDIUM).
+
+Rationale: an HTTP OPTIONS preflight carries no request body by spec
+(Content-Length 0 or absent, no Transfer-Encoding).  With
+close_connection=True the OS will RST the socket immediately after
+the response is flushed; there is nothing to drain that could be
+mis-parsed as a next request.  The omission is therefore cosmetically
+inconsistent but not a correctness, security, or smuggling issue.
+
+Recommendation: add drain=True to match the 404 branch and eliminate
+the inconsistency:
+
+    self._send(403, {"error": "origin not allowed"}, origin, drain=True)
+
+
+─────────────────────────────────────────────────────
+2. 200 POST path: keep-alive, no drain
+─────────────────────────────────────────────────────
+
+server.py line 497:
+
+    self._send(200, {"move": move}, origin)
+
+No close_connection assignment (inherits the per-request default of
+False), no drain=True.  ✓  The connection stays alive for the next
+request; draining would be incorrect here.  Confirmed correct.
+
+
+─────────────────────────────────────────────────────
+3. Full error-path audit (smuggling / slot-accounting)
+─────────────────────────────────────────────────────
+
+Every path that rejects before the body is read must set
+close_connection=True (and preferably drain=True).  Every path that
+rejects after the body has been fully consumed need not drain but must
+not leave the connection open with an unaccounted payload.
+
+POST handler — pre-body-read rejections (all correct):
+  L432-438  path not in PATHS           → close+drain  ✓
+  L439-443  origin not allowed          → close+drain  ✓
+  L444-448  rate limited (429)          → close+drain  ✓
+  L451-455  chunked Transfer-Encoding   → close+drain  ✓
+  L457-464  bad / missing Content-Length→ close+drain  ✓
+  L465-469  no worker slot (503)        → close+drain  ✓
+
+POST handler — post-body-read rejections (all correct):
+  L474-480  BadRequest (parse_request)  → close+drain  ✓  (body consumed at L471)
+  L481-485  unexpected exception        → close+drain  ✓  (body consumed at L471)
+  L488-496  model returned no move (500)→ close, no drain
+              Body already consumed at L471; drain=True is unnecessary
+              but would be harmless.  Not a finding.  ✓
+
+GET handler:
+  L421-426  /health → 200               no close, no drain  ✓  (GET has no body)
+  L425-426  404                         no close, no drain  ✓  (GET has no body;
+              a 404 GET keeps the connection alive, which is intentional
+              for HTTP/1.1 and safe because there is no unread body)
+
+OPTIONS handler:
+  L401-405  path not in PATHS           → close+drain  ✓
+  L406-410  origin not allowed          → close, NO drain  ⚠  (see §1)
+  L411-416  204 success                 no close, no drain  ✓  (no body)
+
+HeaderTooLarge path (L331-344):         → close+drain  ✓
+parse_request() 431 path (L388-392):    → close+drain  ✓
+
+No path leaves a connection open with an unread body.  The OPTIONS 403
+drain omission (§1) is the only inconsistency, and it is not
+exploitable.
+
+
+─────────────────────────────────────────────────────
+4. New findings
+─────────────────────────────────────────────────────
+
+LOW-2  server.py:408  do_OPTIONS 403 drain omission
+
+  The only new observation from this pass.  The 403 branch sets
+  close_connection=True (the critical fix from LOW-1) but omits
+  drain=True, leaving an inconsistency with the adjacent 404 branch.
+  Impact: cosmetic / defensive-hygiene only; no exploitable vector.
+
+No other new findings.
+
+
+─────────────────────────────────────────────────────
+Summary
+─────────────────────────────────────────────────────
+
+LOW-1 (server.py:407): RESOLVED (close_connection=True added).
+LOW-2 (server.py:408): NEW — drain=True missing on the 403 branch of
+  do_OPTIONS; low impact, easy one-line fix, not a blocker.
+
+90a2851 (proof.py): not served, not in scope, no findings.
+
+Verdict: SHIP

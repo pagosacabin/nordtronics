@@ -1,0 +1,19 @@
+# LOW-2 discriminating probe (reader consumes the exact Content-Length body)
+-- run 1
+403 origin not allowed   HTTP/1.1 403 Forbidden Connection:(absent)  body=31B  second-request-answered=False expected=False PASS
+204 allowed origin       HTTP/1.1 204 No Content Connection:(absent)  body=0B  second-request-answered=True  expected=True  PASS
+--- server journal ---
+pocket-conquest-bridge: listening on http://127.0.0.1:8768 (model=deepseek-flash, max_concurrency=4, rate=60/min burst=10, origins=https://good.example)
+pocket-conquest-move method=OPTIONS path=/pocket-conquest-move status=403 source=none elapsed_ms=200
+pocket-conquest-move method=OPTIONS path=/pocket-conquest-move status=204 source=none elapsed_ms=0
+pocket-conquest-move method=OPTIONS path=/pocket-conquest-move status=204 source=none elapsed_ms=0
+
+-- run 2
+403 origin not allowed   HTTP/1.1 403 Forbidden Connection:(absent)  body=31B  second-request-answered=False expected=False PASS
+204 allowed origin       HTTP/1.1 204 No Content Connection:(absent)  body=0B  second-request-answered=True  expected=True  PASS
+--- server journal ---
+pocket-conquest-bridge: listening on http://127.0.0.1:8768 (model=deepseek-flash, max_concurrency=4, rate=60/min burst=10, origins=https://good.example)
+pocket-conquest-move method=OPTIONS path=/pocket-conquest-move status=403 source=none elapsed_ms=200
+pocket-conquest-move method=OPTIONS path=/pocket-conquest-move status=204 source=none elapsed_ms=0
+pocket-conquest-move method=OPTIONS path=/pocket-conquest-move status=204 source=none elapsed_ms=0
+

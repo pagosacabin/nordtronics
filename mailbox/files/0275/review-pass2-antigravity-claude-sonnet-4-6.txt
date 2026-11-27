@@ -1,0 +1,156 @@
+pocket-conquest-bridge — Second-pass review
+2026-11-27  Reviewer: same as pass 1
+
+════════════════════════════════════════════════════════════
+SECURITY CHECKLIST  (seven items, one line each)
+════════════════════════════════════════════════════════════
+
+[1] PASS  Upstream URL scheme enforced (https or loopback http); redirect suppressed.
+[2] PASS  Bearer key read from env, never logged or echoed.
+[3] PASS  Token bucket + bounded semaphore cap API spend and thread count.
+[4] PASS  One deadline across the full handler; each model attempt draws from it.
+[5] PASS  Socket read timeout (HEADER_TIMEOUT=5 s); BoundedReader caps header bytes.
+[6] PASS  500 details stay in the journal; opaque "internal error" on the wire.
+[7] PASS  requirements.txt exists; stdlib-only declared; pinning rule stated for any future dep.
+
+════════════════════════════════════════════════════════════
+CLAIMED FIXES — VERIFIED AGAINST CODE
+════════════════════════════════════════════════════════════
+
+HIGH 1 (close_connection + drain on rejections)  — PARTIALLY FIXED
+  The claimed fix is correct for the paths listed by the author:
+    • 429  (line 438–440):  close_connection = True, drain=True  ✓
+    • 400 TE chunked (445–447):  close_connection = True, drain=True  ✓
+    • 400 bad/missing CL (454–456):  close_connection = True, drain=True  ✓
+    • 503 slot exhausted (459–461):  close_connection = True, drain=True  ✓
+    • 400 BadRequest (470–472):  close_connection = True, drain=True  ✓
+    • 500 generic exception (475–478):  close_connection = True, drain=True  ✓
+    • 431 HeaderTooLarge (handle_one_request override, 333+341):  close_connection = True, drain=True  ✓
+
+  NOT fixed — two early-exit paths in do_POST still omit close_connection + drain:
+    • 404 (unknown path, lines 429–432)
+    • 403 (origin not allowed, lines 433–436)
+
+  In both cases the client sent a POST with a Content-Length body. The body is
+  never consumed. BaseHTTPRequestHandler.parse_request() sets close_connection=False
+  for HTTP/1.1 (confirmed in CPython source). After do_POST returns, handle()
+  loops and calls handle_one_request() again, which reads the unread body bytes
+  as a new HTTP request line. A hostile client can smuggle a second request by
+  posting to an unknown path whose body is a valid HTTP request.
+
+  Similarly the secondary 431 path inside the Handler.parse_request() override
+  (lines 388–392) sends a 431 without setting close_connection=True. When
+  parse_request() returns False, CPython's handle_one_request() simply returns
+  (comment: "An error code has been sent, just exit") but does not set
+  close_connection. handle() then loops and parses the still-unread POST body.
+
+HIGH 2 (Transfer-Encoding rejected before Content-Length, body framing)  — FIXED
+  Lines 444–448: Transfer-Encoding header present → 400 + close_connection + drain,
+  before Content-Length is ever examined. Missing or oversized Content-Length then
+  gets 400 + close_connection + drain at lines 453–456. Order and framing are
+  correct.
+
+MEDIUM 3 (BoundedReader.read unmetered)  — DOCUMENTED, ACCEPTED
+  Docstring at lines 309–313 is clear: read() is intentionally unmetered; the body
+  is capped by the Content-Length guard that precedes the read() call. Acceptable.
+
+MEDIUM 6 (origin echo)  — FIXED
+  Docstring (lines 150–154) now explicitly states the no-credentials/no-session
+  precondition and forbids echoing if either is ever added.
+
+NIT 10 (zero-padded index)  — FIXED
+  parse_reply(), agent_core.py line 122: `index == str(n)` rejects "01" because
+  str(1) == "1" ≠ "01". Verified by running the selftest case at line 271.
+
+NIT 11 (repr snippet trailing quote)  — FIXED
+  agent_core.py lines 171–172: `shown[:77] + "..."` replaces the previous
+  `shown[:77] + "'"`. The snippet now correctly truncates without appending a
+  spurious closing quote. repr() already opens with a quote; the truncation just
+  drops the closing one, which is intentional.
+
+Checklist item 7 (pinned dependencies)  — FIXED
+  requirements.txt exists and states stdlib-only with the pinning rule for any
+  future third-party dependency.
+
+════════════════════════════════════════════════════════════
+NEW FINDINGS
+════════════════════════════════════════════════════════════
+
+HIGH 3  server.py:429-432 and 433-436
+        Request-smuggling via unread POST body on 404/403 paths.
+
+        When a POST hits do_POST() with a path not in PATHS or an origin that
+        is not in ALLOWED_ORIGINS, the handler sends the error and returns
+        without (a) reading the request body, (b) setting
+        self.close_connection = True, or (c) draining. Because the class
+        declares protocol_version = "HTTP/1.1" and BaseHTTPRequestHandler.
+        parse_request() sets close_connection = False for HTTP/1.1 by default,
+        handle() loops and feeds the unread body bytes back into
+        handle_one_request() as the next request line. A client can craft a
+        Content-Length body whose bytes look like a valid HTTP request and have
+        it processed as a second, server-trusted request.
+
+        Fix: add self.close_connection = True (and optionally drain) before
+        the return at lines 432 and 436. Because the body has not been read
+        in these paths, draining is prudent but setting close_connection is
+        sufficient to stop the loop.
+
+        Example:
+            if path not in PATHS:
+                self.close_connection = True          # <-- add
+                self._send(404, {"error": "not found"}, origin, drain=True)  # drain optional
+                log(...)
+                return
+
+HIGH 4  server.py:388-392
+        Same class of defect in the secondary 431 path inside Handler.parse_request().
+
+        When sum(len(k)+len(v)) > MAX_HEADER_BYTES for a parsed request,
+        parse_request() sends 431 and returns False. CPython's
+        handle_one_request() returns without setting close_connection (it only
+        does so for the EOF case). handle() loops; the unread POST body is
+        fed back as the next request. The BoundedReader guard (HeaderTooLarge)
+        already handles 431 correctly (close_connection=True, drain=True at
+        lines 333+341), but this secondary check at line 389 does not.
+
+        Fix: set self.close_connection = True (and drain) inside
+        Handler.parse_request() before returning False on the size check:
+
+            if size > MAX_HEADER_BYTES:
+                self.close_connection = True          # <-- add
+                self._send(431, {"error": "request headers too large"}, self._origin(), drain=True)
+                log(...)
+                return False
+
+MEDIUM 5  server.py:481-487
+        The "no legal move" 500 path does not set close_connection.
+
+        When pick_move() exhausts retries (move is None), _send(500, ...) is
+        called without close_connection=True (line 484). The body was consumed
+        (read() succeeded), so there is no framing hazard. However, a 500
+        should close the connection for defensive consistency; a client that
+        retries on the same keep-alive socket will burn another slot and another
+        LIMITER token even after a definitive model failure. This is MEDIUM
+        severity (no security hole, operational concern).
+
+        Fix: set self.close_connection = True before line 484.
+
+════════════════════════════════════════════════════════════
+NOTHING BROKEN BY THE FIXES
+════════════════════════════════════════════════════════════
+
+• Slot accounting is correct: the SLOTS.release() in the finally block (line 480)
+  runs for every path that enters the try block, including both except returns.
+  Python guarantees finally executes even when a bare return is inside an except
+  clause. No slot leak was introduced.
+
+• The 204 OPTIONS preflight (lines 408-413) includes both the CORS headers and
+  Content-Length: 0. The preflight was not broken.
+
+• The _drain() helper (lines 357-364) uses a 16-iteration cap and 0.2 s timeout;
+  it cannot block indefinitely.
+
+• The 200 success path correctly does NOT set close_connection and does NOT drain,
+  preserving keep-alive for the page's subsequent requests.
+
+Verdict: FIX

@@ -1,0 +1,12 @@
+initial position (S to move: build or move from B5)        -> M B5 B4 3         0.64s  legal (move B5->B4 with 3; chose from 12 options: 2 build, 9 move, 1 end turn)
+                                                              side now S, gold S:10 R:10, turn 1
+after a build, an advance and END (R to move)              -> M E1 D1 3         0.82s  legal (attack E1->D1 with 3; chose from 12 options: 2 build, 6 move, 3 attack, 1 end turn)
+                                                              side now R, gold S:7 R:10, turn 1
+midgame: build at B5, move C5, or attack C4                -> M C5 C4 5         0.64s  legal (attack C5->C4 with 5; chose from 34 options: 6 build, 22 move, 5 attack, 1 end turn)
+                                                              side now S, gold S:15 R:12, turn 1
+siege: Stephen can take Emberhold this turn                -> M E2 E1 1         0.74s  legal (attack E2->E1 with 1; chose from 35 options: 1 build, 27 move, 6 attack, 1 end turn)
+                                                              side now S, gold S:5 R:8, turn 1
+garbage body                                               -> HTTP 400  fail-closed
+missing position                                           -> HTTP 400  fail-closed
+
+0 failing case(s)

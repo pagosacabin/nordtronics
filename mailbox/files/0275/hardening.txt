@@ -1,0 +1,18 @@
+garbage JSON body                                    -> HTTP 400  PASS
+no position key                                      -> HTTP 400  PASS
+unknown path                                         -> HTTP 404  PASS
+unknown method (DELETE)                              -> HTTP 501  PASS
+oversized Content-Length                             -> HTTP 400  PASS
+Transfer-Encoding: chunked                           -> HTTP 400  PASS
+16 KiB header block                                  -> HTTP 431  PASS
+pipelined request after a rejected one               -> 1 answer(s) PASS
+pipelined request behind a 404                       -> 1 answer(s) PASS
+GET /health                                          -> HTTP 200  PASS
+OPTIONS preflight                                    -> HTTP 204  PASS
+rate limit reached under a burst                     -> skipped (set PC_CHECK_RATE=1 on a low-limit instance)
+
+0 failing check(s)
+
+# rate limiter, dedicated scratch instance (burst=3, 6/min, port 8770)
+burst=3, 6/min -> first five rapid POSTs: [400, 400, 400, 429, 429]
+4th and 5th are 429: True

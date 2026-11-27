@@ -1,0 +1,12 @@
+POST /pocket-conquest                         -> 200 M B5 B4 1              PASS
+POST /pocket-conquest/                        -> 200 M B5 B4 1              PASS
+POST /pocket-conquest/pocket-conquest-move    -> 200 M B5 B4 1              PASS
+POST /pocket-conquest-move                    -> 200 M B5 B4 1              PASS
+POST /                                        -> 200 M B5 B4 1              PASS
+POST /pocket-conquest/other                   -> 404 not found              PASS
+POST /pocket-conquest-move/x                  -> 404 not found              PASS
+GET  /health                                  -> 200 PASS
+GET  /pocket-conquest/health                  -> 200 PASS
+GET  /pocket-conquest                         -> 404 PASS
+
+0 failing case(s)

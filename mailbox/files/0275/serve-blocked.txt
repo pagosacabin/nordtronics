@@ -1,0 +1,9 @@
+$ tailscale serve status
+https://home.tail2bff3f.ts.net (tailnet only)
+|-- /           proxy http://127.0.0.1:9120
+|-- /chese-move proxy http://127.0.0.1:8765
+
+
+$ sudo -n tailscale serve --bg --https=443 --set-path /pocket-conquest http://127.0.0.1:8767
+sudo: a password is required
+rc=1

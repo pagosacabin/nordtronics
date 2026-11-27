@@ -1,0 +1,16 @@
+Final confirmation pass on the same service (pass 4). Pass 3 ended "Verdict: SHIP" with one open LOW finding:
+
+  LOW-1  server.py:407  do_OPTIONS 403 (origin not allowed) did not set close_connection and did not drain.
+
+The fix landed in commit 125b3f0 ("close the connection on a refused OPTIONS preflight"). Two commits were pushed since your pass 3 review: 125b3f0 (the LOW-1 fix) and 90a2851 (proof.py only — the R-turn proof case now applies END so it really is R's turn; proof.py is a test harness, not served).
+
+Re-read /home/astroboy/wt/0275-pocket-conquest/pocket-conquest-bridge/server.py (full file) and confirm:
+
+  1. do_OPTIONS 403 now sets close_connection = True and calls _send with drain=True, or state exactly what it does instead and whether that is safe;
+  2. the success 200 POST path still keeps the connection alive and does not drain;
+  3. no other error path in the file leaves a connection open with an unread body (request-smuggling / slot-accounting check);
+  4. nothing new appeared.
+
+Number any finding with severity and file:line. If there are none, write "No findings."
+
+Write the review to /home/astroboy/.hermes/profiles/cronrunner/cache/scratch/0275-review-4.txt and print it. End with exactly one line: "Verdict: SHIP" or "Verdict: FIX".
