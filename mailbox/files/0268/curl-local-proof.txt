@@ -1,0 +1,31 @@
+== GET /health
+{"ok": true, "model": "deepseek-flash", "stockfish": "Stockfish 17.1"}
+
+== OPTIONS preflight (Origin https://nordtronics.io)
+status 204 {'Access-Control-Allow-Origin': 'https://nordtronics.io', 'Access-Control-Allow-Methods': 'POST, OPTIONS', 'Access-Control-Allow-Headers': 'content-type', 'Access-Control-Max-Age': '600'}
+
+== POST start position
+   fen: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
+   -> {"move": "e2e4"} in 0.74s  legal=True
+
+== POST italian midgame
+   fen: r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 4
+   -> {"move": "g8f6"} in 0.68s  legal=True
+
+== POST kingside attack
+   fen: r1bq1rk1/ppp2ppp/2np1n2/2b1p3/2B1P3/2NP1N2/PPPB1PPP/R2Q1RK1 w - - 0 8
+   -> {"move": "c4b5"} in 0.62s  legal=True
+
+== fail-closed cases
+   invalid fen -> 400 {"error": "fen is not a valid position"}
+   missing fen -> 400 {"error": "fen must be a non-empty string of at most 128 chars"}
+   oversized moves -> 400 {"error": "moves must be a list of at most 512 entries"}
+
+== journal (last 6)
+Nov 27 08:33:11 home run.sh[1379489]: chess-move status=200 source=model elapsed_ms=737 usage={"prompt_tokens": 218, "completion_tokens": 4, "total_tokens": 222, "prompt_tokens_details": {"cached_tokens": 0}, "prompt_cache_hit_tokens": 0, "prompt_cache_miss_tokens": 218}
+Nov 27 08:33:12 home run.sh[1379489]: chess-move status=200 source=model elapsed_ms=679 usage={"prompt_tokens": 293, "completion_tokens": 4, "total_tokens": 297, "prompt_tokens_details": {"cached_tokens": 128}, "prompt_cache_hit_tokens": 128, "prompt_cache_miss_tokens": 165}
+Nov 27 08:33:13 home run.sh[1379489]: chess-move status=200 source=model elapsed_ms=617 usage={"prompt_tokens": 310, "completion_tokens": 4, "total_tokens": 314, "prompt_tokens_details": {"cached_tokens": 0}, "prompt_cache_hit_tokens": 0, "prompt_cache_miss_tokens": 310}
+Nov 27 08:33:13 home run.sh[1379489]: chess-move status=400 source=none elapsed_ms=0
+Nov 27 08:33:13 home run.sh[1379489]: chess-move status=400 source=none elapsed_ms=0
+Nov 27 08:33:13 home run.sh[1379489]: chess-move status=400 source=none elapsed_ms=0
+
