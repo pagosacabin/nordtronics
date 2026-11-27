@@ -1,0 +1,37 @@
+Tool 'make_move' rejected arguments: ['side']
+created game: {"id": "mcp8tncv", "mode": "juno", "moves": [], "fen": null, "juno_side": "black", "status": "active", "created": "2026-11-27T16:06:11.042288Z", "updated": "2026-11-27T16:06:11.042309Z"}
+
+server: chess 
+tools: get_game, list_legal_moves, make_move
+
+$ get_game(mcp8tncv)
+{"api_fen": null, "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "game_id": "mcp8tncv", "juno_side": "black", "moves": [], "side_to_move": "white", "status": "active"}
+
+$ list_legal_moves(game_id=mcp8tncv)
+{"fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "moves": ["a2a3", "a2a4", "b1a3", "b1c3", "b2b3", "b2b4", "c2c3", "c2c4", "d2d3", "d2d4", "e2e3", "e2e4", "f2f3", "f2f4", "g1f3", "g1h3", "g2g3", "g2g4", "h2h3", "h2h4"]}
+
+$ make_move illegal (e2e5)
+{"error": "e2e5 is not legal in this position"}
+
+$ make_move wrong turn (side=opposite, a2a3)
+{"error": "not black's turn (white to move)"}
+
+$ make_move non-string side (0)
+{"raw": "Error executing tool make_move: 1 validation error for make_moveArguments\nside\n  Input should be a valid string [type=string_type, input_value=0, input_type=int]\n    For further information visit https://errors.pydantic.dev/2.14/v/string_type"}
+
+$ get_game -> still at the starting move count
+{"api_fen": null, "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "game_id": "mcp8tncv", "juno_side": "black", "moves": [], "side_to_move": "white", "status": "active"}
+
+$ make_move(mcp8tncv, a2a3)
+{"fen": "rnbqkbnr/pppppppp/8/8/8/P7/1PPPPPPP/RNBQKBNR b KQkq - 0 1", "game_id": "mcp8tncv", "move_uci": "a2a3", "san": "a3", "side": "white"}
+
+$ get_game -> position advanced, list_legal_moves now offers the other side
+{"api_fen": "rnbqkbnr/pppppppp/8/8/8/P7/1PPPPPPP/RNBQKBNR b KQkq - 0 1", "fen": "rnbqkbnr/pppppppp/8/8/8/P7/1PPPPPPP/RNBQKBNR b KQkq - 0 1", "game_id": "mcp8tncv", "juno_side": "black", "moves": ["a3"], "side_to_move": "black", "status": "active"}
+
+$ make_move(mcp8tncv, a7a5)
+{"fen": "rnbqkbnr/1ppppppp/8/p7/8/P7/1PPPPPPP/RNBQKBNR w KQkq a6 0 2", "game_id": "mcp8tncv", "move_uci": "a7a5", "san": "a5", "side": "black"}
+
+$ GET /games/mcp8tncv.json
+{"id": "mcp8tncv", "moves": ["a3", "a5"], "fen": "rnbqkbnr/1ppppppp/8/p7/8/P7/1PPPPPPP/RNBQKBNR w KQkq a6 0 2", "status": "active"}
+
+GAME_ID=mcp8tncv  (no delete endpoint on the game API: remove it server-side)

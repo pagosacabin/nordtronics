@@ -1,0 +1,17 @@
+server says: {"id": "mcp8tncv", "moves": ["a3", "a5"], "status": "active"}
+PAGE, game played through the MCP tools: {
+  "game_label": "mcp8tncv",
+  "move_list": "1. a3 \u00a0a5",
+  "move_count": "1 move",
+  "status": "Your move \u2014 White",
+  "last_move_highlighted": 2
+}
+NEGATIVE CONTROL (stored fen posted pre-move): {
+  "game_label": "api-probe-1",
+  "move_list": "",
+  "move_count": "",
+  "status": "Waiting for Juno\u2026",
+  "last_move_highlighted": 0
+}
+
+PAGE SHOWS THE MCP GAME: PASS (missing SANs: [])

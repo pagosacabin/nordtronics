@@ -1,0 +1,13 @@
+Follow-up review pass on the same MCP server, now at commit 467328b (branch hermes/0270-chess-mcp, worktree /home/astroboy/wt/0270-chess-mcp). Re-read the files:
+  /home/astroboy/wt/0270-chess-mcp/chess-mcp/server.py
+  /home/astroboy/wt/0270-chess-mcp/chess-mcp/tests/mcp_session_proof.py
+  /home/astroboy/wt/0270-chess-mcp/chess-mcp/README.md
+
+Your four findings and the fixes claimed:
+ 1 HIGH  non-string side raised AttributeError -> isinstance check added before .lower() in make_move
+ 2 MED   non-string fen raised TypeError on len() -> isinstance check added in list_legal_moves
+ 3 MED   /api/move success never verified -> make_move re-reads the game and fails closed unless the move count advanced by one and the last SAN matches
+ 4 LOW   proof leaves a persistent public game -> proof now takes --game <id> to reuse an existing game and prints the id as the thing to remove
+Also changed: CHESS_API_BASE must be https unless CHESS_API_ALLOW_INSECURE=1; the fens are now emitted as board.fen(en_passant="fen") to match the page's own toFEN dialect (the page silently drops the move list otherwise).
+
+Verify each of the four is actually resolved in the code. Keep replying to item 3 of the checklist (auth) as a design fact, not a defect, if that is your judgement. List any NEW defect as NUMBERS with severity and file:line. Do not modify any file. End with a line of exactly the form:  Verdict: SHIP   or   Verdict: FIX

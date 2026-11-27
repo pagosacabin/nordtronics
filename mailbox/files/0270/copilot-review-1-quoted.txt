@@ -1,0 +1,20 @@
+Quoted from pane t17 (copilot-main) after review pass 1 on commit
+48c8637/d899f9c. Not a saved log -- the pane's scrollback has since rolled past it;
+this is the reviewer's text as it appeared, copied by hand from the pane read.
+
+Checklist:
+ 1. PASS - No hardcoded secrets: server.py:25 uses only an environment-configurable API base; no credentials or API keys are present.
+ 2. PASS - Input bounds: Game IDs, FENs, moves, SAN lists, and response bodies are bounded at server.py:27-31,82-105,145-175.
+ 3. FAIL - Authentication: README.md:9-11 confirms the upstream game API has no authentication. MCP stdio protects only transport access; tools get_game and make_move expose public game reads and writes through server.py:124-205 without authorization.
+ 4. FAIL - TLS guarantee: HTTPS is the default at server.py:25, but CHESS_API_BASE is unrestricted and HTTP overrides are accepted, as shown by README.md:9-10,44.
+ 5. PASS - Least privilege: It opens no listener or port and has no credentials; stdio limits exposure to the MCP client (README.md:7-11).
+ 6. FAIL - Fail-closed errors: fen and side have runtime type errors not caught by ChessApiError at server.py:147-150,183-186; a successful HTTP response also is not validated after /api/move.
+ 7. PASS - Pinned dependencies: Both direct dependencies are exact-pinned in requirements.txt:1-2.
+
+Findings:
+ 1 HIGH   server.py:183-186  Non-string side raises AttributeError instead of returning a tool error, violating the claim that no tool raises.
+ 2 MEDIUM server.py:147-150  Non-string fen raises TypeError on len(fen) instead of a bounded, structured ChessApiError.
+ 3 MEDIUM server.py:198-201  /api/move success is never re-read or verified; HTTP 200 can report success even if the public game did not change.
+ 4 LOW    tests/mcp_session_proof.py:62  Proof creates a persistent public throwaway game and never deletes it.
+
+ Verdict: FIX
