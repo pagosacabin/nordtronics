@@ -1,0 +1,25 @@
+Chess bridge v2 security and correctness review — commit 08a5a9d
+
+7-item security checklist
+
+1. PASS — No hardcoded secrets. `server.py:61-63` reads the DeepSeek URL, model, and Stockfish path from environment variables; `run.sh:6-11` reads only DEEPSEEK_API_KEY from the environment or ~/.hermes/.env and exports it. No key is in source or responses.
+2. PASS — Inputs are bounds-checked. `server.py:73-76` caps body, FEN, move count, and move length; `server.py:512-542` validates JSON object shape, FEN, moves, UCI syntax, and chess legality. Difficulty/personality are allowlisted and defaulted at `server.py:201-214`; HTTP headers, body length, and worker access remain bounded.
+3. PASS by design — Authentication. The README and task explicitly accept the no-OAuth/tailnet-only design. `server.py:667-725` has no application auth, but Tailscale is the external boundary and CORS is not confused with authentication.
+4. PASS — TLS off-box. Upstream URLs are HTTPS-or-loopback-only at `server.py:118-131`; redirect following is disabled at `server.py:46-54`. Tailscale Serve terminates browser-facing HTTPS and the service binds loopback HTTP.
+5. PASS — Least privilege. The systemd unit remains a hardened user unit with no capabilities, `ProtectSystem=strict`, `ProtectHome=read-only`, private tmp/devices, namespace/syscall restrictions, address-family restrictions, and resource limits.
+6. PASS — Fail-closed. Invalid input returns 400; Stockfish identity/startup and engine/candidate failures yield 500; model failures return the validated top candidate with an empty comment; no unvalidated or nonlegal model move is returned. `server.py:217-252,327-429,545-582,752-784` contain the relevant parsing and fallback paths.
+7. PASS — Pinned dependencies. `requirements.txt:1` pins chess==1.11.2. Stockfish is installed from a pinned SHA-256 tarball and rechecked for Stockfish 17.1; no new dependency was added.
+
+Numbered findings
+
+No findings.
+
+The v2 logic review found:
+- MultiPV is capped to the legal-move count, each candidate is extracted from a PV, converted to a side-to-move POV score/mate, rechecked against legal moves, and sorted by score. Candidate count/depth/time are fixed allowlisted maps. `server.py:327-429`.
+- The hard limits do not exceed the 5.5-second handler deadline: engine work is bounded by remaining handler time and Stockfish limits, model calls use the remaining deadline, retry requires at least 0.8 seconds, and the HTTP handler's model calls use no more than 2.6 seconds each. `server.py:65-71,327-367,545-582`.
+- Blunder detection reconstructs history from full history or an explicitly guarded tail-FEN, validates the pushed last move, uses mate guards, and computes the player's post-move eval as minus the opponent-POV top candidate. The 150-centipawn threshold is exact. `server.py:431-510`.
+- Model replies are extracted from JSON/fences, stripped, checked for an object, candidate membership, UCI syntax, and legal-move membership before acceptance. `server.py:217-252,255-324`.
+- Retry only requests another model call after the first is unusable and at least 0.8 seconds remain; all failed model paths return the already-validated Stockfish candidate[0] and comment "". `server.py:545-582`.
+- The candidate, blunder, model, retry, and response stages remain within the 5.5-second handler budget and page 6-second target under normal HTTP operation. `server.py:65-71,327-367,545-582,752-784`.
+
+Verdict: SHIP

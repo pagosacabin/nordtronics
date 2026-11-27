@@ -1,0 +1,27 @@
+startpos/normal  status=200 elapsed=1.301s move=e2e4  legal=True in_candidates=True
+   candidates=['e2e4', 'd2d4', 'e2e3', 'g1f3']
+   comment="Let's start by moving the pawn in front of your king two squares forward. This opens up space for your pieces and controls the center of the board."
+italian/normal   status=200 elapsed=1.281s move=e1g1  legal=True in_candidates=True
+   candidates=['d2d3', 'e1g1', 'a2a3', 'h2h3']
+   comment="Castling gets your king safe and brings your rook into the game. It's a solid, natural move here."
+kingside/normal  status=200 elapsed=1.459s move=c3a4  legal=True in_candidates=True
+   candidates=['c3a4', 'h2h3', 'a2a4', 'c1g5']
+   comment="Move your knight to a4 to challenge the bishop on c5 and make it move again. It's a simple way to gain a little time and improve your position."
+blunder/normal   status=200 elapsed=1.441s move=d8h4  legal=True in_candidates=True
+   candidates=['d8h4', 'h7h5', 'd7d5', 'f7f5']
+   comment="Your g2-g4 was a mistake because it opened your king to a quick checkmate; e2-e4 was much better. Now I play Qh4, and that's checkmate — your king has no escape."
+blunder/easy     status=200 elapsed=1.469s move=d8h4  legal=True in_candidates=True
+   candidates=['d8h4', 'h7h5', 'f7f5']
+   comment='Your g2-g4 move was a mistake because it opened a path for my queen to give checkmate right away with Qh4#. A much better move was e2-e4, which would have kept the game balanced.'
+blunder/hard     status=200 elapsed=1.729s move=d8h4  legal=True in_candidates=True
+   candidates=['d8h4', 'h7h5', 'd7d5', 'b8c6', 'f8e7']
+   comment='Your g2-g4 was a bad mistake because it opened a path for my queen to give checkmate right now with Qh4#. A much better move was e2-e4, which would have kept you safe.'
+phantom-ep       status=200 move=e2e4 legal=True
+invalid-fen      status=400 body={'error': 'fen is not a valid position'}
+600-moves        status=400 body={'error': 'moves must be a list of at most 512 entries'}
+missing-fen      status=400 body={'error': 'fen must be a non-empty string of at most 128 chars'}
+no-body-json     status=400 body={}
+options/evil-origin status=403 acao=None
+options/page-origin status=204 acao='https://nordtronics.io' methods='POST, OPTIONS'
+
+FAILURES: none
