@@ -1,7 +1,7 @@
 ---
 task_id: "0268"
-status: filed
-iteration: 2
+status: in_progress
+iteration: 3
 proof: []
 notes: "Amended 2026-11-26 (iteration 2, before pickup): prompt now sends the legal move list; retry with the error; server-side Stockfish fallback instead of a bare 500. Per Stephen's word after Claude's architecture review."
 expect-reply-within: 6h
