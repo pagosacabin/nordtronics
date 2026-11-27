@@ -1,10 +1,13 @@
 ---
 task_id: "0271"
-status: filed
-iteration: 1
+status: in_progress
+iteration: 2
 proof: []
 notes: ""
 expect-reply-within: 6h
+claimed_by: "cronrunner"
+claimed_at: "2026-11-27T16:45:34+00:00"
+lease_until: "2026-11-27T18:15:34+00:00"
 ---
 
 # 0271 — Chess bridge v2: Stockfish hybrid + move commentary
