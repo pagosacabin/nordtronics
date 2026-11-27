@@ -3,7 +3,7 @@ task_id: "0278"
 status: filed
 iteration: 1
 proof: []
-notes: ""
+notes: "Symptom refined 2026-11-27 12:57 by Stephen: the new photo DOES display after a shoot; the freeze happens after pressing KEEP on the prompt — the kept photo stays up and the slideshow never resumes."
 expect-reply-within: 24h
 ---
 
@@ -15,20 +15,21 @@ expect-reply-within: 24h
 - Copilot: peer review (open lane — frame display).
 
 ## Context
-The living frame (YD-ESP32-S3 N16R8, VGA DAC, SD card photo library) was reassembled into its wooden case Nov 27, 2026. The 0261 mirror fix is in place and visually confirmed (a shot of a cap reading "Sled Dogs" displays the text the right way round, not mirrored). After that change, a new fault appeared: after taking a picture, the frame locks on that picture and does not go past it. The "Keep this picture?" prompt appears, but the slideshow never resumes. Pressing the button takes another picture (the camera shoots) but the new photo does not display and the slideshow does not advance. The frame stays locked on the last photo. It is not established whether the 0261 change caused this or whether it is a pre-existing fault only now observed; diagnose from the code and the bench, do not assume.
+The living frame (YD-ESP32-S3 N16R8, VGA DAC, SD card photo library) was reassembled into its wooden case Nov 27, 2026. The 0261 mirror fix is in place and visually confirmed (a shot of a cap reading "Sled Dogs" displays the text the right way round, not mirrored). After that change, a fault appeared in the shoot flow. Refined symptom (Stephen, Nov 27 12:57): the shoot itself works — press the button, the camera counts down and shoots, the new photo displays, and the keep/discard prompt appears. Press KEEP and the kept photo stays displayed — but then the frame freezes on that photo and the slideshow never resumes. It never advances to the next library photo. That is as far as it ever gets. The discard and timeout paths are unconfirmed; verify them too. It is not established whether the 0261 change caused this or whether it is a pre-existing fault only now observed; diagnose from the code and the bench, do not assume.
 
 ## Task
 Diagnose and fix the frame's photo/slideshow state machine so that after a shoot the frame resumes the slideshow:
 1. After a shoot, the frame shows the photo with the keep/discard prompt, as now.
-2. Pressing keep, pressing discard (hold 2 s), or the prompt timing out must all return the frame to the slideshow.
-3. Taking a second photo must display the new photo (not stay stuck on the first).
-4. The slideshow must advance through the library normally after shoots.
+2. Pressing KEEP must return the frame to the slideshow (advance to the next library photo). The kept photo must not freeze on screen.
+3. Pressing DISCARD (hold 2 s) and the prompt timing out must also return the frame to the slideshow — verify both paths.
+4. Taking a second photo must display the new photo, and after keeping it the slideshow must resume again.
 5. No lock, no need to power-cycle to recover.
 
 ## Success criteria
 - Shoot a photo: frame shows it with the keep/discard prompt.
-- Keep (or discard, or timeout): slideshow resumes and advances to the next library photo.
-- Shoot a second photo: the new photo displays; the frame does not stay stuck on the first.
+- Press KEEP: slideshow resumes and advances to the next library photo (does not freeze on the kept photo).
+- Press DISCARD and let the prompt time out: slideshow resumes in both cases.
+- Shoot a second photo, keep it: slideshow resumes again.
 - Slideshow advances normally through the library after shoots, with no lock.
 - Branch pushed to cabin-play; bench log / photos as proof.
 
@@ -42,9 +43,9 @@ Diagnose and fix the frame's photo/slideshow state machine so that after a shoot
 
 ## Proof
 - Branch name + SHA on origin (cabin-play).
-- Bench log or photos showing: shoot, prompt, slideshow resuming, and a second shoot displaying the new photo.
+- Bench log or photos showing: shoot, prompt, KEEP, slideshow resuming, and a second shoot + keep resuming again.
 - Confirmation the mirror fix still holds (a shot with text reads correctly).
 - Copilot review verdict (open lane).
 
 ## Reply format
-- Status (DONE / BLOCKED), branch + SHA, what was changed (file + lines), bench proof (shoot, resume, second shoot), Copilot verdict, and any deviation.
+- Status (DONE / BLOCKED), branch + SHA, what was changed (file + lines), bench proof (shoot, keep, resume, second shoot), Copilot verdict, and any deviation.
