@@ -1,9 +1,9 @@
 ---
 task_id: "0268"
 status: filed
-iteration: 1
+iteration: 2
 proof: []
-notes: ""
+notes: "Amended 2026-11-26 (iteration 2, before pickup): prompt now sends the legal move list; retry with the error; server-side Stockfish fallback instead of a bare 500. Per Stephen's word after Claude's architecture review."
 expect-reply-within: 6h
 ---
 
@@ -34,17 +34,23 @@ path must carry no OAuth.
    only unless a dependency is named in the reply:
    - `POST /` (or one fixed path) with JSON `{"fen": "…", "moves": […]}`
      returns JSON `{"move": "<uci>"}`.
-   - On any failure (bad input, model error, illegal move) return HTTP
-     500 with `{"error": "…"}` so the page falls back to the built-in
-     computer. Never return an illegal move as if it were good.
+   - On any failure Stockfish cannot cover, return HTTP 500 with
+     `{"error": "…"}` so the page falls back to the built-in
+     computer. Never return an illegal move as if it were good, and
+     never answer a random legal move.
 2. The service calls DeepSeek with the same model and key Hermes
    already uses for his own work. The key stays under `~/.hermes/`
    (Hermes knows the exact path) and never appears in code, the task,
-   or the staged reply. Prompt shape: the FEN plus the moves so far,
-   asking for exactly one legal move in UCI format and nothing else;
-   low temperature, small max tokens. Validate the returned move is
-   legal for the given FEN before answering (python-chess or
-   equivalent — name it if you install one).
+   or the staged reply. Prompt shape: the FEN, the moves so far, AND
+   the list of legal moves (UCI) for the position — ask for exactly
+   one move from that list and nothing else; low temperature, small
+   max tokens. Validate the returned move is legal for the given FEN
+   before answering (python-chess or equivalent — name it if you
+   install one). If the reply is illegal or not in the list, retry
+   once or twice, sending the error back with the position and the
+   legal list. If it still fails, fall back server-side to Stockfish:
+   play Stockfish's best move for the position. A random legal move
+   is never the fallback — it can hang a piece.
 3. Keep the whole round trip inside the page's 6-second budget: short
    prompt, small max tokens, and a client-side timeout around 4 seconds
    so a slow model call fails fast instead of hanging.
@@ -77,6 +83,10 @@ path must carry no OAuth.
 
 - Cost: one short DeepSeek completion per move, no long reasoning.
   Name the model used.
+- Stockfish is a named dependency: install it on the laptop (name the
+  package) and use it as the server-side fallback in step 2. If
+  Stockfish is unavailable, return HTTP 500 and let the page fall
+  back to the built-in computer.
 - The DeepSeek key never leaves `~/.hermes/` and never appears in
   code, the task file, or the staged reply.
 - Never break the page: on any failure the endpoint errors out and the
