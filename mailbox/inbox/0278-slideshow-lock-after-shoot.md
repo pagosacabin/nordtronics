@@ -3,7 +3,7 @@ task_id: "0278"
 status: filed
 iteration: 1
 proof: []
-notes: "Symptom refined 2026-11-27 12:57 by Stephen: the new photo DOES display after a shoot; the freeze happens after pressing KEEP on the prompt — the kept photo stays up and the slideshow never resumes."
+notes: "Symptom refined 2026-11-27 12:57 and 13:05 by Stephen: the new photo DOES display after a shoot; the keep prompt dismisses correctly (it is NOT the prompt that freezes); the freeze is in the post-keep state where the kept image is displayed — the frame never transitions back to the slideshow."
 expect-reply-within: 24h
 ---
 
@@ -15,7 +15,7 @@ expect-reply-within: 24h
 - Copilot: peer review (open lane — frame display).
 
 ## Context
-The living frame (YD-ESP32-S3 N16R8, VGA DAC, SD card photo library) was reassembled into its wooden case Nov 27, 2026. The 0261 mirror fix is in place and visually confirmed (a shot of a cap reading "Sled Dogs" displays the text the right way round, not mirrored). After that change, a fault appeared in the shoot flow. Refined symptom (Stephen, Nov 27 12:57): the shoot itself works — press the button, the camera counts down and shoots, the new photo displays, and the keep/discard prompt appears. Press KEEP and the kept photo stays displayed — but then the frame freezes on that photo and the slideshow never resumes. It never advances to the next library photo. That is as far as it ever gets. The discard and timeout paths are unconfirmed; verify them too. It is not established whether the 0261 change caused this or whether it is a pre-existing fault only now observed; diagnose from the code and the bench, do not assume.
+The living frame (YD-ESP32-S3 N16R8, VGA DAC, SD card photo library) was reassembled into its wooden case Nov 27, 2026. The 0261 mirror fix is in place and visually confirmed (a shot of a cap reading "Sled Dogs" displays the text the right way round, not mirrored). After that change, a fault appeared in the shoot flow. Refined symptom (Stephen, Nov 27 12:57): the shoot itself works — press the button, the camera counts down and shoots, the new photo displays, and the keep/discard prompt appears. Press KEEP and the kept photo stays displayed — but then the frame freezes on that photo and the slideshow never resumes. It never advances to the next library photo. That is as far as it ever gets. Note: the keep prompt itself dismisses correctly — it is NOT the prompt that freezes. The freeze is in the next state after keep, where the kept image is displayed; the frame never transitions from that displayed image back to the slideshow. The discard and timeout paths are unconfirmed; verify them too. It is not established whether the 0261 change caused this or whether it is a pre-existing fault only now observed; diagnose from the code and the bench, do not assume.
 
 ## Task
 Diagnose and fix the frame's photo/slideshow state machine so that after a shoot the frame resumes the slideshow:
