@@ -1,0 +1,15 @@
+Security and correctness fourth review — chess bridge commit 5d23382
+
+Finding 16 — RESOLVED — Abandoned Stockfish searches can no longer accumulate — server.py:84-92,242-291.
+- ENGINE_STATE.inflight is admitted under ENGINE_STATE_LOCK with a hard limit of two live/admitted searches.
+- ENGINE_LOCK serialises actual engine work, preventing overlapping engine processes.
+- The inflight slot is decremented and ENGINE_LOCK is released in the worker's finally block, so an abandoned handler still cannot leave a slot permanently held unless its daemon thread is genuinely still alive.
+- If inflight has reached two, stockfish_move fails closed with a journal-visible saturation reason; this reaches the existing HTTP 500 fail-closed path rather than spawning another search.
+- If lock acquisition times out, the inflight count is decremented immediately.
+- Worker join is bounded by the remaining handler/Stockfish budget, and abandoned searches retain their own 400 ms search limit rather than extending indefinitely under normal operation.
+
+New findings
+
+None found in the two changed files. Authentication remains the explicit tailnet/no-OAuth design constraint; the new engine cap and existing global token/worker budgets adequately bound the cost and process-exhaustion exposure.
+
+Verdict: SHIP

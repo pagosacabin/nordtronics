@@ -1,0 +1,35 @@
+Security and correctness third review — chess bridge commit 956fbc7
+
+7-item checklist
+
+1. PASS — No hardcoded secrets: server.py and run.sh read DEEPSEEK_API_KEY from the environment or external env file; no key is in source or client responses.
+2. PASS — Inputs are bounds-checked: body length, JSON shape, FEN length/type, move count/type/length/UCI grammar, and chess position validity are checked at server.py:297-320 and POST handling at server.py:496-533.
+3. PASS by design — Authentication: there is no application authentication by spec, and the task explicitly accepts tailnet-only/no-OAuth. It is not a defect in this locked lane.
+4. PASS — TLS and upstream handling: direct upstream URL is allowlisted at server.py:96-109, and redirect handling is disabled at server.py:46-54 and used at server.py:206-216. The bearer token cannot follow an HTTPS/HTTP redirect to another hop.
+5. PASS — Least privilege: the systemd unit remains sandboxed as a user service with no capabilities, read-only protections, private tmp/devices, namespace/syscall/address-family restrictions and resource limits.
+6. PASS — Fail-closed: illegal input and illegal moves fail 400/500; missing or wrong Stockfish identity fails at startup or per-use; upstream and engine failures never return an arbitrary move.
+7. PASS — Pinned dependencies and engine: requirements.txt pins python-chess exactly, and server.py startup/fallback require Stockfish 17.1 with install verification documented in README.md.
+
+Cost exposure under the design constraint
+
+PASS as adequately bounded. The default global token bucket is 60/min with burst 10 (server.py:78-79,122-139), and only four requests can work at once (server.py:75-77,510-520). One request has at most two model calls plus one bounded engine search against a 5.5-second deadline (server.py:324-344). This does not authenticate a tailnet caller, but it prevents a single caller from unbounded API spend or worker exhaustion. The exact limits are environment-overridable and can be raised by the operator, which is acceptable as deployment configuration.
+
+Pass-2 findings 4, 10, 12, and 13-15
+
+4. RESOLVED — Whole-handler deadline — server.py:232-265,324-344. Stockfish popen and UCI work run in a daemon thread and are joined against the remaining budget, rather than awaiting an unbounded search outside the handler deadline.
+
+10. RESOLVED — Request logging consistency — server.py:388-418,452-460,496-542. Oversized-header 431 and unhandled methods/501 use send_error or handle_one_request and write journal lines. GET, OPTIONS, normal POST and route rejects are also logged. The README's every-request claim is accurate at the HTTP handling layer, aside from transport-level socket failures that cannot be dispatched.
+
+12. RESOLVED — Header block bound while reading — server.py:354-371,384-386,452-460. BoundedReader counts bytes in readline during header parsing and raises HeaderTooLarge; the 431 path closes/drains and logs. The socket timeout and maximum 8192-byte cap address slow and oversized headers.
+
+13. RESOLVED as operational fact — Live mount spelling — README.md:133-149. The live mount is /chese-move and is verified to serve today. It is outside worker code and requires host root to rename, so it is not a code defect or deployable change in this lane.
+
+14. RESOLVED — Redirect-induced TLS/bearer leak — server.py:46-54,206-216. An opener with a no-redirect handler is used for DeepSeek requests; 30x responses are treated as model HTTP failures rather than followed.
+
+15. RESOLVED — Wrong Stockfish id at startup — server.py:556-568. A missing or wrong Stockfish 17.1 id now terminates startup rather than serving a mixed/degraded configuration.
+
+New findings
+
+16. MEDIUM — Stockfish daemon work may outlive the HTTP worker and repeat concurrent searches after the handler deadline — server.py:232-265. The join stops the handler from waiting, but it cannot terminate or join the python-chess engine thread if it ignores the deadline. A stalled popen/play can leave the Stockfish process and daemon thread running after the HTTP worker releases its slot. Repeated stalls could accumulate process and memory pressure even though new handler calls are limited.
+
+Verdict: FIX

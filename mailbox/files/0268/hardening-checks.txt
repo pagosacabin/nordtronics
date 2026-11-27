@@ -1,0 +1,26 @@
+== /health is opaque
+GET /health 200 and no model/engine names            PASS  {"ok": true}
+
+== CORS fails closed
+preflight allowed origin 204 + ACAO                  PASS  ACAO='https://nordtronics.io'
+preflight unknown origin 403, no ACAO                PASS  403 ACAO=None
+POST unknown origin 200 but no ACAO grant            PASS  200 ACAO=None
+
+== input validation
+non-UCI history entry rejected 400                   PASS  {"error": "every move must be a UCI string such as e2e4"}
+free-text history entry rejected 400                 PASS  {"error": "every move must be a UCI string such as e2e4"}
+invalid fen rejected 400                             PASS  {"error": "fen is not a valid position"}
+
+== move, legality and budget
+fool's-mate position answers inside 6 s              PASS  200 {"move": "d8h4"} in 0.82s
+
+== header bound (finding 12)
+oversized header block refused (431)                 PASS  HTTP/1.1 431 Request Header Fields Too Large
+
+== unknown method still answers and is logged (finding 10)
+unsupported method -> 501                            PASS  501
+
+== token bucket + worker pool (findings 3)
+burst above RATE_BURST yields 429                    PASS  [400, 400, 400, 400, 400, 400, 429, 429, 429, 429, 429, 429, 429, 429, 429, 429, 429, 429, 429, 429]
+
+RESULT: ALL PASS

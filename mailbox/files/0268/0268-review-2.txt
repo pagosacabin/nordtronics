@@ -1,0 +1,47 @@
+Security and correctness follow-up review — chess bridge commit feebbb6
+
+7-item checklist
+
+1. PASS — No hardcoded secrets: run.sh and server.py read DEEPSEEK_API_KEY from the environment; the key is not present in source or emitted to clients.
+2. PASS — Input bounds: server.py:264-289 enforces JSON object shape, FEN length/type, move count, UCI syntax and legal chess position; server.py:378-418 bounds body length and worker access. README.md:111-113 describes the same bounds.
+3. FAIL — Authentication on every endpoint: server.py:348-418 has no application authentication for OPTIONS, GET or POST. README.md:104-110 explicitly keeps this as a tailnet-only design constraint. CORS and Tailscale network reachability are not caller authentication.
+4. FAIL — TLS off-box: server.py:85-98 rejects cleartext off-box and allows loopback HTTP, but server.py:164-216 uses urllib.request without disabling redirects. urllib redirects preserve the Authorization header when following a 30x redirect, so an HTTPS provider or proxy redirect to HTTP could move the bearer token to a cleartext target. An initial allowlist alone does not cover every upstream hop.
+5. PASS — Least privilege: the systemd unit remains a user unit with no capabilities, read-only protections, private devices/tmp, restricted namespaces/syscalls/address families and resource limits. The follow-up source adds no privilege-escalation mechanism.
+6. PASS — Fail-closed errors: server.py:264-309 validates input and legal fallback moves; server.py:405-414 returns an opaque 500 and logs underlying detail only; missing/wrong Stockfish identity is refused in server.py:219-261 and startup.
+7. PASS — Pinned dependencies: requirements.txt remains pinned; the install/README logic is unchanged and server.py rechecks Stockfish 17.1. No unpinned direct dependency was introduced.
+
+Pass-1 findings: RESOLVED or STILL OPEN
+
+1. STILL OPEN — Missing application authentication / public cost abuse — server.py:348-418, README.md:104-110. Authentication remains deliberately absent. Cost is now bounded, but tailnet callers still have no identity or per-caller authorization.
+
+2. RESOLVED — HTTPS is not enforced for the DeepSeek upstream — server.py:85-98, 430. The startup allowlist permits only HTTPS or loopback HTTP. This is resolved for direct URL configuration, subject to finding 13 below for redirects.
+
+3. RESOLVED — No upstream cost or concurrency limit — server.py:62-69,101-122,378-416. A global token bucket provides 429 responses and a bounded worker semaphore provides 503/Retry-After. The worker count and spend are bounded.
+
+4. STILL OPEN — The declared whole-handler deadline is not strictly enforced — server.py:164-216,219-260. Model calls receive remaining-budget timeouts, and Stockfish uses a remaining-time Limit, but engine popen/startup and engine.play itself are not bounded by an actual deadline context. A slow engine startup or UCI operation can outlive the 5.5-second handler despite the computed search Limit.
+
+5. RESOLVED — CORS is permissive for unknown origins — server.py:147-156,348-365. Unknown origins receive no ACAO, and OPTIONS is refused with 403.
+
+6. RESOLVED — Move-history entries lack UCI syntax checks — server.py:264-281. Every move is now type/length/UCI-grammar checked while parsing. Legally inconsistent history is reset by the replay logic, not emitted as a move.
+
+7. RESOLVED — Health/operational-state exposure — server.py:367-376. /health now returns only {"ok": true}; model and engine details are journal/startup state rather than network response fields.
+
+8. RESOLVED — 500 responses disclose implementation details — server.py:405-414. Clients receive only a stable internal-error body; underlying exception text is logged in the journal.
+
+9. RESOLVED — Unknown-origin preflight is accepted — server.py:348-365. Unknown Origins receive 403 and no ACAO.
+
+10. STILL OPEN — Every request is not logged consistently — server.py:334-342,348-418. Oversized-header 431 is sent from parse_request without log(), unsupported methods and malformed HTTP requests handled below the route methods may also bypass the route log, while README.md:43-48 claims every request is logged.
+
+11. RESOLVED — Engine validation is weak — server.py:125-143,219-260,428-443. The engine is required at startup and re-identified before every fallback search; a missing or swapped engine is refused.
+
+12. STILL OPEN — Header and slow-client limits are incomplete — server.py:334-342. BaseHTTPRequestHandler.parse_request buffers the entire header block before the custom 8192-byte check, so the 8192-byte limit is post-parse rather than a pre-buffer bound. socket timeout=5 seconds is bounded, but an attacker can consume memory while presenting a large header block before the check runs.
+
+New findings
+
+13. HIGH — Live public mount has a misspelled path — README.md:133-149. The live mount is documented as /chese-move, while the chess page/backend contract uses /chess-move. The extra misspelled path can produce 404 for the normal endpoint and make the public backend unreachable until the corrected mount is installed. This is an operational public-path defect, not merely documentation.
+
+14. MEDIUM — TLS policy is bypassable through upstream redirects — server.py:85-98,164-216. urllib redirects preserve Authorization headers; a redirect from HTTPS to HTTP or to another cleartext endpoint can preserve the DeepSeek bearer token. The initial URL scheme allowlist does not disable redirects or validate each redirect hop.
+
+15. LOW — Stockfish identity can be wrong while model-only service continues — server.py:428-443. ENGINE_OK is only warned for a wrong name and startup does not fail; Stockfish fallback is later refused on use. This makes health/listening reports indicate a partially degraded service but the README says the 17.1 build is pinned; it is fail-safe, though startup state is misleading.
+
+Verdict: FIX

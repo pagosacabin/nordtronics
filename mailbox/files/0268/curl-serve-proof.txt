@@ -1,0 +1,39 @@
+== URL https://home.tail2bff3f.ts.net/chese-move
+== GET /health (opaque since the review pass: {"ok": true} only)
+   {"ok": true}  (0.02s)
+
+== OPTIONS preflight (Origin https://nordtronics.io)
+   status 204 {'Access-Control-Allow-Headers': 'content-type', 'Access-Control-Allow-Methods': 'POST, OPTIONS', 'Access-Control-Allow-Origin': 'https://nordtronics.io', 'Access-Control-Max-Age': '600'}
+
+== POST https://home.tail2bff3f.ts.net/chese-move/chess-move (path through the Serve mount)
+   start position               -> {"move": "e2e4"} in 0.94s  legal=True  within6s=True
+   italian midgame              -> {"move": "g8f6"} in 1.02s  legal=True  within6s=True
+   kingside attack              -> {"move": "d2g5"} in 0.93s  legal=True  within6s=True
+   fool's mate available (punish a blunder) -> {"move": "d8h4"} in 0.91s  legal=True  within6s=True
+
+== POST https://home.tail2bff3f.ts.net/chese-move (mount root, the exact shape the page sends)
+   -> {"move": "e2e4"} in 1.13s  within6s=True
+
+== fail-closed cases over Serve
+   invalid fen      -> 400 {"error": "fen is not a valid position"}
+   missing fen      -> 400 {"error": "fen must be a non-empty string of at most 128 chars"}
+   oversized moves  -> 400 {"error": "moves must be a list of at most 512 entries"}
+
+== TLS certificate seen by the client
+subject=CN=home.tail2bff3f.ts.net
+issuer=C=US, O=Let's Encrypt, CN=YE2
+notBefore=Nov 11 23:56:38 2026 GMT
+notAfter=Feb  9 23:56:37 2027 GMT
+
+== journal (last 8)
+Nov 27 09:32:21 home run.sh[1393511]: chess-move method=POST path=/chess-move status=200 source=model elapsed_ms=891 usage={"prompt_tokens": 218, "completion_tokens": 4, "total_tokens": 222, "prompt_tokens_details": {"cached_tokens": 0}, "prompt_cache_hit_tokens": 0, "prompt_cache_miss_tokens": 218}
+Nov 27 09:32:22 home run.sh[1393511]: chess-move method=POST path=/chess-move status=200 source=model elapsed_ms=970 usage={"prompt_tokens": 293, "completion_tokens": 4, "total_tokens": 297, "prompt_tokens_details": {"cached_tokens": 128}, "prompt_cache_hit_tokens": 128, "prompt_cache_miss_tokens": 165}
+Nov 27 09:32:22 home run.sh[1393511]: chess-move method=POST path=/chess-move status=200 source=model elapsed_ms=876 usage={"prompt_tokens": 310, "completion_tokens": 4, "total_tokens": 314, "prompt_tokens_details": {"cached_tokens": 128}, "prompt_cache_hit_tokens": 128, "prompt_cache_miss_tokens": 182}
+Nov 27 09:32:23 home run.sh[1393511]: chess-move method=POST path=/chess-move status=200 source=model elapsed_ms=858 usage={"prompt_tokens": 277, "completion_tokens": 4, "total_tokens": 281, "prompt_tokens_details": {"cached_tokens": 128}, "prompt_cache_hit_tokens": 128, "prompt_cache_miss_tokens": 149}
+Nov 27 09:32:25 home run.sh[1393511]: chess-move method=POST path=/ status=200 source=model elapsed_ms=1072 usage={"prompt_tokens": 218, "completion_tokens": 4, "total_tokens": 222, "prompt_tokens_details": {"cached_tokens": 0}, "prompt_cache_hit_tokens": 0, "prompt_cache_miss_tokens": 218}
+Nov 27 09:32:25 home run.sh[1393511]: chess-move method=POST path=/chess-move status=400 source=none elapsed_ms=0
+Nov 27 09:32:25 home run.sh[1393511]: chess-move method=POST path=/chess-move status=400 source=none elapsed_ms=0
+Nov 27 09:32:25 home run.sh[1393511]: chess-move method=POST path=/chess-move status=400 source=none elapsed_ms=0
+
+
+RESULT: PASS

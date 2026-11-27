@@ -1,0 +1,7 @@
+answer: {"move": "e2e4"} in 0.71s
+sink hits (must be 0): 0
+journal tail:
+chess-bridge: listening on http://127.0.0.1:8776 (model=deepseek-flash, engine=Stockfish 17.1, max_concurrency=4, rate=60/min burst=10)
+chess-move method=POST path=/chess-move status=200 source=stockfish elapsed_ms=703 detail=model HTTP 302
+
+RESULT: PASS
