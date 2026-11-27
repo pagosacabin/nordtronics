@@ -1,10 +1,13 @@
 ---
 task_id: "0267"
-status: filed
-iteration: 1
+status: in_progress
+iteration: 2
 proof: []
 notes: ""
 expect-reply-within: 24h
+claimed_by: "cronrunner/c0be50a686c6"
+claimed_at: "2026-11-27T14:47:01+00:00"
+lease_until: "2026-11-27T16:17:01+00:00"
 ---
 
 # 0267 — How would Hermes serve a chess-move endpoint?
