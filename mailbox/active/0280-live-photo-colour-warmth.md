@@ -4,10 +4,11 @@ status: in_progress
 iteration: 2
 proof: []
 notes: |
-  BLOCKED on Stephen's eye -- DECISION OWED: which combination he picks. The A/B is
-  done and photographed; the task's own criterion 2 ("Stephen has picked a combination
-  by eye, it is implemented, and a fresh shoot shows the warmer look") cannot be
-  satisfied by an unattended tick, so there is NO proof block and nothing is staged.
+  DECISION MADE by Stephen 2026-11-27 20:53 MST (see DECISION MADE below) -- implement
+  WB_STRENGTH 0.00. The A/B is done and photographed; the task's own criterion 2
+  ("Stephen has picked a combination by eye, it is implemented, and a fresh shoot shows
+  the warmer look") can now be satisfied by the next tick, so proceed to implement and
+  stage the reply.
 
   A/B DONE (bench, 2026-11-27 20:05-20:20 MST). Camera board = Freenove ESP32-Wrover CAM
   (GC0308, pid 0x9b) on /dev/ttyUSB0 -- note this bench enumerates the camera on ttyUSB0
@@ -66,6 +67,10 @@ notes: |
   strength between them -- from mailbox/files/0280/montage.jpg. Saturation need not be
   touched given finding 2. On his word the change is one line in freenove-cam/src/main.cpp
   (WB_STRENGTH), then a fresh shoot of his scene with the mirror check re-run.
+
+  DECISION MADE (Stephen, 2026-11-27 20:53 MST): WB_STRENGTH 0.00. Set it in
+  freenove-cam/src/main.cpp, flash the camera board, fresh shoot of his scene, mirror
+  check re-run, then stage the reply with the gains, his pick, and the fresh-shoot result.
 expect-reply-within: 6h
 claimed_by: "cronrunner/c0be50a686c6"
 claimed_at: "2026-11-28T03:00:50+00:00"
