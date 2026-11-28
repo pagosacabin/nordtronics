@@ -1,0 +1,175 @@
+# reviewer: nvidia/nemotron-3-ultra-550b-a55b (NVIDIA hosted API)
+# usage: {"prompt_tokens": 12128, "completion_tokens": 4000, "total_tokens": 16128, "prompt_tokens_details": {"cached_tokens": 0}, "completion_tokens_details": {"reasoning_tokens": 4000}}
+
+Let me analyze this third review pass carefully.
+
+The context:
+- Pass 1 (Antigravity Gemini): FIX with 4 findings, all fixed and confirmed resolved in pass 2
+- Pass 2 (me): FIX on two checklist items and one new LOW finding:
+  1. Checklist 3 "auth on every endpoint": FAIL - "no application-level auth, relies on Tailscale network auth only"
+  2. Checklist 7 "pinned deps": FAIL - "no lockfile/pinning for pocket_conquest/agent_core"
+  3. New LOW: POST /games has no per-origin/IP quota, so a burst can fill the 500-game table and evict live games
+
+Changes since pass 2:
+- POST /games now draws from its own token bucket (CREATE_LIMITER, 20/min burst 5, env-tunable) in addition to the global one
+- The proof asserts a burst of 8 is throttled
+
+Stated constraints:
+- Only client is a static page on https://nordtronics.io with no login, no cookies, no sessions, no way to carry a credential
+- Service binds 127.0.0.1 and is published only on a single-user tailnet by Tailscale Serve, which authenticates devices
+- pocket_conquest.py and agent_core.py are first-party modules in the same repository, not third-party packages; requirements.txt documents a stdlib-only dependency set
+
+Now I need to answer:
+
+(a) Is the new LOW finding resolved? RESOLVED or STILL OPEN with one sentence of evidence.
+
+The new LOW finding was: "POST /games has no per-origin/IP quota, so a burst can fill the 500-game table and evict live games."
+
+The fix: POST /games now draws from its own token bucket (CREATE_LIMITER, 20/min burst 5, env-tunable) in addition to the global one, and the proof asserts a burst of 8 is throttled.
+
+Looking at the code, I can see:
+- CREATE_LIMITER is defined with CREATE_PER_MIN=20, CREATE_BURST=5
+- In do_POST for kind == "games", it checks `if not CREATE_LIMITER.allow():` and returns 429
+- The proof asserts a burst of 8 is throttled (burst is 5, so 8 would be throttled)
+
+This seems resolved. The CREATE_LIMITER provides a per-endpoint rate limit for game creation, preventing the table from being filled by a burst.
+
+(b) For checklist 3, given those stated constraints, is network-layer (tailnet + loopback) authentication the only available control, and does that satisfy the item for a single-user deployment? PASS or FAIL, one or two sentences. Do not propose an app-level credential the static page cannot send.
+
+Constraints: static page with no login, no cookies, no sessions, no way to carry a credential. Service binds 127.0.0.1, published only on single-user tailnet by Tailscale Serve which authenticates devices.
+
+Given these constraints, network-layer authentication (Tailscale device auth + loopback binding) is indeed the only available control. For a single-user deployment where the only client is a static page that cannot carry credentials, this satisfies the authentication requirement because the tailnet ensures only authorized devices can reach the service.
+
+(c) For checklist 7: are first-party modules in the same repo "dependencies" that need pinning? PASS or FAIL, one sentence.
+
+pocket_conquest.py and agent_core.py are first-party modules in the same repository, not third-party packages. They are part of the codebase itself, not external dependencies. Pinning applies to external dependencies, not internal modules that are versioned together with the service.
+
+(d) Any NEW findings, numbered, with severity.
+
+I need to review the code for any new issues.
+
+Let me examine the code carefully:
+
+1. In `server.py`, the `CREATE_LIMITER` is used for POST /games, but I notice the global `LIMITER` is also checked first. So game creation requires both limiters to allow. That's fine.
+
+2. The `GAME_MOVE_BUDGET = 20.0` and the page's client allows 30s. The handler budget for the legacy move endpoint is 5.5s. Seems reasonable.
+
+3. The `MAX_CONCURRENCY = 4` with semaphore, slot wait 0.25s.
+
+4. The `RATE_LIMIT_PER_MIN = 60`, `RATE_BURST = 10` for global limiter.
+
+5. The `CREATE_PER_MIN = 20`, `CREATE_BURST = 5` for create limiter.
+
+6. The `MAX_GAMES = 500`, `GAME_TTL_SECONDS = 6 * 60 * 60` (6 hours).
+
+7. The `GameStore` uses a lock and prunes stale entries.
+
+8. The `valid_game_id` checks for exactly 16 lowercase hex chars.
+
+9. The `route` function handles paths with mount prefix stripping.
+
+Potential issues I see:
+
+1. **Race condition in GameStore.adopt()**: The `adopt` method checks `if gid in self.games: return False` after pruning, but there's a TOCTOU window between the check and the insertion. However, since it's under the lock, it should be fine. Wait, let me check: the lock is acquired with `with self.lock:` and then `_prune_locked` is called, then the check, then insertion. That's all under the same lock, so no race.
+
+2. **GameStore.create() generates ID with secrets.token_hex(8) which is 16 hex chars, matching valid_game_id**. But there's a while loop to avoid collisions. Since it's 64 bits of entropy, collisions are extremely unlikely.
+
+3. **In do_POST for game_move**: The code calls `adopted = GAMES.adopt(gid, position)` but doesn't check the return value before proceeding. If adopt returns False (game already exists), it still proceeds to get legal moves and ask the model. This could allow a client to "replay" a move on an existing game ID, but since the position is validated and the move is computed from that position, it might not be a security issue. However, it could cause confusion if two clients try to use the same game ID. But the game ID is 16 hex chars, so guessing is hard. The adopt method returns False if the game already exists, but the code ignores this and continues. This might be intentional (allowing re-adoption after restart), but the comment says "The page resends its whole state on every move, so a game is fully recoverable after a service restart; the id is re-adopted rather than losing the game to a 404." So if the game exists, adopt returns False, but the code still processes the move. That seems like it could allow a client to submit a move for an existing game, which might be the intended behavior for the "Juno mode" where the page sends the full state each time. But wait, the `put` method is used to update the game after the move. So the flow is: adopt (which fails if game exists), then compute move, then put (which updates the existing game). This seems like a bug: if adopt returns False, the game already exists, but we still compute a move and put it. That could overwrite the existing game's state with a new position from the client. But the client is sending the full state, so it's essentially a "sync" operation. This might be by design for the Juno mode.
+
+4. **In _juno_turn**: It calls `agent_core.pick_legal(position, model_call, retries=1)`. The `model_call` function calls `ask_model` which uses the DEEPSEEK_API_KEY. The deadline is `started + GAME_MOVE_BUDGET` (20s). The `ask_model` function has its own timeout logic. This seems okay.
+
+5. **CORS handling**: The `cors_headers` function echoes the origin if no ALLOWED_ORIGINS is set. The comment says "Echoing the caller's Origin is safe only because this endpoint carries no cookies, no credentials and no session state." This is correct for this deployment.
+
+6. **HeaderTooLarge handling**: The `BoundedReader` counts bytes during header reading. The `handle_one_request` catches `HeaderTooLarge` and sends 431. This is good.
+
+7. **Chunked encoding rejected**: The code checks for `Transfer-Encoding` header and rejects with 400. Good.
+
+8. **Content-Length validation**: Checks for missing or oversized body. Good.
+
+9. **Slot acquisition**: Uses `SLOTS.acquire(timeout=SLOT_WAIT)` with 0.25s timeout. If it fails, returns 503. Good.
+
+10. **Rate limiting**: Both global and create limiters are checked. Good.
+
+11. **Origin checking**: Done for all endpoints. Good.
+
+12. **Error handling**: Opaque 500s, details in journal. Good.
+
+13. **The `pick_move` function for legacy endpoint**: Uses `HANDLER_BUDGET = 5.5` seconds. The page's client timeout is 6s. Good.
+
+14. **The `agent_core.build_prompt` and `agent_core.parse_reply`**: Not shown, but assumed to be correct.
+
+15. **The `pc.normalise_position` and `pc.legal_moves`**: From pocket_conquest module.
+
+Potential new findings:
+
+1. **GameStore.adopt() return value ignored in game_move**: As noted above, the return value of `adopt` is stored in `adopted` but not used to gate the move processing. If a game already exists, the client's position is still used to compute a move and update the game. This could allow a malicious client to "hijack" a game ID by sending a different position. However, the game ID is 16 hex chars (64 bits), so guessing is infeasible. And the client must know the game ID to target it. Since the only client is the static page on the same tailnet, and the page gets the game ID from the create response, this might not be a practical issue. But it's a logic inconsistency.
+
+2. **No rate limiting on GET /games/{id}**: The poll endpoint (GET /games/{id}) is not rate limited. A client could poll aggressively. However, the global limiter only applies to POST. GET requests are not rate limited. This could allow a DoS by exhausting the slot semaphore (MAX_CONCURRENCY=4) with slow GET requests. But GET requests don't acquire the slot semaphore - only POST does. Let me check: in do_GET, there's no SLOTS.acquire(). So GET requests don't consume slots. They only acquire the lock in GameStore.get(). So a flood of GET requests could contend on the GameStore lock, but that's a very fast operation. Not a significant DoS vector.
+
+3. **The `CREATE_LIMITER` is checked after the global `LIMITER`**: In do_POST for kind == "games", it first checks `if not LIMITER.allow():` then `if kind == "games" and not CREATE_LIMITER.allow():`. So game creation consumes both a global token and a create token. This is fine, but means the effective burst for game creation is min(RATE_BURST, CREATE_BURST) = min(10, 5) = 5. The proof says "a burst of 8 is throttled" - with burst 5, 8 would be throttled. Correct.
+
+4. **The `GAME_MOVE_BUDGET = 20.0` but the handler doesn't enforce a per-request deadline for the game_move endpoint**: The `_juno_turn` function creates a deadline `started + GAME_MOVE_BUDGET` and passes it to `model_call`, which passes it to `ask_model`. The `ask_model` function checks `remaining = deadline - time.monotonic()` and returns error if <= 0.3. So there is a deadline enforcement. Good.
+
+5. **The `pick_move` function for legacy endpoint uses `HANDLER_BUDGET = 5.5` but the `ask_model` timeout is `MODEL_TIMEOUT = 3.2`**: The `ask_model` function calculates `timeout = max(0.3, min(MODEL_TIMEOUT, remaining - 0.1))`. So it respects the remaining budget. Good.
+
+6. **Potential issue: The `agent_core.pick_legal` is called with `retries=1` in `_juno_turn`, but the legacy `pick_move` does its own retry loop with 2 attempts**: Inconsistent but not necessarily wrong.
+
+7. **The `GameStore` pruning in `_prune_locked` removes stale entries (older than TTL) and then if still over max_games, removes the oldest**: This is correct.
+
+8. **The `valid_game_id` function checks for exactly 16 lowercase hex chars**: The `create` method generates `secrets.token_hex(8)` which is 16 lowercase hex chars. The `adopt` method uses `valid_game_id` to validate caller-supplied IDs. This ensures caller-supplied IDs are in the same space as generated ones. Good.
+
+9. **The `route` function strips the mount prefix**: It handles `/pocket-conquest` mount prefix. The paths are defined in `PATHS` but the route function uses `_strip_mount` and then checks specific patterns. This seems correct.
+
+10. **The `do_OPTIONS` handler checks route and origin**: Returns 404 if route not found, 403 if origin not allowed. Good.
+
+11. **The `log` function writes to stderr with structured format**: Good for observability.
+
+12. **The `main` function checks DEEPSEEK_API_KEY and fails closed if not set**: Good.
+
+13. **The `check_upstream_url` ensures HTTPS or loopback HTTP**: Good.
+
+Now, are there any NEW findings with severity?
+
+Let me think about security issues:
+
+- **Information disclosure in error messages**: The `BadRequest` exceptions include details like "position: ..." which could leak internal structure. But these are 400 responses to the client, and the client is the static page which already knows the structure. Not a significant issue.
+
+- **The `log` function includes `detail=%s` with exception details truncated to 200 chars**: This goes to stderr (journal), not to the client. Good.
+
+- **The `ask_model` function returns upstream error details in the journal**: Good.
+
+- **The `pick_move` function logs `attempts` which includes error details**: In journal only. Good.
+
+- **No authentication bypass**: The tailnet + loopback binding is the only auth. Given constraints, this is acceptable.
+
+- **No authorization issues**: Single user, single client.
+
+- **No injection issues**: JSON parsing, no shell commands, no SQL.
+
+- **No path traversal**: Game IDs validated to 16 hex chars.
+
+- **No DoS via resource exhaustion**: Rate limiters, slot semaphore, body size limits, header size limits, timeouts.
+
+- **The `CREATE_LIMITER` prevents game table exhaustion**: Resolved the LOW finding.
+
+Potential new finding:
+
+**LOW: GameStore.adopt() return value ignored in game_move handler allows state overwrite without explicit adoption**
+
+In `do_POST` for `game_move`:
+```python
+adopted = GAMES.adopt(gid, position)
+legal = pc.legal_moves(position)
+...
+move, usage, note, attempts = self._juno_turn(...)
+...
+updated = pc.apply_move(position, move)
+updated = pc.apply_move(updated, "END")
+GAMES.put(gid, updated)
+```
+
+If `adopt` returns `False` (game already exists), the code still computes a move from the client's provided position and updates the game with `put`. This means a client can send a position for an existing game ID and have the engine compute a move from that position, effectively allowing state injection. Since the game ID is 64-bit random, guessing is hard, but if a game ID is known (e.g., from a previous game), a client could "resume" it with arbitrary state. However, the Juno mode is designed for the page to send its full state on every move, so this might be intentional. The comment says "The page resends its whole state on every move, so a game is fully recoverable after a service restart; the id is re-adopted rather than losing the game to a 404." This suggests that after a restart, the game doesn't exist, so adopt succeeds. But if the game exists (service didn't restart), adopt fails, but the code continues anyway. This could be a bug: if the service is running and a client sends a move for an existing game, it should probably use the stored position, not the client's position. But the Juno mode might be designed to be stateless from the server's perspective - the client holds the state. Let me re-read the comment: "The page resends its whole state on every move, so a game is fully recoverable after a service restart; the id is re-adopted rather than losing the game to a 404." This implies the server doesn't trust the client's state? No, it says the page resends its whole state, and the server adopts it. But if the game already exists, the server has its own state. The current code ignores the server's state and uses the client's state. This could allow a malicious client to "rewind" a game or change its state. But the client is the static page on the same tailnet, single user. Not a practical threat, but a logic flaw.
+
+I'll note this as a LOW finding.
+
+Another potential issue: **The `CREATE_LIMITER` and `LIMITER` are both checked for game creation, but the `CREATE_LIMITER` tokens are consumed even if the request is invalid (e.g., bad JSON, invalid position)**. The check is done before parsing the body. So a malicious client could send invalid requests to consume create tokens. But the global limiter also consumes tokens. And the create limiter is 20/min burst 5. An attacker could

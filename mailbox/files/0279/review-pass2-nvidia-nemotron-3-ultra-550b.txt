@@ -1,0 +1,22 @@
+# reviewer: nvidia/nemotron-3-ultra-550b-a55b (NVIDIA hosted API)
+# usage: {"prompt_tokens": 11803, "completion_tokens": 2585, "total_tokens": 14388, "prompt_tokens_details": {"cached_tokens": 8768}, "completion_tokens_details": {"reasoning_tokens": 2186}}
+
+(a) Pass-1 findings:
+1. RESOLVED — `bounded_legal()` in server.py caps the legal-move list at `MAX_LEGAL_FOR_PROMPT=240` and preserves `END`.
+2. RESOLVED — The `game_move` 500 path sets `self.close_connection = True` and calls `_send(..., drain=True)`.
+3. RESOLVED — `do_GET` 403 and 404 responses both set `close_connection = True` and use `drain=True`.
+4. RESOLVED — `valid_game_id()` enforces exactly 16 lowercase hex chars; `GameStore.adopt()` and `route()` reject anything else.
+
+(b) Security checklist:
+1. No hardcoded secrets — PASS (key from env, never logged/echoed)
+2. Inputs bounds-checked — PASS (body, headers, moves, IDs, positions, legal list, rate, concurrency all capped)
+3. Auth on every endpoint — FAIL (no application-level auth; relies on Tailscale network auth only)
+4. TLS off-box — PASS (upstream URL allowlist enforces HTTPS except loopback; service binds loopback)
+5. Least privilege — PASS (loopback bind, stdlib only, bounded threads/pool, no FS/subprocess)
+6. Fail-closed errors — PASS (opaque 500s, startup fails without key, model failure → 500 → page falls back)
+7. Pinned deps — FAIL (no lockfile/pinning for `pocket_conquest`/`agent_core`)
+
+New findings:
+1. (LOW) POST /games has no per-origin/IP quota; an attacker can fill the 500-game store and evict legitimate games (global rate limit only).
+
+Verdict: FIX

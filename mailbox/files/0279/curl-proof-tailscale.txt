@@ -1,0 +1,38 @@
+# Tailscale curl proof 2026-11-27T18:17:14-07:00 -> https://home.tail2bff3f.ts.net/pocket-conquest (deployed b703afa)
+== prompt bound: 6881 legal moves -> 240 offered, END kept=True
+== POST /games (create, as junoStart does)
+   status: 200
+   access-control-allow-origin: *
+   access-control-allow-methods: GET, POST, OPTIONS
+   content-type: application/json
+   content-length: 3638
+   body: {"id": "ace61f7387642999", "state": {"turn": "nord", "ply": 1, "winner": null, "gold": {"nord": 10, "ember": 10}, "tiles": 30}}
+== POST /games/{id}/move (the player's End turn)
+   status: 200
+   access-control-allow-origin: https://nordtronics.io
+   access-control-allow-methods: GET, POST, OPTIONS
+   content-type: application/json
+   content-length: 3630
+   body: {"id": "ace61f7387642999", "state": {"turn": "nord", "ply": 3, "winner": null, "gold": {"nord": 10, "ember": 19}, "tiles": 30}, "move": "M E1 D1 3"}
+   engine replay: 'M E1 D1 3' -> turn=S ply=2 ember_armies=3
+== GET /games/{id} (the 4 s poll)
+   status: 200
+   access-control-allow-origin: https://nordtronics.io
+   access-control-allow-methods: GET, POST, OPTIONS
+   content-type: application/json
+   content-length: 3636
+   body: {"id": "ace61f7387642999", "state": {"turn": "nord", "ply": 3, "winner": null, "gold": {"nord": 10, "ember": 19}, "tiles": 30}}
+   adoptState fields present on every tile: True
+   polled board equals the engine replay: True
+== POST /games/{id}/move replaying ply 2 against a ply-3 game -> 400 (expected 400)
+== OPTIONS /games (browser preflight, Origin https://nordtronics.io)
+   status: 204
+   access-control-allow-origin: https://nordtronics.io
+   access-control-allow-methods: GET, POST, OPTIONS
+   access-control-allow-headers: content-type
+== GET /health -> 200 {"ok": true}
+== POST /pocket-conquest-move (0275's endpoint, unchanged) -> 200 {"move": "M E1 D1 3"}
+== POST /games with a 29-tile board -> 400 (expected 400)
+== POST /games x8 (create bucket 20/min burst 5) -> [200, 200, 200, 429, 429, 429, 429, 429]
+
+FAILURES: 0

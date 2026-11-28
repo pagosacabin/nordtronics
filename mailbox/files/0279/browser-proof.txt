@@ -1,0 +1,12 @@
+# live page, live bridge, real Chromium 2026-11-27T18:17:16-07:00, on deployed b703afa
+page title: Pocket Conquest
+juno base url in the page: https://home.tail2bff3f.ts.net/pocket-conquest
+after Start Juno game: Juno game created: 1654810d773bc260. Play your turn, then End turn sends it.
+local state after the player's move: {"turn": "nord", "ply": 1, "b4": "nord", "armies": 3}
+after End turn + poll: Juno replied — your move.
+state after Juno's reply: {"turn": "nord", "ply": 3, "winner": null, "emberGold": 15, "emberTiles": ["E1"]}
+any 'Failed to fetch' on the page: False
+screenshot: ./browser-juno-mode.png
+console messages:
+  error: Loading the stylesheet 'https://fonts.googleapis.com/css2?family=Marcellus&family=Source+Sans+3:wght@400;600;700&display=swap' violates the following Content Security Policy directive: "style-src 'self' 'unsafe-inline'". Note that 'style-src-elem' was not explicitly set, so 'style-src' is used as a fallback. The action has been blocked.
+  error: Loading the script 'https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092' violates the following Content Security Policy directive: "script-src 'self' 'unsafe-inline'". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocked.

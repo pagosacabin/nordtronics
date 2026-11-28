@@ -1,0 +1,117 @@
+# The page's Juno-mode contract, read from the LIVE page 2026-11-27T18:17:32-07:00
+# URL: https://nordtronics.io/pocket-conquest/index.html
+# sha256: f51848f45fe9d151a179dabd0ac2f6b9e75dfd33ae9545a52dd89162f7e3831d  bytes: 57394
+
+## statePayload(side) -- what the page POSTs
+function statePayload(side) {
+  var tiles = {};
+  Object.keys(S.tiles).forEach(function (id) {
+    var t = S.tiles[id];
+    tiles[id] = { terrain: t.terrain, name: t.name, owner: t.owner, armies: t.armies, ready: movable(t) };
+  });
+  return {
+    game: "pocket-conquest",
+    you: side,
+    turn: Math.ceil(S.ply / 2),
+    gold: { nord: S.gold.nord, ember: S.gold.ember },
+    board: tiles,
+    legal: legalSummary(side),
+    rules: "Army costs 5 gold, built at your capital or a town you own. Stacks move 1 tile orthogonally per turn. Combat: armies + 1d6 vs armies + 1d6 (+1 defender on hills); loser loses 1 army, 2 if beaten by 3+; winner loses none; a tile falls only at 0 defenders. Income at end of your turn: capital 5, town 4, other tile 2. Win by occupying the enemy capital (Nordhold B5). Reply with JSON: {builds:[{tile,count}], moves:[{from,to,count,support?}]}."
+  };
+}
+
+## junoStart() -- POST {base}/games, expects data.id || data.gameId
+async function junoStart() {
+  var base = $("junoUrl").value.trim().replace(/\/+$/, "");
+  if (!base) { setJunoStatus("Paste the Juno game API base URL first.", "err"); return; }
+  setJunoStatus("Creating game on the Juno API…");
+  try {
+    var res = await fetchWithTimeout(base + "/games", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ game: "pocket-conquest", mode: "juno", state: statePayload("nord") })
+    }, 30000);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    var data = await res.json();
+    ui.junoGameId = data.id || data.gameId || null;
+    if (!ui.junoGameId) throw new Error("no game id in reply");
+    setJunoStatus("Juno game created: " + ui.junoGameId + ". Play your turn, then End turn sends it.", "ok");
+  } catch (err) {
+    setJunoStatus("Couldn't reach the Juno game API (" + err.message + "). Nothing was sent — check the address, or play vs Computer.", "err");
+  }
+}
+
+## junoSendAndPoll() -- POST {base}/games/{id}/move then poll GET {base}/games/{id} every 4 s
+async function junoSendAndPoll() {
+  var base = $("junoUrl").value.trim().replace(/\/+$/, "");
+  if (!base || !ui.junoGameId) {
+    setJunoStatus("No live Juno game — tap “Start Juno game” first. Ember's turn was played by the computer so the game can continue.", "err");
+    aiTakeTurn();
+    if (!S.winner) endPly();
+    ui.busy = false; ui.locked = false; render();
+    return;
+  }
+  ui.locked = true; render();
+  try {
+    var res = await fetchWithTimeout(base + "/games/" + encodeURIComponent(ui.junoGameId) + "/move", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ game: "pocket-conquest", state: statePayload("ember") })
+    }, 30000);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    setJunoStatus("Turn sent. Polling for Juno's reply…");
+  } catch (err) {
+    setJunoStatus("Couldn't send your turn (" + err.message + "). Use the fallback button to keep playing.", "err");
+    $("junoFallbackBtn").classList.remove("hidden");
+    render();
+    return;
+  }
+  var startedAt = Date.now();
+  ui.junoPollTimer = setInterval(async function () {
+    try {
+      var r = await fetchWithTimeout(base + "/games/" + encodeURIComponent(ui.junoGameId), { method: "GET" }, 15000);
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      var data = await r.json();
+      var st = data.state || data;
+      if (st && (st.turn === "nord" || (st.state && st.state.turn === "nord"))) {
+        clearInterval(ui.junoPollTimer); ui.junoPollTimer = null;
+        if (st.state && st.state.tiles) { adoptState(st.state); }
+        else if (data.builds || data.moves) { applyPlan("ember", data); if (!S.winner) endPly(); }
+        else if (st.tiles) { adoptState(st); }
+        ui.locked = false; ui.busy = false;
+        $("junoFallbackBtn").classList.add("hidden");
+        setJunoStatus("Juno replied — your move.", "ok");
+        render();
+      } else if (Date.now() - startedAt > 10 * 60 * 1000) {
+        clearInterval(ui.junoPollTimer); ui.junoPollTimer = null;
+        setJunoStatus("Still no reply after 10 minutes. You can keep waiting by ending nothing — or use the fallback button.", "err");
+        $("junoFallbackBtn").classList.remove("hidden");
+        render();
+      }
+    } catch (err) { /* transient poll errors are ignored; the next tick retries */ }
+  }, 4000);
+  render();
+}
+
+## adoptState(remote) -- the fields the page copies out of the polled state
+function adoptState(remote) {
+  // Trust a full state returned by the Juno API, keeping the local log.
+  try {
+    var keepLog = S.log;
+    var fresh = newState();
+    Object.keys(fresh.tiles).forEach(function (id) {
+      var rt = remote.tiles[id];
+      if (rt) {
+        fresh.tiles[id].owner = rt.owner;
+        fresh.tiles[id].armies = rt.armies | 0;
+        fresh.tiles[id].immobile = rt.immobile | 0;
+        fresh.tiles[id].acquiredPly = rt.acquiredPly | 0;
+      }
+    });
+    fresh.gold = { nord: remote.gold.nord | 0, ember: remote.gold.ember | 0 };
+    fresh.turn = remote.turn === "ember" ? "ember" : "nord";
+    fresh.ply = remote.ply | 0 || fresh.ply;
+    fresh.winner = remote.winner || null;
+    fresh.log = keepLog;
+    S = fresh;
+    logLine("note", "Juno's reply applied from the game API.");
+  } catch (err) { /* malformed state: keep local game */ }
+}

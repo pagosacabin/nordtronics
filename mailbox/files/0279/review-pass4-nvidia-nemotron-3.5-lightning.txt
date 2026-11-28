@@ -1,0 +1,9 @@
+# reviewer: nvidia/nemotron-3.5-lightning-30b-a3b (NVIDIA hosted API)
+# usage: {"prompt_tokens": 12142, "completion_tokens": 2095, "total_tokens": 14237, "prompt_tokens_details": {"cached_tokens": 0}, "completion_tokens_details": {"reasoning_tokens": 1993}}
+
+(a) pass-2 LOW (game-table churn) RESOLVED  
+(b) pass-3 LOW (rewind of a known id) RESOLVED  
+(c) checklist item "auth on every endpoint": PASS for this single-user tailnet deployment  
+(d) checklist item "pinned deps": PASS, given no third-party dependencies  
+(e) any NEW finding that is HIGH or MEDIUM: none  
+Verdict: SHIP

@@ -1,0 +1,47 @@
+### Locked-Lane Security Checklist
+
+1. **no hardcoded secrets: PASS**
+   `DEEPSEEK_API_KEY` is retrieved from `os.environ` at runtime, verified at startup in `main()`, never hardcoded, written to disk, logged, or reflected in responses.
+
+2. **inputs bounds-checked (body size, field types/ranges, board completeness, path ids): FAIL**
+   *Passes on:* HTTP header size (`MAX_HEADER_BYTES`), overall body size (`MAX_BODY`), path game IDs (`valid_game_id`), game board completeness (exactly 30 valid tiles), and numeric bounds on armies/gold/turn.
+   *Fails on:* In `game_state.py:engine_position_from_page`, nested fields in `cell` (such as `cell.get("name")` and arbitrary extra attributes inside `cell`) do not enforce size bounds prior to processing or can accept arbitrary payloads if types are mismatched or unexpectedly structured. More critically, in `server.py:do_POST`, `_drain()` does not drain on standard `200` responses when keep-alive is active if fewer bytes than `Content-Length` are read (though `_json_body` and `parse_request` consume `length` bytes). However, see finding #1 for token spend bounds via engine move generation.
+
+3. **auth on every endpoint (state what the trust boundary is and whether the answer is acceptable for a tailnet-only bridge): PASS**
+   *Trust boundary:* The service binds strictly to loopback (`127.0.0.1:8767`) and is published via Tailscale Serve (`https://home.tail2bff3f.ts.net/pocket-conquest`) on a private tailnet. Network access is restricted to authenticated devices on the tailnet. Because the service is single-user/private-tailnet scoped with no multi-tenancy, sessions, or user data, ambient tailnet authentication combined with local loopback binding is acceptable for this bridge.
+
+4. **TLS off-box: PASS**
+   Tailscale Serve terminates TLS at the tailnet ingress. Upstream egress to DeepSeek enforces HTTPS via `check_upstream_url()` with an explicit redirect disabler (`_NoRedirect`).
+
+5. **least privilege: PASS**
+   The process runs as an unprivileged user process on loopback with standard library modules only, no filesystem persistence or shell execution, and holds only the single outbound secret required.
+
+6. **fail-closed errors: FAIL**
+   In `server.py:do_POST`, within the `game_move` branch, if `move is None`, `_send(500)` is invoked without `drain=True` (unlike the other error handlers), risking stream desynchronization on persistent connections. Furthermore, in `server.py:do_GET`, `403` and `404` responses do not set `self.close_connection = True` or drain lingering input.
+
+7. **pinned deps: PASS**
+   The service uses only Python standard library modules (`json`, `os`, `sys`, `threading`, `time`, `urllib`, `http.server`, `secrets`) and local repository modules (`agent_core`, `pocket_conquest`, `game_state`).
+
+---
+
+### Findings
+
+1. **Severity: MEDIUM**
+   **Location:** `server.py:do_POST` (routes `games` and `game_move`) & `game_state.py:engine_position_from_page`
+   **Description:** While prompt token generation relies on `agent_core.build_prompt`, an untrusted caller providing an arbitrary legal board configuration (with max gold and max armies across 30 tiles) can generate positions with hundreds of legal moves. While `MAX_MOVES = 400` bounds `/pocket-conquest-move`, the `/games/{id}/move` endpoint directly computes `pc.legal_moves(position)` without enforcing an upper bound check on `len(legal)` before passing it to `agent_core.pick_legal`. A large moveset swells prompt input tokens and model processing time up to `GAME_MOVE_BUDGET` (20s), consuming significant model token budget despite the rate limiter.
+
+2. **Severity: MEDIUM**
+   **Location:** `server.py:Handler.do_POST` (lines 405-411)
+   **Description:** When `move is None` in `game_move`, `self._send(500, ...)` is called without `drain=True`. If any trailing socket input remains, or if the client pipelined requests, failure to drain or reset the stream can desynchronize HTTP/1.1 keep-alive state on the connection.
+
+3. **Severity: LOW**
+   **Location:** `server.py:Handler.do_GET` (lines 339-354)
+   **Description:** In `do_GET`, `403` and `404` error branches do not mark `self.close_connection = True` or drain incoming data. If an unauthenticated or misbehaving client transmits pipelined requests or request bodies on GET, the socket is not cleanly reset.
+
+4. **Severity: LOW**
+   **Location:** `game_state.py:GameStore.adopt` (lines 208–216)
+   **Description:** `GameStore.adopt(gid, position)` accepts caller-supplied IDs. While `gid` is validated by `valid_game_id` (hex characters, length $\le 32$), allowing external clients to inject arbitrary IDs into the table allows an attacker with tailnet access to pre-occupy IDs or cause hash collisions with legitimate sessions, triggering eviction of older sessions in `_prune_locked` if done repeatedly.
+
+---
+
+Verdict: FIX
