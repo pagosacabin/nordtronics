@@ -1,0 +1,30 @@
+wb=0.00 sat=shipped
+fw_sha=b3c6fae13ef3370f5d8b6308f70654e0c07465fb516bd74ef85a5e76e09c72ed
+host_sha=b3c6fae13ef3370f5d8b6308f70654e0c07465fb516bd74ef85a5e76e09c72ed
+len=307200
+match=True
+=== console ===
+ets Jul 29 2019 12:21:46
+
+rst:0x1 (POWERON_RESET),boot:0x1b (SPI_FAST_FLASH_BOOT)
+configsip: 0, SPIWP:0xee
+clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+mode:DIO, clock div:2
+load:0x3fff0030,len:1184
+load:0x40078000,len:13232
+load:0x40080400,len:3028
+entry 0x400805e4
+
+=== Freenove CAM (0244): waits for SHOOT, sends one frame ===
+sensor  : power-on state hmirror 1, vflip 0 (reg 0x14)
+sensor  : after fix    hmirror 0, vflip 0 (reg 0x14), write ok
+camera  : pid 0x9b, VGA RGB565, no library on this side
+cam_hal: EV-VSYNC-OVF
+wifi    : 192.168.1.118 rssi -23 ch 6
+rate    : espnow 24M -> ESP_OK
+link    : peer c4:9e:7e:08:6d:f4 ch 6, waiting for 'FT'
+serial  : capture then dump raster
+shoot   : serial, shot 1, warmup 3, wb r 1.000 g 1.000 b 1.000 (strength 0.00), not sent
+raster  : BEGIN 307200 b3c6fae13ef3370f5d8b6308f70654e0c07465fb516bd74ef85a5e76e09c72ed wb 0.00
+
+raster  : END

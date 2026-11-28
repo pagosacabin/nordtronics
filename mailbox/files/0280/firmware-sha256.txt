@@ -1,0 +1,1 @@
+c7d3cf35adb3f0c15182fc225aaa41a6666b0fa8366a8d745723f997e7faf540  .pio/build/freenove-cam/firmware.bin

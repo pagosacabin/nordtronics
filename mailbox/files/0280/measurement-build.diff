@@ -1,0 +1,32 @@
+--- /home/astroboy/wt/0280/living-frame/firmware/freenove-cam/src/main.cpp	2026-11-27 21:01:14.085819422 -0700
++++ /home/astroboy/.hermes/profiles/cronrunner/cache/scratch/0280/cam-final/src/main.cpp	2026-11-27 21:02:48.796769894 -0700
+@@ -395,6 +395,20 @@
+     send_frame();
+ }
+ 
++/* 0280 measurement-only hook: dump the exact 307,200-byte panel raster so the
++ * host can render the fresh shoot.  Not part of the shipped build. */
++static void dump_raster(void)
++{
++    if (s_frame == NULL || !s_have_frame) { Serial.println("raster  : no frame captured yet"); return; }
++    char hex[65];
++    sha_hex(s_frame, FB_BYTES, hex);
++    Serial.printf("raster  : BEGIN %u %s wb %.2f\n", (unsigned)FB_BYTES, hex, (double)WB_STRENGTH);
++    Serial.flush();
++    Serial.write(s_frame, FB_BYTES);
++    Serial.flush();
++    Serial.printf("\nraster  : END\n");
++}
++
+ void setup(void)
+ {
+     Serial.begin(115200);
+@@ -441,6 +455,8 @@
+         if (ch == 'c' || ch == 'C') { Serial.println("serial  : shoot"); take_shot("serial", true); }
+         if (ch == 'd' || ch == 'D') { dump_ascii(); }
+         if (ch == 'e' || ch == 'E') { Serial.println("serial  : capture only"); take_shot("serial", false); }
++        if (ch == 'j' || ch == 'J') { Serial.println("serial  : capture then dump raster");
++                                      take_shot("serial", false); dump_raster(); }
+     }
+     if (s_shoot) {
+         s_shoot = false;

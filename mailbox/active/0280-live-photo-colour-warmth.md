@@ -71,6 +71,49 @@ notes: |
   DECISION MADE (Stephen, 2026-11-27 20:53 MST): WB_STRENGTH 0.00. Set it in
   freenove-cam/src/main.cpp, flash the camera board, fresh shoot of his scene, mirror
   check re-run, then stage the reply with the gains, his pick, and the fresh-shoot result.
+
+  IMPLEMENTED AND FLASHED (bench, 2026-11-27 21:00-21:15 MST); FRESH SHOOT TAKEN BUT THE
+  SCENE IS UNLIT. No proof block, nothing staged -- criterion 2's "a fresh shoot shows the
+  warmer look" cannot be judged on tonight's frame. This is this run's result, not a
+  re-run of the earlier pick blocker.
+
+  What is done:
+   1. Branch hermes/0280-warm-colour in pagosacabin/cabin-play, off
+      hermes/0261-mirror-live-photo @ b5c0f52, tip cdb7f62: one change, WB_STRENGTH
+      0.5f -> 0.0f plus a comment recording the pick and why saturation stays at -1.
+      No merge (merges need Stephen's word).
+   2. Built and flashed the camera board (Freenove ESP32-Wrover CAM, GC0308, on
+      /dev/ttyUSB0 -- note the reverse port order in the README) from that tree.
+      firmware.bin sha256 c7d3cf35adb3f0c15182fc225aaa41a6666b0fa8366a8d745723f997e7faf540;
+      esptool verify_flash 0x10000 -> "verify OK (digest matched)".
+   3. Fresh shoot on the deliverable build (capture-only 'e'):
+      "shoot : serial, shot 1, warmup 3, wb r 1.000 g 1.000 b 1.000 (strength 0.00), not sent"
+      -- the pick is live and grey-world is off. Mirror check intact: "sensor : power-on
+      state hmirror 1 ... after fix hmirror 0 ..., write ok". WiFi 192.168.1.118, peer linked.
+   4. The frame itself is empty. At 21:06 MST the fixed mount saw an unlit room: mean panel
+      level 0.062/0.062/0.062 (A/B session at 20:05: 2.244/0.981/1.018), only two distinct
+      byte values in the 307,200-byte raster, R/G/B histograms identical. The rendered PNG
+      is black.
+   5. Cause isolated rather than guessed: the A/B base build (WB 0.50, sat -1) was re-flashed
+      and shot at 21:10 -- equally black (mean level 0.062 all channels; wb gains
+      1.222/0.810/1.222, i.e. grey-world had no colour signal to correct). So the blackness
+      is the scene at 21:10, not this change.
+   6. Board restored to the deliverable, verify_flash digest matched again, and a fresh
+      boot+shoot re-prints "strength 0.00" (post-restore-console.txt).
+
+  DECISION OWED / next step:
+   - Any tick that finds the scene lit (room light on, or daylight) finishes this in ~3 min:
+     boot, send 'e' for the gains, flash the measurement copy (deliverable + the 'j' raster
+     dump, measurement-build.diff) for the raster, render with conv.py, compare against
+     raster-base.bin, restore the deliverable and stage. No code change is pending and
+     nothing needs a new pickup.
+   - Or Stephen says the A/B pair already answers it -- same scene, same session, R/B 2.16 at
+     WB 0.50 vs 5.54 at WB 0.00 -- and 0280 stages on that evidence without a lit fresh shoot.
+
+  Declared perturbations: four flashes to the camera board (deliverable, measurement copy,
+  WB-0.50 control, deliverable restore); every capture resets the board over DTR/RTS. Frame
+  board (ttyUSB1) untouched. Nothing merged and nothing added to the pool.
+  Evidence: mailbox/files/0280/ (README.md carries the file table).
 expect-reply-within: 6h
 claimed_by: "cronrunner/c0be50a686c6"
 claimed_at: "2026-11-28T03:00:50+00:00"
