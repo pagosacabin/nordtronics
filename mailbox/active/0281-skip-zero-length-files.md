@@ -1,7 +1,7 @@
 ---
 task_id: "0281"
-status: filed
-iteration: 1
+status: in_progress
+iteration: 2
 proof: []
 notes: "Filed 2026-11-27 on Stephen's word ('File them now'). Follow-up to 0278 (slideshow lock after shoot, resolved as an ill-seated SD card). The zero-length LIVE0054.BIN is a leftover from that incident."
 expect-reply-within: 24h
