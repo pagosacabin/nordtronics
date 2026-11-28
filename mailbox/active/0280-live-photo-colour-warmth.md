@@ -1,10 +1,13 @@
 ---
 task_id: "0280"
-status: filed
-iteration: 1
+status: in_progress
+iteration: 2
 proof: []
 notes: "Filed 2026-11-27 on Stephen's word ('File them now'). Drafted as 0269; bench is up — proto board (YD-ESP32-S3 + VGA + SD) tested and working Nov 27, frame + camera on the bench."
 expect-reply-within: 6h
+claimed_by: "cronrunner/c0be50a686c6"
+claimed_at: "2026-11-28T03:00:50+00:00"
+lease_until: "2026-11-28T04:30:50+00:00"
 ---
 
 # 0280 — Live-photo colour: find the warmer look again (drafted as 0269)
