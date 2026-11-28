@@ -3,12 +3,74 @@ task_id: "0280"
 status: in_progress
 iteration: 2
 proof: []
-notes: "Filed 2026-11-27 on Stephen's word ('File them now'). Drafted as 0269; bench is up — proto board (YD-ESP32-S3 + VGA + SD) tested and working Nov 27, frame + camera on the bench."
+notes: |
+  BLOCKED on Stephen's eye -- DECISION OWED: which combination he picks. The A/B is
+  done and photographed; the task's own criterion 2 ("Stephen has picked a combination
+  by eye, it is implemented, and a fresh shoot shows the warmer look") cannot be
+  satisfied by an unattended tick, so there is NO proof block and nothing is staged.
+
+  A/B DONE (bench, 2026-11-27 20:05-20:20 MST). Camera board = Freenove ESP32-Wrover CAM
+  (GC0308, pid 0x9b) on /dev/ttyUSB0 -- note this bench enumerates the camera on ttyUSB0
+  and the frame board's FT232R on ttyUSB1, the reverse of the freenove-cam README. The
+  frame board was not touched (its console is unusable and this A/B needs only the camera:
+  the 0261 build already has a local-capture hook, 'e'). The board already ran the 0261
+  build (verified from the boot banner's 0261 mirror lines), so nothing was re-flashed
+  until the A/B itself needed it.
+
+  Method: a bench-only variant of hermes/0261-mirror-live-photo @ b5c0f525 with
+  -DWB_STRENGTH / -DSAT_LEVEL compile knobs plus a 'j' serial command that captures
+  locally, prints the shoot line with its WB gains, then dumps the exact 307,200-byte
+  panel raster. Every capture was hash-verified against the firmware's own SHA-256
+  (len 307,200, sha equal on both sides, 5 variants + 3 repeats). PNGs are that raster
+  rendered through the measured 0250 DAC ladder and sRGB.
+
+  Results (gains as the firmware computed them; R/B from mean linear light):
+    base  WB0.50 sat-1   r0.917 g0.850 b1.838   R/B 2.16
+    wb025 WB0.25 sat-1   r0.956 g0.926 b1.435   R/B 3.02
+    wb000 WB0.00 sat-1   r1.000 g1.000 b1.000   R/B 5.54
+    sat0  WB0.50 sat 0   r0.912 g0.851 b1.872   R/B 2.15
+    satp1 WB0.50 sat+1   r0.915 g0.851 b1.852   R/B 2.15
+  Noise floor, three extra boots of the same 0.50/-1 config: R/B 2.15-2.17, 10.3-14.5% of
+  pixels differ frame to frame. So:
+    1. Grey-world WB is doing nearly all of it. At the shipped 0.50 the blue channel is
+       multiplied by 1.84 on this scene: a warm scene loses ~46% of its red-over-blue
+       ratio (2.16 vs 5.54 with no correction). 0.25 recovers most of it (R/B 3.02).
+    2. Saturation -1 -> 0 -> +1 changes nothing measurable at WB 0.50 (mean channel
+       levels agree to three decimals, pixel difference inside the repeat band). Suspect
+       2 looks inert on this GC0308 driver at this scale -- reported, not "fixed".
+    3. Gamma 2.2 / the 0250 DAC ladder were left untouched, as the task requires.
+  Evidence: mailbox/files/0280/ -- five labelled PNGs, montage.jpg, gains-and-stats.txt,
+  stats.json, per-variant console logs with the raster SHA, flash logs, the gzipped raw
+  rasters, and bench-variant.diff (the bench-only source edit).
+
+  DEVIATION, declared: the task asks for the candidates to be shown on the panel or as
+  captured frames. Nobody was at the bench to look at the panel, and the frame board's
+  console is dead, so the candidates are the exact panel raster rendered to PNG (the
+  pixel data the panel is clocked with), not photographs of the panel. If Stephen wants
+  to pick on the panel instead, flashing each variant is one command per variant
+  (pio run -e freenove-cam -t upload with the knob), ~20 s each; say so and that is the
+  next tick's job.
+
+  DEVIATION, declared: the A/B variants were flashed to the camera board to be measured.
+  The task's proof line ("host-side build only for the A/B firmware variants") was read
+  as "the variants are bench builds, not repo changes" -- nothing was committed to the
+  pool, the variant source lives only in the tick's scratch dir and as a diff in the
+  evidence folder. If the stricter reading was meant (never flash a variant), the A/B is
+  not physically possible and that instruction needs rewording.
+
+  BENCH LEFT AS FOUND: the stock 0261 build is back on the camera board
+  (mailbox/files/0280/restore-0261-check.txt: banner without the knobs line, mirror
+  power-on 1 -> after fix 0, capture shows strength 0.50). No other hardware touched.
+
+  DECISION OWED: pick a combination -- 0.25 (R/B 3.02), 0.00 (R/B 5.54), or another
+  strength between them -- from mailbox/files/0280/montage.jpg. Saturation need not be
+  touched given finding 2. On his word the change is one line in freenove-cam/src/main.cpp
+  (WB_STRENGTH), then a fresh shoot of his scene with the mirror check re-run.
 expect-reply-within: 6h
 claimed_by: "cronrunner/c0be50a686c6"
 claimed_at: "2026-11-28T03:00:50+00:00"
-lease_until: "2026-11-28T04:30:50+00:00"
 ---
+
 
 # 0280 — Live-photo colour: find the warmer look again (drafted as 0269)
 

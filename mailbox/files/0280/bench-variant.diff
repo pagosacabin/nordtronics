@@ -1,0 +1,63 @@
+--- cam-0261/src/main.cpp	2026-11-27 20:16:51.446242460 -0700
++++ cam-ab/src/main.cpp	2026-11-27 20:02:36.694511484 -0700
+@@ -44,6 +44,10 @@
+ #ifndef WB_STRENGTH
+ #define WB_STRENGTH 0.5f
+ #endif
++/* 0280 bench A/B: saturation is the driver's -2..+2 scale, neutral 0. */
++#ifndef SAT_LEVEL
++#define SAT_LEVEL -1
++#endif
+ 
+ typedef struct { uint8_t lo, hi, thr; } qstep_t;
+ static qstep_t s_q[3][256];
+@@ -269,7 +273,7 @@
+     if (esp_camera_init(&c) != ESP_OK) return false;
+     sensor_t *s = esp_camera_sensor_get();
+     s->set_brightness(s, 1);
+-    s->set_saturation(s, -1);
++    s->set_saturation(s, SAT_LEVEL);
+     /* 0261: mirror the image at the sensor.  The panel's display path is proven
+      * un-mirrored (convert_photo64.py's transform is a rotation, and the live
+      * raster is published straight), so a backwards text shot can only come
+@@ -390,11 +394,30 @@
+     send_frame();
+ }
+ 
++/* 0280 bench A/B: dump the exact 307,200-byte panel raster (1 byte per pixel,
++ * 6 bits used: R=bits0-1, G=2-3, B=4-5) so the host can compare variants
++ * without a camera pointed at the panel.  Header carries the knobs, the length
++ * and the firmware's own SHA-256 of the buffer; the host verifies the SHA. */
++static void dump_raster(void)
++{
++    if (s_frame == NULL || !s_have_frame) { Serial.println("raster  : no frame captured yet"); return; }
++    char hex[65];
++    sha_hex(s_frame, FB_BYTES, hex);
++    Serial.printf("raster  : BEGIN %u %s wb %.2f sat %d\n", (unsigned)FB_BYTES, hex,
++                  (double)WB_STRENGTH, (int)SAT_LEVEL);
++    Serial.flush();
++    Serial.write(s_frame, FB_BYTES);
++    Serial.flush();
++    Serial.printf("\nraster  : END\n");
++}
++
+ void setup(void)
+ {
+     Serial.begin(115200);
+     delay(200);
+-    Serial.println("\n=== Freenove CAM (0244): waits for SHOOT, sends one frame ===");
++    Serial.println("\n=== Freenove CAM (0244+0280 A/B): waits for SHOOT, sends one frame ===");
++    Serial.printf("knobs   : WB_STRENGTH %.2f, SAT_LEVEL %d, raster dump 'j'\n",
++                  (double)WB_STRENGTH, (int)SAT_LEVEL);
+     s_frame = (uint8_t *)heap_caps_malloc(FB_BYTES, MALLOC_CAP_SPIRAM);
+     if (!s_frame) { Serial.println("no PSRAM for frame"); return; }
+     s_sess = (uint16_t)(esp_random() & 0xFFFF);
+@@ -436,6 +459,8 @@
+         if (ch == 'c' || ch == 'C') { Serial.println("serial  : shoot"); take_shot("serial", true); }
+         if (ch == 'd' || ch == 'D') { dump_ascii(); }
+         if (ch == 'e' || ch == 'E') { Serial.println("serial  : capture only"); take_shot("serial", false); }
++        if (ch == 'j' || ch == 'J') { Serial.println("serial  : capture then dump raster");
++                                      take_shot("serial", false); dump_raster(); }
+     }
+     if (s_shoot) {
+         s_shoot = false;

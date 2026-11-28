@@ -1,0 +1,12 @@
+entry 0x400805e4
+
+=== Freenove CAM (0244): waits for SHOOT, sends one frame ===
+sensor  : power-on state hmirror 1, vflip 0 (reg 0x14)
+sensor  : after fix    hmirror 0, vflip 0 (reg 0x14), write ok
+camera  : pid 0x9b, VGA RGB565, no library on this side
+wifi    : 192.168.1.118 rssi -23 ch 6
+rate    : espnow 24M -> ESP_OK
+link    : peer c4:9e:7e:08:6d:f4 ch 6, waiting for 'FT'
+serial  : capture only
+shoot   : serial, shot 1, warmup 3, wb r 0.929 g 0.847 b 1.768 (strength 0.50), not sent
+
