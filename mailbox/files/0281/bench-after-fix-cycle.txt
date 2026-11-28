@@ -1,0 +1,95 @@
+report from task 0260 (7 record(s), 10049 B):
+
+
+########## PHOTOGRAPH ON THE 64-COLOUR BUILD ##########
+build      : Nov 28 2026 06:02:06
+mode       : 640x480 raster, 1 fb pixel = 1 DAC byte
+boot       : splash -> first card photo (0259: no placeholder image)
+splash     : 307200 B, sha256 d19ef73a8189d5fe1c39ff9eb0a8edcebea5bb73587d4a418c6528607d4e9f16, hold 6000 ms
+framebuffer: 0x3c160998, 307200 B in PSRAM (integrity ok)
+resolution : 640x480 native, 1 fb pixel = 1 DAC byte = 1 output pixel
+colour     : 8 bpp = 64 colours (RGB222 through the 6-bit DAC)
+timing     : pclk 25000000 Hz, h 96+48+640+16, v 2+33+480+10 -> 59.52 Hz configured
+data pins  : bit0=R_LSB/5 bit1=R_MSB/4 bit2=G_LSB/7 bit3=G_MSB/6 bit4=B_LSB/16 bit5=B_MSB/15; hsync 17, vsync 18, both active-low
+panel      : streaming (no_fb, 16-line bounce buffers, 10240 B each)
+splash     : held 6000 ms, holding the logo until the first card photo
+measured   : 60 vsync in 0.996 s -> 60.25 Hz refresh
+fills      : 1801 bounce fills -> 30.0 per frame (expected 30.0)
+sha256     : after 1.0 s streaming: unchanged (framebuffer not disturbed during scanout)
+held       : splash on screen; live loop takes over
+live       : esp-now ch 6, peer f0:16:1d:ae:2b:20
+live       : fold CMD0 R1=0x3f
+live       : SD mounted, SD32G psn=0xc6bd0f92, 30436 MB
+live       : SD library holds 38 frames, next index 58 in /sdcard/LIVE
+swap       : photo requested at px 30720 (raster at line 48/480, vsync 464) -> applied at pos 0 of the next frame in 13620 us (vsync 464), swap #1, mixed lines 0 (a bare pointer store would have mixed 432)
+live       : show 16 (shuffled 1/38)
+splash     : logo buffer released (first photo on the panel)
+swap       : photo requested at px 20480 (raster at line 32/480, vsync 1059) -> applied at pos 0 of the next frame in 13831 us (vsync 1059), swap #2, mixed lines 0 (a bare pointer store would have mixed 448)
+live       : show 5 (shuffled 2/38)
+swap       : photo requested at px 225280 (raster at line 352/480, vsync 1655) -> applied at pos 0 of the next frame in 3647 us (vsync 1655), swap #3, mixed lines 0 (a bare pointer store would have mixed 128)
+live       : show 34 (shuffled 3/38)
+swap       : photo requested at px 286720 (raster at line 448/480, vsync 2250) -> applied at pos 0 of the next frame in 564 us (vsync 2250), swap #4, mixed lines 0 (a bare pointer store would have mixed 32)
+live       : show 17 (shuffled 4/38)
+swap       : photo requested at px 245760 (raster at line 384/480, vsync 2846) -> applied at pos 0 of the next frame in 2624 us (vsync 2846), swap #5, mixed lines 0 (a bare pointer store would have mixed 96)
+live       : show 40 (shuffled 5/38)
+swap       : photo requested at px 20480 (raster at line 32/480, vsync 3443) -> applied at pos 0 of the next frame in 13842 us (vsync 3443), swap #6, mixed lines 0 (a bare pointer store would have mixed 448)
+live       : show 29 (shuffled 6/38)
+swap       : photo requested at px 286720 (raster at line 448/480, vsync 4038) -> applied at pos 0 of the next frame in 575 us (vsync 4038), swap #7, mixed lines 0 (a bare pointer store would have mixed 32)
+live       : show 9 (shuffled 7/38)
+swap       : photo requested at px 245760 (raster at line 384/480, vsync 4634) -> applied at pos 0 of the next frame in 2621 us (vsync 4634), swap #8, mixed lines 0 (a bare pointer store would have mixed 96)
+live       : show 1 (shuffled 8/38)
+swap       : photo requested at px 215040 (raster at line 336/480, vsync 5230) -> applied at pos 0 of the next frame in 4150 us (vsync 5230), swap #9, mixed lines 0 (a bare pointer store would have mixed 144)
+live       : show 37 (shuffled 9/38)
+swap       : photo requested at px 286720 (raster at line 448/480, vsync 5825) -> applied at pos 0 of the next frame in 567 us (vsync 5825), swap #10, mixed lines 0 (a bare pointer store would have mixed 32)
+live       : show 15 (shuffled 10/38)
+swap       : photo requested at px 225280 (raster at line 352/480, vsync 6421) -> applied at pos 0 of the next frame in 3657 us (vsync 6421), swap #11, mixed lines 0 (a bare pointer store would have mixed 128)
+live       : show 20 (shuffled 11/38)
+swap       : photo requested at px 10240 (raster at line 16/480, vsync 7018) -> applied at pos 0 of the next frame in 11143 us (vsync 7019), swap #12, mixed lines 0 (a bare pointer store would have mixed 464)
+live       : show 51 (shuffled 12/38)
+swap       : photo requested at px 286720 (raster at line 448/480, vsync 7613) -> applied at pos 0 of the next frame in 564 us (vsync 7613), swap #13, mixed lines 0 (a bare pointer store would have mixed 32)
+live       : show 53 (shuffled 13/38)
+swap       : photo requested at px 266240 (raster at line 416/480, vsync 8209) -> applied at pos 0 of the next frame in 1582 us (vsync 8209), swap #14, mixed lines 0 (a bare pointer store would have mixed 64)
+live       : show 14 (shuffled 14/38)
+swap       : photo requested at px 194560 (raster at line 304/480, vsync 8805) -> applied at pos 0 of the next frame in 5187 us (vsync 8805), swap #15, mixed lines 0 (a bare pointer store would have mixed 176)
+live       : show 23 (shuffled 15/38)
+swap       : photo requested at px 256000 (raster at line 400/480, vsync 9400) -> applied at pos 0 of the next frame in 2101 us (vsync 9400), swap #16, mixed lines 0 (a bare pointer store would have mixed 80)
+live       : show 57 (shuffled 16/38)
+swap       : photo requested at px 266240 (raster at line 416/480, vsync 9996) -> applied at pos 0 of the next frame in 1583 us (vsync 9996), swap #17, mixed lines 0 (a bare pointer store would have mixed 64)
+live       : show 50 (shuffled 17/38)
+swap       : photo requested at px 10240 (raster at line 16/480, vsync 10593) -> applied at pos 0 of the next frame in 14708 us (vsync 10593), swap #18, mixed lines 0 (a bare pointer store would have mixed 464)
+live       : show 13 (shuffled 18/38)
+swap       : photo requested at px 0 (raster at line 0/480, vsync 11188) -> applied at pos 0 of the next frame in 16351 us (vsync 11189), swap #19, mixed lines 0 (a bare pointer store would have mixed 480)
+live       : show 52 (shuffled 19/38)
+swap       : photo requested at px 235520 (raster at line 368/480, vsync 11784) -> applied at pos 0 of the next frame in 3126 us (vsync 11784), swap #20, mixed lines 0 (a bare pointer store would have mixed 112)
+live       : show 56 (shuffled 20/38)
+swap       : photo requested at px 194560 (raster at line 304/480, vsync 12380) -> applied at pos 0 of the next frame in 5190 us (vsync 12380), swap #21, mixed lines 0 (a bare pointer store would have mixed 176)
+live       : show 21 (shuffled 21/38)
+swap       : photo requested at px 286720 (raster at line 448/480, vsync 12975) -> applied at pos 0 of the next frame in 566 us (vsync 12975), swap #22, mixed lines 0 (a bare pointer store would have mixed 32)
+live       : show 28 (shuffled 22/38)
+swap       : photo requested at px 225280 (raster at line 352/480, vsync 13571) -> applied at pos 0 of the next frame in 3659 us (vsync 13571), swap #23, mixed lines 0 (a bare pointer store would have mixed 128)
+live       : show 18 (shuffled 23/38)
+swap       : photo requested at px 10240 (raster at line 16/480, vsync 14168) -> applied at pos 0 of the next frame in 10599 us (vsync 14169), swap #24, mixed lines 0 (a bare pointer store would have mixed 464)
+live       : show 55 (shuffled 24/38)
+swap       : photo requested at px 10240 (raster at line 16/480, vsync 14764) -> applied at pos 0 of the next frame in 15511 us (vsync 14764), swap #25, mixed lines 0 (a bare pointer store would have mixed 464)
+live       : show 44 (shuffled 25/38)
+swap       : photo requested at px 235520 (raster at line 368/480, vsync 15359) -> applied at pos 0 of the next frame in 3122 us (vsync 15359), swap #26, mixed lines 0 (a bare pointer store would have mixed 112)
+live       : show 10 (shuffled 26/38)
+swap       : photo requested at px 174080 (raster at line 272/480, vsync 15955) -> applied at pos 0 of the next frame in 6212 us (vsync 15955), swap #27, mixed lines 0 (a bare pointer store would have mixed 208)
+live       : show 3 (shuffled 27/38)
+swap       : photo requested at px 256000 (raster at line 400/480, vsync 16550) -> applied at pos 0 of the next frame in 2113 us (vsync 16550), swap #28, mixed lines 0 (a bare pointer store would have mixed 80)
+live       : show 11 (shuffled 28/38)
+swap       : photo requested at px 245760 (raster at line 384/480, vsync 17146) -> applied at pos 0 of the next frame in 2625 us (vsync 17146), swap #29, mixed lines 0 (a bare pointer store would have mixed 96)
+live       : show 41 (shuffled 29/38)
+swap       : photo requested at px 20480 (raster at line 32/480, vsync 17743) -> applied at pos 0 of the next frame in 13842 us (vsync 17743), swap #30, mixed lines 0 (a bare pointer store would have mixed 448)
+live       : show 26 (shuffled 30/38)
+swap       : photo requested at px 10240 (raster at line 16/480, vsync 18339) -> applied at pos 0 of the next frame in 15825 us (vsync 18339), swap #31, mixed lines 0 (a bare pointer store would have mixed 464)
+live       : show 19 (shuffled 31/38)
+swap       : photo requested at px 276480 (raster at line 432/480, vsync 18934) -> applied at pos 0 of the next frame in 1094 us (vsync 18934), swap #32, mixed lines 0 (a bare pointer store would have mixed 48)
+live       : show 39 (shuffled 32/38)
+swap       : photo requested at px 184320 (raster at line 288/480, vsync 19530) -> applied at pos 0 of the next frame in 5669 us (vsync 19530), swap #33, mixed lines 0 (a bare pointer store would have mixed 192)
+live       : show 12 (shuffled 33/38)
+swap       : photo requested at px 0 (raster at line 0/480, vsync 20125) -> applied at pos 0 of the next frame in 16348 us (vsync 20126), swap #34, mixed lines 0 (a bare pointer store would have mixed 480)
+live       : show 35 (shuffled 34/38)
+swap       : photo requested at px 225280 (raster at line 352/480, vsync 20721) -> applied at pos 0 of the next frame in 3661 us (vsync 20721), swap #35, mixed lines 0 (a bare pointer store would have mixed 128)
+live       : show 27 (shuffled 35/38)
+

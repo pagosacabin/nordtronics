@@ -1,0 +1,5 @@
+
+=== Freenove CAM (0244): waits for SHOOT, sends one frame ===
+sensor  : power-on state hmirror 1, vflip 0 (reg 0x14)
+sensor  : after fix    hmirror 0, vflip 0 (reg 0x14), write ok
+camera  : pid 0x9b, VGA RGB565, no library on this side

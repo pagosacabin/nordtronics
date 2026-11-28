@@ -1,0 +1,37 @@
+# 0281 -- what was flashed, and what the board reports
+
+Deliverable image
+  tree      hermes/0281-skip-zero-length-files @ d46a6967a251315ea2f6f4c784bc0858e8a64e67
+  env       pio run -e n16r8-photo
+  sha256    583eeecb76b04a115487ee8f182be39867b1b090cb5d26b45450864bdbcfcde0
+  upload    pio run -e n16r8-photo -t upload --upload-port /dev/ttyUSB1
+            -> "Wrote 1519168 bytes ... at 0x00010000", "Hash of data verified."
+
+Read-back of the app on the printed board
+  $ esptool.py --chip esp32s3 --port /dev/ttyUSB1 --baud 460800 \
+      verify_flash 0x10000 .pio/build/n16r8-photo/firmware.bin
+  Verifying 0x172e40 (1519168) bytes @ 0x00010000 in flash against .pio/build/n16r8-photo/firmware.bin...
+  -- verify OK (digest matched)
+
+Board's own boot stamp, read from the report partition after the flash
+  build      : Nov 28 2026 06:02:06
+  mode       : 640x480 raster, 1 fb pixel = 1 DAC byte
+
+Build that was on the board BEFORE this task (step 1 of the task: confirm the
+current build and the branch it came from).  Read back 0x10000..0x190000 and
+compared with a build of the task's base tree (hermes/0277-sd-error @ 9bbdef8):
+92 differing bytes in 1.5 MB, every one of them metadata -- the app-description
+version string ("b5c0f52-dirty"), the 13:45:33 / Nov 27 2026 build stamp in both
+copies, and the segment SHA-256.  So the board carried the 0277 tree (0261's
+mirror fix + 0277's SD-error path), built at Nov 27 13:45:32 with the worktree
+dirty -- i.e. exactly the build 0277's staged reply describes flashing.
+
+Camera board (unchanged by this task, checked because criterion 3 asks about the
+0261 mirror fix, which lives in the camera firmware):
+  $ esptool.py --chip esp32 --port /dev/ttyUSB0 --baud 460800 \
+      verify_flash 0x10000 <wt/0280 ... freenove-cam/firmware.bin>
+  -- verify OK (digest matched)
+  i.e. the camera still carries 0280's build, sha256 c7d3cf35adb3f0c15182fc225aaa41a6666b0fa8366a8d745723f997e7faf540,
+  whose own boot line (camera-console.txt) is:
+  sensor  : power-on state hmirror 1, vflip 0 (reg 0x14)
+  sensor  : after fix    hmirror 0, vflip 0 (reg 0x14), write ok
