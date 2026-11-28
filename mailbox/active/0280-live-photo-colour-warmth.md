@@ -4,11 +4,9 @@ status: in_progress
 iteration: 2
 proof: []
 notes: |
-  DECISION MADE by Stephen 2026-11-27 20:53 MST (see DECISION MADE below) -- implement
-  WB_STRENGTH 0.00. The A/B is done and photographed; the task's own criterion 2
-  ("Stephen has picked a combination by eye, it is implemented, and a fresh shoot shows
-  the warmer look") can now be satisfied by the next tick, so proceed to implement and
-  stage the reply.
+  DECISION MADE by Stephen 2026-11-28 05:15 MST (see DECISION MADE below) -- stage on the
+  A/B evidence; no lit fresh shoot needed. WB_STRENGTH 0.00 is implemented (see below).
+  Stage the reply with the gains, his pick, and the A/B evidence.
 
   A/B DONE (bench, 2026-11-27 20:05-20:20 MST). Camera board = Freenove ESP32-Wrover CAM
   (GC0308, pid 0x9b) on /dev/ttyUSB0 -- note this bench enumerates the camera on ttyUSB0
@@ -122,6 +120,11 @@ notes: |
   verify_flash digest matched) and it boots with strength 0.00, hmirror 1 -> 0. No code change is
   pending; the next tick that finds the scene lit finishes this in ~3 min.
   Evidence: mailbox/files/0280/shoot-0315-check.txt.
+
+  DECISION MADE (Stephen, 2026-11-28 05:15 MST): stage it on the A/B evidence. The A/B
+  pair (same scene, same session, R/B 2.16 at WB 0.50 vs 5.54 at WB 0.00) answers it --
+  no lit fresh shoot needed. Stage the reply with the gains, his pick (WB 0.00), the A/B
+  evidence, and the note that the lit fresh shoot was skipped on his word.
 
 expect-reply-within: 6h
 claimed_by: "cronrunner/c0be50a686c6"
