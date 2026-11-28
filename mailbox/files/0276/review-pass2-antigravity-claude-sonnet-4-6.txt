@@ -1,0 +1,62 @@
+# Antigravity substitute review pass 2 -- model claude-sonnet-4-6
+# agy status=SUCCESS duration=42.2s turns=1 usage={"input_tokens": 18687, "output_tokens": 1446, "thinking_tokens": 0, "cache_read_tokens": 16664, "total_tokens": 20133}
+# conversation=71fc6321-b253-42d9-aebb-b661147fd869
+
+## Pass-2 Review
+
+### Pass-1 Findings — Resolution Status
+
+**1. Move string not length-capped before `is_legal`**
+**RESOLVED** — `server.py:370` checks `len(move) > _MAX_MOVE` (64 chars) before calling `pc.is_legal`. `local_api.py:188` also caps at 64 on the server side.
+
+**2. Plain http allowed for RFC-1918 addresses**
+**RESOLVED** — `server.py:55–61` `_LOOPBACK_RE` now permits only `localhost`, `127.x.x.x`, and `[::1]`. RFC-1918 ranges are explicitly blocked; comment at line 52–54 confirms intent.
+
+**3. Client-supplied `position` sent verbatim in the move POST**
+**RESOLVED** — `server.py:392–398` POSTs only `{game_id, move, from_digest}`. No client-supplied `position` field is forwarded.
+
+**4. `/api/new` body left unread in `local_api.py`**
+**RESOLVED** — `local_api.py:168` now calls `_read_json()` for the `/api/new` path and returns 400 on malformed input before creating the game.
+
+**5. `/tmp` store visible to other users**
+**RESOLVED** — `local_api.py:65–66` creates the store directory with `mode=0o700` and immediately `os.chmod`s it to `0o700`.
+
+**6. Silent fallback to local stub when env var is unset**
+**RESOLVED** — `server.py:67–71` now logs a `WARNING` message explicitly naming the fallback URL and instructing the operator to set a real `https://` base. It is still a fallback (not an error), but it is no longer silent.
+
+**7. Partial success dict / dependencies not pinned**
+- Partial-success: **RESOLVED** — `_build_game_response` at `server.py:158–161` now returns `{"error": …}` on normalisation failure rather than a partial dict.
+- Dependencies pinned: **RESOLVED** — `requirements.txt:1` pins `mcp==2.0.0`.
+
+---
+
+### Pass-1 Checklist (PASS/FAIL)
+
+| # | Finding | Verdict |
+|---|---------|---------|
+| 1 | Move length cap before `is_legal` | **PASS** |
+| 2 | RFC-1918 http blocked | **PASS** |
+| 3 | `position` not forwarded in move POST | **PASS** |
+| 4 | `/api/new` body consumed | **PASS** |
+| 5 | `/tmp` store mode 0700 | **PASS** |
+| 6 | Env-var fallback no longer silent | **PASS** |
+| 7 | Fail-closed on bad position + deps pinned | **PASS** |
+
+---
+
+### New Findings
+
+**N1 (MEDIUM) — `README.md:84` documents `position` in the move request body, but `server.py` does not send it**
+The API contract table in the README shows `{game_id, move, position, from_digest}` as the move request shape. The actual POST at `server.py:392–398` omits `position`. An operator writing their own backend from the README will expect and store a client-supplied position, re-opening finding #3 against any compliant-to-spec implementation. The spec and the code must agree.
+
+**N2 (LOW) — `_get_api_base` fallback is called on every tool invocation; the warning fires repeatedly**
+`server.py:63–76` calls `os.environ.get(...)` fresh each call and logs a `WARNING` on every invocation when the var is unset. Under normal MCP usage this spams stderr per tool call. A module-level cached call (or a `log.warning` call with `stacklevel` or a flag) would avoid the noise. Not a security issue, but an operational nuisance.
+
+**N3 (NIT) — `local_api.py:216` default `store` argument hard-codes `/tmp/pc-games` in the function signature**
+Finding #5 fixed the runtime `os.makedirs` permissions, but the `serve()` function's default parameter at line 216 still names `/tmp/pc-games`, meaning any caller who omits `store=` will use a world-visible-path name without necessarily knowing they need to pass a private path. The fix is cosmetic (remove the default or document it), but it slightly undermines the intent of finding #5's fix.
+
+---
+
+**Verdict: FIX**
+
+(N1 is a spec/implementation mismatch that could cause a backend developer to re-introduce finding #3; must be corrected before shipping.)

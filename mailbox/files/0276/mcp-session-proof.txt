@@ -1,0 +1,139 @@
+initialized: server=pocket-conquest protocol=2025-11-25
+[PASS] three tools advertised -- get_game,list_legal_moves,make_move
+[PASS] tool descriptions carry the rules -- each description names the game, the grid and the move grammar
+[PASS] get_game('') creates a test game -- 89174a3ef690bbbe
+[PASS] get_game(id) reports side to move, gold, armies and the board -- side_to_move=S gold={'S': 10, 'R': 10}
+[PASS] list_legal_moves matches the engine exactly -- 12 moves, engine 12
+[PASS] make_move('M B5 B4 1') lands in the game JSON -- moves=['M B5 B4 1'] side_to_move=S (the move alone does not hand the turn over; END does)
+[PASS] the API-side state is the position the engine produced -- digest equal
+[PASS] an illegal move is refused and nothing is stored -- error="Move 'M A1 A2 9' is not legal for S (the side to move) in this position. Call list_legal_moves to see valid options."
+[PASS] END collects income and passes the turn to R -- side_to_move=R turn=None
+[PASS] a move for the side not to move is refused -- error="Move 'M B5 B4 1' is not legal for R (the side to move) in this position. Call list_legal_moves to see valid options."
+[PASS] a move on a finished game is refused -- error='Game b2c446031e8d98d7 is already finished (winner: S).'
+[PASS] malformed move and malformed game id are refused -- move_error="Move 'take the town' is not legal for R (the side to move) in this position. Call list_legal_moves to see valid options." id_error="game_id must match [A-Za-z0-9_-]{1,64} (got '../../etc/passwd')"
+
+--- final game JSON (API side) ---
+{
+  "game_id": "89174a3ef690bbbe",
+  "status": "active",
+  "side_to_move": "R",
+  "winner": null,
+  "position": {
+    "side": "R",
+    "gold": {
+      "S": 17,
+      "R": 10
+    },
+    "turn": 1,
+    "grid": {
+      "A1": {
+        "terrain": "plain",
+        "owner": null,
+        "town": null,
+        "capital": null,
+        "armies": 0,
+        "moved": false,
+        "built": false,
+        "built_armies": 0
+      },
+      "B1": {
+        "terrain": "hill",
+        "owner": null,
+        "town": null,
+        "capital": null,
+        "armies": 0,
+        "moved": false,
+        "built": false,
+        "built_armies": 0
+      },
+      "C1": {
+        "terrain": "plain",
+        "owner": null,
+        "town": null,
+        "capital": null,
+        "armies": 0,
+        "moved": false,
+        "built": false,
+        "built_armies": 0
+      },
+      "D1": {
+        "terrain": "town",
+        "owner": null,
+        "town": {
+          "name": "Northford",
+          "militia": 1
+        },
+        "capital": null,
+        "armies": 0,
+        "moved": false,
+        "built": false,
+        "built_armies": 0
+      },
+      "E1": {
+        "terrain": "capital",
+        "owner": "R",
+        "town": null,
+        "capital": "R",
+        "armies": 3,
+        "moved": false,
+        "built": false,
+        "built_armies": 0
+      },
+      "F1": {
+        "terrain": "hill",
+        "owner": null,
+        "town": null,
+        "capital": null,
+        "armies": 0,
+        "moved": false,
+        "built": false,
+        "built_armies": 0
+      },
+      "A2": {
+        "terrain": "plain",
+        "owner": null,
+        "town": null,
+        "capital": null,
+        "armies": 0,
+        "moved": false,
+        "built": false,
+        "built_armies": 0
+      },
+      "B2": {
+        "terrain": "plain",
+        "owner": null,
+        "town": null,
+        "capital": null,
+        "armies": 0,
+        "moved": false,
+        "built": false,
+        "built_armies": 0
+      },
+      "C2": {
+        "terrain": "hill",
+        "owner": null,
+        "town": null,
+        "capital": null,
+        "armies": 0,
+        "moved": false,
+        "built": false,
+        "built_armies": 0
+      },
+      "D2": {
+        "terrain": "plain",
+        "owner": null,
+        "town": null,
+        "capital": null,
+        "armies": 0,
+        "moved": false,
+        "built": false,
+        "built_armies": 0
+      },
+      "E2": {
+        "terrain": "plain",
+        "owner": null,
+        
+
+test game id: 89174a3ef690bbbe (store /home/astroboy/.hermes/profiles/cronrunner/cache/scratch/pc-proof-games, delete the file to remove it)
+
+12/12 checks passed

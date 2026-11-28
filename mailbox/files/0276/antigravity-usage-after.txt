@@ -1,0 +1,4 @@
+# Antigravity quota meter (agy -p '/usage') after the build + review work, 2026-11-27T17:50:07-07:00
+Gemini Models	Weekly Limit Remaining	1%	2026-12-04T15:02:05Z
+Claude and GPT models	Weekly Limit Remaining	0%	2026-12-04T20:13:28Z
+Claude and GPT models	Five Hour Limit Remaining	disabled	

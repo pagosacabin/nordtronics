@@ -1,0 +1,7 @@
+# Copilot locked-lane availability probe, 2026-11-27T17:39:16-07:00
+
+ ! You've used all your Copilot Free chat requests for the month. Your quota resets on Nov 30 at 5 PM. Upgrade your plan for access to premium models and the Copilot Coding Agent.                    ┃
+ ✗ You have exceeded your monthly quota (Request ID: 37C2:160457:169FCF3:18DE178:6B09BB48)                                                                                                             ┃
+ ✗ You have exceeded your monthly quota (Request ID: 768A:379BED:15B8763:184F51D:6B09E43E)                                                                                                             ┃
+ ✗ You have exceeded your monthly quota (Request ID: 00000-c928d8c3-4fce-4d5f-8036-13995e3ba537)                                                                                                       ┃
+ ~ [⎇ fix-shell-env]                                                                                                                                                           Session: 138.23 AIC used

@@ -1,0 +1,14 @@
+# Antigravity substitute review pass 3 -- model gemini-3.8-flash-high (Claude/GPT pool exhausted)
+# agy status=SUCCESS duration=57.7s turns=1 usage={"input_tokens": 32350, "output_tokens": 7146, "thinking_tokens": 6459, "cache_read_tokens": 82380, "total_tokens": 39496}
+# conversation=55b6d4af-f9e8-4a74-9346-7adcbffea990
+
+### Previous Fixes Verification
+
+- **N1 (move-request contract matches `make_move` payload):** **RESOLVED** ([README.md:84](file:///home/astroboy/wt/0276-mcp/pocket-conquest-mcp/README.md#L84), [server.py:405-411](file:///home/astroboy/wt/0276-mcp/pocket-conquest-mcp/server.py#L405-L411)) – `README.md` documents `{game_id, move, from_digest}`, matching what `server.py` POSTs.
+- **N2 (unset-env fallback warning fires once per process):** **RESOLVED** ([server.py:73-89](file:///home/astroboy/wt/0276-mcp/pocket-conquest-mcp/server.py#L73-L89)) – cached via `_API_BASE_RESOLVED` and resolved on the first call to `_get_api_base()`.
+- **N3 (default store avoids world-readable `/tmp`):** **RESOLVED** ([local_api.py:65-66, 216-218](file:///home/astroboy/wt/0276-mcp/pocket-conquest-mcp/local_api.py#L65-L66)) – defaults to `~/.cache/pocket-conquest-standin/games` created with mode `0700`.
+
+### New Defects (HIGH / MEDIUM)
+none
+
+Verdict: SHIP

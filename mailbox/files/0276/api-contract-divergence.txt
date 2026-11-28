@@ -1,0 +1,26 @@
+# Pocket Conquest game-API contract: two shapes named by two tasks
+
+0276 (this task) names the contract:
+
+  POST /pocket-conquest/api/new
+  POST /pocket-conquest/api/move
+  GET  /pocket-conquest/games/<id>.json
+
+0279, filed by Juno the same morning (mailbox/inbox/0279-pocket-conquest-games-api.md, lines
+14-18), says the LIVE page at https://nordtronics.io/pocket-conquest/ actually calls:
+
+  POST {base}/games                 create a game
+  POST {base}/games/{id}/move       submit a turn
+  GET  {base}/games/{id}            poll the game JSON until Juno's reply lands
+
+Both are against the same base URL (https://home.tail2bff3f.ts.net/pocket-conquest -> the 0275
+bridge on 127.0.0.1:8767), and 0279 states that /games does not exist yet ("POST/OPTIONS to
+{base}/games hang/time out").
+
+Consequence for this task: the MCP server is built against the shape 0276 specifies, and the
+stand-in implements exactly that shape. If the VPS API ends up being built to the page's /games
+shape (which is what the browser actually calls, so it is the one that must exist), the MCP
+server's three URL constants and the response field names are the only things that need to move;
+the rules engine, validation, refusal paths and proof harness are unaffected. This is flagged for
+Juno rather than resolved unilaterally: 0279 owns the /games contract, and 0276 says explicitly
+not to guess the shapes.

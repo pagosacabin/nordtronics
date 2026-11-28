@@ -1,0 +1,66 @@
+# Antigravity substitute review pass 1 -- model claude-sonnet-4-6
+# agy status=SUCCESS duration=212.4s turns=1 usage={"input_tokens": 16355, "output_tokens": 1855, "thinking_tokens": 0, "cache_read_tokens": 38454, "total_tokens": 18210}
+# conversation=63e63723-f6ba-4917-8fb5-b1b613416c12
+
+## Security Review: `pocket-conquest-mcp`
+
+---
+
+### Checklist
+
+**1. No hardcoded secrets, tokens or keys.**
+> **PASS** — No credentials, tokens or keys anywhere in either file. API base URL is env-var driven (`POCKET_CONQUEST_API_BASE`). `server.py:5`, `server.py:65`.
+
+**2. Inputs bounds-checked (game ids, move strings, request bodies, response sizes).**
+> **PASS (with caveat — see Finding #1)** — `game_id` gated by `_GAME_ID_RE` on both sides (`server.py:73`, `local_api.py:46`); HTTP responses capped at 64 KiB (`_MAX_BODY`, `server.py:74`); local API caps body reads at `MAX_BODY` (`local_api.py:45`); local API validates `move` ≤ 64 chars (`local_api.py:181`). **However**, `server.py` sends the `move` string to the API with no length cap before the `is_legal` check (see Finding #1).
+
+**3. Auth on every endpoint — or an explicit, correct reason it is unnecessary here.**
+> **PASS** — No auth headers sent or required. The server speaks stdio (no port); the only network peer is the game API, which is either HTTPS with implicit server auth via TLS certificate, or a localhost-only test stub. The threat model is correct: `server.py:7-8`.
+
+**4. TLS is the transport off-box (no plain-http to a remote host).**
+> **PASS** — `_get_api_base()` enforces: `https://` is always accepted; plain `http://` is accepted only when the host matches loopback or RFC-1918 ranges. Any other URL returns `None` and the tool fails closed. `server.py:63-70`.
+
+**5. Least privilege (file writes, subprocesses, environment, listening sockets).**
+> **PASS** — `server.py` opens no files, spawns no subprocesses, and binds no sockets. `local_api.py` refuses to bind a non-loopback address (`local_api.py:221-223`), writes only inside `--store` (default `/tmp/pc-games`), and uses atomic `os.replace` (`local_api.py:93`).
+
+**6. Errors fail closed (no silent fallback that plays a different move or reports success).**
+> **PASS** — Every error path returns `{"error": ...}`; `make_move` performs a post-submission digest comparison and returns an error if they don't match (`server.py:415-422`). No path silently succeeds on a backend error.
+
+**7. Dependencies pinned / no unpinned install path.**
+> **FAIL** — No `requirements.txt`, `pyproject.toml`, or lockfile is present in the reviewed scope. The `mcp` package is imported without a pinned version constraint anywhere visible (`server.py:40`). A supply-chain substitution or unintended upgrade could alter MCP wire behaviour.
+
+---
+
+### Additional Findings
+
+**1. MEDIUM — `move` string not length-capped before `is_legal` call in `server.py`**
+`server.py:360-370`: the only pre-filter is `move.strip()` being non-empty. An adversarial MCP client can pass an arbitrarily long `move` string directly to `pc.is_legal()` before the network call. Depending on how the rules engine parses it, this could trigger a ReDoS or excessive memory use.
+**Fix:** add `if len(move) > 128: return {"error": "move too long"}` before `server.py:364`.
+
+**2. MEDIUM — `_LOOPBACK_RE` admits all RFC-1918 space for plain HTTP, not just true loopback**
+`server.py:57-59`: `10/8`, `172.16-31/12`, and `192.168/16` are all allowed with plain `http://`. RFC-1918 addresses are reachable from other LAN hosts; intercepting traffic on a shared/VM network is trivially possible. The docstring says "loopback" but the range is much wider.
+**Fix:** Restrict plain HTTP to `127.0.0.0/8` and `::1` only; require HTTPS for RFC-1918 addresses.
+
+**3. MEDIUM — `position` field sent verbatim to the API in `make_move`**
+`server.py:385`: the client-computed `new_pos` is included in the POST body. The server-side stand-in ignores it (it recomputes from the engine), but if the live API trusts this field it becomes an arbitrary state-injection vector.
+**Fix:** Remove `"position": new_pos` from the POST payload; the server should compute new state itself. If the live API requires it, document that the API must not trust the client-supplied position.
+
+**4. LOW — `/pocket-conquest/api/new` reads body in local API but ignores it completely**
+`local_api.py:164-167`: `do_POST` does not call `_read_json()` for the `NEW_PATH` branch; the request body is left unread. For keep-alive HTTP/1.1 connections this causes the next request on the same socket to be misframed.
+**Fix:** Add `self._read_json()` (and discard the result) before `self.store.create()`.
+
+**5. LOW — `local_api.py` stores games under `/tmp/pc-games` by default**
+`local_api.py:219`: `/tmp` is world-readable on Linux. Any local process can read (or on some distros delete) game state files.
+**Fix:** Default to a mode-0700 directory under `$XDG_RUNTIME_DIR` or `$HOME/.local/share/pocket-conquest`, or at least `chmod(root, 0o700)` in `Store.__init__`.
+
+**6. LOW — `_get_api_base()` silently falls back to `http://127.0.0.1:8791` when the env var is unset**
+`server.py:65`: if `POCKET_CONQUEST_API_BASE` is not set, the production server silently connects to the local stub. A misconfigured production deployment would succeed with no visible error.
+**Fix:** Require the env var in non-test mode (e.g., log a prominent warning or raise if `POCKET_CONQUEST_API_BASE` is absent).
+
+**7. NIT — `_build_game_response` suppresses `pc.normalise_position` exceptions with only a WARNING**
+`server.py:151-153`: when normalisation fails, `pos` is set to `None` and the function returns a partial response with empty `board`, `legal_moves`, etc. — without an `"error"` key. The caller cannot distinguish this from a valid but blank position.
+**Fix:** Return `{"error": "..."}` on normalisation failure rather than a partial success dict.
+
+---
+
+`Verdict: FIX`
