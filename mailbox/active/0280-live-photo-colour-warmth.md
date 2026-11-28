@@ -114,6 +114,15 @@ notes: |
   WB-0.50 control, deliverable restore); every capture resets the board over DTR/RTS. Frame
   board (ttyUSB1) untouched. Nothing merged and nothing added to the pool.
   Evidence: mailbox/files/0280/ (README.md carries the file table).
+  RE-PROBED 2026-11-28 03:15 MST -- STILL UNLIT; no stage, nothing changed in the deliverable.
+  Flashed the measurement build (deliverable + 'j' dump, sha d091e67e), shot, and the frame is the
+  same fixed dark frame as 21:06: mean panel level 0.062/0.062/0.062, two distinct byte values
+  (288000 at level 0, 19200 at level 1), R/G/B histograms identical, R/B 0.98. Criterion 2's
+  visual half still has no colour to judge. Board restored to the deliverable (sha c7d3cf35,
+  verify_flash digest matched) and it boots with strength 0.00, hmirror 1 -> 0. No code change is
+  pending; the next tick that finds the scene lit finishes this in ~3 min.
+  Evidence: mailbox/files/0280/shoot-0315-check.txt.
+
 expect-reply-within: 6h
 claimed_by: "cronrunner/c0be50a686c6"
 claimed_at: "2026-11-28T03:00:50+00:00"

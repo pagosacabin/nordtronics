@@ -1,0 +1,103 @@
+0280 re-probe at 2026-11-28 03:15 MST -- is the scene lit?
+
+Board image at start of run: esptool read_flash/verify showed an 827584-byte app that
+matched none of the scratch bins; identified as the deliverable by the restore below.
+esptool verify_flash 0x10000 <deliverable c7d3cf35> after restore: digest matched.
+
+== board before (deliverable, boot + 'e') ==
+sensor  : power-on state hmirror 1, vflip 0 (reg 0x14)
+sensor  : after fix    hmirror 0, vflip 0 (reg 0x14), write ok
+wifi    : 192.168.1.118 rssi -24 ch 6
+link    : peer c4:9e:7e:08:6d:f4 ch 6, waiting for 'FT'
+serial  : capture only
+shoot   : serial, shot 1, warmup 3, wb r 1.000 g 1.000 b 1.000 (strength 0.00), not sent
+
+== measurement build flashed (deliverable + 'j' raster dump, sha d091e67e) ==
+esptool write_flash 0x10000 cam-final/.pio/build/freenove-cam/firmware.bin -> Hash of data verified.
+
+== fresh raster, 03:15 MST ==
+wb=0.00 sat=shipped
+fw_sha=b3c6fae13ef3370f5d8b6308f70654e0c07465fb516bd74ef85a5e76e09c72ed
+host_sha=b3c6fae13ef3370f5d8b6308f70654e0c07465fb516bd74ef85a5e76e09c72ed
+len=307200
+match=True
+shoot   : serial, shot 1, warmup 3, wb r 1.000 g 1.000 b 1.000 (strength 0.00), not sent
+raster  : BEGIN 307200 b3c6fae13ef3370f5d8b6308f70654e0c07465fb516bd74ef85a5e76e09c72ed wb 0.00
+raster  : END
+
+== conv.py stats (now = 03:15 shoot, base = 20:05 A/B reference) ==
+{
+ "now": {
+  "mean_levels": [
+   0.062,
+   0.062,
+   0.062
+  ],
+  "mean_linear": [
+   0.00706,
+   0.00819,
+   0.00722
+  ],
+  "r_over_b": 0.977,
+  "warmth_rb_gain": 0.862,
+  "levels": {
+   "R": [
+    288000,
+    19200,
+    0,
+    0
+   ],
+   "G": [
+    288000,
+    19200,
+    0,
+    0
+   ],
+   "B": [
+    288000,
+    19200,
+    0,
+    0
+   ]
+  }
+ },
+ "base": {
+  "mean_levels": [
+   2.244,
+   0.981,
+   1.018
+  ],
+  "mean_linear": [
+   0.55833,
+   0.19302,
+   0.25865
+  ],
+  "r_over_b": 2.159,
+  "warmth_rb_gain": 2.893,
+  "levels": {
+   "R": [
+    8574,
+    36374,
+    133852,
+    128400
+   ],
+   "G": [
+    112440,
+    110394,
+    62200,
+    22166
+   ],
+   "B": [
+    146831,
+    68373,
+    31718,
+    60278
+   ]
+  }
+ }
+}
+Verdict: still dark. Mean panel level 0.062/0.062/0.062, only two distinct byte values
+(288000 at level 0, 19200 at level 1), R/G/B histograms identical -- the same fixed dark
+frame the 21:06 shoot produced, so there is no colour in the scene to judge. No stage.
+Board left as found: deliverable build (sha c7d3cf35) re-flashed, digest verified,
+boot shows strength 0.00 and hmirror 1 -> 0 (0261 fix intact).
