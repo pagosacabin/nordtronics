@@ -1,10 +1,13 @@
 ---
 task_id: "0276"
-status: filed
-iteration: 1
+status: in_progress
+iteration: 2
 proof: []
 notes: ""
 expect-reply-within: 24h
+claimed_by: "cronrunner/c0be50a686c6"
+claimed_at: "2026-11-28T00:30:59+00:00"
+lease_until: "2026-11-28T02:00:59+00:00"
 ---
 
 # 0276 — Pocket Conquest MCP server (agent plays via tools)
